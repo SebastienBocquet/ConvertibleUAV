@@ -21,7 +21,12 @@
 
 #include "defines.h"
 
+int16_t aileronbgain;
+int16_t elevatorbgain;
+int16_t rudderbgain;
+
 void applyManoeuvres(void)
+//update controls with current_manoeuvreValues. if manoeuvreValue = -RMAX, the manoeuvre is disabled.
 {
     if (flags._.manoeuvre == 1)
     {
@@ -37,10 +42,6 @@ void applyManoeuvres(void)
 //	Otherwise, use the trim pulse width measured during power up.
 //
 //	Mix computed roll and pitch controls into the output channels for the compiled airframe type.
-
-int16_t aileronbgain;
-int16_t elevatorbgain;
-int16_t rudderbgain;
 
 void servoMix(void)
 {
@@ -201,7 +202,6 @@ void servoMix(void)
 		udb_pwOut[PASSTHROUGH_D_OUTPUT_CHANNEL] = udb_servo_pulsesat(pwManual[PASSTHROUGH_D_INPUT_CHANNEL]);
 }
 
-#if (USE_SONAR == 1)
 void sonarServoMix(void)
 {
 	int32_t temp;
@@ -211,7 +211,6 @@ void sonarServoMix(void)
 	temp = cam_pitchServoLimit(temp);
 	udb_pwOut[SONAR_PITCH_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp + 3000);
 }
-#endif
 
 void cameraServoMix(void)
 {

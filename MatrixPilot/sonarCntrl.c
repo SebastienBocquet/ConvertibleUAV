@@ -26,8 +26,6 @@
 #define SONAR_PITCH_SERVO_HIGH_RATIO  ((2000.0 / ((SONAR_PITCH_SERVO_THROW / 360.0) * 65536.0)) * 65536.0)
 #define SONAR_PITCH_SERVO_RATIO        (2000.0 / ((SONAR_PITCH_SERVO_THROW / 360.0) * 65536.0)) 
 
-int16_t sonar_pitch_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera pitch servo
-
 const int16_t sonar_pitch_servo_high_ratio = SONAR_PITCH_SERVO_HIGH_RATIO;
 
 // Note that most angles in cameraCntrl.c are 16 bit quantities
@@ -70,7 +68,6 @@ void sonarCntrl(void)
 		// set sonar to default position
 		// Pitch Servo
 		sonar_pitch_servo_pwm_delta = sonar_pitch_offset_pwm;
-
     }   
 #endif
 }

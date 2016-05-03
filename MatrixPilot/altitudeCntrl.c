@@ -121,8 +121,6 @@ const uint16_t hoverthrottleacczkp = (uint16_t)(HOVER_ACCZKP*COEF_SCALING);
 const uint16_t hoverthrottleacczki = (uint16_t)(HOVER_ACCZKI*COEF_SCALING);
 #endif
 
-extern uint16_t udb_pwm_sonar ;				// Raw pwm units from sonar device
-
 int16_t hover_counter=0;
 int16_t synthetic_throttle_counter=0;
 float z_filtered_flt=0.;
@@ -853,6 +851,7 @@ else
 #define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
 #define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 
 
+uint16_t udb_pwm_sonar;
 unsigned char no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
 int16_t distance_yaw_corr = 0;  //correction of sonar distance in cm, to account for yaw angle of the plane
 

@@ -29,7 +29,9 @@
 
 int16_t pitch_control, roll_control, yaw_control, throttle_control, flap_control;
 uint16_t wind_gain;
-
+int16_t cam_pitch_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera pitch servo
+int16_t cam_yaw_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera yaw servo
+int16_t sonar_pitch_servo_pwm_delta = 0;
 
 void manualPassthrough(void);
 
@@ -59,13 +61,8 @@ void init_servoPrepare(void) // initialize the PWM
 #endif
 
 	cameraInit();
-
-#if (USE_SONAR == 1)
     sonarInit();
-#endif
-
     cameraServoMix();
-
 	
 #if (NORADIO == 1)
 	udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] = udb_pwTrim[MODE_SWITCH_INPUT_CHANNEL] = 4000;
@@ -93,10 +90,8 @@ void dcm_servo_callback_prepare_outputs(void)
 		updateBehavior();
 		wind_gain = wind_gain_adjustment ();
 
-#if (USE_SONAR == 1)
         sonarCntrl();
         sonarServoMix();
-#endif
 
 		rollCntrl();
 		yawCntrl();

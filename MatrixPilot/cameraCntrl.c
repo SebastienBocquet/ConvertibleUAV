@@ -32,9 +32,6 @@
 
 #define CAM_PITCH_TEST_GRANULARITY 0
 
-int16_t cam_pitch_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera pitch servo
-int16_t cam_yaw_servo_pwm_delta   = 0;  // Change in PWM pulse value from centred value (3000) to send to camera yaw servo
-
 const int16_t pitch_servo_high_ratio = PITCH_SERVO_HIGH_RATIO;
 const int16_t yaw_servo_high_ratio   = YAW_SERVO_HIGH_RATIO;
 

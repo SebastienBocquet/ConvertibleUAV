@@ -109,6 +109,7 @@ void sonarServoMix(void);
 // Negate VALUE if NEEDS_REVERSING is true
 #define REVERSE_IF_NEEDED(NEEDS_REVERSING, VALUE) ((NEEDS_REVERSING) ? (-(VALUE)) : (VALUE))
 
+extern uint16_t udb_pwm_sonar ;				// Raw pwm units from sonar device
 extern int16_t sonar_pitch_servo_pwm_delta; 
 extern int16_t cam_pitch_servo_pwm_delta;  
 extern int16_t cam_yaw_servo_pwm_delta;
@@ -282,11 +283,6 @@ void mavlink_output_40hz(void);
 #define SERIAL_MAVLINK      9    // The Micro Air Vehicle Link protocol from the PixHawk Project
 
 ////////////////////////////////////////////////////////////////////////////////
-// sonarCntrl.c
-void sonarCntrl(void);
-void sonarInit(void);
-
-////////////////////////////////////////////////////////////////////////////////
 // cameraCntrl.c
 void set_camera_view(struct relative3D current_view);
 void compute_camera_view(void);
@@ -300,6 +296,10 @@ void camera_live_commit_values(const struct relative3D target);
 
 #define CAM_VIEW_LAUNCH     { 0, 0, 0 }
 
+////////////////////////////////////////////////////////////////////////////////
+// sonarCntrl.c
+void sonarCntrl(void);
+void sonarInit(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 // mp_osd.c

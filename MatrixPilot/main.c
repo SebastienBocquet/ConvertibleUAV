@@ -64,7 +64,28 @@ int main(void)
 	init_behavior();
 	init_serial();
 
+#if (TEST == 1)
+
+    printf("Start self tests\n");
+    float x_filtered = 2.0;
+    int16_t result = exponential_filter(1, &x_filtered, 80., 80);
+	
+	//system("pause");
+
+    FILE* fichier = NULL;
+ 
+    fichier = fopen("test.txt", "w");
+ 
+    if (fichier != NULL)
+    {
+        fprintf(fichier, "result, filtered value : %d %f\n", result, x_filtered);
+        fclose(fichier);
+    }
+
+#else
 	udb_run();
+#endif
+	
 	// This never returns.
 
 	return 0;

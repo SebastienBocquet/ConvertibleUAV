@@ -730,6 +730,8 @@
 #define SILSIM_SERIAL_RC_INPUT_DEVICE       ""          // i.e. "COM4" or "/dev/cu.usbserial-A600dP4v", or "" to disable
 #define SILSIM_SERIAL_RC_INPUT_BAUD         38400
 
+//set to 1 to run self tests instead of time loop
+#define TEST                                1
 
 ////////////////////////////////////////////////////////////////////////////////
 // Flight Plan handling
