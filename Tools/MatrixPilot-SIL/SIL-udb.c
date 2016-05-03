@@ -17,11 +17,11 @@
 #include <Windows.h>
 #include <Time.h>
 
-struct timezone
-{
-	int tz_minuteswest; /* of Greenwich */
-	int tz_dsttime;     /* type of dst correction to apply */
-};
+// struct timezone
+// {
+	// int tz_minuteswest; /* of Greenwich */
+	// int tz_dsttime;     /* type of dst correction to apply */
+// };
 
 int gettimeofday (struct timeval *tp, struct timezone *tzp);
 

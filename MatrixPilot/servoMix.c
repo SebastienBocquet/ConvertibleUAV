@@ -201,6 +201,7 @@ void servoMix(void)
 		udb_pwOut[PASSTHROUGH_D_OUTPUT_CHANNEL] = udb_servo_pulsesat(pwManual[PASSTHROUGH_D_INPUT_CHANNEL]);
 }
 
+#if (USE_SONAR == 1)
 void sonarServoMix(void)
 {
 	int32_t temp;
@@ -210,6 +211,7 @@ void sonarServoMix(void)
 	temp = cam_pitchServoLimit(temp);
 	udb_pwOut[SONAR_PITCH_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp + 3000);
 }
+#endif
 
 void cameraServoMix(void)
 {

@@ -82,7 +82,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set this value to your GPS type.  (Set to GPS_STD, GPS_UBX_2HZ, GPS_UBX_4HZ, or GPS_MTEK)
-#define GPS_TYPE                            GPS_STD 
+#define GPS_TYPE                            GPS_UBX_4HZ
 
 ////////////////////////////////////////////////////////////////////////////////
 // Enable/Disable core features of this firmware
@@ -180,7 +180,7 @@
 #define USE_SONAR_ON_PWM_INPUT_8			1
 
 //Use of barometer for altitude measurement
-#define BAROMETER_ALTITUDE                  1
+#define BAROMETER_ALTITUDE                  0
 #define USE_BARO_BMP085                     1
 #define USE_BARO_MS5611                     0
 
@@ -279,7 +279,7 @@
 #define AILERON_CHANNEL_REVERSED            1
 #define FLAP_CHANNEL_REVERSED               0
 #define ELEVATOR_CHANNEL_REVERSED           1
-#define RUDDER_CHANNEL_REVERSED             1
+#define RUDDER_CHANNEL_REVERSED             0
 #define AILERON_SECONDARY_CHANNEL_REVERSED  0
 #define THROTTLE_CHANNEL_REVERSED           0
 #define SONAR_PITCH_CHANNEL_REVERSED        0
@@ -720,7 +720,7 @@
 // Below are settings to configure the simulated UDB UARTs.
 // The SERIAL_RC_INPUT settings allow optionally talking over a serial port to a UDB
 // passing RC inputs through to the simulated UDB.
-#define SILSIM                              0
+#define SILSIM                              1
 #define SILSIM_GPS_RUN_AS_SERVER            0
 #define SILSIM_GPS_PORT                     14551       // default port to connect to XPlane HILSIM plugin
 #define SILSIM_GPS_HOST                     "127.0.0.1"

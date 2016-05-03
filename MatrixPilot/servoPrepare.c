@@ -59,7 +59,11 @@ void init_servoPrepare(void) // initialize the PWM
 #endif
 
 	cameraInit();
+
+#if (USE_SONAR == 1)
     sonarInit();
+#endif
+
     cameraServoMix();
 
 	
@@ -91,9 +95,9 @@ void dcm_servo_callback_prepare_outputs(void)
 
 #if (USE_SONAR == 1)
         sonarCntrl();
+        sonarServoMix();
 #endif
 
-        sonarServoMix();
 		rollCntrl();
 		yawCntrl();
 		altitudeCntrl();
