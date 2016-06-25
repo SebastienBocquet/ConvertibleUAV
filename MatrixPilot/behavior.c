@@ -91,7 +91,7 @@ void updateBehavior(void)
 	}
 	else if (current_orientation == F_HOVER)
 	{
-		if (canStabilizeHover() && rmat[7] < -8000)
+		if (canStabilizeHover() && rmat[7] < 2730)
 		{
 			current_orientation = F_HOVER;
 		}
@@ -120,7 +120,8 @@ void updateBehavior(void)
 		}
 	}
 //	if (flags._.pitch_feedback && !flags._.GPS_steering)
-    if (flags._.pitch_feedback) //for the moment we want the behavior being determine by plane orientation 
+    //for the moment we want the behavior being determine by plane orientation 
+    if (flags._.pitch_feedback) 
 	{
 		desired_behavior.W = current_orientation;
 	}

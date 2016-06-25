@@ -54,7 +54,7 @@ union longww throttleFiltered = { 0 };
 int16_t aircraft_mass       = AIRCRAFT_MASS;
 int16_t max_thrust          = MAX_THRUST;
 
-int16_t nb_sample_wait = 80;
+int16_t nb_sample_wait = (int16_t)(HEARTBEAT_HZ * WAIT_SECONDS);
 
 int32_t speed_height = 0;
 int16_t pitchAltitudeAdjust = 0;
@@ -538,7 +538,7 @@ void hoverAltitudeCntrl(void)
         hover_counter+=1;
     }
 
-    //determine height to ground (in cm) according to available sensor and validity, and scale
+    //determine height to ground (in cm) according to available sensor and validity
 
     //by default use IMU altitude and velocity
     z=100*IMUlocationz._.W1+50;
@@ -565,7 +565,11 @@ void hoverAltitudeCntrl(void)
     //if sonar is used, use sonar altitude (higher priority in order to accurately control landing)
 #if ( USE_SONAR == 1 )
 
-	calculate_sonar_height_above_ground();
+#if (SILSIM == 1)
+		udb_flags._.sonar_height_valid = 1;
+#else
+    	calculate_sonar_height_above_ground();
+#endif
 	if (udb_flags._.sonar_height_valid)
 	{
         z=sonar_height_to_ground;
@@ -592,28 +596,29 @@ if (flags._.GPS_steering)
 }
 else
 {
-    int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
-    tmp1=limit_value(tmp1, 0, 3823-2233);
+//    int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
+//    tmp1=limit_value(tmp1, 0, 3823-2233);
 
 #if (MANUAL_TARGET_HEIGHT == 1)
 
-    int32_t tmp2 = __builtin_mulss(hovertargetheightmax-hovertargetheightmin, tmp1);
-    z_target = (int16_t)(tmp2/(3823-2233))+hovertargetheightmin;  
+//    int32_t tmp2 = __builtin_mulss(hovertargetheightmax-hovertargetheightmin, tmp1);
+//    z_target = (int16_t)(tmp2/(3823-2233))+hovertargetheightmin;  
+    z_target = hovertargetheightmin;  
 
 #else
 
-    int32_t tmp2 = __builtin_mulss(hovertargetvzmax-hovertargetvzmin, tmp1);
-    vz_target = (int16_t)(tmp2/(3823-2233))+hovertargetvzmin;
+//    int32_t tmp2 = __builtin_mulss(hovertargetvzmax-hovertargetvzmin, tmp1);
+//    vz_target = (int16_t)(tmp2/(3823-2233))+hovertargetvzmin;
+    vz_target = hovertargetvzmin;
 
 #endif // end MANUAL_TARGET_HEIGHT
 }
 
-#if (HILSIM == 1)
+#if (HILSIM == 1 && SILSIM == 0)
 //in HILSIM mode, replace z from sonar or barometer by GPS altitude (GPSlocation.z is in meters)
     z = IMUlocationz._.W1*100+50;
 #endif
 
-    //wait for z, vz and accz to be stable before computing filtering
     target_z_filtered = exponential_filter(z_target, &target_z_filtered_flt, invdeltafiltertargetz, (int16_t)(HEARTBEAT_HZ));
     target_vz_filtered = exponential_filter(vz_target, &target_vz_filtered_flt, invdeltafiltertargetz, (int16_t)(HEARTBEAT_HZ));
 
@@ -682,7 +687,7 @@ else
     //add throttle offset
     throttle_control_pre+=hoverthrottleoffset;
 
-    if (alt_sensor_failure || z < min_hover_alt)
+    if (alt_sensor_failure || z < min_hover_alt || hover_counter <= nb_sample_wait)
 	{
         throttle_control_pre=hoverthrottleoffset;
         //later, use sinusoidal throttle command to visualize failsafe
@@ -728,6 +733,10 @@ else
 
     //limit throttle value
     throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
+
+#if (TEST == 1)
+    printf("z vz accz sonar_height_to_ground throttle_control_pre %d %d %d %d %d\n", z, vz, accz, sonar_height_to_ground, throttle_control_pre );
+#endif
 
     previous_z = z_filtered;
 
@@ -851,7 +860,10 @@ else
 #define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
 #define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 
 
-uint16_t udb_pwm_sonar;
+#if ( USE_SONAR_ON_PWM_INPUT_8	== 0 || SILSIM == 1)
+    uint16_t udb_pwm_sonar = 0;
+#endif
+
 unsigned char no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
 int16_t distance_yaw_corr = 0;  //correction of sonar distance in cm, to account for yaw angle of the plane
 

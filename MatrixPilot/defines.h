@@ -122,6 +122,7 @@ int32_t cam_yawServoLimit(int32_t pwm_pulse);
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2
 extern int16_t sonar_height_to_ground ;		// calculated distance to ground in cm
+extern long barometer_altitude;
 extern int16_t hover_target_z;
 extern int16_t hover_z;
 extern int16_t hover_vz;

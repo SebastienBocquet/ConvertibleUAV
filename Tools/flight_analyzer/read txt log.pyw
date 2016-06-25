@@ -14,78 +14,15 @@ from matplotlib import animation
 import mpl_toolkits.mplot3d.axes3d as p3
 plt.rcParams['animation.ffmpeg_path'] = \
 'E:\\prgm\\ffmpeg\\ffmpeg-20151219-git-2dba040-win64-static\\bin\\ffmpeg.exe'
+from telemetry_lib import *
 
-################################################################
-def read_first_line(textfilename, separator, line_len, var_name, show_header=0):
-
-    ifile  = open(textfilename, "rb")
-    bidon = ifile.readlines()
-
-    index_var=-1
-    for i in range(len(bidon)):
-        line=bidon[i].split(separator)
-        print ('number of variables on line is %d' %len(line))
-        if len(line) == line_len:
-            print line
-            print len(line)
-            if show_header:
-                for j in range(line_len):
-                    print (j, line[j])
-
-            for i in range(len(line)):
-                #print(line[i])
-                if line[i].find(var_name) == 0:
-                    try:
-                        tmp=line[i].split(',')[0]
-                        a=int(tmp[len(var_name):])
-                        index_var=i
-                    except:
-                        pass
-
-        if index_var >= 0:
-            break
-                
-    if index_var==-1:
-        print('could not find %s in log file %s' %(var_name, textfilename))
-        print('please check line length and variable name')
-        sys.exit(1)
-
-    return index_var
-                    
-################################################################
-def read_txt(textfilename, separator, index_col, line_len, var_index):
-
-    ifile  = open(textfilename, "rb")
-    bidon = ifile.readlines()
-    unread_lines=[]
-
-    var=[]
-    for i in range(len(bidon)):
-        line=bidon[i].split(separator)
-        if len(line) == line_len:
-            var.append(line[index_col].rstrip().split(',')[var_index-1])
-        else:
-            if i > 0:
-                var.append(var[i-1])
-            else:
-                var.append(0.)
-            unread_lines.append(i)
-
-    return var, unread_lines
 
 ################################################################
 def norm(x,y,z):
 
     return np.sqrt(x**2+y**2+z**2)
 
-################################################################
-def collect_column(index_start, index_end, step, index_col, data):
 
-    col=[]
-    for i in range(index_start,index_end,step):
-        col.append(float(data[i][index_col]))
-
-    return np.array(col)
 
 
 ################################################################
@@ -156,75 +93,12 @@ def concatenate(arr1, arr2):
     return arr
 
 
-################################################################
-
-def extract_var(list_log, input_dir, line_len, var_name, var_index=1):
-
-    print('extracting variable', var_name)
-
-    ##find index corresponding to var_name
-    index_var=read_first_line('%s\%s%04d%s' %(input_dir, 'LOG0', list_log[0], '.TXT'), ':', line_len, var_name, show_header=0)
-
-    print('index_var', index_var+(var_index-1))
-    
-    var0=np.zeros((0), 'd')
-    #return a list of string corresponding to index_col
-    for i in list_log:
-        print ('%s\%s%04d%s' %(input_dir, 'LOG0', i, '.TXT'))
-        var, unread_lines=read_txt('%s\%s%04d%s' %(input_dir, 'LOG0', i, '.TXT'), ':', index_var, line_len, var_index)
-        for j in range(len(var)):
-            ##print(var[j])
-            try:
-                var[j] = float(var[j].replace(var_name, ''))
-            except:
-            #    unread_lines.append(j)
-                var[j]=0.
-
-        var=np.array(var)
-        var=concatenate(var0, var)
-
-        var0=var
-
-    print('number of unread lines is %d' %len(unread_lines))
-    print('total number of samples is %d' %len(var))
-    print('percentage of unread lines is %d' %int(100*len(unread_lines)/len(var)))
-    #print('unread_lines index', unread_lines)
-
-    return var
-
-###################################
-
-def write(bidon, filename):
-    
-    f=open(filename, 'w')
-    for j in range(bidon.shape[1]):
-        for i in range(bidon.shape[0]-1):
-            f.write('%d;' %bidon[i][j])
-        f.write('%d' %bidon[bidon.shape[0]-1][j])
-        f.write('\n')
-
-    f.close()
-
-
 ###################################
 
 def limit_value(value, limit):
 
     value[np.where(value>limit)]=limit
     value[np.where(value<-limit)]=-limit
-
-###################################
-def find_final_time(test_var, tf, HEARTBEAT_UDB):
-
-    test=extract_var(list_log, input_dir, line_len, test_var)[:]
-    tf_tmp=len(test)/HEARTBEAT_UDB
-
-    print('nb samples', len(test))
-
-    if tf==None:
-        return tf_tmp
-    else:
-        return tf
 
 ###################################
 
@@ -242,7 +116,7 @@ nb_subplot_v=2
 nb_subplot_h=2
 subplot_location=1
 fontsize=12
-line_len=64
+line_len=65
 t0=40
 tf=None
 HEARTBEAT_HZ=80
@@ -282,7 +156,7 @@ MAX_HOVER_RADIUS = 7
 #2034:hovering, max sonar is 150, attempt to go above 150cm, control based on barometer vz, bug due to sonar distance=78cm above 550cm
 
 #test case for hysteresis on rmat5, and decrease of rmat2=6 with rmat8 increase : 2221, 2222
-file_number=2221
+file_number=2252
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -293,14 +167,14 @@ shutil.copy2('%s\\LOG0%04d.TXT' %(input_dir, file_number), 'E:\\projet autoentre
 
 xmin=None
 xmax=None
-file_number_end=file_number
 
-list_log=range(file_number, file_number_end+1)
-tf=find_final_time('cpu', tf, HEARTBEAT_UDB)
+filename='LOG%05d.TXT' %file_number
 
-##imu_z=extract_var(list_log, input_dir, 43, line_len, 'imz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-cpu=extract_var(list_log, input_dir, line_len, 'cpu')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-time=0.001*extract_var(list_log, input_dir, line_len, 'T')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+tf=find_final_time(filename, input_dir, line_len, 'cpu', tf, HEARTBEAT_UDB)
+
+##imu_z=extract_var(filename, input_dir, 43, line_len, 'imz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+cpu=extract_var(filename, input_dir, line_len, 'cpu')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+time=0.001*extract_var(filename, input_dir, line_len, 'T')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
 time_bis=np.zeros((len(time)))
 for i in range(len(time)-8):
@@ -308,79 +182,82 @@ for i in range(len(time)-8):
 
 time=time_bis
 
-imu_accz=extract_var(list_log, input_dir, line_len, 'accz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-##gps_vz=extract_var(list_log, input_dir, 54, line_len, 'gpsvz')[t0*4:tf*4]
-##gps_z=extract_var(list_log, input_dir, 55, line_len, 'gpsz')[t0*4:tf*4]
+imu_accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+##gps_vz=extract_var(filename, input_dir, 54, line_len, 'gpsvz')[t0*4:tf*4]
+##gps_z=extract_var(filename, input_dir, 55, line_len, 'gpsz')[t0*4:tf*4]
 
 if SONAR:
-    sonar_dist=extract_var(list_log, input_dir, line_len, 'sond')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-    sonar_height=extract_var(list_log, input_dir, line_len, 'sonhtg')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+    sonar_dist=extract_var(filename, input_dir, line_len, 'sond')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+    sonar_height=extract_var(filename, input_dir, line_len, 'sonhtg')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 else:
     sonar_dist=np.zeros((len(time)))
     sonar_height=np.zeros((len(time)))
     
 ##sonar_dist=clean_sonar(sonar_dist)
 
-accz=extract_var(list_log, input_dir, line_len, 'accz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-imu_x=extract_var(list_log, input_dir, line_len, 'imx')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-imu_y=extract_var(list_log, input_dir, line_len, 'imy')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-imu_z=extract_var(list_log, input_dir, line_len, 'imz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-imu_vx=extract_var(list_log, input_dir, line_len, 'tx')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-imu_vy=extract_var(list_log, input_dir, line_len, 'ty')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-imu_vz=extract_var(list_log, input_dir, line_len, 'tz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-wind_vx=extract_var(list_log, input_dir, line_len, 'wvx')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-wind_vy=extract_var(list_log, input_dir, line_len, 'wvy')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-wind_vz=extract_var(list_log, input_dir, line_len, 'wvz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+imu_x=extract_var(filename, input_dir, line_len, 'imx')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+imu_y=extract_var(filename, input_dir, line_len, 'imy')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+imu_z=extract_var(filename, input_dir, line_len, 'imz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+imu_vx=extract_var(filename, input_dir, line_len, 'tx')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+imu_vy=extract_var(filename, input_dir, line_len, 'ty')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+imu_vz=extract_var(filename, input_dir, line_len, 'tz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+wind_vx=extract_var(filename, input_dir, line_len, 'wvx')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+wind_vy=extract_var(filename, input_dir, line_len, 'wvy')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+wind_vz=extract_var(filename, input_dir, line_len, 'wvz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-error_z_integral=extract_var(list_log, input_dir, line_len, 'ezi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-error_vz_integral=extract_var(list_log, input_dir, line_len, 'evzi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+error_z_integral=extract_var(filename, input_dir, line_len, 'ezi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+error_vz_integral=extract_var(filename, input_dir, line_len, 'evzi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-target_z=extract_var(list_log, input_dir, line_len, 'tgz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-target_vz=extract_var(list_log, input_dir, line_len, 'tgvz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-target_accz=extract_var(list_log, input_dir, line_len, 'tgaccz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-accz_filt=extract_var(list_log, input_dir, line_len, 'inaccz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-vz_filt=extract_var(list_log, input_dir, line_len, 'invz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-z_filt=extract_var(list_log, input_dir, line_len, 'inz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+target_z=extract_var(filename, input_dir, line_len, 'tgz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+target_vz=extract_var(filename, input_dir, line_len, 'tgvz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+target_accz=extract_var(filename, input_dir, line_len, 'tgaccz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+accz_filt=extract_var(filename, input_dir, line_len, 'inaccz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+vz_filt=extract_var(filename, input_dir, line_len, 'invz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+z_filt=extract_var(filename, input_dir, line_len, 'inz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-##error_x=extract_var(list_log, input_dir, line_len, 'ex')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-##error_x_integral=extract_var(list_log, input_dir, line_len, 'exi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-##error_y=extract_var(list_log, input_dir, line_len, 'ey')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-##error_y_integral=extract_var(list_log, input_dir, line_len, 'eyi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+##error_x=extract_var(filename, input_dir, line_len, 'ex')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+##error_x_integral=extract_var(filename, input_dir, line_len, 'exi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+##error_y=extract_var(filename, input_dir, line_len, 'ey')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+##error_y_integral=extract_var(filename, input_dir, line_len, 'eyi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-throttle=extract_var(list_log, input_dir, line_len, 'p1o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-aileron=extract_var(list_log, input_dir, line_len, 'p2o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-cpu_load=extract_var(list_log, input_dir, line_len, 'cpu')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-waypoint_index=extract_var(list_log, input_dir, line_len, 'W')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-goal_x=extract_var(list_log, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-goal_y=extract_var(list_log, input_dir, line_len, 'G', 2)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-goal_z=extract_var(list_log, input_dir, line_len, 'G', 3)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-waypoint_index=extract_var(list_log, input_dir, line_len, 'W')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-#segment_index=extract_var(list_log, input_dir, line_len, 'segi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-lat_gps0=extract_var(list_log, input_dir, line_len, 'N')[10]
-long_gps0=extract_var(list_log, input_dir, line_len, 'E')[10]
-alt_gps0=extract_var(list_log, input_dir, line_len, 'A')[10]
-lat_gps=extract_var(list_log, input_dir, line_len, 'N')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-long_gps=extract_var(list_log, input_dir, line_len, 'E')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-alt_gps=extract_var(list_log, input_dir, line_len, 'A')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+throttle=extract_var(filename, input_dir, line_len, 'p1o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+aileron=extract_var(filename, input_dir, line_len, 'p2o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+cpu_load=extract_var(filename, input_dir, line_len, 'cpu')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+waypoint_index=extract_var(filename, input_dir, line_len, 'W')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+goal_x=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+goal_y=extract_var(filename, input_dir, line_len, 'G', 2)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+goal_z=extract_var(filename, input_dir, line_len, 'G', 3)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+waypoint_index=extract_var(filename, input_dir, line_len, 'W')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+#segment_index=extract_var(filename, input_dir, line_len, 'segi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+lat_gps0=extract_var(filename, input_dir, line_len, 'N')[40*HEARTBEAT_UDB]
+long_gps0=extract_var(filename, input_dir, line_len, 'E')[40*HEARTBEAT_UDB]
+alt_gps0=extract_var(filename, input_dir, line_len, 'A')[40*HEARTBEAT_UDB]
+lat_gps=extract_var(filename, input_dir, line_len, 'N')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+long_gps=extract_var(filename, input_dir, line_len, 'E')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+alt_gps=extract_var(filename, input_dir, line_len, 'A')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
 relative_vx=imu_vx-wind_vx
 relative_vy=imu_vy-wind_vy
 relative_vz=imu_vz-wind_vz
+
+print(imu_vx.shape)
+print(imu_vx[0])
+print(imu_vy)
+print(imu_vz)
 
 imu_velocity_norm=np.sqrt(imu_vx**2+imu_vy**2+imu_vz**2)
 wind_velocity_norm=np.sqrt(wind_vx**2+wind_vy**2+wind_vz**2)
 relative_velocity_norm=np.sqrt(relative_vx**2+relative_vy**2+relative_vz**2)
 
 if BAROMETER:
-    barometer_pressure=extract_var(list_log, input_dir, line_len, 'prs')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-    barometer_temperature=extract_var(list_log, input_dir, line_len, 'tmp')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-    barometer_altitude=extract_var(list_log, input_dir, line_len, 'alt')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+    barometer_pressure=extract_var(filename, input_dir, line_len, 'prs')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+    barometer_temperature=extract_var(filename, input_dir, line_len, 'tmp')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+    barometer_altitude=extract_var(filename, input_dir, line_len, 'alt')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
     filt_barometer_altitude = exp_filter(barometer_altitude, 4, HEARTBEAT_HZ)
-    barometer_vz=np.zeros((len(time)))
-    barometer_vz[1:]=np.diff(filt_barometer_altitude)*HEARTBEAT_UDB
+    barometer_vz=np.diff(filt_barometer_altitude) * HEARTBEAT_UDB
     filt_barometer_vz = exp_filter(barometer_vz, 4, HEARTBEAT_HZ)
-    
 else:
     barometer_pressure=np.zeros((len(time)))
     barometer_temperature=np.zeros((len(time)))
@@ -391,32 +268,32 @@ else:
 
 
 
-rmat0=extract_var(list_log, input_dir, line_len, 'a')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat1=extract_var(list_log, input_dir, line_len, 'b')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat2=extract_var(list_log, input_dir, line_len, 'c')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat3=extract_var(list_log, input_dir, line_len, 'd')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat4=extract_var(list_log, input_dir, line_len, 'e')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat5=extract_var(list_log, input_dir, line_len, 'f')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat6=extract_var(list_log, input_dir, line_len, 'g')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat7=extract_var(list_log, input_dir, line_len, 'h')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-rmat8=extract_var(list_log, input_dir, line_len, 'i')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat0=extract_var(filename, input_dir, line_len, 'a')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat1=extract_var(filename, input_dir, line_len, 'b')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat2=extract_var(filename, input_dir, line_len, 'c')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat3=extract_var(filename, input_dir, line_len, 'd')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat4=extract_var(filename, input_dir, line_len, 'e')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat5=extract_var(filename, input_dir, line_len, 'f')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat6=extract_var(filename, input_dir, line_len, 'g')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat7=extract_var(filename, input_dir, line_len, 'h')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+rmat8=extract_var(filename, input_dir, line_len, 'i')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-p1o=extract_var(list_log, input_dir, line_len, 'p1o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-p2o=extract_var(list_log, input_dir, line_len, 'p2o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-p3o=extract_var(list_log, input_dir, line_len, 'p3o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-p4o=extract_var(list_log, input_dir, line_len, 'p4o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-p5o=extract_var(list_log, input_dir, line_len, 'p5o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-p6o=extract_var(list_log, input_dir, line_len, 'p6o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+p1o=extract_var(filename, input_dir, line_len, 'p1o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+p2o=extract_var(filename, input_dir, line_len, 'p2o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+p3o=extract_var(filename, input_dir, line_len, 'p3o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+p4o=extract_var(filename, input_dir, line_len, 'p4o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+p5o=extract_var(filename, input_dir, line_len, 'p5o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+p6o=extract_var(filename, input_dir, line_len, 'p6o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-add1=extract_var(list_log, input_dir, line_len, 'add1')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add2=extract_var(list_log, input_dir, line_len, 'add2')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add3=extract_var(list_log, input_dir, line_len, 'add3')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add4=extract_var(list_log, input_dir, line_len, 'add4')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add5=extract_var(list_log, input_dir, line_len, 'add5')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add6=extract_var(list_log, input_dir, line_len, 'add6')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add7=extract_var(list_log, input_dir, line_len, 'add7')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add8=extract_var(list_log, input_dir, line_len, 'add8')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-add9=extract_var(list_log, input_dir, line_len, 'add9')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add1=extract_var(filename, input_dir, line_len, 'add1')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add2=extract_var(filename, input_dir, line_len, 'add2')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add3=extract_var(filename, input_dir, line_len, 'add3')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add4=extract_var(filename, input_dir, line_len, 'add4')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add5=extract_var(filename, input_dir, line_len, 'add5')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add6=extract_var(filename, input_dir, line_len, 'add6')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add7=extract_var(filename, input_dir, line_len, 'add7')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add8=extract_var(filename, input_dir, line_len, 'add8')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+add9=extract_var(filename, input_dir, line_len, 'add9')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
 nb_subplot_v=2
 nb_subplot_h=2
@@ -463,8 +340,8 @@ filt_z=filt_z/100
 ##a
 
 ax.plot(time, imu_velocity_norm, 'm-', label='IMU velocity')
-ax.plot(time, wind_vx, 'b--', label='wind vy')
-ax.plot(time, wind_vy, 'b:', label='wind vx')
+ax.plot(time, wind_vx, 'b--', label='wind vx')
+ax.plot(time, wind_vy, 'b:', label='wind vy')
 ax.plot(time, wind_velocity_norm, 'b-', label='wind velocity')
 ax.plot(time, relative_velocity_norm, 'r:', label='relative velocity')
 ax.plot(time, vz_filt, 'c-', label=' vz filt')
@@ -480,7 +357,7 @@ ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 3)
 
 
 ymin=-200.
-ymax=500.
+ymax=15000.
 ax.plot(time, sonar_height, 'c-', label='sonar_height')
 #ax.plot(time, sonar_height, 'm--', label='sonar_height')
 ax.plot(time, z_filt, 'b--', label='z')
@@ -522,12 +399,12 @@ finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_
 
 
 
-forward_speed=2
+forward_speed=5
 
 fig, ax = plt.subplots()
-ax.set_xlim([-20., 20.])
-ax.set_ylim([-20., 20.])
-ax.plot(goal_y[10:], goal_x[10:], 'go', label='goal')
+ax.set_xlim([-300., 300.])
+ax.set_ylim([-300., 300.])
+ax.plot(goal_x[10:], goal_y[10:], 'go', label='goal')
 line_1, = ax.plot([], [], 'bo-')
 #line_2, = ax.plot([], [], 'ro-')
 wind_velocity, = ax.plot([], [], 'm-')
@@ -574,25 +451,21 @@ ylabel=''
 
 fig.subplots_adjust(hspace=0.5)
 
-ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
-ax.set_title('navigation', fontweight='bold', fontsize=fontsize)
-
-ymin=-16384
-ymax=16384
-
-int16_to_degrees=90./16387.
-
-##navigation
 
 
-KP=1
-HOVER_MAX_ANGLE = 30.
-pitchToWP = -KP * add3 * (add4/MAX_HOVER_RADIUS) * HOVER_MAX_ANGLE / 57.3
-yawToWP = -KP * add5 * (add4/MAX_HOVER_RADIUS) * HOVER_MAX_ANGLE / 57.3
 
 
-ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
-ax.set_title('navigation', fontweight='bold', fontsize=fontsize)
+
+##xy GPS position control in hover
+
+##KP=1
+##HOVER_MAX_ANGLE = 30.
+##pitchToWP = -KP * add3 * (add4/MAX_HOVER_RADIUS) * HOVER_MAX_ANGLE / 57.3
+##yawToWP = -KP * add5 * (add4/MAX_HOVER_RADIUS) * HOVER_MAX_ANGLE / 57.3
+##
+##
+##ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
+##ax.set_title('navigation', fontweight='bold', fontsize=fontsize)
 
 #ax.plot(time, imu_x*16384/MAX_HOVER_RADIUS, 'k-', label='imu_x/MAX_RADIUS')
 #ax.plot(time, imu_y*16384/MAX_HOVER_RADIUS, 'b-', label='imu_y/MAX_RADIUS')
@@ -605,30 +478,86 @@ ax.set_title('navigation', fontweight='bold', fontsize=fontsize)
 ##ax.plot(time, sonar_height, 'r--', label='sonar height')
 ##ax.plot(time, sonar_dist, 'g--', label='sonar dist')
 
+
+
+
+
+##roll control in hover
+
+ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
+ax.set_title('navigation', fontweight='bold', fontsize=fontsize)
+
+ymin=-16384
+ymax=16384
+
+int16_to_degrees=90./16387.
+
+roll_corrUDB = add5
+rmat2 = add3
+rmat6 = add4
+rmat5 = add6
+#rmat6 = add7
+rmat8 = add9
+filt_rollAngleUDB = add1
+rollAngleUDB = add7
+
+corr_rmat6 = rmat6 * (1 - np.abs(rmat8)/16384)**2
+
 rollAngle = np.zeros((len(add1)))
 for i in range(len(add1)):
-    rollAngle[i] = add1[i]
-    if add6[i] < 0.:
-        rollAngle[i] = -128-add1[i]
+    
+    rollAngle[i] = -np.arcsin(rmat2[i]/16384)*128/np.pi
+    if rmat5[i] < 0.:
+        rollAngle[i] = -128-rollAngle[i]
         
+filt_rollAngle_debug = exp_filter(rollAngle, 10, HEARTBEAT_HZ)
+
+#roll_corr_debug = rmat2 - np.sin(-filt_rollAngle*np.pi/128)*16384
 
 #ax.plot(time, add1, 'go-', label='pitchToWP')
 #ax.plot(time, add2, 'ro-', label='yawToWP')
-ax.plot(time, add1, 'k-', label='roll angle')
-ax.plot(time, add2*128, 'b-', label='deflection filt')
-ax.plot(time, add3, 'g-', label='rmat2')
-ax.plot(time, add4, 'r-', label='rmat3')
-ax.plot(time, add5, 'm-', label='rmat4')
-ax.plot(time, add6, 'c-', label='rmat5')
-ax.plot(time, add7, 'y-', label='rmat6')
-#ax.plot(time, add8*128, 'b--', label='deflection')
-ax.plot(time, add9, 'k--', label='rmat8')
+ax.plot(time, filt_rollAngleUDB, 'ko-', label='roll angle filt')
+#ax.plot(time, rollAngle*128, 'ro-', label='roll angle filt debug')
+ax.plot(time, add2*256, 'b-', label='deflection filt')
+ax.plot(time, rmat2, 'g-', label='rmat2')
+ax.plot(time, rmat6, 'y-', label='rmat6')
+ax.plot(time, roll_corrUDB, 'm-', label='roll_corr')
+ax.plot(time, rmat5, 'c-', label='rmat5')
+#ax.plot(time, rmat6, 'y-', label='rmat6')
+#ax.plot(time, corr_rmat6, 'yo-', label='rmat6 corrected')
+ax.plot(time, rollAngleUDB, 'mo-', label='roll angle')
+ax.plot(time, rmat8, 'k-', label='rmat8')
 #ax.plot(time, rollAngle*128, 'r--', label='rollAngle deplie')
 #ax.plot(time, error_x, 'c-', label='error x')
 #ax.plot(time, error_x_integral, 'c--', label='error integral x')
 #ax.plot(time, error_y, 'y-', label='error y')
 #ax.plot(time, error_y_integral, 'y--', label='error integral y')
 
+finalize_plot(fig, ax, xmin, xmax, -32000, 32000, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
+
+
+
+
+nb_subplot_v=1
+nb_subplot_h=1
+ 
+fig = plt.figure(figsize=(16.0, 9.0))
+
+xlabel=''
+ylabel=''
+
+ymin=None
+ymax=None
+
+fig.subplots_adjust(hspace=0.5)
+
+ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
+ax.set_title('sonar correction', fontweight='bold', fontsize=fontsize)
+
+ax.plot(time, rmat6, 'y-', label='rmat6')
+ax.plot(time, sonar_height, 'c-', label='sonar_height')
+ax.plot(time, sonar_dist, 'm-', label='sonar_distance')
 
 finalize_plot(fig, ax, xmin, xmax, -17000, 17000, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)

@@ -173,6 +173,10 @@
 	#error("SONAR INPUT on PWM INPUT 8 in Conflict with NUMBER of PWM NUM_INPUTS which is 8 or more")
 #endif
 
+#if (USE_SONAR == 1 && USE_SONAR_ON_PWM_INPUT_8 != 1 )
+    #error("if USE SONAR = 1, USE_SONAR_ON_PWM_INPUT_8 must be set to 1")
+#endif
+
 #if (GPS_TYPE != GPS_STD && GPS_TYPE != GPS_UBX_2HZ && GPS_TYPE != GPS_UBX_4HZ && GPS_TYPE != GPS_MTEK)
 	#error No valid GPS_TYPE specified.
 #endif

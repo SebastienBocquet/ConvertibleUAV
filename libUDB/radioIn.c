@@ -55,7 +55,7 @@ int16_t udb_pwIn[NUM_INPUTS+1];     // pulse widths of radio inputs
 int16_t udb_pwTrim[NUM_INPUTS+1];   // initial pulse widths for trimming
 
 #if ( USE_SONAR_ON_PWM_INPUT_8	== 1 )
-uint16_t udb_pwm_sonar  ;		// pulse width of sonar signal
+uint16_t udb_pwm_sonar = 0 ;		// pulse width of sonar signal
 #endif
 
 //#if ( USE_SONAR_ON_PWM_INPUT_7	== 1 )

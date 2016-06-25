@@ -527,9 +527,9 @@
 
 #define MANUAL_TARGET_HEIGHT                1    //in stabilized mode, manually prescribes a target height using the flap channel, 
                                                  //otherwise it prescribes a target velocity
-#define HOVER_ROLLKP                        1.
+#define HOVER_ROLLKP                        1.3
 #define HOVER_ROLLKD                        0.
-#define HOVER_ROLL_OFFSET                   0.83 //aileron offset at max throttle expressed in servo arm angle (in degrees). The offset is linear with throttle
+#define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
 #define HOVER_PITCHKP                       0.4
 #define HOVER_PITCHKD                       0.
 #define HOVER_PITCH_OFFSET                  0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
@@ -538,16 +538,18 @@
 #define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
 #define HOVER_ANGLE_TOWARDS_WP             20.0
 #define HOVER_NAV_MAX_PITCH_RADIUS         3.
+#define WAIT_SECONDS                       3     //number of seconds after transition to hovering during which:
+                                                 //PID integral term is not computed
+                                                 // throttle is set to HOVER_THROTTLE_OFFSET
 #define AIRCRAFT_MASS                      1150  //in g
 #define MAX_THRUST                         17    //maximul thrust in N 
 #define HOVER_ALTITUDE_MIN                 95    //height to ground below which altitude control switchs to failsafe mode to avoid damaging the rudder
-#define HOVER_MANUAL_THROTTLE              0
-#define HOVER_THROTTLE_OFFSET              0.63
+#define HOVER_THROTTLE_OFFSET              0.68
 #define HOVER_THROTTLE_MIN                 0.2
 #define HOVER_THROTTLE_MAX                 1.
-#define HOVER_TARGET_HEIGHT_MIN            100   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_TARGET_HEIGHT_MIN            172   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
-#define HOVER_TARGET_VZ_MIN                -300   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_TARGET_VZ_MIN                0   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_VZ_MAX                300   // (cm/s)
 #define USEABLE_SONAR_DISTANCE             400 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
 #define VZ_CORR                            1     //correction factor for the correction of imu vz by barometer vz

@@ -169,6 +169,7 @@ void hoverYawCntrl(void)
 {
 	union longww yawAccum;
 	union longww gyroYawFeedback;
+    fractional rmat6_corr = 0;
 
 	if (flags._.pitch_feedback)
 	{
@@ -215,6 +216,7 @@ void hoverYawCntrl(void)
 
             hover_error_y = yaw_error_filtered;
             hover_error_integral_y = (int16_t)(yaw_error_integral / (int16_t)(HEARTBEAT_HZ));
+
         }
         else
 		{
@@ -225,8 +227,14 @@ void hoverYawCntrl(void)
 		
 		int16_t yawInput = (udb_flags._.radio_on == 1) ? REVERSE_IF_NEEDED(RUDDER_CHANNEL_REVERSED, udb_pwIn[RUDDER_INPUT_CHANNEL] - udb_pwTrim[RUDDER_INPUT_CHANNEL]) : 0;
 		int16_t manualYawOffset = 0; //yawInput * (int16_t)(RMAX/2000);
-		
-        yawAccum.WW = __builtin_mulsu(rmat[6] + yawToWP + manualYawOffset , hoveryawkp);
+
+        //correction on rmat6: if the plane has a significant pitch angle (can happen to ensure equilibrium in wind)
+        fractional rmat8 = rmat[8];
+        //rmat6_corr = rmat6 * (1 - rmat8/16384)**2
+        rmat6_corr = (int16_t)(__builtin_mulsu(rmat[6], (16384 - abs(rmat[8])))>>14);
+        rmat6_corr = (int16_t)(__builtin_mulsu(rmat6_corr, (16384 - abs(rmat[8])))>>14);
+
+        yawAccum.WW = __builtin_mulsu(rmat6_corr + yawToWP + manualYawOffset , hoveryawkp);
 	}
 	else
 	{

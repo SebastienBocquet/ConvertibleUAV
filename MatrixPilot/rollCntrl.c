@@ -59,6 +59,9 @@ int16_t flap_min = (int16_t)(FLAP_ANGLE_MIN*(SERVORANGE/60));
 int16_t rollOffset;
 float rollNavDeflection_filtered_flt = 0;
 int16_t rollNavDeflection_filtered = 0;
+float rollAngle_filtered_flt = 0;
+int16_t rollAngle_filtered = 0;
+int16_t previous_rollAngle = 0;
 
 void normalRollCntrl(void);
 void hoverRollCntrl(void);
@@ -152,7 +155,13 @@ void hoverRollCntrl(void)
 	union longww gyroRollFeedback;
     union longww rollAccum = { 0 };
     fractional rmat2;
+    fractional rmat5;
+    fractional rmat8;
+    int8_t rmat6_128;
     int32_t tmp;
+    int16_t roll_corr = 0;
+    int16_t angle_delta = 0;
+    int16_t rollAngle = 0;
 
 
 	if (flags._.pitch_feedback)
@@ -170,10 +179,11 @@ void hoverRollCntrl(void)
         int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
 	    tmp1=limit_value(tmp1, 0, 3823-2233);
 	    int32_t tmp2 = __builtin_mulss(255, tmp1);
-	    int16_t rollNavDeflection = (int16_t)(tmp2/(3823-2233))-128;
+	    rollNavDeflection = (int16_t)(tmp2/(3823-2233))-128;
         additional_int16_export8 = rollNavDeflection;
-        int16_t rollNavDeflection_filtered = exponential_filter(rollNavDeflection, &rollNavDeflection_filtered_flt, 1., (int16_t)(HEARTBEAT_HZ));
+        rollNavDeflection_filtered = exponential_filter(rollNavDeflection, &rollNavDeflection_filtered_flt, 2., (int16_t)(HEARTBEAT_HZ));
         additional_int16_export2 = rollNavDeflection_filtered;
+
 //		}
 #endif
 		
@@ -181,24 +191,43 @@ void hoverRollCntrl(void)
 
         //index of rmat to be checked
         //rmat[2] is roll around vertical axis, 0 corresponds to x axis normal to wing
+        
         rmat2=rmat[2];
-        int8_t rollAngle = -arcsine(rmat2);
-        if (rmat[5] < 0) rollAngle = -128-rollAngle;
+        rmat5=rmat[5];
+        rollAngle = (int16_t)(-arcsine(rmat2));
+        if (rmat5 < 0 && previous_rollAngle < 0) rollAngle = -rollAngle-127;
+        if (rmat5 < 0 && previous_rollAngle > 0) rollAngle = -rollAngle+127;
+        previous_rollAngle = rollAngle;
 
-        additional_int16_export1 = (int16_t)(rollAngle*128);
+        rollAngle_filtered = exponential_filter(rollAngle, &rollAngle_filtered_flt, 1., (int16_t)(HEARTBEAT_HZ));
+
+        roll_corr = rollAngle - rollAngle_filtered;
+
+        //correction on roll_corr, active if the plane has a significant pitch angle (can happen to ensure pitch equilibrium in wind)
+        rmat8 = rmat[8];
+        //roll_corr = roll_corr * (1 - abs(rmat8)/16384)**2
+        roll_corr = (int8_t)(__builtin_mulss(roll_corr, (16384 - abs(rmat8)))>>14);
+        roll_corr = (int8_t)(__builtin_mulss(roll_corr, (16384 - abs(rmat8)))>>14);
+
+        angle_delta = -rollAngle_filtered + rollNavDeflection_filtered;
+        //angle_delta = angle_delta * (1 - abs(rmat8)/16384) + rmat6/128 * abs(rmat8)
+        angle_delta = (int16_t)(__builtin_mulsu(angle_delta, (16384 - abs(rmat8)))>>14);
+        rmat6_128 = rmat[6]>>7;
+        int8_t rmat68 = (int8_t)(__builtin_mulss(rmat6_128, abs(rmat8))>>14);
+        angle_delta = angle_delta - (int16_t)rmat68;
+
+        additional_int16_export1 = rollAngle_filtered*256;
         //additional_int16_export1 = rmat[0];
         //additional_int16_export2 = rmat[1];
         additional_int16_export3 = rmat[2];
-        additional_int16_export4 = rmat[3];
-        additional_int16_export5 = rmat[4];
+        additional_int16_export4 = rmat[6];
+        additional_int16_export5 = roll_corr*256;
         additional_int16_export6 = rmat[5];
-        additional_int16_export7 = rmat[6];
+        additional_int16_export7 = rollAngle*256;
         //additional_int16_export8 = rmat[7];
         additional_int16_export9 = rmat[8];
 
-        int8_t angle_tmp = (int8_t)(rollNavDeflection_filtered);
-        int16_t angle_delta = 128*((int16_t)(-rollAngle + angle_tmp));
-        rollAccum.WW = __builtin_mulsu(angle_delta, hoverrollkp);
+        rollAccum.WW = __builtin_mulsu((angle_delta - roll_corr)*256, hoverrollkp);
 	}
 	else
 	{
@@ -208,9 +237,14 @@ void hoverRollCntrl(void)
 	}
 
     //roll offset proportional to throttle to compensate propeller torque
-    tmp=-__builtin_mulsu(hoverrolloffset, (int16_t)(throttle_control/2));
-    rollOffset=0; //tmp>>14;
+    //tmp=-__builtin_mulsu(hoverrolloffset, (int16_t)(throttle_control/2));
+    //rollOffset=(int16_t)(tmp>>14);
+    rollOffset=0;
 
 	roll_control =  -(int32_t)rollAccum._.W1 \
                     - (int32_t)gyroRollFeedback._.W1;
+
+#if (TEST == 1)
+    printf("rmat[2] %d\n rmat[5] %d\n rmat[8] %d\n rmat[6] %d\n rmat6_128 %d\n rollNavDeflection %d\n rollNavDeflection_filtered %d\n rollAngle %d\n rollAngle_filtered %d\n angle_delta %d\n roll_corr %d\n roll_control %d\n", rmat[2], rmat[5], rmat[8], rmat[6], rmat6_128, rollNavDeflection, rollNavDeflection_filtered, rollAngle, rollAngle_filtered, angle_delta, roll_corr, roll_control );
+#endif
 }

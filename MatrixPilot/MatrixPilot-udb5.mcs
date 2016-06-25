@@ -2,7 +2,7 @@
 MagicCookie={0b13fe8c-dfe0-40eb-8900-6712719559a7}
 Version=1.0
 [File000]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\config_tests.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\config_tests.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -13,9 +13,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File001]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\background.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\background.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -26,9 +26,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File002]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\behavior.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\behavior.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -39,9 +39,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File003]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\cameraCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\cameraCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -52,9 +52,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File004]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\main.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\main.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -65,9 +65,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File005]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\navigate.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\navigate.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -78,9 +78,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File006]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\pitchCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\pitchCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -91,9 +91,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File007]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\rollCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\rollCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -104,9 +104,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File008]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\servoMix.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\servoMix.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -117,9 +117,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File009]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\states.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\states.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -130,9 +130,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File010]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\yawCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\yawCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -143,9 +143,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File011]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\libUDB.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\libUDB.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -156,9 +156,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File012]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\telemetry.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\telemetry.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -169,9 +169,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File013]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\servoPrepare.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\servoPrepare.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -182,9 +182,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File014]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\estWind.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\estWind.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -195,9 +195,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File015]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\estYawDrift.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\estYawDrift.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -208,9 +208,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File016]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\gpsParseCommon.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\gpsParseCommon.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -221,9 +221,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File017]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\gpsParseSTD.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\gpsParseSTD.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -234,9 +234,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File018]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\gpsParseUBX.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\gpsParseUBX.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -247,9 +247,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File019]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mathlibNAV.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mathlibNAV.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -260,9 +260,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File020]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\rmat.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\rmat.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -273,9 +273,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File021]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\libDCM.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\libDCM.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -286,9 +286,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File022]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\servoOut.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\servoOut.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -299,9 +299,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File023]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\flightplan-waypoints.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\flightplan-waypoints.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -312,9 +312,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File024]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\flightplan-logo.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\flightplan-logo.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -325,9 +325,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File025]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\deadReckoning.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\deadReckoning.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -338,9 +338,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File026]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\osd.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\osd.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -351,9 +351,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File027]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mp_osd.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mp_osd.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -364,9 +364,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File028]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\gpsParseMTEK.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\gpsParseMTEK.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -377,9 +377,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File029]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\altitudeCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\altitudeCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -390,9 +390,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File030]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\MAVLink.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\MAVLink.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -403,9 +403,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File031]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mode_switch.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mode_switch.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -416,9 +416,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File032]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\24LC256.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\24LC256.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -429,9 +429,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File033]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\events.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\events.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -442,9 +442,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File034]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\data_services.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\data_services.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -455,9 +455,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File035]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\data_storage.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\data_storage.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -468,9 +468,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File036]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\nv_memory_table.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\nv_memory_table.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -481,9 +481,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File037]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\parameter_table.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\parameter_table.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -494,9 +494,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File038]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\airspeedCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\airspeedCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -507,9 +507,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File039]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\altitudeCntrlVariable.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\altitudeCntrlVariable.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -520,9 +520,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File040]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\madd.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\madd.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -533,9 +533,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File041]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mmul.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mmul.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -546,9 +546,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File042]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mscl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mscl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -559,9 +559,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File043]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\msub.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\msub.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -572,9 +572,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File044]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mtrp.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mtrp.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -585,9 +585,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File045]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vadd.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vadd.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -598,9 +598,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File046]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vcon.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vcon.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -611,9 +611,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File047]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vcopy.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vcopy.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -624,9 +624,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File048]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vcor.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vcor.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -637,9 +637,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File049]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vdot.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vdot.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -650,9 +650,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File050]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vmax.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vmax.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -663,9 +663,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File051]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vmin.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vmin.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -676,9 +676,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File052]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vmul.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vmul.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -689,9 +689,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File053]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vneg.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vneg.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -702,9 +702,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File054]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vpow.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vpow.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -715,9 +715,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File055]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vscl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vscl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -728,9 +728,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File056]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vsub.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vsub.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -741,9 +741,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File057]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\vzpad.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\vzpad.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -754,9 +754,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File058]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\euler_angles.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\euler_angles.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -767,9 +767,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File059]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mpu6000.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mpu6000.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -780,9 +780,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File060]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\spiUtils.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\spiUtils.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -793,9 +793,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File061]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\analog2digital_udb5.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\analog2digital_udb5.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -806,9 +806,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File062]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\traps_asm.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\traps_asm.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -819,9 +819,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--defsym=PSV_ERRATA=1 -g
 TraceCmdString=
-DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File063]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\analog2digital_udb4.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\analog2digital_udb4.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -832,9 +832,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File064]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\mcu.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\mcu.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -845,9 +845,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File065]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\estAltitude.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\estAltitude.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -858,9 +858,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File066]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\eeprom_udb4.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\eeprom_udb4.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -871,9 +871,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File067]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\traps.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\traps.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -884,9 +884,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File068]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\barometer.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\barometer.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -897,9 +897,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File069]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\I2C1.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\I2C1.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -910,9 +910,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File070]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\I2C2.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\I2C2.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -923,9 +923,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File071]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\magnetometer.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\magnetometer.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -936,9 +936,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File072]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\radioIn.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\radioIn.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -949,9 +949,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File073]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\serialIO.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\serialIO.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -962,9 +962,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File074]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\read.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\read.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -975,9 +975,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File075]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\uart.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\uart.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -988,9 +988,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File076]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\write.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\write.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -1001,9 +1001,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File077]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\console.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\console.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -1014,9 +1014,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File078]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\build\udb5\sonarCntrl.o
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\build\udb5\sonarCntrl.o
 Folder=Intermediary
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -1027,9 +1027,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=-g -Wall -DUDB5 -mlarge-code
 TraceCmdString=
-DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
+DebugOptions=
 [File079]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\MatrixPilot-udb5.cof
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\MatrixPilot-udb5.cof
 Folder=Output
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -1040,9 +1040,9 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--heap=1024 -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)" -legacy-libc
 TraceCmdString=
-DebugOptions=--defsym=__MPLAB_DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1 --defsym=__ICD2RAM=1
+DebugOptions=
 [File080]
-Location=E:\projet autoentrepreneur\prise de vue aerienne\ardupilot\firmware\MatrixPilot_4_0\MatrixPilot\MatrixPilot-udb5.hex
+Location=C:\Users\seb\Documents\ConvertibleUAV\MatrixPilot\MatrixPilot-udb5.hex
 Folder=Output
 DeviceName=dsPIC33FJ256GP710A
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -1053,7 +1053,7 @@ SOLK=<src>|config_tests.c|..\libUDB\background.c|behavior.c|cameraCntrl.c|main.c
 SuiteArgsString=
 ToolArgsString=--heap=1024 -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)" -legacy-libc
 TraceCmdString=
-DebugOptions=--defsym=__MPLAB_DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1 --defsym=__ICD2RAM=1
+DebugOptions=
 [TOOL_LOC_STAMPS]
 tool_loc{DE18EB1A-B46B-486B-B96F-A811A635DFAC}=C:\Program Files (x86)\Microchip\xc16\v1.21\bin\xc16-as.exe
 tool_loc{069BD372-6CA0-40D4-BF2F-5DC806D05083}=C:\Program Files (x86)\Microchip\xc16\v1.21\bin\xc16-gcc.exe

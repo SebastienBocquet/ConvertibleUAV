@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
+#include "defines.h"
 #include "libDCM_internal.h"
 
 
@@ -33,6 +33,15 @@ void estimateWind(void)
 {
 #if (WIND_ESTIMATION == 1)
 
+    if (canStabilizeHover() && current_orientation == F_HOVER)
+    {
+        estimatedWind[0] = 0;
+        estimatedWind[1] = 0;
+        estimatedWind[2] = 0;
+        return;
+    }
+
+    //this line means that wind estimation is skipped if plane is hovering
 	if (dcm_flags._.skip_yaw_drift) return;
 	
 	int16_t index;
