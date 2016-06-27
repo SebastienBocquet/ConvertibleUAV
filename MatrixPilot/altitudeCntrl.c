@@ -85,7 +85,6 @@ float invdeltafiltertargetz = (float)(HOVER_INV_DELTA_FILTER_TARGETZ);
 float invdeltafiltersonar = (float)(HOVER_INV_DELTA_FILTER_SONAR);
 float invdeltafilterbaro = (float)(HOVER_INV_DELTA_FILTER_BARO);
 float invdeltafilteraccel = (float)(HOVER_INV_DELTA_FILTER_ACCEL);
-int16_t hoverwaitacczstable = 0;  //in nb of 1/FE s
 int16_t hovertargetheightmin = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
 int16_t hovertargetheightmax = (int16_t)(HOVER_TARGET_HEIGHT_MAX);
 int16_t hovertargetvzmin = (int16_t)(HOVER_TARGET_VZ_MIN);
@@ -106,7 +105,6 @@ const float invdeltafiltersonar = (float)(HOVER_INV_DELTA_FILTER_SONAR);
 const float invdeltafiltertargetz = (float)(HOVER_INV_DELTA_FILTER_TARGETZ);
 const float invdeltafilterbaro = (float)(HOVER_INV_DELTA_FILTER_BARO);
 const float invdeltafilteraccel = (float)(HOVER_INV_DELTA_FILTER_ACCEL);
-const int16_t hoverwaitacczstable = 0;  //in nb of 1/FE s
 const int16_t hovertargetheightmin = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
 const int16_t hovertargetheightmax = (int16_t)(HOVER_TARGET_HEIGHT_MAX);
 const int16_t hovertargetvzmin = (int16_t)(HOVER_TARGET_VZ_MIN);
@@ -139,7 +137,6 @@ int16_t hover_error_integral_z=0;
 int16_t error_integral_z=0;
 int16_t error_integral_vz=0;
 int16_t error_integral_accz=0;
-int16_t previous_z;
 int32_t previous_z32;
 boolean failsafe_throttle_mode = false;
 boolean alt_sensor_failure = false;
@@ -530,7 +527,7 @@ void hoverAltitudeCntrl(void)
         target_vz_filtered_flt=0.;
         vz_filtered_flt=0.;
         accz_filtered_flt=0.;
-        previous_z=hovertargetheightmin;
+ 		previous_z32=(int32_t)(100*hovertargetheightmin);
     }
 
     if (hover_counter < RMAX)
@@ -551,9 +548,9 @@ void hoverAltitudeCntrl(void)
 
     //if barometer is used, use its measurement
 #if ( BAROMETER_ALTITUDE == 1 )
-    if (is_barometer_valid())
+    if (udb_flags._.baro_valid)
     {
-        estAltitude();
+        estBaroAltitude();
         z=(int16_t)(get_barometer_altitude());
         invdeltafilterheight=invdeltafilterbaro;
         invdeltafilterheight32=2.;
@@ -565,11 +562,8 @@ void hoverAltitudeCntrl(void)
     //if sonar is used, use sonar altitude (higher priority in order to accurately control landing)
 #if ( USE_SONAR == 1 )
 
-#if (SILSIM == 1)
-		udb_flags._.sonar_height_valid = 1;
-#else
-    	calculate_sonar_height_above_ground();
-#endif
+    calculate_sonar_height_above_ground();
+
 	if (udb_flags._.sonar_height_valid)
 	{
         z=sonar_height_to_ground;
@@ -693,10 +687,9 @@ else
         //later, use sinusoidal throttle command to visualize failsafe
     }
 
-    if (z > (int16_t)(1.1*max_hover_alt))  //if max altitude is exceeded by 10%, reduce throttle
+    if (z > max_hover_alt)  //if max altitude is exceeded by 10%, reduce throttle
 	{
-        //20% of max throttle
-        throttle_control_pre=(int16_t)(2.0*SERVORANGE*(0.2));
+        throttle_control_pre=hoverthrottlemin;
     }
 
         //DEBUG: generation of a sinusoidal signal imposed as throttle. Goal is to observe corresponding 
@@ -735,10 +728,8 @@ else
     throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
 
 #if (TEST == 1)
-    printf("z vz accz sonar_height_to_ground throttle_control_pre %d %d %d %d %d\n", z, vz, accz, sonar_height_to_ground, throttle_control_pre );
+    printf("z vz accz sonar_height_to_ground barometer_altitude hover_counter nb_sample_wait previous_z32 throttle_control_pre %d %d %d %d %d %d %d %li %d\n", z, vz, accz, sonar_height_to_ground, barometer_altitude, hover_counter, nb_sample_wait, previous_z32, throttle_control_pre );
 #endif
-
-    previous_z = z_filtered;
 
     //set variables for SERIAL_UDB_EXTRA log
     hover_z=z_filtered;
@@ -860,7 +851,7 @@ else
 #define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
 #define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 
 
-#if ( USE_SONAR_ON_PWM_INPUT_8	== 0 || SILSIM == 1)
+#if ( USE_SONAR_ON_PWM_INPUT_8	== 0)
     uint16_t udb_pwm_sonar = 0;
 #endif
 
@@ -869,6 +860,9 @@ int16_t distance_yaw_corr = 0;  //correction of sonar distance in cm, to account
 
 void calculate_sonar_height_above_ground(void)
 {
+#if (SILSIM == 1)
+	return;
+#endif
 	if ( udb_flags._.sonar_updated == 1 ) 
 	{	
 		union longbbbb accum ;

@@ -25,13 +25,6 @@
 
 #if (BAROMETER_ALTITUDE == 1)
 
-boolean is_baro_valid = true;
-
-boolean is_barometer_valid(void)
-{
-    return is_baro_valid;
-}
-
 #if (USE_BARO_BMP085 == 1)
 
 #define BMP085_ADDRESS 0xEE  // I2C address of BMP085
@@ -292,7 +285,7 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 
 	if (I2CtrxOK == true)
 	{
-        is_baro_valid = true;
+        udb_flags._.baro_valid = 1;
 
 //		byteswaparray((unsigned char*)&barData, 2);
 		ut = ((unsigned int) (unsigned int)barData[0] << 8 | (unsigned int)barData[1]);
@@ -304,7 +297,7 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 	else
 	{
 		// the operation failed - we should probably do something about it...
-        is_baro_valid = false;
+        udb_flags._.baro_valid = 0;
 	}
 }
 
@@ -314,7 +307,7 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 
 	if (I2CtrxOK == true)
 	{
-        is_baro_valid = true;
+        udb_flags._.baro_valid = 1;
 
 		pressure = ((long)barData[0] << 16 | (long)barData[1] << 8 | (long)barData[2]) >> (8-OSS);
 #ifdef TEST_WITH_DATASHEET_VALUES
@@ -329,7 +322,7 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 	else
 	{
 		// the operation failed - we should probably do something about it...
-        is_baro_valid = false;
+        udb_flags._.baro_valid = 0;
 	}
 }
 
@@ -510,7 +503,7 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 {
 	if (I2CtrxOK == true)
 	{
-        is_baro_valid = true;
+        udb_flags._.baro_valid = 1;
 
 		D2 = ((uint32_t)barData[0] << 16 | (uint32_t)barData[1] << 8 | (uint32_t)barData[2]);
 #ifdef TEST_WITH_DATASHEET_VALUES
@@ -520,7 +513,7 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 	else
 	{
 		// the operation failed - we should probably do something about it...
-        is_baro_valid = false;
+        udb_flags._.baro_valid = 0;
 	}
 }
 
@@ -531,7 +524,7 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 
 	if (I2CtrxOK == true)
 	{
-        is_baro_valid = true;
+        udb_flags._.baro_valid = 1;
 
 		D1 = ((uint32_t)barData[0] << 16 | (uint32_t)barData[1] << 8 | (uint32_t)barData[2]);
 #ifdef TEST_WITH_DATASHEET_VALUES
@@ -550,7 +543,7 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 	else
 	{
 		// the operation failed - we should probably do something about it...
-        is_baro_valid = false;
+        udb_flags._.baro_valid = 0;
 	}
 }
 

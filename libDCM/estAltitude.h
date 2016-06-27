@@ -25,7 +25,7 @@
 
 void udb_barometer_callback(long pressure, int temperature, char status);
 void altimeter_calibrate(void);
-void estAltitude(void);
+void estBaroAltitude(void);
 
 inline long get_barometer_altitude(void);
 inline long get_barometer_pressure(void);

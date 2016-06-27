@@ -211,7 +211,7 @@ void udb_background_callback_triggered(void)
 		velocity_previous = air_speed_3DGPS;
 
 		estimateWind();
-		estAltitude();
+		estBaroAltitude();
 		estYawDrift();
 		dcm_flags._.yaw_req = 1;       // request yaw drift correction
 		dcm_flags._.reckon_req = 1;    // request dead reckoning correction

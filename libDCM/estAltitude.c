@@ -66,8 +66,12 @@ void udb_barometer_callback(long pressure, int temperature, char status)
 }
 #endif
 
-void estAltitude(void)
+void estBaroAltitude(void)
 {
+#if (SILSIM == 1)
+	return;
+#endif
+
 #if (BAROMETER_ALTITUDE == 1)
 //	float pressure_ambient = barometer_pressure;
 //	float pressure_sea_level = barometer_pressure_gnd;

@@ -19,6 +19,8 @@
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "defines.h"
+#include "../libUDB/heartbeat.h"
+#include "../libDCM/estAltitude.h"
 
 #if (TEST == 1)
 #include <assert.h>
@@ -469,39 +471,160 @@ int main(void)
 
 	void test_hover_altitude_control_1()
 	{
-        //test that in hovering horizontal position, for increasing rmat6, roll control decreases
+        //test that in hovering, for sonar height less than minimum allowed altitude, throttle = throttle offset
 
 	    //overwrite inputs
-        accelEarth[2] = 0;
-		IMUvelocityz._.W1 = 0;
-		IMUlocationz._.W1 = 0;
-		barometer_altitude = 0;
-		sonar_height_to_ground = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
-		//z_target = 150;
-		//vz_target = 0;
-		//current_segment.is_target_alt = 0;
 		flags._.pitch_feedback = 1;
 		flags._.GPS_steering = 0;
-		current_orientation == F_HOVER;
-		#define MANUAL_TARGET_HEIGHT 1
-		udb_pwIn[FLAP_INPUT_CHANNEL] = 3028;
-		#define WAIT_SECONDS 0
+		current_orientation = F_HOVER;
+        nb_sample_wait = 0;
+		hover_counter = 0;
+
+        accelEarth[2] = 0;
+		IMUlocationz._.W1 = 101;
+
+		udb_flags._.sonar_height_valid = 1;
+		sonar_height_to_ground = 80;
+
+		udb_flags._.baro_valid = 1;
+		barometer_altitude = 0;
+
+		int16_t z_target = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
+		int16_t vz_target = 0;
+
 		hoverAltitudeCntrl();
         printf("throttle_control %d\n", throttle_control);
-        assert(throttle_control == 0);
-
-        sonar_height_to_ground = (int16_t)(HOVER_TARGET_HEIGHT_MIN) + 50;
-		hoverAltitudeCntrl();
-        printf("throttle_control %d\n", throttle_control);
-        //assert(throttle_control == 0);
-
-		sonar_height_to_ground = (int16_t)(HOVER_TARGET_HEIGHT_MIN) - 50;
-		hoverAltitudeCntrl();
-        printf("throttle_control %d\n", throttle_control);
-        //assert(throttle_control == 0);
-
+        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_OFFSET)));
         printf("hover_altitude_control_1 PASSED\n");   
 	}
+
+	void test_hover_altitude_control_2()
+	{
+        //test that in hovering, for sonar height = target height, throttle control = throttle offset
+
+	    //overwrite inputs
+		flags._.pitch_feedback = 1;
+		flags._.GPS_steering = 0;
+		current_orientation = F_HOVER;
+        nb_sample_wait = 0;
+		hover_counter = 0;
+
+        accelEarth[2] = 0;
+		IMUlocationz._.W1 = 101;
+
+		udb_flags._.sonar_height_valid = 1;
+		sonar_height_to_ground = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
+
+		udb_flags._.baro_valid = 1;
+		barometer_altitude = 0;
+
+		int16_t z_target = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
+		int16_t vz_target = 0;
+
+		int16_t i;
+		for(i = 0; i < 300; i=i+1)
+	    {
+			hoverAltitudeCntrl();
+		}
+        printf("throttle_control %d\n", throttle_control);
+        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_OFFSET)));
+        printf("hover_altitude_control_2 PASSED\n");   
+	}
+
+	void test_hover_altitude_control_3()
+	{
+        //test that in hovering, for sonar height higher than target height, throttle control < throttle offset
+
+	    //overwrite inputs
+		flags._.pitch_feedback = 1;
+		flags._.GPS_steering = 0;
+		current_orientation = F_HOVER;
+        nb_sample_wait = 0;
+		hover_counter = 0;
+
+        accelEarth[2] = 0;
+		IMUlocationz._.W1 = 101;
+
+		udb_flags._.sonar_height_valid = 1;
+		sonar_height_to_ground = (int16_t)(HOVER_TARGET_HEIGHT_MIN) + 50;
+
+		udb_flags._.baro_valid = 1;
+		barometer_altitude = 0;
+
+		int16_t z_target = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
+		int16_t vz_target = 0;
+
+		int16_t i;
+		for(i = 0; i < 300; i=i+1)
+	    {
+			hoverAltitudeCntrl();
+		}
+        printf("throttle_control %d\n", throttle_control);
+        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)));
+        printf("hover_altitude_control_3 PASSED\n");   
+	}
+
+	void test_hover_altitude_control_4()
+	{
+        //test that in hovering, if altitude exceeds 100m, 
+
+	    //overwrite inputs
+
+		flags._.pitch_feedback = 1;
+		flags._.GPS_steering = 0;
+		current_orientation = F_HOVER;
+        nb_sample_wait = 0;
+		hover_counter = 0;
+
+        accelEarth[2] = 0;
+		IMUlocationz._.W1 = 101;
+
+		udb_flags._.sonar_height_valid = 1;
+		sonar_height_to_ground = 10001;
+
+		udb_flags._.baro_valid = 1;
+		barometer_altitude = 0;
+
+		int16_t z_target = (int16_t)(HOVER_TARGET_HEIGHT_MIN);
+		int16_t vz_target = 0;
+
+		hoverAltitudeCntrl();
+
+        printf("throttle_control %d\n", throttle_control);
+        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)));
+        printf("hover_altitude_control_4 PASSED\n");   
+	}
+
+	void test_hover_altitude_control_5()
+	{
+        //test out of range
+
+	    //overwrite inputs
+		flags._.pitch_feedback = 1;
+		flags._.GPS_steering = 0;
+
+        accelEarth[2] = 0;
+		IMUlocationz._.W1 = 101;
+
+		udb_flags._.sonar_height_valid = 1;
+		sonar_height_to_ground = 10001;
+
+		udb_flags._.baro_valid = 1;
+		barometer_altitude = 0;
+
+		current_orientation = F_HOVER;
+        nb_sample_wait = 0;
+		hover_counter = 0;
+
+		hoverAltitudeCntrl();
+
+        printf("throttle_control %d\n", throttle_control);
+        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)));
+        printf("hover_altitude_control_5 PASSED\n");   
+	}
+
+
+
 
     printf("Start unit tests\n");
 
@@ -511,6 +634,9 @@ int main(void)
 	//test_hover_roll_control_3();
 	//test_hover_roll_control_4();
 	test_hover_altitude_control_1();
+	test_hover_altitude_control_2();
+	test_hover_altitude_control_3();
+	test_hover_altitude_control_4();
 
 	system("pause");
 
