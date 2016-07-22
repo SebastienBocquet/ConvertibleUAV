@@ -82,7 +82,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set this value to your GPS type.  (Set to GPS_STD, GPS_UBX_2HZ, GPS_UBX_4HZ, or GPS_MTEK)
-#define GPS_TYPE                            GPS_STD 
+#define GPS_TYPE                            GPS_UBX_4HZ
 
 ////////////////////////////////////////////////////////////////////////////////
 // Enable/Disable core features of this firmware
@@ -146,7 +146,7 @@
 // Set these to 1 to enable stabilization of hovering in stabilized and/or waypoint modes.
 #define HOVERING_STABILIZED_MODE            1  //stabilization of hovering (roll, yaw, pitch, throttle) in stabilized mode
                                                //in waypoint mode, throttle is controlled to navigate through the waypoints
-#define HOVERING_WAYPOINT_MODE_XY           0  //in waypoint mode, activates navigation through waypoints using roll and pitch 
+#define HOVERING_WAYPOINT_MODE_XY           1  //in waypoint mode, activates navigation through waypoints using roll and pitch 
                                                //(for the moment, the goal is the origin point)
 
 // Note: As of MatrixPilot 3.0, Dead Reckoning and Wind Estimation are automatically enabled.
@@ -180,7 +180,7 @@
 #define USE_SONAR_ON_PWM_INPUT_8			1
 
 //Use of barometer for altitude measurement
-#define BAROMETER_ALTITUDE                  1
+#define BAROMETER_ALTITUDE                  0
 #define USE_BARO_BMP085                     1
 #define USE_BARO_MS5611                     0
 
@@ -279,7 +279,7 @@
 #define AILERON_CHANNEL_REVERSED            1
 #define FLAP_CHANNEL_REVERSED               0
 #define ELEVATOR_CHANNEL_REVERSED           1
-#define RUDDER_CHANNEL_REVERSED             1
+#define RUDDER_CHANNEL_REVERSED             0
 #define AILERON_SECONDARY_CHANNEL_REVERSED  0
 #define THROTTLE_CHANNEL_REVERSED           0
 #define SONAR_PITCH_CHANNEL_REVERSED        0
@@ -525,8 +525,8 @@
 
 //////////altitude control/////////////
 
-#define MANUAL_TARGET_HEIGHT                0    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
-                                                 //otherwise target height is set to hovertargetheightmin and target vz is set to hovertargetvzmin
+#define MANUAL_TARGET_HEIGHT                1    //in stabilized mode, manually prescribes a target height using the flap channel, 
+                                                 //otherwise it prescribes a target velocity
 #define HOVER_ROLLKP                        1.3
 #define HOVER_ROLLKD                        0.
 #define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
@@ -547,14 +547,14 @@
 #define HOVER_THROTTLE_OFFSET              0.68
 #define HOVER_THROTTLE_MIN                 0.2
 #define HOVER_THROTTLE_MAX                 1.
-#define HOVER_TARGET_HEIGHT_MIN            100   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
-#define HOVER_TARGET_HEIGHT_MAX            400   // (cm)
-#define HOVER_TARGET_VZ_MIN                -200   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
-#define HOVER_TARGET_VZ_MAX                200   // (cm/s)
+#define HOVER_TARGET_HEIGHT_MIN            172   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
+#define HOVER_TARGET_VZ_MIN                0   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_TARGET_VZ_MAX                300   // (cm/s)
 #define USEABLE_SONAR_DISTANCE             400 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
-#define VZ_CORR                            1     //0 means vz = imu_vz, 1 means vz is the derivative of sensor or barometer altitude
+#define VZ_CORR                            1     //correction factor for the correction of imu vz by barometer vz
 #define HOVER_INV_DELTA_FILTER_TARGETZ     80.
-#define HOVER_INV_DELTA_FILTER_SONAR       20.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
+#define HOVER_INV_DELTA_FILTER_SONAR       80.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_BARO        4.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
 #define HOVER_ZKP                          5.58 //in 1/cm, should be between 0 and 10
@@ -722,7 +722,7 @@
 // Below are settings to configure the simulated UDB UARTs.
 // The SERIAL_RC_INPUT settings allow optionally talking over a serial port to a UDB
 // passing RC inputs through to the simulated UDB.
-#define SILSIM                              0
+#define SILSIM                              1
 #define SILSIM_GPS_RUN_AS_SERVER            0
 #define SILSIM_GPS_PORT                     14551       // default port to connect to XPlane HILSIM plugin
 #define SILSIM_GPS_HOST                     "127.0.0.1"
@@ -733,7 +733,7 @@
 #define SILSIM_SERIAL_RC_INPUT_BAUD         38400
 
 //set to 1 to run self tests instead of time loop
-#define TEST                                0
+#define TEST                                1
 
 ////////////////////////////////////////////////////////////////////////////////
 // Flight Plan handling

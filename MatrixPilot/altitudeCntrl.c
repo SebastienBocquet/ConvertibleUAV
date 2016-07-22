@@ -139,7 +139,6 @@ int16_t error_integral_vz=0;
 int16_t error_integral_accz=0;
 int32_t previous_z32;
 boolean failsafe_throttle_mode = false;
-boolean alt_sensor_failure = false;
 int16_t min_hover_alt = (int16_t)(HOVER_ALTITUDE_MIN);
 int16_t max_hover_alt = (int16_t)(HOVER_FAILSAFE_ALTITUDE);
 
@@ -155,6 +154,10 @@ int16_t hover_error_accz=0;
 int16_t hover_target_vz=0;
 int16_t hover_target_accz=0;
 
+float invdeltafilterheight;
+float invdeltafilterheight32;
+float invdeltafiltervz;
+
 #if ( USE_SONAR == 1 )
    int16_t sonar_distance ;          // distance to target in centimeters
    int16_t sonar_height_to_ground ; // calculated distance to ground in Earth's Z Plane allowing for tilt
@@ -162,6 +165,11 @@ int16_t hover_target_accz=0;
 //   fractional cos_pitch_roll ;  // tilt of the plane in UDB fractional units * 2.
    void calculate_sonar_height_above_ground(void);
 #endif
+
+//failsafe
+int32_t failsafe_start_time;
+boolean is_init_failsafe = 0;
+int16_t is_in_hovering_failsafe = 0;
 
 //% Initialisation de Kalman
 //#define SCL 40
@@ -199,7 +207,6 @@ int16_t hover_target_accz=0;
 //int32_t tmp2_vect[] = {0, 0};
 //int32_t mat_transpose[] = {0, 0, 0, 0};
 //int32_t mat_inv[] = {0, 0, 0, 0};
-
 
 
 #if (SPEED_CONTROL == 1)  // speed control loop
@@ -323,6 +330,37 @@ void set_throttle_control(int16_t throttle)
 	    throttle_control = 0;
 	}
 }
+
+void hovering_failsafe()
+{
+//	  manoeuvre failsafe:
+//    desactiver asservissement hover XY gps
+//    full throttle durant 3s, puis
+//        si z > 50m: transition horizontale, fin manoeuvre
+//        sinon: full throttle
+
+    int32_t failsafe_duration = 3000;
+	int32_t time = tow.WW;
+	struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200, -1000 }, 
+                                             { THROTTLE_OUTPUT_CHANNEL, 0, 1200, 1300 }};
+
+	if (!is_init_failsafe)
+	{
+		failsafe_start_time = time;
+		flags._.GPS_steering = 0;
+		is_init_failsafe=1;
+	}
+	
+	if (time < (failsafe_start_time + failsafe_duration))
+	{
+		set_throttle_control(hoverthrottlemax);
+	}
+	else
+	{
+		setManoeuvre(trans_vert_to_horiz, time - failsafe_duration - failsafe_start_time);
+	}
+}
+
 
 void setTargetAltitude(int16_t targetAlt)
 {
@@ -487,14 +525,22 @@ void manualThrottle(int16_t throttleIn)
 	set_throttle_control(throttle_control_pre);
 }
 
+int16_t compute_vz_alt_sensor(int16_t z)
+{
+    int32_t z32 = (int32_t)(z)*100;
+	z_filtered32 = exponential_filter32(z32, &z_filtered32_flt, invdeltafilterheight, (int16_t)(HEARTBEAT_HZ));
+    int32_t vz_alt_sensor32=(z_filtered32-previous_z32)*((int32_t)(HEARTBEAT_HZ));
+	previous_z32=z_filtered32;
+    return (int16_t)(vz_alt_sensor32/100);
+}
+
 void hoverAltitudeCntrl(void)
 {
     int16_t throttleIn = (udb_flags._.radio_on == 1) ? udb_pwIn[THROTTLE_INPUT_CHANNEL] : udb_pwTrim[THROTTLE_INPUT_CHANNEL];
     int16_t throttleInOffset = (udb_flags._.radio_on == 1) ? udb_servo_pulsesat(udb_pwIn[THROTTLE_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_INPUT_CHANNEL]) : 0;
-
+    int16_t z;
     int16_t z_target;
     int16_t vz_target;
-    int16_t z;
     int16_t error_z;
     int16_t target_vz;
     int16_t target_vz_bis;
@@ -505,9 +551,7 @@ void hoverAltitudeCntrl(void)
     int16_t target_accz_bis;
     int16_t error_accz;
     int16_t throttle;
-    float invdeltafilterheight;
-    float invdeltafilterheight32;
-    float invdeltafiltervz;
+	boolean alt_sensor_failure=true;
 
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
@@ -527,7 +571,9 @@ void hoverAltitudeCntrl(void)
         target_vz_filtered_flt=0.;
         vz_filtered_flt=0.;
         accz_filtered_flt=0.;
- 		previous_z32=(int32_t)(100*hovertargetheightmin);
+ 		previous_z32=(int32_t)(hovertargetheightmin)*100;
+		is_init_failsafe=0;
+		is_in_hovering_failsafe = 0;
     }
 
     if (hover_counter < RMAX)
@@ -540,11 +586,8 @@ void hoverAltitudeCntrl(void)
     //by default use IMU altitude and velocity
     z=100*IMUlocationz._.W1+50;
     invdeltafilterheight=(float)(HEARTBEAT_HZ);
-    invdeltafilterheight32=(float)(HEARTBEAT_HZ);
     invdeltafiltervz=(float)(HEARTBEAT_HZ);
     vz=IMUvelocityz._.W1;
-
-    alt_sensor_failure=true;
 
     //if barometer is used, use its measurement
 #if ( BAROMETER_ALTITUDE == 1 )
@@ -553,8 +596,7 @@ void hoverAltitudeCntrl(void)
         estBaroAltitude();
         z=(int16_t)(get_barometer_altitude());
         invdeltafilterheight=invdeltafilterbaro;
-        invdeltafilterheight32=2.;
-        invdeltafiltervz=2.;
+		invdeltafiltervz=1.;
         alt_sensor_failure=false;
     }
 #endif
@@ -568,9 +610,8 @@ void hoverAltitudeCntrl(void)
 	{
         z=sonar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
-        invdeltafilterheight32=5.;
-        invdeltafiltervz=4.;
-        alt_sensor_failure=false;
+        invdeltafiltervz=1.;
+		alt_sensor_failure=false;
 	}
 #endif
     
@@ -584,25 +625,25 @@ void hoverAltitudeCntrl(void)
 
 if (flags._.GPS_steering)
 {
-    //a remplacer par desiredHeight et desiredVelocity issus des waypoints
+	//GPS mode
     z_target = compute_target_alt();
     vz_target = compute_target_vz();
 }
 else
 {
-//    int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
-//    tmp1=limit_value(tmp1, 0, 3823-2233);
+    //stabilized mode
 
 #if (MANUAL_TARGET_HEIGHT == 1)
 
-//    int32_t tmp2 = __builtin_mulss(hovertargetheightmax-hovertargetheightmin, tmp1);
-//    z_target = (int16_t)(tmp2/(3823-2233))+hovertargetheightmin;  
-    z_target = hovertargetheightmin;  
+    //FLAP_INPUT_CHANNEL controls target_z
+    z_target = compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], hovertargetheightmin, hovertargetheightmax);  
+ 
+	//CAMERA_PITCH_INPUT_CHANNEL controls target_vz
+    vz_target = compute_pot_order(udb_pwIn[CAMERA_PITCH_INPUT_CHANNEL], hovertargetvzmin, hovertargetvzmax);
 
 #else
 
-//    int32_t tmp2 = __builtin_mulss(hovertargetvzmax-hovertargetvzmin, tmp1);
-//    vz_target = (int16_t)(tmp2/(3823-2233))+hovertargetvzmin;
+    z_target = hovertargetheightmin; 
     vz_target = hovertargetvzmin;
 
 #endif // end MANUAL_TARGET_HEIGHT
@@ -622,17 +663,11 @@ else
     //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
     //VZ_CORR=1 means only altitude sensor derivative is considered
 
-    if (alt_sensor_failure == false)
+    if (!alt_sensor_failure)
     {
-        z_filtered32 = exponential_filter32(100*z, &z_filtered32_flt, invdeltafilterheight32, (int16_t)(HEARTBEAT_HZ));
-
-        int32_t vz_alt_sensor32=(z_filtered32-previous_z32)*((int32_t)(HEARTBEAT_HZ));
-        int16_t vz_alt_sensor=(int16_t)(vz_alt_sensor32/100);
-        vz = (__builtin_mulsu(vz, RMAX - VZ_CORR_16) 
-                    + __builtin_mulsu(vz_alt_sensor, VZ_CORR_16))>>14;
-        //vz=vz_alt_sensor;
-        previous_z32=z_filtered32;
-    }
+		vz = (__builtin_mulsu(IMUvelocityz._.W1, RMAX - VZ_CORR_16) 
+                    + __builtin_mulsu(compute_vz_alt_sensor(z), VZ_CORR_16))>>14;
+	}
 
     vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz, (int16_t)(HEARTBEAT_HZ));
     accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel, (int16_t)(HEARTBEAT_HZ));
@@ -640,7 +675,11 @@ else
     //***************************************************//
     //PI controller on height to ground z
     error_z=z_filtered-target_z_filtered;
-    if (MANUAL_TARGET_HEIGHT == 1 || is_target_alt())
+
+	//we are in target z mode:
+	// > in GPS mode, if it is requested by the segment
+	// > in stabilized mode, if the filtered altitude is higher than the max target height minus 30cm
+    if ((flags._.GPS_steering && is_target_alt()) || ((!flags._.GPS_steering) && z_filtered < (hovertargetheightmax - 30)))
 	{ 
         target_vz=compute_pid_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
                                     (int16_t)(HEARTBEAT_HZ), (hover_counter > nb_sample_wait));
@@ -681,48 +720,40 @@ else
     //add throttle offset
     throttle_control_pre+=hoverthrottleoffset;
 
-    if (alt_sensor_failure || z < min_hover_alt || hover_counter <= nb_sample_wait)
+    //manage failsafe in case of sensor failure
+	//une fois les quelques secondes d'initialisation passees
+    //
+    //si panne baro:
+	//  > si sonar OK: fait rien
+	//  > si sonar invalid: manoeuvre failsafe
+
+	if (hover_counter > nb_sample_wait)
+    {
+	    if (!udb_flags._.baro_valid && !udb_flags._.sonar_height_valid)
+		{
+			is_in_hovering_failsafe += 1;
+		}
+	}
+
+	if (hover_counter <= nb_sample_wait)
+	{ 
+        //wait a few seconds that filtered vars a PIDs converge before applying throttle control
+		throttle_control_pre=hoverthrottleoffset;
+	}
+
+    if (z < min_hover_alt)
 	{
-        throttle_control_pre=hoverthrottleoffset;
-        //later, use sinusoidal throttle command to visualize failsafe
+        throttle_control_pre=hoverthrottlemax;
     }
 
-    if (z > max_hover_alt)  //if max altitude is exceeded by 10%, reduce throttle
+    if (z > max_hover_alt)  
 	{
+		//if max altitude is exceeded, reduce throttle
         throttle_control_pre=hoverthrottlemin;
     }
 
-        //DEBUG: generation of a sinusoidal signal imposed as throttle. Goal is to observe corresponding 
-        //sonar height, z velocity and z acceleration: it will allow to determine:
-        // 1. if acceleration signal is meaningful
-        // 2. responsiveness of the propulsion set to throttle order
-        // 2. estimate the proportionnal gains
-//        int8_t angle;
-//        int16_t angle_bis;
-//        int16_t synthetic_throttle;
-//        int16_t sin;
-//        int16_t amplitude=250;
-//        int16_t frequency=1;
-//        int16_t k =(int16_t)(frequency*((256*SCALE_GAIN)/HEARTBEAT_HZ)); //max frequency is (heartbeat/5) Hz (5 points per period)
-//        
-//        angle_bis=k*synthetic_throttle_counter;
-//
-//        if (angle_bis >= (256*SCALE_GAIN))
-//        {
-//            synthetic_throttle_counter=0;
-//        }
-//
-//        angle=(int8_t)(angle_bis/SCALE_GAIN);
-//        if (angle_bis >= (128*SCALE_GAIN))
-//        {
-//            angle=(int8_t)(angle_bis/SCALE_GAIN)-256;
-//        }
-//         
-//        sin=sine(angle);
-//        synthetic_throttle=(int16_t)(sin/(16384/amplitude));
-//        synthetic_throttle_counter+=1;
-
-        //throttle_control_pre+=synthetic_throttle;
+	//si cas de panne dure plus d'une seconde, on declenche la manoeuvre failsafe
+	if (is_in_hovering_failsafe > HEARTBEAT_HZ) hovering_failsafe();
 
     //limit throttle value
     throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
@@ -764,6 +795,153 @@ else
     {
         manualThrottle(throttleIn);
     }
+
+}
+
+
+
+
+
+#if ( USE_SONAR == 1 )
+
+// USEABLE_SONAR_DISTANCE may well vary with type of ground cover (e.g. long grass may be less).
+// Pete Hollands ran the code with #define SERIAL_OUTPUT SERIAL_UDB_SONAR while flying low
+// over his landing area, which was a freshly cut straw field. Post flight, he anlaysed the CSV telemetry into a spreadsheet graph,
+// and determined that all measurements below 4 meters were true, as long as there were at least 3 consecutive measurements,
+// that were less than 4 meters (400 centimeters).
+#define SONAR_MINIMUM_DISTANCE                   90 // Normally, should be minimum possible sonar distance measurement (4 inch)
+                                                     //here specifically for the SBACH 342, the sonar sees the elevator and returns 78cm.
+                                                     //so we discard this value by setting to 90cm the minimum valid distance
+#define OUT_OF_RANGE_DISTANCE          			 550 // Distance in centimeters that denotes "out of range" for your Sonar device.
+#define NO_READING_RECEIVED_DISTANCE			9999 // Distance denotes that no sonar reading was returned from sonar device
+#define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
+#define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 
+
+#if ( USE_SONAR_ON_PWM_INPUT_8	== 0)
+    uint16_t udb_pwm_sonar = 0;
+#endif
+
+unsigned char no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
+int16_t distance_yaw_corr = 0;  //correction of sonar distance in cm, to account for yaw angle of the plane
+
+void calculate_sonar_height_above_ground(void)
+{
+#if (SILSIM == 1)
+	return;
+#endif
+	if ( udb_flags._.sonar_updated == 1 ) 
+	{	
+		union longbbbb accum ;
+		no_readings_count  = 0 ;
+
+        accum.WW = __builtin_muluu( udb_pwm_sonar , UDB_SONAR_PWM_UNITS_TO_CENTIMETERS ) ;
+		sonar_distance = accum._.W1 << 1 ;
+
+        //analog input on analog input 1
+        //sonar_distance = (int16_t)(udb_analogInputs[0].input/73 + 440);
+
+		// RMAT 7 is the cosine of the tilt of the plane in pitch with respect to vertical axis (z)	;
+//		cos_pitch_roll = rmat[7] ;
+//		if ( cos_pitch_roll > 16383 )
+//		{
+//			cos_pitch_roll = 16383 ;
+//		}
+		if ( sonar_distance > USEABLE_SONAR_DISTANCE || sonar_distance < SONAR_MINIMUM_DISTANCE )
+		{
+			sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
+			good_sample_count = 0 ; 
+            udb_flags._.sonar_height_valid = 0;
+#if (LED_RED_SONAR_CHECK == 1)
+			LED_RED = LED_ON;
+#endif
+		}
+		else 
+		{
+			good_sample_count++ ;
+			if  (good_sample_count > SONAR_SAMPLE_THRESHOLD) 
+			{
+				good_sample_count = SONAR_SAMPLE_THRESHOLD ;
+                //approximation of tan(yaw) = yaw
+                distance_yaw_corr = __builtin_mulsu(rmat[6], HALF_SPAN)>>14;
+//				accum.WW = __builtin_mulss(cos_pitch_roll, sonar_distance) ;
+//				sonar_height_to_ground = -accum._.W1 << 2 ; 
+                sonar_height_to_ground = sonar_distance + distance_yaw_corr;
+                udb_flags._.sonar_height_valid = 1;
+                //additional_int16_export5 = rmat[6];
+	            //additional_int16_export3 = distance_yaw_corr;
+#if (LED_RED_SONAR_CHECK == 1)
+				LED_RED = LED_OFF;
+#endif
+			}
+			else
+			{
+				sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
+                udb_flags._.sonar_height_valid = 0;
+#if (LED_RED_SONAR_CHECK == 1)
+				LED_RED = LED_ON;
+#endif
+			}
+		}
+		udb_flags._.sonar_updated = 0 ;
+		udb_flags._.sonar_print_telemetry = 1 ;
+	}
+	else
+	{
+		if ( no_readings_count < 7 ) // This assumes runnig at 40HZ UDB frame rate
+		{
+		 	no_readings_count++ ;
+		}
+		else
+		{
+	    	sonar_height_to_ground = NO_READING_RECEIVED_DISTANCE ;
+			udb_flags._.sonar_height_valid = 0;
+#if (LED_RED_SONAR_CHECK == 1)
+			LED_RED = LED_ON;
+#endif
+		}
+	}
+	return ;
+}
+#endif
+
+
+#endif //(ALTITUDE_GAINS_VARIABLE != 1)
+
+
+
+
+        //DEBUG: generation of a sinusoidal signal imposed as throttle. Goal is to observe corresponding 
+        //sonar height, z velocity and z acceleration: it will allow to determine:
+        // 1. if acceleration signal is meaningful
+        // 2. responsiveness of the propulsion set to throttle order
+        // 2. estimate the proportionnal gains
+//        int8_t angle;
+//        int16_t angle_bis;
+//        int16_t synthetic_throttle;
+//        int16_t sin;
+//        int16_t amplitude=250;
+//        int16_t frequency=1;
+//        int16_t k =(int16_t)(frequency*((256*SCALE_GAIN)/HEARTBEAT_HZ)); //max frequency is (heartbeat/5) Hz (5 points per period)
+//        
+//        angle_bis=k*synthetic_throttle_counter;
+//
+//        if (angle_bis >= (256*SCALE_GAIN))
+//        {
+//            synthetic_throttle_counter=0;
+//        }
+//
+//        angle=(int8_t)(angle_bis/SCALE_GAIN);
+//        if (angle_bis >= (128*SCALE_GAIN))
+//        {
+//            angle=(int8_t)(angle_bis/SCALE_GAIN)-256;
+//        }
+//         
+//        sin=sine(angle);
+//        synthetic_throttle=(int16_t)(sin/(16384/amplitude));
+//        synthetic_throttle_counter+=1;
+
+        //throttle_control_pre+=synthetic_throttle;
+
 
 //Kalman Filter
 
@@ -833,98 +1011,3 @@ else
 //
 //            hover_state_zpoint=(int16_t)(x_vect[0]);
 //            hover_state_z=(int16_t)(x_vect[1]);
-
-}
-
-#if ( USE_SONAR == 1 )
-
-// USEABLE_SONAR_DISTANCE may well vary with type of ground cover (e.g. long grass may be less).
-// Pete Hollands ran the code with #define SERIAL_OUTPUT SERIAL_UDB_SONAR while flying low
-// over his landing area, which was a freshly cut straw field. Post flight, he anlaysed the CSV telemetry into a spreadsheet graph,
-// and determined that all measurements below 4 meters were true, as long as there were at least 3 consecutive measurements,
-// that were less than 4 meters (400 centimeters).
-#define SONAR_MINIMUM_DISTANCE                   90 // Normally, should be minimum possible sonar distance measurement (4 inch)
-                                                     //here specifically for the SBACH 342, the sonar sees the elevator and returns 78cm.
-                                                     //so we discard this value by setting to 90cm the minimum valid distance
-#define OUT_OF_RANGE_DISTANCE          			 550 // Distance in centimeters that denotes "out of range" for your Sonar device.
-#define NO_READING_RECEIVED_DISTANCE			9999 // Distance denotes that no sonar reading was returned from sonar device
-#define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
-#define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 
-
-#if ( USE_SONAR_ON_PWM_INPUT_8	== 0)
-    uint16_t udb_pwm_sonar = 0;
-#endif
-
-unsigned char no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
-int16_t distance_yaw_corr = 0;  //correction of sonar distance in cm, to account for yaw angle of the plane
-
-void calculate_sonar_height_above_ground(void)
-{
-#if (SILSIM == 1)
-	return;
-#endif
-	if ( udb_flags._.sonar_updated == 1 ) 
-	{	
-		union longbbbb accum ;
-		no_readings_count  = 0 ;
-
-        accum.WW = __builtin_muluu( udb_pwm_sonar , UDB_SONAR_PWM_UNITS_TO_CENTIMETERS ) ;
-		sonar_distance = accum._.W1 << 1 ;
-
-        //analog input on analog input 1
-        //sonar_distance = (int16_t)(udb_analogInputs[0].input/73 + 440);
-
-		// RMAT 7 is the cosine of the tilt of the plane in pitch with respect to vertical axis (z)	;
-//		cos_pitch_roll = rmat[7] ;
-//		if ( cos_pitch_roll > 16383 )
-//		{
-//			cos_pitch_roll = 16383 ;
-//		}
-		if ( sonar_distance > USEABLE_SONAR_DISTANCE || sonar_distance < SONAR_MINIMUM_DISTANCE )
-		{
-			sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
-			good_sample_count = 0 ; 
-            udb_flags._.sonar_height_valid = 0;
-		}
-		else 
-		{
-			good_sample_count++ ;
-			if  (good_sample_count > SONAR_SAMPLE_THRESHOLD) 
-			{
-				good_sample_count = SONAR_SAMPLE_THRESHOLD ;
-                //approximation of tan(yaw) = yaw
-                distance_yaw_corr = __builtin_mulsu(rmat[6], HALF_SPAN)>>14;
-//				accum.WW = __builtin_mulss(cos_pitch_roll, sonar_distance) ;
-//				sonar_height_to_ground = -accum._.W1 << 2 ; 
-                sonar_height_to_ground = sonar_distance + distance_yaw_corr;
-                udb_flags._.sonar_height_valid = 1;
-                //additional_int16_export5 = rmat[6];
-	            //additional_int16_export3 = distance_yaw_corr;
-			}
-			else
-			{
-				sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
-                udb_flags._.sonar_height_valid = 0;
-			}
-		}
-		udb_flags._.sonar_updated = 0 ;
-		udb_flags._.sonar_print_telemetry = 1 ;
-	}
-	else
-	{
-		if ( no_readings_count < 7 ) // This assumes runnig at 40HZ UDB frame rate
-		{
-		 	no_readings_count++ ;
-		}
-		else
-		{
-	    	sonar_height_to_ground = NO_READING_RECEIVED_DISTANCE ;
-		}
-	}
-	return ;
-}
-#endif
-
-
-#endif //(ALTITUDE_GAINS_VARIABLE != 1)
-

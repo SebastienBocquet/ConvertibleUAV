@@ -91,17 +91,23 @@ void updateBehavior(void)
 	}
 	else if (current_orientation == F_HOVER)
 	{
-		if (canStabilizeHover() && rmat[7] < 2730)
+		//switch from hovering to normal if plane is at pitch angle -15deg
+		//if (canStabilizeHover() && rmat[7] < 2730)
+
+		//baseline: switch from hovering to normal if plane is at pitch angle 45deg
+		if (canStabilizeHover() && rmat[7] < -8000)
 		{
 			current_orientation = F_HOVER;
 		}
 		else if (canStabilizeInverted() && rmat[8] < -6000)
 		{
 			current_orientation = F_INVERTED;
+			reset_manoeuvre();
 		}
 		else
 		{
 			current_orientation = F_NORMAL;
+			reset_manoeuvre();
 		}
 	}
 	else

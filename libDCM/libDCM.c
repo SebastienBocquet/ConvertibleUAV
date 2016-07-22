@@ -28,7 +28,7 @@
 
 
 union dcm_fbts_word dcm_flags;
-int16_t toggle = 0;
+int16_t toggle = 1;
 
 // Calibrate for 10 seconds before moving servos
 #define CALIB_COUNT  (HEARTBEAT_HZ*10)    // 10 seconds
@@ -96,23 +96,24 @@ void udb_callback_read_sensors(void)
 	read_accel();
 }
 
-//#if (BAROMETER_ALTITUDE == 1)
 void do_I2C_stuff(int16_t toggle)
 {
-	if (toggle) {
-#if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
-		printf("rxMag %u\r\n", udb_heartbeat_counter);
-		rxMagnetometer(udb_magnetometer_callback);
-#endif
-	} 
-    else
-    {
+//	if (toggle) {
+//#if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
+//	// This is a simple counter to do stuff at 4hz
+//	if (udb_heartbeat_counter % (HEARTBEAT_HZ / 4) == 0)
+//	{
+//		rxMagnetometer(udb_magnetometer_callback);
+//	}
+//#endif
+//	} 
+//    else
+//    {
 #if (BAROMETER_ALTITUDE == 1)
 		rxBarometer(udb_barometer_callback);
 #endif
-	}
+//	}
 }
-//#endif // BAROMETER_ALTITUDE
 
 // Called at HEARTBEAT_HZ
 void udb_servo_callback_prepare_outputs(void)
@@ -122,11 +123,7 @@ void udb_servo_callback_prepare_outputs(void)
     //WARNING: if several sensors are connected via I2C, manage the callback to avoid clash
     //toggle = !toggle;
 //#if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
-//	// This is a simple counter to do stuff at 4hz
-//	if (udb_heartbeat_counter % (HEARTBEAT_HZ / 4) == 0)
-//	{
-//		rxMagnetometer(udb_magnetometer_callback);
-//	}
+
 //#endif
 
 //  when we move the IMU step to the MPU call back, to run at 200 Hz, remove this

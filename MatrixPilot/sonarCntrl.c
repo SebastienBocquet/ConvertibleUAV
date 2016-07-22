@@ -20,6 +20,8 @@
 
 #include "defines.h" 
 
+#define LED_RED_SONAR_CHECK                   1
+
 // servo_ratios are used to convert degrees of rotation into servo pulse code lengths
 // This code is configured for the full throw of the servo to be achieved by a range of
 // 2000 units being sent to udb_pwOut. (i.e. min deflection 2000, centered 3000, max deflection 4000)

@@ -229,7 +229,6 @@ void hoverYawCntrl(void)
 		int16_t manualYawOffset = 0; //yawInput * (int16_t)(RMAX/2000);
 
         //correction on rmat6: if the plane has a significant pitch angle (can happen to ensure equilibrium in wind)
-        fractional rmat8 = rmat[8];
         //rmat6_corr = rmat6 * (1 - rmat8/16384)**2
         rmat6_corr = (int16_t)(__builtin_mulsu(rmat[6], (16384 - abs(rmat[8])))>>14);
         rmat6_corr = (int16_t)(__builtin_mulsu(rmat6_corr, (16384 - abs(rmat[8])))>>14);

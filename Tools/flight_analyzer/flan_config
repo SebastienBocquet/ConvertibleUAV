@@ -10,7 +10,7 @@ p3
 I0
 sS'telemetry_filename'
 p4
-VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues 05-2016/LOG02243.TXT
+VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues_01-07-2016/LOG02260.TXT
 p5
 sS'telemetry_type'
 p6
@@ -24,11 +24,11 @@ p9
 I0
 sS'GE_filename_kml'
 p10
-VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues 05-2016/LOG02243.kml
+VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues_01-07-2016/LOG02260.kml
 p11
 sS'CSV_filename'
 p12
-VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues 05-2016/LOG02243.csv
+VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues_01-07-2016/LOG02260.csv
 p13
 sS'waypoint_filename'
 p14
@@ -42,7 +42,7 @@ p17
 I0
 sS'GE_filename'
 p18
-VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues 05-2016/LOG02243.kmz
+VE:/projet autoentrepreneur/prise de vue aerienne/tests/Gragnagues_01-07-2016/LOG02260.kmz
 p19
 sS'waypoint_selector'
 p20

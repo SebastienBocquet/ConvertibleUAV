@@ -70,9 +70,6 @@ void dcm_callback_gps_location_updated(void)
 		//	but is saved in case you decide to extend this code.
 		flags._.save_origin = 0;
 		setup_origin();
-//#if (BAROMETER_ALTITUDE == 1)
-//		altimeter_calibrate();
-//#endif
 	}
 	
 //	Ideally, navigate should take less than one second. For MatrixPilot, navigation takes only
@@ -439,17 +436,23 @@ int16_t determine_navigation_deflection(char navType)
 
 void compute_hovering_dir(void)
 {
+	int8_t plane_to_south;
+
     //we need to know plane orientation with respect to earth frame of reference 
     //to manage the yaw and pitch orders when plane will hover around the inital point.
     //Without magnetometer, we need to initialize plane with nose pointing toward a given direction.
     //plane_to_south is plane x axis angle relative to south direction.
     //128=pi radians, so 128 means plane is initialized toward north
 
+#if (MANUAL_TARGET_HEIGHT == 0)
     int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
     tmp1=limit_value(tmp1, 0, 3823-2233);
     int32_t tmp2 = __builtin_mulss(255, tmp1);
     tmp1 = (int16_t)(tmp2/(3823-2233));
-    int8_t plane_to_south = (int8_t)(tmp1);
+    plane_to_south = (int8_t)(tmp1);
+#else
+	plane_to_south = 128;
+#endif
 
     int16_t pitch_yaw_orders[2];
 

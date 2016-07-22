@@ -286,6 +286,9 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 	if (I2CtrxOK == true)
 	{
         udb_flags._.baro_valid = 1;
+#if (LED_RED_BARO_CHECK == 1)
+		LED_RED = LED_OFF;
+#endif
 
 //		byteswaparray((unsigned char*)&barData, 2);
 		ut = ((unsigned int) (unsigned int)barData[0] << 8 | (unsigned int)barData[1]);
@@ -298,6 +301,9 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 	{
 		// the operation failed - we should probably do something about it...
         udb_flags._.baro_valid = 0;
+#if (LED_RED_BARO_CHECK == 1)
+		LED_RED = LED_ON;
+#endif
 	}
 }
 
@@ -308,6 +314,7 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 	if (I2CtrxOK == true)
 	{
         udb_flags._.baro_valid = 1;
+		LED_RED = LED_OFF;
 
 		pressure = ((long)barData[0] << 16 | (long)barData[1] << 8 | (long)barData[2]) >> (8-OSS);
 #ifdef TEST_WITH_DATASHEET_VALUES
@@ -323,6 +330,7 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 	{
 		// the operation failed - we should probably do something about it...
         udb_flags._.baro_valid = 0;
+		LED_RED = LED_ON;
 	}
 }
 

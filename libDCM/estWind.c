@@ -42,7 +42,7 @@ void estimateWind(void)
     }
 
     //this line means that wind estimation is skipped if plane is hovering
-	if (dcm_flags._.skip_yaw_drift) return;
+	//if (dcm_flags._.skip_yaw_drift) return;
 	
 	int16_t index;
 	int16_t groundVelocity[3];

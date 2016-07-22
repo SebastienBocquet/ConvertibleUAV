@@ -158,7 +158,6 @@ void hoverRollCntrl(void)
     fractional rmat5;
     fractional rmat8;
     int8_t rmat6_128;
-    int32_t tmp;
     int16_t roll_corr = 0;
     int16_t angle_delta = 0;
     int16_t rollAngle = 0;
@@ -176,10 +175,14 @@ void hoverRollCntrl(void)
 //		}
 //		else
 //		{ 
-        int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
-	    tmp1=limit_value(tmp1, 0, 3823-2233);
-	    int32_t tmp2 = __builtin_mulss(255, tmp1);
-	    rollNavDeflection = (int16_t)(tmp2/(3823-2233))-128;
+
+#if (MANUAL_TARGET_HEIGHT == 0)
+		//FLAP_INPUT_CHANNEL controls the target roll nav deflection
+	    rollNavDeflection = compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], -128, 128);
+#else
+		rollNavDeflection = 0;
+#endif
+
         additional_int16_export8 = rollNavDeflection;
         rollNavDeflection_filtered = exponential_filter(rollNavDeflection, &rollNavDeflection_filtered_flt, 2., (int16_t)(HEARTBEAT_HZ));
         additional_int16_export2 = rollNavDeflection_filtered;

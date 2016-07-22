@@ -79,6 +79,8 @@ extern union longww throttleFiltered;
 extern int16_t pitchAltitudeAdjust;
 
 extern int16_t current_manoeuvreValues[NUM_OUTPUTS];
+struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
+void setManoeuvre(struct manoeuvreDef*, int32_t);
 
 #if (SPEED_CONTROL == 1)
 extern int16_t desiredSpeed; // Stored in 10ths of meters per second
@@ -116,6 +118,8 @@ extern int16_t cam_yaw_servo_pwm_delta;
 int32_t sonar_pitchServoLimit(int32_t pwm_pulse);
 int32_t cam_pitchServoLimit(int32_t pwm_pulse);
 int32_t cam_yawServoLimit(int32_t pwm_pulse);
+
+int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_max);
 
 ////////////////////////////////////////////////////////////////////////////////
 // AltitudeCntrl.c

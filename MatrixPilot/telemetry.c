@@ -617,7 +617,7 @@ void serial_output_8hz(void)
 //			if (toggle)
 //			{
 				serial_output("F2:T%li:"
-                              "S%d:"
+                              "S%d%d%d:"
                               "N%li:E%li:A%li:W%i:"
 				              "a%i:b%i:c%i:d%i:e%i:f%i:g%i:h%i:i%i:"
 				              "c%u:s%i:"
@@ -625,7 +625,8 @@ void serial_output_8hz(void)
                               //"bmv%i:"
 				              //"as%u:"
                               "wvx%i:wvy%i:wvz%i:"
-                              //"ma%i:mb%i:mc%i:svs%i:hd%i:"
+                              "ma%i:mb%i:mc%i:"
+                              //svs%i:hd%i:"
                               ,
 				    tow.WW, 
                     udb_flags._.radio_on, dcm_flags._.nav_capable, 
@@ -637,12 +638,12 @@ void serial_output_8hz(void)
                     (uint16_t)udb_cpu_load(),
                     //voltage_milis.BB,
 				    //air_speed_3DIMU,
-				    estimatedWind[0], estimatedWind[1], estimatedWind[2]
-//#if (MAG_YAW_DRIFT == 1)
-//				    magFieldEarth[0],magFieldEarth[1],magFieldEarth[2],
-//#else
-//				    (int16_t)0, (int16_t)0, (int16_t)0,
-//#endif // MAG_YAW_DRIFT
+				    estimatedWind[0], estimatedWind[1], estimatedWind[2],
+#if (MAG_YAW_DRIFT == 1)
+				    magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
+#else
+				    (int16_t)0, (int16_t)0, (int16_t)0
+#endif // MAG_YAW_DRIFT
 				    //svs, hdop
                     );
 

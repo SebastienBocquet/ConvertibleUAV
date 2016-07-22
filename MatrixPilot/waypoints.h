@@ -256,9 +256,9 @@ struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200,
 
 struct vertical_segment take_off_segment[] = {
 		{ 0, 150, 150, 5000, 1, F_HOVER, NULL } ,
-//    	{ 30, 150, 250, 0, 0, F_HOVER, NULL } ,
-//    	{ 300, 250, 5000, 0, 0, F_HOVER, NULL } ,
-//      { 0, 5000, 5000, 1200, 1, F_HOVER, trans_vert_to_horiz } ,
+    	{ 30, 150, 300, 0, 0, F_HOVER, NULL } ,
+    	{ 200, 300, 5000, 0, 0, F_HOVER, NULL } ,
+        { 0, 5000, 5000, 1200, 1, F_HOVER, trans_vert_to_horiz } ,
 };
 
 

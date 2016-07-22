@@ -208,6 +208,7 @@ void normalPitchCntrl(void)
 void hoverPitchCntrl(void)
 {
 	union longww pitchAccum;
+	int16_t manualPitchOffset;
 
 	if (flags._.pitch_feedback)
 	{
@@ -218,11 +219,11 @@ void hoverPitchCntrl(void)
 		int16_t elevInput = (udb_flags._.radio_on == 1) ?
 		    REVERSE_IF_NEEDED(ELEVATOR_CHANNEL_REVERSED, udb_pwIn[ELEVATOR_INPUT_CHANNEL] - udb_pwTrim[ELEVATOR_INPUT_CHANNEL]) : 0;
 
-        int16_t tmp1 = udb_pwIn[CAMERA_PITCH_INPUT_CHANNEL] - 2233;
-	    tmp1=limit_value(tmp1, 0, 3823-2233);
-	    int32_t tmp2 = __builtin_mulss(255, tmp1);
-	    int16_t manualPitchOffset = ((int16_t)(tmp2/(3823-2233))-128)*128;
-
+#if (MANUAL_TARGET_HEIGHT == 0)
+	    manualPitchOffset = compute_pot_order(udb_pwIn[CAMERA_PITCH_INPUT_CHANNEL], -128, 128)*128;
+#else
+		manualPitchOffset = 0;
+#endif
 		int16_t pitchToWP;
 
 #ifdef TestGains

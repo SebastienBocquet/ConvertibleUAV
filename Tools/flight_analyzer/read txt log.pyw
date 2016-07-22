@@ -116,7 +116,7 @@ nb_subplot_v=2
 nb_subplot_h=2
 subplot_location=1
 fontsize=12
-line_len=65
+line_len=70
 t0=40
 tf=None
 HEARTBEAT_HZ=80
@@ -156,7 +156,7 @@ MAX_HOVER_RADIUS = 7
 #2034:hovering, max sonar is 150, attempt to go above 150cm, control based on barometer vz, bug due to sonar distance=78cm above 550cm
 
 #test case for hysteresis on rmat5, and decrease of rmat2=6 with rmat8 increase : 2221, 2222
-file_number=2252
+file_number=2274
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -183,8 +183,6 @@ for i in range(len(time)-8):
 time=time_bis
 
 imu_accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-##gps_vz=extract_var(filename, input_dir, 54, line_len, 'gpsvz')[t0*4:tf*4]
-##gps_z=extract_var(filename, input_dir, 55, line_len, 'gpsz')[t0*4:tf*4]
 
 if SONAR:
     sonar_dist=extract_var(filename, input_dir, line_len, 'sond')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
@@ -226,9 +224,7 @@ throttle=extract_var(filename, input_dir, line_len, 'p1o')[t0*HEARTBEAT_UDB:tf*H
 aileron=extract_var(filename, input_dir, line_len, 'p2o')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 cpu_load=extract_var(filename, input_dir, line_len, 'cpu')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 waypoint_index=extract_var(filename, input_dir, line_len, 'W')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-goal_x=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-goal_y=extract_var(filename, input_dir, line_len, 'G', 2)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-goal_z=extract_var(filename, input_dir, line_len, 'G', 3)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+goal=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 waypoint_index=extract_var(filename, input_dir, line_len, 'W')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 #segment_index=extract_var(filename, input_dir, line_len, 'segi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 lat_gps0=extract_var(filename, input_dir, line_len, 'N')[40*HEARTBEAT_UDB]
@@ -255,7 +251,7 @@ if BAROMETER:
     barometer_pressure=extract_var(filename, input_dir, line_len, 'prs')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
     barometer_temperature=extract_var(filename, input_dir, line_len, 'tmp')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
     barometer_altitude=extract_var(filename, input_dir, line_len, 'alt')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
-    filt_barometer_altitude = exp_filter(barometer_altitude, 4, HEARTBEAT_HZ)
+    filt_barometer_altitude = exp_filter(barometer_altitude, 2, HEARTBEAT_HZ)
     barometer_vz=np.diff(filt_barometer_altitude) * HEARTBEAT_UDB
     filt_barometer_vz = exp_filter(barometer_vz, 4, HEARTBEAT_HZ)
 else:
@@ -266,7 +262,9 @@ else:
     filt_barometer_altitude=np.zeros((len(time)))
     filt_barometer_vz=np.zeros((len(time)))
 
-
+ma=extract_var(filename, input_dir, line_len, 'ma')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+mb=extract_var(filename, input_dir, line_len, 'mb')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+mc=extract_var(filename, input_dir, line_len, 'mc')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
 rmat0=extract_var(filename, input_dir, line_len, 'a')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 rmat1=extract_var(filename, input_dir, line_len, 'b')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
@@ -357,7 +355,7 @@ ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 3)
 
 
 ymin=-200.
-ymax=15000.
+ymax=300.
 ax.plot(time, sonar_height, 'c-', label='sonar_height')
 #ax.plot(time, sonar_height, 'm--', label='sonar_height')
 ax.plot(time, z_filt, 'b--', label='z')
@@ -392,7 +390,7 @@ ax.plot(time, imu_y, 'y-', label='imu y')
 
 ax.plot(time, imu_z, 'r-', label='imu z')
 ax.plot(time, (alt_gps-alt_gps0)/100, 'b--', label='gps z')
-ax.plot(time, goal_z, 'go', label='goal z')
+ax.plot(time, goal[:,2], 'go', label='goal z')
 
 finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='.', output_file=plot_name+'_z_dynamic.png', \
                   show_legend=True, legend_type='outer_right', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
@@ -404,7 +402,7 @@ forward_speed=5
 fig, ax = plt.subplots()
 ax.set_xlim([-300., 300.])
 ax.set_ylim([-300., 300.])
-ax.plot(goal_x[10:], goal_y[10:], 'go', label='goal')
+ax.plot(goal[10:,0], goal[10:,1], 'go', label='goal')
 line_1, = ax.plot([], [], 'bo-')
 #line_2, = ax.plot([], [], 'ro-')
 wind_velocity, = ax.plot([], [], 'm-')
@@ -553,11 +551,13 @@ ymax=None
 fig.subplots_adjust(hspace=0.5)
 
 ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
-ax.set_title('sonar correction', fontweight='bold', fontsize=fontsize)
+ax.set_title('mag field', fontweight='bold', fontsize=fontsize)
 
-ax.plot(time, rmat6, 'y-', label='rmat6')
-ax.plot(time, sonar_height, 'c-', label='sonar_height')
-ax.plot(time, sonar_dist, 'm-', label='sonar_distance')
+##ax.plot(time, rmat6, 'y-', label='rmat6')
+##ax.plot(time, sonar_height, 'c-', label='sonar_height')
+##ax.plot(time, sonar_dist, 'm-', label='sonar_distance')
+
+ax.plot(time, mc, 'm-', label='mag field earth')
 
 finalize_plot(fig, ax, xmin, xmax, -17000, 17000, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)

@@ -22,7 +22,7 @@
 #include "defines.h"
 #include "../libDCM/libDCM_internal.h"
 
-struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
+//struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
 
 struct vertical_segment { int16_t vz; int16_t alt_start; int16_t alt_end; int32_t duration; 
                           boolean is_target_alt; int16_t flags; struct manoeuvreDef* manoeuvres; };
