@@ -452,8 +452,8 @@ int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max)
     return limited_value;
 }
 
-int16_t compute_pid_block(int16_t input, int16_t target, uint16_t kp, uint16_t ki, int16_t *error_integral, 
-                          int16_t heartbeat_hz, boolean integrate)
+int16_t compute_pi_block(int16_t input, int16_t target, uint16_t kp, uint16_t ki, int32_t *error_integral, 
+                          int16_t heartbeat_hz, int32_t limitintegral, boolean integrate)
 {
      int16_t output;
      int32_t tmp ;
@@ -463,8 +463,8 @@ int16_t compute_pid_block(int16_t input, int16_t target, uint16_t kp, uint16_t k
      {
          *error_integral+=error;
      }
-     if (*error_integral > RMAX) *error_integral = RMAX;
-     if (*error_integral < -RMAX) *error_integral = -RMAX;
+     if (*error_integral > limitintegral) *error_integral = limitintegral;
+     if (*error_integral < -limitintegral) *error_integral = -limitintegral;
 
      tmp = -__builtin_mulsu(error, kp);
      tmp += -__builtin_mulsu((int16_t)((*error_integral)/heartbeat_hz), ki);

@@ -25,8 +25,6 @@
 
 //to add HOVER_YAW_TOWARDS_WP
 #define HOVERPTOWP ((int16_t)(HOVER_ANGLE_TOWARDS_WP*(RMAX/57.3)))
-#define COEF_MAX            1
-#define COEF_SCALING        (RMAX/COEF_MAX)
 
 #if (USE_CONFIGFILE == 1)
 #include "config.h"
@@ -46,8 +44,9 @@
 	uint16_t hoveryawkp			= (uint16_t)(HOVER_YAWKP*RMAX);
 	uint16_t hoveryawkd			= (uint16_t)(HOVER_YAWKD*SCALEGYRO*RMAX);
     int16_t hoveryawoffset = (int16_t)(HOVER_YAW_OFFSET*(SERVORANGE/60));
-    uint16_t hoveryawToWPkp = (uint16_t)(HOVER_YAWTOWPKP*COEF_SCALING);
-    uint16_t hoveryawToWPki = (uint16_t)(HOVER_YAWTOWPKI*COEF_SCALING);
+    uint16_t hoveryawToWPkp = (uint16_t)(HOVER_YAWTOWPKP*RMAX);
+    uint16_t hoveryawToWPki = (uint16_t)(HOVER_YAWTOWPKI*RMAX);
+    int32_t limitintegralyawToWP = (int32_t)(LIMIT_INTEGRAL_YAWTOWP);
     float invdeltafilteryaw = (float)(HOVER_INV_DELTA_FILTER_YAW);
 #else
 	const uint16_t yawkdrud		= (uint16_t)(YAWKD_RUDDER*SCALEGYRO*RMAX);
@@ -56,15 +55,16 @@
 	const uint16_t hoveryawkp	= (uint16_t)(HOVER_YAWKP*RMAX);
 	const uint16_t hoveryawkd	= (uint16_t)(HOVER_YAWKD*SCALEGYRO*RMAX);
     const int16_t hoveryawoffset = (int16_t)(HOVER_YAW_OFFSET*(SERVORANGE/60));
-    const uint16_t hoveryawToWPkp = (uint16_t)(HOVER_YAWTOWPKP*COEF_SCALING);
-    const uint16_t hoveryawToWPki = (uint16_t)(HOVER_YAWTOWPKI*COEF_SCALING);
+    const uint16_t hoveryawToWPkp = (uint16_t)(HOVER_YAWTOWPKP*RMAX);
+    const uint16_t hoveryawToWPki = (uint16_t)(HOVER_YAWTOWPKI*RMAX);
+	const int32_t limitintegralyawToWP = (int32_t)(LIMIT_INTEGRAL_YAWTOWP);
     const float invdeltafilteryaw = (float)(HOVER_INV_DELTA_FILTER_YAW);
 #endif
 
 void normalYawCntrl(void);
 void hoverYawCntrl(void);
 int16_t hovering_yaw_dir;
-int16_t yaw_error_integral = 0;
+int32_t yaw_error_integral = 0;
 float yaw_error_filtered_flt = 0.;
 int16_t yaw_error_filtered = 0;
 int16_t yaw_hover_counter = 0;
@@ -170,6 +170,7 @@ void hoverYawCntrl(void)
 	union longww yawAccum;
 	union longww gyroYawFeedback;
     fractional rmat6_corr = 0;
+    int16_t yawCorr;
 
 	if (flags._.pitch_feedback)
 	{
@@ -177,8 +178,7 @@ void hoverYawCntrl(void)
 
         if (HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
 		{
-            int16_t yaw_error;  //error along yaw axis between aircraft position and goal (origin point here) in cm
-            int16_t yawTarget = 0;
+              //error along yaw axis between aircraft position and goal (origin point here) in cm
 
             if (yaw_hover_counter==0)
             {
@@ -199,23 +199,15 @@ void hoverYawCntrl(void)
             int32_t tmp2 = __builtin_mulss((int16_t)(tmp/MAX_HOVERING_RADIUS), HOVERPTOWP);
 
             //yaw_error ranges from -(max angle to WP in hover) to +(max angle to WP in hover)
-            yaw_error = tmp2>>14; 
 
             //filter error
-            yaw_error_filtered = exponential_filter(yaw_error, &yaw_error_filtered_flt, invdeltafilteryaw, (int16_t)(HEARTBEAT_HZ));
-            
-            //PI controller
-            yawToWP = compute_pid_block(yaw_error_filtered, yawTarget, hoveryawToWPkp, hoveryawToWPki, &yaw_error_integral, 
-                                    (int16_t)(HEARTBEAT_HZ), (yaw_hover_counter > nb_sample_wait));
-            
+            yawToWP = -exponential_filter(tmp2>>14, &yaw_error_filtered_flt, invdeltafilteryaw, (int16_t)(HEARTBEAT_HZ));
+
             //limit yaw to max angle
             yawToWP = limit_value(yawToWP, -HOVERPTOWP, HOVERPTOWP);
 
             //yawToWP = (tofinish_line > HOVER_NAV_MAX_PITCH_RADIUS) ?
 			//    HOVERPTOWP : (HOVERPTOWP / (100*HOVER_NAV_MAX_PITCH_RADIUS) * error);  
-
-            hover_error_y = yaw_error_filtered;
-            hover_error_integral_y = (int16_t)(yaw_error_integral / (int16_t)(HEARTBEAT_HZ));
 
         }
         else
@@ -234,12 +226,22 @@ void hoverYawCntrl(void)
         rmat6_corr = (int16_t)(__builtin_mulsu(rmat6_corr, (16384 - abs(rmat[8])))>>14);
 
         yawAccum.WW = __builtin_mulsu(rmat6_corr + yawToWP + manualYawOffset , hoveryawkp);
+
+        int16_t yaw_error = rmat6_corr + yawToWP + manualYawOffset;
+		//PI controller on yaw_error
+		yawCorr = compute_pi_block(yaw_error, 0, hoveryawToWPkp, hoveryawToWPki, &yaw_error_integral, 
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralyawToWP, (yaw_hover_counter > nb_sample_wait));
+
+		hover_error_y = yaw_error;
+        hover_error_integral_y = (int16_t)(yaw_error_integral / (int16_t)(HEARTBEAT_HZ));
 	}
 	else
 	{
 		gyroYawFeedback.WW = 0;
 		yawAccum.WW = 0;
+		yawCorr = 0;
 	}
 
 	yaw_control = (int32_t)yawAccum._.W1 - (int32_t)gyroYawFeedback._.W1 + hoveryawoffset;
+	//yaw_control = -yawCorr - (int32_t)gyroYawFeedback._.W1 + hoveryawoffset;
 }

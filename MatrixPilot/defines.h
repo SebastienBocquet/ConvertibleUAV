@@ -146,6 +146,7 @@ extern int16_t hover_error_integral_vz;
 extern int16_t hover_error_accz;
 extern int16_t hover_target_vz;
 extern int16_t hover_target_accz;
+extern int16_t hover_error_integral_accz;
 
 extern int16_t hover_error_x;
 extern int16_t hover_error_integral_x;
@@ -172,7 +173,7 @@ extern int16_t nb_sample_wait;
 //void matrix22_sub(int32_t (*)[4], int32_t*, int32_t*);
 //void matrix22_transpose(int32_t (*)[4], int32_t*);
 int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max);
-int16_t compute_pid_block(int16_t, int16_t, uint16_t, uint16_t, int16_t*, int16_t, boolean);
+int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*, int16_t, int32_t, boolean);
 int16_t exponential_filter(int16_t, float*, float, int16_t);
 int32_t exponential_filter32(int32_t, float*, float, int16_t);
 
@@ -294,6 +295,7 @@ void mavlink_output_40hz(void);
 #define SERIAL_UDB_EXTRA    7    // Extra Telemetry beyond that provided by SERIAL_UDB for higher bandwidth connections
 #define SERIAL_CAM_TRACK    8    // Output Location in a format usable by a 2nd UDB to target its camera at this plane
 #define SERIAL_MAVLINK      9    // The Micro Air Vehicle Link protocol from the PixHawk Project
+#define SERIAL_UDB_LIGHT    10    // very light telemetry output to test heartbeat at 200Hz
 
 ////////////////////////////////////////////////////////////////////////////////
 // cameraCntrl.c

@@ -494,7 +494,7 @@ int main(void)
 
 		hoverAltitudeCntrl();
         printf("throttle_control %d\n", throttle_control);
-        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_OFFSET)));
+        assert(throttle_control == (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MAX)));
         printf("hover_altitude_control_1 PASSED\n");   
 	}
 
@@ -629,14 +629,15 @@ int main(void)
     printf("Start unit tests\n");
 
     test_expfilter();
+	debug_hovering_roll_control();
     //test_hover_roll_control_1();
  	//test_hover_roll_control_2();
 	//test_hover_roll_control_3();
 	//test_hover_roll_control_4();
-	test_hover_altitude_control_1();
-	test_hover_altitude_control_2();
-	test_hover_altitude_control_3();
-	test_hover_altitude_control_4();
+	//test_hover_altitude_control_1();
+	//test_hover_altitude_control_2();
+	//test_hover_altitude_control_3();
+	//test_hover_altitude_control_4();
 
 	system("pause");
 

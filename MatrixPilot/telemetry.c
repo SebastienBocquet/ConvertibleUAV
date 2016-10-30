@@ -84,17 +84,21 @@ void init_serial()
 #endif
 
 udb_serial_set_rate(19200);
-if (HEARTBEAT_UDB_EXTRA == 10)
+if (HEARTBEAT_UDB_EXTRA >= 10 || HEARTBEAT_UDB_LIGHT >= 10 )
 {
 	udb_serial_set_rate(57600);
 }
-if (HEARTBEAT_UDB_EXTRA == 40)
+if (HEARTBEAT_UDB_EXTRA >= 40 || HEARTBEAT_UDB_LIGHT >= 40 )
 {
 	udb_serial_set_rate(192000);
 }
-if (HEARTBEAT_UDB_EXTRA == 80)
+if (HEARTBEAT_UDB_EXTRA >= 80 || HEARTBEAT_UDB_LIGHT >= 80 )
 {
 	udb_serial_set_rate(460800);
+}
+if (HEARTBEAT_UDB_EXTRA >= 200 || HEARTBEAT_UDB_LIGHT >= 200 )
+{
+	udb_serial_set_rate(921600);
 }
 //	udb_serial_set_rate(38400);
 //	udb_serial_set_rate(57600);
@@ -678,9 +682,9 @@ void serial_output_8hz(void)
 				//    flags.WW, osc_fail_count,
 				    IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1, goal.x, goal.y, goal.height);
 
-                serial_output("accz%i:tgz%i:tgvz%i:tgaccz%i:inz%i:invz%i:inaccz%i:ezi%i:evzi%i:segi%i:", 
+                serial_output("accz%i:tgz%i:tgvz%i:tgaccz%i:inz%i:invz%i:inaccz%i:ezi%i:evzi%i:eacczi%i:segi%i:", 
                     accelEarth[2], hover_target_z, hover_target_vz, hover_target_accz, 
-                    hover_z, hover_vz, hover_accz, hover_error_integral_z, hover_error_integral_vz, 
+                    hover_z, hover_vz, hover_accz, hover_error_integral_z, hover_error_integral_vz, hover_error_integral_accz, 
                     segmentIndex);
 
                 //serial_output("ex%i:exi%i:ey%i:eyi%i:", hover_error_x, hover_error_integral_x, hover_error_y, hover_error_integral_y);
@@ -704,12 +708,71 @@ void serial_output_8hz(void)
 #endif // RECORD_FREE_STACK_SPACE
 				serial_output("\r\n");
 	}
+
+#elif (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_LIGHT)
+    if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_LIGHT) == 0)
+	{
+				serial_output("F2:T%li:"
+				              "a%i:b%i:c%i:d%i:e%i:f%i:g%i:h%i:i%i:"
+                              "cpu%u:"
+                              "ma%i:mb%i:mc%i:"
+                              ,
+				    tow.WW, 
+				    rmat[0], rmat[1], rmat[2],
+				    rmat[3], rmat[4], rmat[5],
+				    rmat[6], rmat[7], rmat[8],
+                    (uint16_t)udb_cpu_load(),
+#if (MAG_YAW_DRIFT == 1)
+				    magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
+#else
+				    (int16_t)0, (int16_t)0, (int16_t)0
+#endif // MAG_YAW_DRIFT
+                    );
+
+				// Approximate time passing between each telemetry line, even though
+				// we may not have new GPS time data each time through.
+                //when using 4Hz output
+				//if (tow.WW > 0) tow.WW += 250; 
+#ifdef TestGains
+                tow.WW += (int16_t)(1000/HEARTBEAT_UDB_LIGHT);
+#else
+                if (tow.WW > 0) tow.WW += (int16_t)(1000/HEARTBEAT_UDB_LIGHT);
+#endif
+
+				// Save  pwIn and PwOut buffers for printing next time around
+				int16_t i;
+				for (i=0; i <= NUM_INPUTS; i++)
+					pwIn_save[i] = udb_pwIn[i];
+				for (i=0; i <= NUM_OUTPUTS; i++)
+					pwOut_save[i] = udb_pwOut[i];
+				for (i= 1; i <= NUM_INPUTS; i++)
+					serial_output("p%ii%i:",i,pwIn_save[i]);
+				for (i= 1; i <= NUM_OUTPUTS; i++)
+					serial_output("p%io%i:",i,pwOut_save[i]);
+
+#if ( USE_SONAR	== 1 )
+				serial_output("sond%i:sonhtg%i:", 
+                    sonar_distance, sonar_height_to_ground) ;
+#endif
+#if ( BAROMETER_ALTITUDE == 1)
+				serial_output("tmp%i:prs%li:alt%li:",
+                    get_barometer_temperature(), get_barometer_pressure(), get_barometer_altitude());
+#endif
+#if (RECORD_FREE_STACK_SPACE == 1)
+				extern uint16_t maxstack;
+				serial_output("stk%d:", (int16_t)(4096-maxstack));
+#endif // RECORD_FREE_STACK_SPACE
+				serial_output("\r\n");
+	}
 #endif // SERIAL_OUTPUT_FORMAT
 			if (flags._.f13_print_req == 1)
 			{
 				// The F13 line of telemetry is printed when origin has been captured and inbetween F2 lines in SERIAL_UDB_EXTRA
 #if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_EXTRA)
 				if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_EXTRA) == 0) return;
+#endif
+#if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_LIGHT)
+				if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_LIGHT) == 0) return;
 #endif
 				serial_output("F13:week%i:origN%li:origE%li:origA%li:\r\n", week_no, lat_origin.WW, long_origin.WW, alt_origin);
 				flags._.f13_print_req = 0;

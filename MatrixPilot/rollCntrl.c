@@ -44,24 +44,30 @@
 #if (USE_CONFIGFILE == 1)
 	uint16_t hoverrollkp;
 	uint16_t hoverrollkd;
-    fractional hoverrolloffset;
 #elif ((SERIAL_OUTPUT_FORMAT == SERIAL_MAVLINK) || (GAINS_VARIABLE == 1))
 	uint16_t hoverrollkp		= (uint16_t)(HOVER_ROLLKP*RMAX);
 	uint16_t hoverrollkd		= (uint16_t)(HOVER_ROLLKD*SCALEGYRO*RMAX);
     fractional hoverrolloffset = HOVER_ROLL_OFFSET*RMAX;
+	uint16_t hoverrollnavkp = (uint16_t)(HOVER_ROLLNAVKP*RMAX);
+	uint16_t hoverrollnavki = (uint16_t)(HOVER_ROLLNAVKI*RMAX);
+	int32_t limitintegralrollNav = (int32_t)(LIMIT_INTEGRAL_ROLLNAV);
 #else
 	const uint16_t hoverrollkp	= (uint16_t)(HOVER_ROLLKP*RMAX);
 	const uint16_t hoverrollkd	= (uint16_t)(HOVER_ROLLKD*SCALEGYRO*RMAX);
     const fractional hoverrolloffset = HOVER_ROLL_OFFSET*RMAX;
+	const uint16_t hoverrollnavkp = (uint16_t)(HOVER_ROLLNAVKP*RMAX);
+	const uint16_t hoverrollnavki = (uint16_t)(HOVER_ROLLNAVKI*RMAX);
+	const int32_t limitintegralrollNav = (int32_t)(LIMIT_INTEGRAL_ROLLNAV);
 #endif
 
-int16_t flap_min = (int16_t)(FLAP_ANGLE_MIN*(SERVORANGE/60));
+int16_t flap_min = (int16_t)(-FLAP_ANGLE_MAX*(SERVORANGE/60));
 int16_t rollOffset;
 float rollNavDeflection_filtered_flt = 0;
-int16_t rollNavDeflection_filtered = 0;
 float rollAngle_filtered_flt = 0;
-int16_t rollAngle_filtered = 0;
+float roll_error_instant_filtered_flt = 0;
 int16_t previous_rollAngle = 0;
+int32_t error_integral_roll=0;
+int16_t roll_counter=0;
 
 void normalRollCntrl(void);
 void hoverRollCntrl(void);
@@ -145,7 +151,7 @@ void normalRollCntrl(void)
 	// Servo reversing is handled in servoMix.c
 
     //flap control
-    flap_control = (int16_t)((udb_pwIn[FLAP_INPUT_CHANNEL] - 2000)*(FLAP_ANGLE_MAX-FLAP_ANGLE_MIN)/120+flap_min);
+    flap_control = (int16_t)(FLAP_OFFSET + (udb_pwIn[FLAP_INPUT_CHANNEL] - 2000)*(2*FLAP_ANGLE_MAX)/120+flap_min);
 }
 
 
@@ -157,17 +163,18 @@ void hoverRollCntrl(void)
     fractional rmat2;
     fractional rmat5;
     fractional rmat8;
-    int8_t rmat6_128;
-    int16_t roll_corr = 0;
-    int16_t angle_delta = 0;
+    int16_t roll_error_instant = 0;
+	int16_t roll_error_instant_filtered = 0;
+    int16_t averaged_roll_error = 0;
     int16_t rollAngle = 0;
-
+	int16_t rollAngle_filtered = 0;
+	int16_t roll_nav_corr = 0;
+	int16_t rollNavDeflection_filtered = 0;
 
 	if (flags._.pitch_feedback)
 	{
 #ifdef TestGains
         rollNavDeflection = 0;
-        rollNavDeflection_filtered = 0;
 #else
 //		if (HOVERING_WAYPOINT_MODE_XY && AILERON_NAVIGATION && flags._.GPS_steering)
 //		{
@@ -178,22 +185,21 @@ void hoverRollCntrl(void)
 
 #if (MANUAL_TARGET_HEIGHT == 0)
 		//FLAP_INPUT_CHANNEL controls the target roll nav deflection
-	    rollNavDeflection = compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], -128, 128);
+	    rollNavDeflection = compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], -128, 127)<<7;
+		rollNavDeflection_filtered = exponential_filter(rollNavDeflection, &rollNavDeflection_filtered_flt, 5., (int16_t)(HEARTBEAT_HZ));
 #else
 		rollNavDeflection = 0;
+		rollNavDeflection_filtered = 0;
 #endif
-
-        additional_int16_export8 = rollNavDeflection;
-        rollNavDeflection_filtered = exponential_filter(rollNavDeflection, &rollNavDeflection_filtered_flt, 2., (int16_t)(HEARTBEAT_HZ));
-        additional_int16_export2 = rollNavDeflection_filtered;
-
 //		}
 #endif
-		
-		gyroRollFeedback.WW = __builtin_mulus(hoverrollkd , omegaAccum[1]);
 
-        //index of rmat to be checked
-        //rmat[2] is roll around vertical axis, 0 corresponds to x axis normal to wing
+		if (roll_counter==0)
+    	{
+        	error_integral_roll=0;
+		}
+
+        //computation of roll_angle valid at 360deg around z axis
         
         rmat2=rmat[2];
         rmat5=rmat[5];
@@ -201,53 +207,72 @@ void hoverRollCntrl(void)
         if (rmat5 < 0 && previous_rollAngle < 0) rollAngle = -rollAngle-127;
         if (rmat5 < 0 && previous_rollAngle > 0) rollAngle = -rollAngle+127;
         previous_rollAngle = rollAngle;
+		rollAngle=rollAngle<<7;
+		
+        rollAngle_filtered = exponential_filter(rollAngle, &rollAngle_filtered_flt, 5., (int16_t)(HEARTBEAT_HZ));
 
-        rollAngle_filtered = exponential_filter(rollAngle, &rollAngle_filtered_flt, 1., (int16_t)(HEARTBEAT_HZ));
+		//compute instantaneous error on roll angle
+        roll_error_instant = rollAngle - rollAngle_filtered;
+		roll_error_instant_filtered = exponential_filter(roll_error_instant, &roll_error_instant_filtered_flt, 80., (int16_t)(HEARTBEAT_HZ));
 
-        roll_corr = rollAngle - rollAngle_filtered;
-
-        //correction on roll_corr, active if the plane has a significant pitch angle (can happen to ensure pitch equilibrium in wind)
+        //correction on roll_error_instant, active if the plane has a significant pitch angle (can happen to ensure pitch equilibrium in wind)
         rmat8 = rmat[8];
-        //roll_corr = roll_corr * (1 - abs(rmat8)/16384)**2
-        roll_corr = (int8_t)(__builtin_mulss(roll_corr, (16384 - abs(rmat8)))>>14);
-        roll_corr = (int8_t)(__builtin_mulss(roll_corr, (16384 - abs(rmat8)))>>14);
+        //roll_error_instant = roll_error_instant * (1 - abs(rmat8)/16384)**2
+		//roll_error_instant ranges from -16384 to 16383
+        roll_error_instant_filtered = (int16_t)(__builtin_mulss(roll_error_instant_filtered, (16384 - abs(rmat8)))>>14);
+        roll_error_instant_filtered = (int16_t)(__builtin_mulss(roll_error_instant_filtered, (16384 - abs(rmat8)))>>14);
 
-        angle_delta = -rollAngle_filtered + rollNavDeflection_filtered;
-        //angle_delta = angle_delta * (1 - abs(rmat8)/16384) + rmat6/128 * abs(rmat8)
-        angle_delta = (int16_t)(__builtin_mulsu(angle_delta, (16384 - abs(rmat8)))>>14);
-        rmat6_128 = rmat[6]>>7;
-        int8_t rmat68 = (int8_t)(__builtin_mulss(rmat6_128, abs(rmat8))>>14);
-        angle_delta = angle_delta - (int16_t)rmat68;
+		//KD controller on instantaneous error on roll angle
+		gyroRollFeedback.WW = __builtin_mulus(hoverrollkd , omegaAccum[1]);
+        rollAccum.WW = __builtin_mulsu(-roll_error_instant_filtered*2, hoverrollkp);
 
-        additional_int16_export1 = rollAngle_filtered*256;
-        //additional_int16_export1 = rmat[0];
-        //additional_int16_export2 = rmat[1];
+		//compute error between averaged roll angle and the target roll angle
+        averaged_roll_error = rollAngle_filtered - rollNavDeflection_filtered;
+        //averaged_roll_error = averaged_roll_error * (1 - abs(rmat8)/16384) + rmat6 * abs(rmat8)
+        averaged_roll_error = (int16_t)(__builtin_mulsu(averaged_roll_error, (16384 - abs(rmat8)))>>14);
+        int16_t rmat68 = (int16_t)(__builtin_mulss(rmat[6], abs(rmat8))>>14);
+        averaged_roll_error = averaged_roll_error - rmat68;
+
+		//compute PI controller on averaged_roll_error
+		//roll_nav_corr ranges from -16384 to 16383
+		roll_nav_corr=compute_pi_block(-2*(roll_error_instant_filtered + averaged_roll_error), 0, hoverrollnavkp, hoverrollnavki, &error_integral_roll, 
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralrollNav, 1);
+
+    	if (roll_counter < RMAX)
+    	{
+        	roll_counter+=1;
+    	}
+
+        additional_int16_export1 = rollAngle*2;
+        additional_int16_export2 = averaged_roll_error*2;
         additional_int16_export3 = rmat[2];
-        additional_int16_export4 = rmat[6];
-        additional_int16_export5 = roll_corr*256;
-        additional_int16_export6 = rmat[5];
-        additional_int16_export7 = rollAngle*256;
-        //additional_int16_export8 = rmat[7];
+        additional_int16_export5 = roll_error_instant_filtered*2;
+        additional_int16_export6 = (int16_t)(error_integral_roll / (int16_t)(HEARTBEAT_HZ));
+        additional_int16_export7 = roll_nav_corr*2;
+        additional_int16_export8 = rollNavDeflection_filtered*2;
         additional_int16_export9 = rmat[8];
-
-        rollAccum.WW = __builtin_mulsu((angle_delta - roll_corr)*256, hoverrollkp);
+		
 	}
 	else
 	{
 		rollNavDeflection = 0;
-        rollNavDeflection_filtered = 0;
+		rollNavDeflection_filtered = 0;
 		gyroRollFeedback.WW = 0;
 	}
 
     //roll offset proportional to throttle to compensate propeller torque
     //tmp=-__builtin_mulsu(hoverrolloffset, (int16_t)(throttle_control/2));
     //rollOffset=(int16_t)(tmp>>14);
+	//for the moment it is set to zero, it should be taken into account by the interagl term in the PI contoller on roll_averaged_error
     rollOffset=0;
 
-	roll_control =  -(int32_t)rollAccum._.W1 \
-                    - (int32_t)gyroRollFeedback._.W1;
+	roll_control = - (int32_t)gyroRollFeedback._.W1;
+	roll_control += roll_nav_corr;
+
+    flap_control = (int16_t)(FLAP_OFFSET);
 
 #if (TEST == 1)
-    printf("rmat[2] %d\n rmat[5] %d\n rmat[8] %d\n rmat[6] %d\n rmat6_128 %d\n rollNavDeflection %d\n rollNavDeflection_filtered %d\n rollAngle %d\n rollAngle_filtered %d\n angle_delta %d\n roll_corr %d\n roll_control %d\n", rmat[2], rmat[5], rmat[8], rmat[6], rmat6_128, rollNavDeflection, rollNavDeflection_filtered, rollAngle, rollAngle_filtered, angle_delta, roll_corr, roll_control );
+    //printf("rmat[2] %d\n rmat[5] %d\n rmat[8] %d\n rmat[6] %d\n rmat6_128 %d\n rollNavDeflection %d\n rollAngle %d\n rollAngle_filtered %d\n averaged_roll_error %d\n roll_error_instant %d\n roll_control %d\n", rmat[2], rmat[5], rmat[8], rmat[6], rmat6_128, rollNavDeflection, rollNavDeflection_filtered, rollAngle, rollAngle_filtered, averaged_roll_error, roll_error_instant, roll_control );
+    printf("%d %d %d %d %d %d %d %d %d %d %d %d\n", rmat[2], rmat[5], rmat[8], rmat[6], rmat6_128>>7, rollNavDeflection>>7, rollAngle>>7, rollAngle_filtered>>7, averaged_roll_error>>7, roll_error_instant>>7, roll_control );
 #endif
 }

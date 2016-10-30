@@ -109,8 +109,12 @@ void do_I2C_stuff(int16_t toggle)
 //	} 
 //    else
 //    {
+// This is a simple counter to do stuff at 80hz
 #if (BAROMETER_ALTITUDE == 1)
+	if (udb_heartbeat_counter % (HEARTBEAT_HZ / 80) == 0)
+	{
 		rxBarometer(udb_barometer_callback);
+	}
 #endif
 //	}
 }
@@ -127,10 +131,10 @@ void udb_servo_callback_prepare_outputs(void)
 //#endif
 
 //  when we move the IMU step to the MPU call back, to run at 200 Hz, remove this
-	if (dcm_flags._.calib_finished)
-	{
-		dcm_run_imu_step();
-	}
+//	if (dcm_flags._.calib_finished)
+//	{
+//		dcm_run_imu_step();
+//	}
 
 	dcm_servo_callback_prepare_outputs();
 

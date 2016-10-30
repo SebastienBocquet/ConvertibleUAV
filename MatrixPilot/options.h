@@ -68,7 +68,7 @@
 //        from point of view of the pilot
 // ORIENTATION_ROLLCW180: board rolled 90 degrees clockwise,
 //        from point of view of the pilot, then rotate the board 180 around the Z axis of the plane,
-#define BOARD_ORIENTATION                   ORIENTATION_BACKWARDS
+#define BOARD_ORIENTATION                   ORIENTATION_FORWARDS
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -221,13 +221,13 @@
 // Use as is, or edit to match your setup.
 //   - If you're set up to use Rudder Navigation (like MatrixNav), then you may want to swap
 //     the aileron and rudder channels so that rudder is CHANNEL_1, and aileron is 5.
-#define THROTTLE_INPUT_CHANNEL              CHANNEL_1
+#define THROTTLE_INPUT_CHANNEL              CHANNEL_6
 #define AILERON_INPUT_CHANNEL               CHANNEL_2
 #define FLAP_INPUT_CHANNEL                  CHANNEL_7
 #define ELEVATOR_INPUT_CHANNEL              CHANNEL_3
 #define RUDDER_INPUT_CHANNEL                CHANNEL_4
 #define MODE_SWITCH_INPUT_CHANNEL           CHANNEL_5
-#define CAMERA_PITCH_INPUT_CHANNEL          CHANNEL_6
+#define CAMERA_PITCH_INPUT_CHANNEL          CHANNEL_UNUSED
 #define CAMERA_YAW_INPUT_CHANNEL            CHANNEL_UNUSED
 #define CAMERA_MODE_INPUT_CHANNEL           CHANNEL_UNUSED
 #define OSD_MODE_SWITCH_INPUT_CHANNEL       CHANNEL_UNUSED
@@ -244,7 +244,7 @@
 //   6 also enables E4 as the 6th output channel
 //   NOTE: If USE_PPM_INPUT is enabled above, up to 9 outputs are available.)
 // For UDB4 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
-#define NUM_OUTPUTS                         6
+#define NUM_OUTPUTS                         8
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
@@ -257,12 +257,12 @@
 // connect THROTTLE_OUTPUT_CHANNEL to one of the built-in Outputs (1, 2, or 3) to make
 // sure your board gets power.
 //
-#define THROTTLE_OUTPUT_CHANNEL             CHANNEL_1
-#define AILERON_OUTPUT_CHANNEL              CHANNEL_2
+#define THROTTLE_OUTPUT_CHANNEL             CHANNEL_5
+#define AILERON_OUTPUT_CHANNEL              CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_3
-#define RUDDER_OUTPUT_CHANNEL               CHANNEL_4
-#define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_5
-#define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_6
+#define RUDDER_OUTPUT_CHANNEL               CHANNEL_6
+#define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_8
+#define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_UNUSED
 #define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
 #define CAMERA_YAW_OUTPUT_CHANNEL           CHANNEL_UNUSED
 #define TRIGGER_OUTPUT_CHANNEL              CHANNEL_UNUSED
@@ -276,7 +276,7 @@
 // Servo Reversing Configuration
 // For any of these that are set to 1, that servo will be sent reversed controls.
 // Note that your servo reversing settings here should match what you set on your transmitter.
-#define AILERON_CHANNEL_REVERSED            1
+#define AILERON_CHANNEL_REVERSED            0
 #define FLAP_CHANNEL_REVERSED               0
 #define ELEVATOR_CHANNEL_REVERSED           1
 #define RUDDER_CHANNEL_REVERSED             1
@@ -364,7 +364,7 @@
 // SERIAL_MAVLINK is only supported on the UDB4 to ensure that sufficient RAM is available.
 // Note that SERIAL_MAVLINK defaults to using a baud rate of 57600 baud (other formats default to 19200)
 
-#define SERIAL_OUTPUT_FORMAT                SERIAL_UDB_EXTRA
+#define SERIAL_OUTPUT_FORMAT                SERIAL_UDB_LIGHT
 
 // MAVLink requires an aircraft Identifier (I.D) as it is deaigned to control multiple aircraft
 // Each aircraft in the sky will need a unique I.D. in the range from 0-255
@@ -475,8 +475,14 @@
 #define YAWKP_AILERON                       0.04  //may need to be increase in hovering
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       0.33
-#define FLAP_ANGLE_MIN                      -10.
-#define FLAP_ANGLE_MAX                      30.
+#define HOVER_ROLLKP                        1.
+#define HOVER_ROLLKD                        0.
+#define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
+#define HOVER_ROLLNAVKP                     0.075
+#define HOVER_ROLLNAVKI                     0.
+#define LIMIT_INTEGRAL_ROLLNAV              533333
+#define FLAP_OFFSET                         184  //flap offset to have flaps in neutral position at flap control = 0, and in hovering mode
+#define FLAP_ANGLE_MAX                      20.
 
 // Elevator/Pitch Control Gains
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125
@@ -489,6 +495,13 @@
 #define RUDDER_ELEV_MIX                      0.
 #define ROLL_ELEV_MIX                        0.
 #define ELEVATOR_BOOST                       0.33
+#define HOVER_PITCHKP                        0.4
+#define HOVER_PITCHKD                        0.
+#define HOVER_PITCH_OFFSET                   0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
+#define HOVER_PITCHTOWPKP                    0.4
+#define HOVER_PITCHTOWPKI                    0.
+#define LIMIT_INTEGRAL_PITCHTOWP             80000.
+#define HOVER_INV_DELTA_FILTER_PITCH         1.
 
 // Neutral pitch angle of the plane (in degrees) when flying inverted
 // Use this to add extra "up" elevator while the plane is inverted, to avoid losing altitude.
@@ -508,6 +521,13 @@
 #define ROLLKD_RUDDER                       0.
 #define MANUAL_AILERON_RUDDER_MIX           0.
 #define RUDDER_BOOST                        0.33
+#define HOVER_YAWKP                         0.4
+#define HOVER_YAWKD                         0.
+#define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
+#define HOVER_YAWTOWPKP                    0.4
+#define HOVER_YAWTOWPKI                    0.
+#define LIMIT_INTEGRAL_YAWTOWP             80000.
+#define HOVER_INV_DELTA_FILTER_YAW         1.
 
 // Gains for Hovering
 // Gains are named based on plane's frame of reference (roll means ailerons)
@@ -527,19 +547,8 @@
 
 #define MANUAL_TARGET_HEIGHT                0    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
                                                  //otherwise target height is set to hovertargetheightmin and target vz is set to hovertargetvzmin
-#define HOVER_ROLLKP                        1.3
-#define HOVER_ROLLKD                        0.
-#define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
-#define HOVER_PITCHKP                       0.4
-#define HOVER_PITCHKD                       0.
-#define HOVER_PITCH_OFFSET                  0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
-#define HOVER_YAWKP                         0.4
-#define HOVER_YAWKD                         0.
-#define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
-#define HOVER_ANGLE_TOWARDS_WP             20.0
-#define HOVER_NAV_MAX_PITCH_RADIUS         3.
 #define WAIT_SECONDS                       3     //number of seconds after transition to hovering during which:
-                                                 //PID integral term is not computed
+                                                 //PI integral term is not computed
                                                  // throttle is set to HOVER_THROTTLE_OFFSET
 #define AIRCRAFT_MASS                      1150  //in g
 #define MAX_THRUST                         17    //maximul thrust in N 
@@ -547,7 +556,7 @@
 #define HOVER_THROTTLE_OFFSET              0.68
 #define HOVER_THROTTLE_MIN                 0.2
 #define HOVER_THROTTLE_MAX                 1.
-#define HOVER_TARGET_HEIGHT_MIN            100   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_TARGET_HEIGHT_MIN            150   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_HEIGHT_MAX            400   // (cm)
 #define HOVER_TARGET_VZ_MIN                -200   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_VZ_MAX                200   // (cm/s)
@@ -555,28 +564,23 @@
 #define VZ_CORR                            1     //0 means vz = imu_vz, 1 means vz is the derivative of sensor or barometer altitude
 #define HOVER_INV_DELTA_FILTER_TARGETZ     80.
 #define HOVER_INV_DELTA_FILTER_SONAR       20.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
-#define HOVER_INV_DELTA_FILTER_BARO        4.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
+#define HOVER_INV_DELTA_FILTER_BARO        1.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
 #define HOVER_ZKP                          5.58 //in 1/cm, should be between 0 and 10
 #define HOVER_ZKI                          0.  //in 1/(cm.s) dimensionless, should be between 0 and 10
+#define LIMIT_INTEGRAL_Z                   80000
 #define HOVER_LIMIT_TARGETVZ               450  //cutoff value for vertial velocity in cm/s
 #define HOVER_VZKP                         4.8  // in 1/(cm/s), should be between 0 and 10
 #define HOVER_VZKI                         2.  // in 1/cm, should be between 0 and 10
+#define LIMIT_INTEGRAL_VZ                  40000
 #define HOVER_LIMIT_TARGETACCZ             2500  ///cutoff value for vertial acceleration in cm/s2
 #define HOVER_ACCZKP                       0.6  // in 1/(cm/s2), should be between 0 and 10
 #define HOVER_ACCZKI                       0.  // in 1/(cm/s), should be between 0 and 10
+#define LIMIT_INTEGRAL_ACCZ                80000
 #define HALF_SPAN                          60  //half span in cm 
 #define MAX_HOVERING_RADIUS                10   //max distance in m from origin where the aircraft is allowed to hover in GPS navigation mode
-
-//////////yaw control/////////////
-#define HOVER_YAWTOWPKP                    1.
-#define HOVER_YAWTOWPKI                    0.
-#define HOVER_INV_DELTA_FILTER_YAW         1.
-
-//////////pitch control/////////////
-#define HOVER_PITCHTOWPKP                  1.
-#define HOVER_PITCHTOWPKI                  0.
-#define HOVER_INV_DELTA_FILTER_PITCH       1.
+#define HOVER_ANGLE_TOWARDS_WP             20.0
+//#define HOVER_NAV_MAX_PITCH_RADIUS         3.
 
 ////////////////////////////////////////////////////////////////////////////////
 // The following define is used to enable vertical initialization for VTOL

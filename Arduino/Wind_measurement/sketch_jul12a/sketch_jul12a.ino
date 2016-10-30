@@ -27,9 +27,11 @@
 
  */
 
-int inputPinPot = A0;    // select the input pin for girouette angle
+int inputPinPot1 = A0;    // select the input pin for girouette angle
+int inputPinPot2 = A1; 
 int outputPinPot = 9;    // select the output pin for girouette angle
-int angle;
+int angle1;
+int angle2;
 int angleServo;
 int angle_min = 0;
 int angle_max = 360;
@@ -38,12 +40,12 @@ int angle_max = 360;
 //int inputPinOpto = A1;    // select the input pin for girouette angle
 int outputPinOpto = 10;    // select the output pin for girouette angle
 
-int nb_teeth = 1;
-long duree_test = 1000; // test sur 1 secondes
+int nb_teeth = 6;
+long duree_test = 500; // test sur 1 secondes
 int vitesse_min = 0;
-int vitesse_max = 90; //(tr/s)
+int vitesse_max = 400; //(10.tr/s)
 long vitesse = 0;
-int vitesseServo;
+int vitesse_mV;
 long chrono = 0; // valeur courante du chrono
 long chrono_depart = 0; // valeur de départ du chrono
 
@@ -53,7 +55,7 @@ volatile long nb_chgt = 0; // nb de changement etat Pin
   
 void gere_int0() { 
     nb_chgt = nb_chgt + 1 ;  
-    Serial.print("interrupt\n");
+    //Serial.print("interrupt\n");
 }
 
 int scale_output(int input, int input_min, int input_max){
@@ -72,7 +74,8 @@ int scale_output(int input, int input_min, int input_max){
 void setup() {
 
   // declare pin modes
-  pinMode(inputPinPot, INPUT);
+  pinMode(inputPinPot1, INPUT);
+  pinMode(inputPinPot2, INPUT);
   pinMode(outputPinPot, OUTPUT);
   pinMode(outputPinOpto, OUTPUT);
 
@@ -82,7 +85,7 @@ void setup() {
   // on enregistre tous les changements d'état
 
   pinMode (2, INPUT);
-  attachInterrupt(0,gere_int0,RISING); 
+  attachInterrupt(0,gere_int0,CHANGE); 
 
   Serial.begin(9600); 
 }
@@ -91,10 +94,11 @@ void loop() {
 
   //read voltage from potentiometer mounted on the girouette
   //sensorValue ranges from 0 to 360 (deg)
-  angle = analogRead(inputPinPot)*360./1023;
+  angle1 = analogRead(inputPinPot1)*360./1023;
+  angle2 = analogRead(inputPinPot2)*360./1023;
 
   //scale sensorValue on 2000;4000
-  angleServo = scale_output(angle, angle_min, angle_max);
+  angleServo = scale_output(angle1, angle_min, angle_max);
   
   // copy value to PWM output ([0 ; 255])
   //scale sensorValue by 255./5000
@@ -107,27 +111,42 @@ void loop() {
     
   if (chrono - chrono_depart > duree_test) {  
 
-     //determine vitesse de rotation in tr/s
-     vitesse=nb_chgt/nb_teeth;
+     //determine vitesse de rotation in 10.tr/s
+     vitesse=10*(0.5*nb_chgt/nb_teeth)*(1000./duree_test);
   
      //scale vitesse on [2000 ; 4000]
-     vitesseServo = scale_output(vitesse, vitesse_min, vitesse_max);
+     vitesse_mV = scale_output(vitesse, vitesse_min, vitesse_max);
   
-     Serial.print("girouette angle\n");
-     Serial.print(angle);
-     Serial.print('\n');  
-     Serial.print(angleServo);
+//     Serial.print("girouette angle\n");
+//     if (angle1 > 90 and angle1 < 270) {
+//     Serial.print(angle1);
+//     Serial.print('\n');
+//     }
+//
+//     if (angle2 > 90 and angle2 < 270) {
+//     Serial.print(360-angle2);
+//     Serial.print('\n');
+//     }
+//     
+//     Serial.print(angleServo);
+//     Serial.print('\n');
+//  
+//     Serial.print("vitesse rotation (10.tr/s)\n");
+//     Serial.print(vitesse);
+//     Serial.print('\n');  
+//     Serial.print(vitesseServo);
+//     Serial.print('\n');  
+
+     Serial.print(angle1);
+     Serial.print(' ');
+     Serial.print(angle2);
+     Serial.print(' ');
+     Serial.print(vitesse_mV);
      Serial.print('\n');
-  
-     Serial.print("vitesse rotation (tr/s)\n");
-     Serial.print(vitesse);
-     Serial.print('\n');  
-     Serial.print(vitesseServo);
-     Serial.print('\n');  
      
      // copy value to PWM output
      //scale vitesse by 255./5000
-     analogWrite(outputPinOpto, vitesseServo*255./5000);
+     analogWrite(outputPinOpto, vitesse_mV*255./5000);
        
      chrono_depart = millis(); 
      nb_chgt=0;

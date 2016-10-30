@@ -22,65 +22,6 @@ def norm(x,y,z):
 
     return np.sqrt(x**2+y**2+z**2)
 
-
-
-
-################################################################
-def finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-                  show_legend=True, legend_type='basic', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None):
-
-    if tick_fontsize == None:
-        tick_fontsize=fontsize
-
-    if xmin==None or xmax==None:
-        if not (ymin==None or ymax==None):
-            ax.set_ylim([ymin, ymax])
-    elif ymin==None or ymax==None:
-        if not (xmin==None or xmax==None):
-            ax.set_xlim([xmin, xmax])
-    else:
-        ax.axis([xmin, xmax, ymin, ymax])
-
-    if show_legend:
-        handles, labels = ax.get_legend_handles_labels()
-        if legend_type == 'outer_top':
-            ax.legend(handles, labels, prop={'size':fontsize}, bbox_to_anchor=(0., 1.02, 1., .102), loc=3, mode="expand", frameon=False)
-        elif legend_type == 'outer_right':   
-            ax.legend(handles, labels, prop={'size':fontsize}, bbox_to_anchor=(1.02, 1., 1., .102), loc=2, mode="expand", frameon=False)
-        elif legend_type == 'outer_left':   
-            ax.legend(handles, labels, prop={'size':fontsize}, bbox_to_anchor=(0., 1.02, 1., .102), loc='upper left', mode="expand", frameon=False)
-        elif legend_type == 'basic':
-            ax.legend(handles, labels, prop={'size':fontsize}, loc=0)
-        else:
-            print ('no legend shown')
-       
- 
-    if logscale_x==True:
-        ax.set_xscale('log')
-       
-    if logscale_y==True:
-        ax.set_yscale('log')
-       
-    ax.set_xlabel(xlabel, fontsize=fontsize)
-    ax.set_ylabel(ylabel, fontsize=fontsize)
-
-    gridlines = ax.get_xgridlines()
-    gridlines.extend( ax.get_ygridlines() )
-    for line in gridlines:
-        line.set_linestyle('--')
-
-    ticklabels = ax.get_xticklabels()
-    ticklabels.extend( ax.get_yticklabels() )
-    for label in ticklabels:
-        label.set_color('k')
-        label.set_fontsize(tick_fontsize)
-
-    if not (export_dir == '' or output_file == ''):
-        fig.savefig(os.path.join(export_dir, output_file), dpi=400)
-
-    if show:
-        plt.show()
-       
 ################################################################
 
 def concatenate(arr1, arr2):
@@ -110,13 +51,13 @@ def limit_value(value, limit):
 #MAIN
 ###################################
 
-##input_dir='E:\\projet autoentrepreneur\\prise de vue aerienne\\tests\\svgd carte SD'
 input_dir='F:'
+#input_dir='E:\\projet autoentrepreneur\\prise de vue aerienne\\tests\\log files'
 nb_subplot_v=2
 nb_subplot_h=2
 subplot_location=1
-fontsize=12
-line_len=70
+fontsize=10
+line_len=71
 t0=40
 tf=None
 HEARTBEAT_HZ=80
@@ -156,19 +97,20 @@ MAX_HOVER_RADIUS = 7
 #2034:hovering, max sonar is 150, attempt to go above 150cm, control based on barometer vz, bug due to sonar distance=78cm above 550cm
 
 #test case for hysteresis on rmat5, and decrease of rmat2=6 with rmat8 increase : 2221, 2222
-file_number=2274
+file_number=2307
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
 #save current log file to disk
 now = datetime.datetime.now()
 date_time=now.strftime("%Y-%m-%d")
-shutil.copy2('%s\\LOG0%04d.TXT' %(input_dir, file_number), 'E:\\projet autoentrepreneur\\prise de vue aerienne\\tests\\log files\\%s_%d_%s.TXT' %(savegard_name, file_number, date_time))
+#shutil.copy2('%s\\LOG0%04d.TXT' %(input_dir, file_number), 'E:\\projet autoentrepreneur\\prise de vue aerienne\\tests\\log files\\%s_%d_%s.TXT' %(savegard_name, file_number, date_time))
 
 xmin=None
 xmax=None
 
 filename='LOG%05d.TXT' %file_number
+#filename='target_v_indoor_2262_2016-07-03.TXT'
 
 tf=find_final_time(filename, input_dir, line_len, 'cpu', tf, HEARTBEAT_UDB)
 
@@ -207,6 +149,7 @@ wind_vz=extract_var(filename, input_dir, line_len, 'wvz')[t0*HEARTBEAT_UDB:tf*HE
 
 error_z_integral=extract_var(filename, input_dir, line_len, 'ezi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 error_vz_integral=extract_var(filename, input_dir, line_len, 'evzi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
+error_accz_integral=extract_var(filename, input_dir, line_len, 'eacczi')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
 target_z=extract_var(filename, input_dir, line_len, 'tgz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 target_vz=extract_var(filename, input_dir, line_len, 'tgvz')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
@@ -293,106 +236,99 @@ add7=extract_var(filename, input_dir, line_len, 'add7')[t0*HEARTBEAT_UDB:tf*HEAR
 add8=extract_var(filename, input_dir, line_len, 'add8')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 add9=extract_var(filename, input_dir, line_len, 'add9')[t0*HEARTBEAT_UDB:tf*HEARTBEAT_UDB]
 
-nb_subplot_v=2
-nb_subplot_h=2
+nb_subplot_v=4
+nb_subplot_h=1
 
-fig = plt.figure(figsize=(16.0, 9.0))
+#fig = plt.figure(figsize=(16.0, 9.0))
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
 
 xlabel=''
 ylabel=''
 
 fig.subplots_adjust(hspace=0.5)
 
-ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
-ax.set_title('error', fontweight='bold', fontsize=fontsize)
+#ax1 = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
+ax1.set_title('error', fontweight='bold', fontsize=fontsize)
 
 ymin=-500.
-ymax=2000.
-ax.plot(time, accz, '0.8', marker=None, label='accz')
+ymax=None
+ax1.plot(time, accz, '0.8', marker=None, label='accz')
 ##ax.plot(time, imu_accz, 'b--', marker=None, label='imu accz')
-ax.plot(time, accz_filt, 'r-', label='accz filt')
+ax1.plot(time, accz_filt, 'r-', label='accz filt')
 ##ax.plot(time, expected_accz, 'c-', label='expected accz')
-ax.plot(time, target_accz, 'k-', label='target accz')
+ax1.plot(time, target_accz, 'k-', label='target accz')
 #ax.plot(time, target_accz_debug, 'y-', label='target accz debug')
 #ax.plot(time, error_accz, 'b-', label='error accz')
-ax.plot(time, throttle-2244, 'g-', label='throttle')
+ax1.plot(time, throttle-2244, 'g-', label='throttle')
 #ax.plot(time, throttle_debug, 'm-', label='throttle debug')
 
-finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 2)
-
-ymin=None
+#ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 2)
 ymax=None
 
-filt_z=exp_filter_discrete(100*sonar_height, 4, HEARTBEAT_HZ)
-vz_diff=np.floor(np.diff(filt_z)*HEARTBEAT_HZ)/100
-filt_vz_diff = exp_filter_discrete(vz_diff, 4, HEARTBEAT_HZ)
-filt_z=filt_z/100
-
-##for i in range(len(time)):
-##    print(time[i], filt_z[i])
-##    print(time[i], vz_diff[i])
-##    print ''
-##a
-
-ax.plot(time, imu_velocity_norm, 'm-', label='IMU velocity')
-ax.plot(time, wind_vx, 'b--', label='wind vx')
-ax.plot(time, wind_vy, 'b:', label='wind vy')
-ax.plot(time, wind_velocity_norm, 'b-', label='wind velocity')
-ax.plot(time, relative_velocity_norm, 'r:', label='relative velocity')
-ax.plot(time, vz_filt, 'c-', label=' vz filt')
-ax.plot(time, target_vz, 'k--', label='target vz')
+ax2.plot(time, imu_velocity_norm, 'm-', label='IMU velocity')
+ax2.plot(time, wind_vx, 'b--', label='wind vx')
+ax2.plot(time, wind_vy, 'b:', label='wind vy')
+ax2.plot(time, wind_velocity_norm, 'b-', label='wind velocity')
+ax2.plot(time, relative_velocity_norm, 'r:', label='relative velocity')
+ax2.plot(time, vz_filt, 'c-', label=' vz filt')
+ax2.plot(time, target_vz, 'k--', label='target vz')
 #ax.plot(time, filt_barometer_vz, 'g-', label='barometer vz')
 #ax.plot(time, target_vz_debug, 'y-', label='target vz debug')
-ax.plot(time, error_vz_integral, 'g--', label='error vz integral')
+ax2.plot(time, error_vz_integral, 'g--', label='error vz integral')
 
-finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_right', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 3)
+#ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 3)
 
 
-ymin=-200.
-ymax=300.
-ax.plot(time, sonar_height, 'c-', label='sonar_height')
+ymin=-1000.
+ymax=1000.
+
+ax3.plot(time, sonar_height, 'c-', label='sonar_height')
 #ax.plot(time, sonar_height, 'm--', label='sonar_height')
-ax.plot(time, z_filt, 'b--', label='z')
-ax.plot(time, 100*imu_z+50, 'b:', label='imu z')
+ax3.plot(time, z_filt, 'b--', label='z')
+ax3.plot(time, 100*imu_z+50, 'b:', label='imu z')
 #ax.plot(time, barometer_pressure-1.e5, 'b-', label='pressure')
 #ax.plot(time, barometer_temperature, 'go-', label='temperature')
-ax.plot(time, barometer_altitude, '0.8', label='pressure altitude')
-ax.plot(time, filt_barometer_altitude, 'r-', label='filtered pressure altitude (reconstructed)')
+ax3.plot(time, barometer_altitude, '0.8', label='pressure altitude')
+ax3.plot(time, filt_barometer_altitude, 'r-', label='filtered pressure altitude (reconstructed)')
 #ax.plot(time, add1*100, 'm:', label='add1')
 #ax.plot(time, add2*100, 'y-', label='add3')
 #ax.plot(time, barometer_temperature/10, 'g-', label='temperature')
-ax.plot(time, target_z, 'k--', label='target height')
-ax.plot(time, error_z_integral, 'g--', label='error z')
+ax3.plot(time, target_z, 'k--', label='target height')
+ax3.plot(time, error_z_integral, 'g--', label='error z integral')
+#ax3.plot(time, (p2o-3200), 'y--', label='p2o')
 #ax.plot(time[:-2], expected_z, 'y-', label='expected z')
 #ax.plot(time, segment_index, 'm-', label='segment index')
 
-finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
 
 ymin=None
 ymax=None
 
-ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 4)
-ax.plot(time, cpu, 'k:', label='cpu')
+#ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 4)
+ax4.plot(time, cpu, 'k:', label='cpu')
 #ax.plot(time, add1, 'k-', label='gps data age')
 #ax.plot(time, add3*100, 'y-', label='is gps valid')
-ax.plot(time, waypoint_index*10, 'm-', label='waypoint index')
+ax4.plot(time, waypoint_index*10, 'm-', label='waypoint index')
 
-ax.plot(time, imu_x, 'c-', label='imu x')
-ax.plot(time, imu_y, 'y-', label='imu y')
+ax4.plot(time, imu_x, 'c-', label='imu x')
+ax4.plot(time, imu_y, 'y-', label='imu y')
 
-ax.plot(time, imu_z, 'r-', label='imu z')
-ax.plot(time, (alt_gps-alt_gps0)/100, 'b--', label='gps z')
-ax.plot(time, goal[:,2], 'go', label='goal z')
+ax4.plot(time, imu_z, 'r-', label='imu z')
+ax4.plot(time, (alt_gps-alt_gps0)/100, 'b--', label='gps z')
+ax4.plot(time, goal[:,2], 'g:', label='goal z')
 
-finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='.', output_file=plot_name+'_z_dynamic.png', \
+ax4.plot(time, imu_vx, 'c--', label='imu vx')
+ax4.plot(time, imu_vy, 'y--', label='imu vy')
+
+finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='.', output_file=plot_name+'_z_dynamic.png', \
                   show_legend=True, legend_type='outer_right', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
 
@@ -490,46 +426,36 @@ ymax=16384
 
 int16_to_degrees=90./16387.
 
-roll_corrUDB = add5
+rollAngle=  add1
+averaged_roll_error = add2
 rmat2 = add3
-rmat6 = add4
-rmat5 = add6
-#rmat6 = add7
+roll_error_instant = add5
+error_integral = add6
+roll_nav_corr = add7
+rollNavDeflection = add8
 rmat8 = add9
-filt_rollAngleUDB = add1
-rollAngleUDB = add7
 
-corr_rmat6 = rmat6 * (1 - np.abs(rmat8)/16384)**2
-
-rollAngle = np.zeros((len(add1)))
-for i in range(len(add1)):
-    
-    rollAngle[i] = -np.arcsin(rmat2[i]/16384)*128/np.pi
-    if rmat5[i] < 0.:
-        rollAngle[i] = -128-rollAngle[i]
-        
-filt_rollAngle_debug = exp_filter(rollAngle, 10, HEARTBEAT_HZ)
+##corr_rmat6 = rmat6 * (1 - np.abs(rmat8)/16384)**2
+##
+##rollAngle = np.zeros((len(add1)))
+##for i in range(len(add1)):
+##    
+##    rollAngle[i] = -np.arcsin(rmat2[i]/16384)*128/np.pi
+##    if rmat5[i] < 0.:
+##        rollAngle[i] = -128-rollAngle[i]
+##        
+##filt_rollAngle_debug = exp_filter(rollAngle, 10, HEARTBEAT_HZ)
 
 #roll_corr_debug = rmat2 - np.sin(-filt_rollAngle*np.pi/128)*16384
 
-#ax.plot(time, add1, 'go-', label='pitchToWP')
-#ax.plot(time, add2, 'ro-', label='yawToWP')
-ax.plot(time, filt_rollAngleUDB, 'ko-', label='roll angle filt')
-#ax.plot(time, rollAngle*128, 'ro-', label='roll angle filt debug')
-ax.plot(time, add2*256, 'b-', label='deflection filt')
-ax.plot(time, rmat2, 'g-', label='rmat2')
-ax.plot(time, rmat6, 'y-', label='rmat6')
-ax.plot(time, roll_corrUDB, 'm-', label='roll_corr')
-ax.plot(time, rmat5, 'c-', label='rmat5')
-#ax.plot(time, rmat6, 'y-', label='rmat6')
-#ax.plot(time, corr_rmat6, 'yo-', label='rmat6 corrected')
-ax.plot(time, rollAngleUDB, 'mo-', label='roll angle')
-ax.plot(time, rmat8, 'k-', label='rmat8')
-#ax.plot(time, rollAngle*128, 'r--', label='rollAngle deplie')
-#ax.plot(time, error_x, 'c-', label='error x')
-#ax.plot(time, error_x_integral, 'c--', label='error integral x')
-#ax.plot(time, error_y, 'y-', label='error y')
-#ax.plot(time, error_y_integral, 'y--', label='error integral y')
+ax.plot(time, rollNavDeflection, 'k-', label='rollNavDeflection')
+ax.plot(time, rollAngle, 'y-', label='rollAngle')
+ax.plot(time, roll_error_instant, 'b--', label='roll_error_instant')
+ax.plot(time, averaged_roll_error, 'g--', label='averaged_roll_error')
+ax.plot(time, roll_error_instant+averaged_roll_error, 'g-', label='roll_error')
+ax.plot(time, error_integral, 'r-', label='error_integral')
+ax.plot(time, roll_nav_corr, 'm-', label='roll_nav_corr')
+ax.plot(time, 10*(p2o-3200), 'c-', label='p2o')
 
 finalize_plot(fig, ax, xmin, xmax, -32000, 32000, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
@@ -557,10 +483,11 @@ ax.set_title('mag field', fontweight='bold', fontsize=fontsize)
 ##ax.plot(time, sonar_height, 'c-', label='sonar_height')
 ##ax.plot(time, sonar_dist, 'm-', label='sonar_distance')
 
-ax.plot(time, mc, 'm-', label='mag field earth')
+##ax.plot(time, mc, 'm-', label='mag field earth')
+ax.plot(time, p2o, 'm-', label='p2o')
 
-finalize_plot(fig, ax, xmin, xmax, -17000, 17000, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
+finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
 
 

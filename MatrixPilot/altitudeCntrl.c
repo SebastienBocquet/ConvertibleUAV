@@ -34,6 +34,9 @@ union longww throttleFiltered = { 0 };
 #define DEADBAND            150
 #define DEADBAND_HOVER      300
 
+#define COEF_MAX            10  //maximum value of pid coef
+#define COEF_SCALING        (RMAX/COEF_MAX)
+
 #define MAXTHROTTLE         (2.0*SERVORANGE*ALT_HOLD_THROTTLE_MAX)
 #define FIXED_WP_THROTTLE   (2.0*SERVORANGE*RACING_MODE_WP_THROTTLE)
 
@@ -47,8 +50,6 @@ union longww throttleFiltered = { 0 };
 #define HEIGHTTHROTTLEGAIN  ((1.5*(HEIGHT_TARGET_MAX-HEIGHT_TARGET_MIN)* 1024.0) / (SERVORANGE*SERVOSAT))
 
 #define HOVER_FAILSAFE_ALTITUDE 10000
-#define COEF_MAX            10  //maximum value of pid coef
-#define COEF_SCALING        (RMAX/COEF_MAX)
 #define VZ_CORR_16           VZ_CORR*RMAX
 
 int16_t aircraft_mass       = AIRCRAFT_MASS;
@@ -93,10 +94,13 @@ int16_t limittargetvz = (int16_t)(HOVER_LIMIT_TARGETVZ);
 int16_t limittargetaccz = (int16_t)(HOVER_LIMIT_TARGETACCZ);
 uint16_t hovertargetzkp = (uint16_t)(HOVER_ZKP*COEF_SCALING);
 uint16_t hovertargetzki = (uint16_t)(HOVER_ZKI*COEF_SCALING);
+int32_t limitintegralz = (int32_t)(LIMIT_INTEGRAL_Z);
 uint16_t hoverthrottlevzkp = (uint16_t)(HOVER_VZKP*COEF_SCALING);
 uint16_t hoverthrottlevzki = (uint16_t)(HOVER_VZKI*COEF_SCALING);
+int32_t limitintegralvz = (int32_t)(LIMIT_INTEGRAL_VZ);
 uint16_t hoverthrottleacczkp = (uint16_t)(HOVER_ACCZKP*COEF_SCALING);
 uint16_t hoverthrottleacczki = (uint16_t)(HOVER_ACCZKI*COEF_SCALING);
+int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
 #else
 const int16_t hoverthrottlemax = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MAX));
 const int16_t hoverthrottlemin = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN));
@@ -113,10 +117,13 @@ const int16_t limittargetvz = (int16_t)(HOVER_LIMIT_TARGETVZ);
 const int16_t limittargetaccz = (int16_t)(HOVER_LIMIT_TARGETACCZ);
 const uint16_t hoverthrottlezkp = (uint16_t)(HOVER_ZKP*COEF_SCALING);
 const uint16_t hoverthrottlezki = (uint16_t)(HOVER_ZKI*COEF_SCALING);
+const int32_t limitintegralz = (int32_t)(LIMIT_INTEGRAL_Z);
 const uint16_t hoverthrottlevzkp = (uint16_t)(HOVER_VZKP*COEF_SCALING);
 const uint16_t hoverthrottlevzki = (uint16_t)(HOVER_VZKI*COEF_SCALING);
+const int32_t limitintegralvz = (int32_t)(LIMIT_INTEGRAL_VZ);
 const uint16_t hoverthrottleacczkp = (uint16_t)(HOVER_ACCZKP*COEF_SCALING);
 const uint16_t hoverthrottleacczki = (uint16_t)(HOVER_ACCZKI*COEF_SCALING);
+const int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
 #endif
 
 int16_t hover_counter=0;
@@ -134,9 +141,9 @@ int16_t vz_filtered=0;
 float accz_filtered_flt=0.;
 int16_t accz_filtered=0;
 int16_t hover_error_integral_z=0;
-int16_t error_integral_z=0;
-int16_t error_integral_vz=0;
-int16_t error_integral_accz=0;
+int32_t error_integral_z=0;
+int32_t error_integral_vz=0;
+int32_t error_integral_accz=0;
 int32_t previous_z32;
 boolean failsafe_throttle_mode = false;
 int16_t min_hover_alt = (int16_t)(HOVER_ALTITUDE_MIN);
@@ -151,11 +158,11 @@ int16_t hover_error_integral_z;
 int16_t hover_error_vz=0;
 int16_t hover_error_integral_vz;
 int16_t hover_error_accz=0;
+int16_t hover_error_integral_accz;
 int16_t hover_target_vz=0;
 int16_t hover_target_accz=0;
 
 float invdeltafilterheight;
-float invdeltafilterheight32;
 float invdeltafiltervz;
 
 #if ( USE_SONAR == 1 )
@@ -596,7 +603,7 @@ void hoverAltitudeCntrl(void)
         estBaroAltitude();
         z=(int16_t)(get_barometer_altitude());
         invdeltafilterheight=invdeltafilterbaro;
-		invdeltafiltervz=1.;
+		invdeltafiltervz=4.;
         alt_sensor_failure=false;
     }
 #endif
@@ -610,7 +617,7 @@ void hoverAltitudeCntrl(void)
 	{
         z=sonar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
-        invdeltafiltervz=1.;
+        invdeltafiltervz=4.;
 		alt_sensor_failure=false;
 	}
 #endif
@@ -681,8 +688,8 @@ else
 	// > in stabilized mode, if the filtered altitude is higher than the max target height minus 30cm
     if ((flags._.GPS_steering && is_target_alt()) || ((!flags._.GPS_steering) && z_filtered < (hovertargetheightmax - 30)))
 	{ 
-        target_vz=compute_pid_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
-                                    (int16_t)(HEARTBEAT_HZ), (hover_counter > nb_sample_wait));
+        target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralz, (hover_counter > nb_sample_wait));
         target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
     }
     else
@@ -691,25 +698,23 @@ else
     }
 
     //limit error_integral to avoid exceeding +/-16384
-    error_integral_z=limit_value(error_integral_z, -RMAX, RMAX);
+    //error_integral_z=limit_value(error_integral_z, -RMAX, RMAX);
 
     //***************************************************//
 
     //***************************************************//
     //PI controller on vertical velocity
     error_vz=vz_filtered-target_vz_bis;
-    target_accz=compute_pid_block(vz_filtered, target_vz_bis, hoverthrottlevzkp, hoverthrottlevzki, &error_integral_vz, 
-                                  (int16_t)(HEARTBEAT_HZ), (hover_counter > nb_sample_wait));
-    error_integral_vz=limit_value(error_integral_vz, -RMAX, RMAX);       
+    target_accz=compute_pi_block(vz_filtered, target_vz_bis, hoverthrottlevzkp, hoverthrottlevzki, &error_integral_vz, 
+                                  (int16_t)(HEARTBEAT_HZ), limitintegralvz, (hover_counter > nb_sample_wait));
     target_accz_bis=limit_value(target_accz*COEF_MAX, -limittargetaccz, limittargetaccz);
     //***************************************************//
 
     //***************************************************//
     //PI controller on vertical acceleration
     error_accz=accz_filtered-target_accz_bis;
-    throttle=compute_pid_block(accz_filtered, target_accz_bis, hoverthrottleacczkp, hoverthrottleacczki, &error_integral_accz, 
-                               (int16_t)(HEARTBEAT_HZ), (hover_counter > nb_sample_wait));
-    error_integral_accz=limit_value(error_integral_accz, -RMAX, RMAX);
+    throttle=compute_pi_block(accz_filtered, target_accz_bis, hoverthrottleacczkp, hoverthrottleacczki, &error_integral_accz, 
+                               (int16_t)(HEARTBEAT_HZ), limitintegralaccz, (hover_counter > nb_sample_wait));
     throttle_control_pre=throttle*COEF_MAX;
     //***************************************************//
 
@@ -773,6 +778,7 @@ else
     hover_error_integral_vz=(int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ));
     hover_target_vz=target_vz_bis;
     hover_target_accz=target_accz_bis;
+	hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
     
 		//throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 	

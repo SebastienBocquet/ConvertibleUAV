@@ -276,7 +276,7 @@
 // Servo Reversing Configuration
 // For any of these that are set to 1, that servo will be sent reversed controls.
 // Note that your servo reversing settings here should match what you set on your transmitter.
-#define AILERON_CHANNEL_REVERSED            1
+#define AILERON_CHANNEL_REVERSED            0
 #define FLAP_CHANNEL_REVERSED               0
 #define ELEVATOR_CHANNEL_REVERSED           1
 #define RUDDER_CHANNEL_REVERSED             0
