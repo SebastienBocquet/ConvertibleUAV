@@ -266,8 +266,9 @@ void hoverRollCntrl(void)
 	//for the moment it is set to zero, it should be taken into account by the interagl term in the PI contoller on roll_averaged_error
     rollOffset=0;
 
-	roll_control = - (int32_t)gyroRollFeedback._.W1;
-	roll_control += roll_nav_corr;
+	roll_control = 0;
+	//roll_control = - (int32_t)gyroRollFeedback._.W1;
+	//roll_control += roll_nav_corr;
 
     flap_control = (int16_t)(FLAP_OFFSET);
 

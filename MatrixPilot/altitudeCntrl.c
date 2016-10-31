@@ -65,6 +65,7 @@ int16_t desiredHeight;
 
 void normalAltitudeCntrl(void);
 void manualThrottle(int16_t throttleIn);
+void manualHoverThrottle(int16_t throttleIn);
 void hoverAltitudeCntrl(void);
 
 // Variables required for mavlink.  Used in AltitudeCntrlVariable and airspeedCntrl
@@ -338,6 +339,40 @@ void set_throttle_control(int16_t throttle)
 	}
 }
 
+void set_throttle_hover_control(int16_t throttle)
+{
+	int16_t throttleIn;
+
+	if (flags._.altitude_hold_throttle || flags._.altitude_hold_pitch || filterManual || (canStabilizeHover() && current_orientation == F_HOVER))
+	{
+		if (udb_flags._.radio_on == 1)
+		{
+			throttleIn = udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
+		}
+		else
+		{
+			throttleIn = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL];
+		}
+
+		int16_t temp = throttleIn + REVERSE_IF_NEEDED(THROTTLE_HOVER_CHANNEL_REVERSED, throttle);
+
+		if (THROTTLE_HOVER_CHANNEL_REVERSED)
+		{
+			if (temp > udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]) throttle = throttleIn - udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL];
+		}
+		else
+		{
+			if (temp < udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]) throttle = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] - throttleIn;
+		}
+
+		throttle_hover_control = throttle;
+	}
+	else
+	{
+	    throttle_hover_control = 0;
+	}
+}
+
 void hovering_failsafe()
 {
 //	  manoeuvre failsafe:
@@ -532,6 +567,27 @@ void manualThrottle(int16_t throttleIn)
 	set_throttle_control(throttle_control_pre);
 }
 
+void manualHoverThrottle(int16_t throttleIn)
+{
+	int16_t throttle_control_pre;
+
+	throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
+
+	if (filterManual) {
+		// Continue to filter the throttle control value in manual mode to avoid large, instant
+		// changes to throttle value, which can burn out a brushed motor.  But after fading over
+		// to the new throttle value, stop applying the filter to the throttle out to allow
+		// faster control.
+		throttle_control_pre = throttleFiltered._.W1 - throttleIn;
+		if (throttle_control_pre < 10) filterManual = false;
+	}
+	else {
+		throttle_control_pre = 0;
+	}
+
+	set_throttle_hover_control(throttle_control_pre);
+}
+
 int16_t compute_vz_alt_sensor(int16_t z)
 {
     int32_t z32 = (int32_t)(z)*100;
@@ -543,8 +599,8 @@ int16_t compute_vz_alt_sensor(int16_t z)
 
 void hoverAltitudeCntrl(void)
 {
-    int16_t throttleIn = (udb_flags._.radio_on == 1) ? udb_pwIn[THROTTLE_INPUT_CHANNEL] : udb_pwTrim[THROTTLE_INPUT_CHANNEL];
-    int16_t throttleInOffset = (udb_flags._.radio_on == 1) ? udb_servo_pulsesat(udb_pwIn[THROTTLE_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_INPUT_CHANNEL]) : 0;
+    int16_t throttleIn = (udb_flags._.radio_on == 1) ? udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] : udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL];
+    int16_t throttleInOffset = (udb_flags._.radio_on == 1) ? udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]) : 0;
     int16_t z;
     int16_t z_target;
     int16_t vz_target;
@@ -794,12 +850,12 @@ else
 		//	throttle_control_pre = 0;
 		//}
 
-    set_throttle_control(throttle_control_pre);
+    set_throttle_hover_control(throttle_control_pre);
 
     //in case of panick, retrieve manual control as soon as throttle stick is pushed forward (higher priority) 
     if (throttleInOffset > (int16_t)(DEADBAND_HOVER))
     {
-        manualThrottle(throttleIn);
+        manualHoverThrottle(throttleIn);
     }
 
 }
@@ -868,10 +924,10 @@ void calculate_sonar_height_above_ground(void)
 			{
 				good_sample_count = SONAR_SAMPLE_THRESHOLD ;
                 //approximation of tan(yaw) = yaw
-                distance_yaw_corr = __builtin_mulsu(rmat[6], HALF_SPAN)>>14;
+                //distance_yaw_corr = __builtin_mulsu(rmat[6], HALF_SPAN)>>14;
 //				accum.WW = __builtin_mulss(cos_pitch_roll, sonar_distance) ;
 //				sonar_height_to_ground = -accum._.W1 << 2 ; 
-                sonar_height_to_ground = sonar_distance + distance_yaw_corr;
+                sonar_height_to_ground = sonar_distance;
                 udb_flags._.sonar_height_valid = 1;
                 //additional_int16_export5 = rmat[6];
 	            //additional_int16_export3 = distance_yaw_corr;

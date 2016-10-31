@@ -27,7 +27,7 @@
 //	routines to drive the PWM pins for the servos,
 //	assumes the use of the 16MHz crystal.
 
-int16_t pitch_control, roll_control, yaw_control, throttle_control, flap_control;
+int16_t pitch_control, roll_control, yaw_control, throttle_control, throttle_hover_control, flap_control;
 uint16_t wind_gain;
 int16_t cam_pitch_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera pitch servo
 int16_t cam_yaw_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera yaw servo
@@ -97,6 +97,9 @@ void dcm_servo_callback_prepare_outputs(void)
 		yawCntrl();
 		altitudeCntrl();
 		pitchCntrl();
+
+		motorCntrl() ;
+
         applyManoeuvres();
 		servoMix();
 
@@ -136,6 +139,6 @@ void dcm_servo_callback_prepare_outputs(void)
 
 void manualPassthrough(void)
 {
-	roll_control = pitch_control = yaw_control = throttle_control = flap_control = 0;
+	roll_control = pitch_control = yaw_control = throttle_control = throttle_hover_control = flap_control = 0;
 	servoMix();
 }

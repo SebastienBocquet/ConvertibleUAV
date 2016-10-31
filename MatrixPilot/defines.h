@@ -74,7 +74,7 @@ void init_yawCntrl(void);void init_rollCntrl(void);void init_pitchCntrl(void);
 uint16_t wind_gain_adjustment(void);
 extern uint16_t wind_gain;
 
-extern int16_t pitch_control, roll_control, yaw_control, throttle_control, flap_control, rollOffset;
+extern int16_t pitch_control, roll_control, yaw_control, throttle_control, throttle_hover_control, flap_control, rollOffset;
 extern union longww throttleFiltered;
 extern int16_t pitchAltitudeAdjust;
 
@@ -198,7 +198,9 @@ extern int16_t tofinish_line;
 extern int16_t progress_to_goal; // Fraction of the way to the goal in the range 0-4096 (2^12)
 extern int8_t desired_dir;
 
-
+////////////////////////////////////////////////////////////////////////////////
+// Quadcopter
+void motorCntrl( void ) ;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Flight Planning modules - flightplan-waypoints.c and flightplan-logo.c

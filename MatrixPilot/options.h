@@ -221,6 +221,7 @@
 // Use as is, or edit to match your setup.
 //   - If you're set up to use Rudder Navigation (like MatrixNav), then you may want to swap
 //     the aileron and rudder channels so that rudder is CHANNEL_1, and aileron is 5.
+#define THROTTLE_HOVER_INPUT_CHANNEL         CHANNEL_1
 #define THROTTLE_INPUT_CHANNEL              CHANNEL_6
 #define AILERON_INPUT_CHANNEL               CHANNEL_2
 #define FLAP_INPUT_CHANNEL                  CHANNEL_7
@@ -259,8 +260,8 @@
 //
 #define THROTTLE_OUTPUT_CHANNEL             CHANNEL_5
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_7
-#define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_3
-#define RUDDER_OUTPUT_CHANNEL               CHANNEL_6
+#define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
+#define RUDDER_OUTPUT_CHANNEL               CHANNEL_UNUSED
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_8
 #define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_UNUSED
 #define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
@@ -271,6 +272,11 @@
 #define PASSTHROUGH_C_OUTPUT_CHANNEL        CHANNEL_UNUSED
 #define PASSTHROUGH_D_OUTPUT_CHANNEL        CHANNEL_UNUSED
 
+//Quadcopter engines
+#define MOTOR_A_OUTPUT_CHANNEL				CHANNEL_1		// + front or X left front, CCW
+#define MOTOR_B_OUTPUT_CHANNEL				CHANNEL_2		// + right or X right front, CW
+#define MOTOR_C_OUTPUT_CHANNEL				CHANNEL_3		// + rear or X right rear, CCW
+#define MOTOR_D_OUTPUT_CHANNEL				CHANNEL_4		// + left or Z left rear,	CW
 
 ////////////////////////////////////////////////////////////////////////////////
 // Servo Reversing Configuration
@@ -282,6 +288,7 @@
 #define RUDDER_CHANNEL_REVERSED             1
 #define AILERON_SECONDARY_CHANNEL_REVERSED  0
 #define THROTTLE_CHANNEL_REVERSED           0
+#define THROTTLE_HOVER_CHANNEL_REVERSED     0
 #define SONAR_PITCH_CHANNEL_REVERSED        0
 #define CAMERA_PITCH_CHANNEL_REVERSED       0
 #define CAMERA_YAW_CHANNEL_REVERSED         0
@@ -464,6 +471,27 @@
 // set it to 1.0 if you want full servo throw, otherwise set it to the portion that you want
 #define SERVOSAT                            1.0
 
+#define CONFIG_X
+
+// Tilt PID(DD) control gains
+#define TILT_KI 0.05
+#define TILT_KP 0.08
+#define TILT_KD 0.5
+#define TILT_KDD 0.8
+
+// Yaw PID control gains
+#define YAW_KI 0.5
+#define YAW_KP 0.3
+#define YAW_KD 3.0
+
+
+// Vertical damping 
+// ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
+#define ACCEL_K 1.0
+
+#define MAX_YAW_RATE 51  // maximum yaw rate, degrees per second, must be between 50 and 500 degrees/second
+#define MAX_TILT 45       // maximum roll or pitch, degrees, not to exceed 45 degrees
+
 // Aileron/Roll Control Gains
 // ROLLKP is the proportional gain, approximately 0.25
 // ROLLKD is the derivative (gyro) gain, approximately 0.125
@@ -475,9 +503,13 @@
 #define YAWKP_AILERON                       0.04  //may need to be increase in hovering
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       0.33
+
+//Obsolete
 #define HOVER_ROLLKP                        1.
 #define HOVER_ROLLKD                        0.
 #define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
+//
+
 #define HOVER_ROLLNAVKP                     0.075
 #define HOVER_ROLLNAVKI                     0.
 #define LIMIT_INTEGRAL_ROLLNAV              533333
@@ -495,9 +527,13 @@
 #define RUDDER_ELEV_MIX                      0.
 #define ROLL_ELEV_MIX                        0.
 #define ELEVATOR_BOOST                       0.33
+
+//Obsolete
 #define HOVER_PITCHKP                        0.4
 #define HOVER_PITCHKD                        0.
 #define HOVER_PITCH_OFFSET                   0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
+//
+
 #define HOVER_PITCHTOWPKP                    0.4
 #define HOVER_PITCHTOWPKI                    0.
 #define LIMIT_INTEGRAL_PITCHTOWP             80000.
@@ -521,9 +557,13 @@
 #define ROLLKD_RUDDER                       0.
 #define MANUAL_AILERON_RUDDER_MIX           0.
 #define RUDDER_BOOST                        0.33
+
+//Obsolete
 #define HOVER_YAWKP                         0.4
 #define HOVER_YAWKD                         0.
 #define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
+//
+
 #define HOVER_YAWTOWPKP                    0.4
 #define HOVER_YAWTOWPKI                    0.
 #define LIMIT_INTEGRAL_YAWTOWP             80000.
@@ -577,7 +617,11 @@
 #define HOVER_ACCZKP                       0.6  // in 1/(cm/s2), should be between 0 and 10
 #define HOVER_ACCZKI                       0.  // in 1/(cm/s), should be between 0 and 10
 #define LIMIT_INTEGRAL_ACCZ                80000
+
+//Obsolete
 #define HALF_SPAN                          60  //half span in cm 
+//
+
 #define MAX_HOVERING_RADIUS                10   //max distance in m from origin where the aircraft is allowed to hover in GPS navigation mode
 #define HOVER_ANGLE_TOWARDS_WP             20.0
 //#define HOVER_NAV_MAX_PITCH_RADIUS         3.
@@ -588,7 +632,7 @@
 //#define INITIALIZE_VERTICAL
 
 ////////////////////////////////////////////////////////////////////////////////
-// Sonar Stabilization 
+// Sonar pitch stabilization 
 #define SONAR_TAN_PITCH_IN_STABILIZED_MODE    32767   // 1443 is 5 degrees of pitch. Example: 15 degrees is 4389
 
 // All number should be integers

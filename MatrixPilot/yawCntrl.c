@@ -242,6 +242,7 @@ void hoverYawCntrl(void)
 		yawCorr = 0;
 	}
 
-	yaw_control = (int32_t)yawAccum._.W1 - (int32_t)gyroYawFeedback._.W1 + hoveryawoffset;
-	//yaw_control = -yawCorr - (int32_t)gyroYawFeedback._.W1 + hoveryawoffset;
+	yaw_control = 0; 
+	//(int32_t)yawAccum._.W1 - (int32_t)gyroYawFeedback._.W1 + hoveryawoffset;
+	////yaw_control = -yawCorr - (int32_t)gyroYawFeedback._.W1 + hoveryawoffset;
 }

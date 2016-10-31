@@ -336,6 +336,108 @@ static void normalize(void)
 	VectorAdd(3, &rmat[6], &rbuff[6], &rbuff[6]);
 }
 
+fractional theta[3] ;
+
+void MatrixRotate( fractional matrix[] , fractional angle[] )
+{
+	fractional rup[9] ;
+//	fractional theta[3] ;
+	fractional rbuff[9] ;
+	unsigned long thetaSquare ;
+	unsigned nonlinearAdjust ;
+	// diagonal elements of the update matrix:
+	rup[0] = rup[4] = rup[8]= RMAX ;
+
+	// compute the square of rotation
+
+	thetaSquare = 	__builtin_mulss ( angle[0] , angle[0] ) +
+					__builtin_mulss ( angle[1] , angle[1] ) +
+					__builtin_mulss ( angle[2] , angle[2] ) ;
+
+	// adjust gain by rotation_squared divided by 3
+
+	nonlinearAdjust = RMAX + ((unsigned int ) ( thetaSquare >>14 ))/3 ;	
+
+	angle[0] = __builtin_mulsu ( angle[0] , nonlinearAdjust )>>14 ;
+	angle[1] = __builtin_mulsu ( angle[1] , nonlinearAdjust )>>14 ;
+	angle[2] = __builtin_mulsu ( angle[2] , nonlinearAdjust )>>14 ;
+
+	//	construct the off-diagonal elements of the update matrix:
+	rup[1] = -angle[2] ;
+	rup[2] =  angle[1] ;
+	rup[3] =  angle[2] ;
+	rup[5] = -angle[0] ;
+	rup[6] = -angle[1] ;
+	rup[7] =  angle[0] ;
+
+	//	matrix multiply the rmatrix by the update matrix
+	MatrixMultiply( 3 , 3 , 3 , rbuff , matrix , rup ) ;
+	//	multiply by 2 and copy back from rbuff to rmat:
+	MatrixAdd( 3 , 3 , matrix , rbuff , rbuff ) ; 
+	return ;
+}
+
+//	normalization algorithm:
+void matrix_normalize(fractional matrix[])
+//	This is the routine that maintains the orthogonality of the
+//	direction cosine matrix, which is expressed by the identity
+//	relationship that the cosine matrix multiplied by its
+//	transpose should equal the identity matrix.
+//	Small adjustments are made at each time step to assure orthogonality.
+{
+	fractional norm ; // actual magnitude
+	fractional renorm ;	// renormalization factor
+	fractional rbuff[9] ;
+	fractional vbuff[3] ;
+
+	//	compute minus twice the dot product between rows 1 and 3
+	error = (( - VectorDotProduct( 3 , &matrix[0] , &matrix[6] ))<<2) ;
+	//	scale row 1 by the error (there is a 1/2 built into the scaling)
+	VectorScale( 3 , &rbuff[0] , &matrix[6] , error ) ;
+
+	//	compute minus twice the dot product between rows 2 and 3
+	error = (( - VectorDotProduct( 3 , &matrix[3] , &matrix[6] ))<<2) ;
+	//	scale row 1 by the error (there is a 1/2 built into the scaling)
+	VectorScale( 3 , &rbuff[3] , &matrix[6] , error ) ;
+
+	//	compute minus the dot product between rows 1 and 2
+	error = (( - VectorDotProduct( 3 , &matrix[0] , &matrix[3] ))<<1) ;
+
+	//	scale row 2 by 1/2 of the error
+	VectorScale( 3 , vbuff , &matrix[3] , error ) ;
+	//	adjust row 1
+	VectorAdd( 3 , &rbuff[0] , vbuff , &rbuff[0]) ;
+
+	//  scale row 1 by 1/2 of the error
+	VectorScale( 3 , vbuff , &matrix[0] , error ) ;
+	//	adjust row 2
+	VectorAdd( 3 , &rbuff[3] , vbuff , &rbuff[3]) ;
+
+	//	update the rows to make them closer to orthogonal:
+	VectorAdd( 3 , &rbuff[0] , &rbuff[0] , &matrix[0] ) ;
+	VectorAdd( 3 , &rbuff[3] , &rbuff[3] , &matrix[3] ) ;
+	VectorCopy( 3 , &rbuff[6] , &matrix[6] ) ;
+
+
+	//	Use a Taylor's expansion for 1/sqrt(X*X) to avoid division in the renormalization
+	//	rescale row1
+	norm = VectorPower( 3 , &rbuff[0] ) ; // Scalegain of 0.5
+	renorm = RMAX15 - norm ;
+	VectorScale( 3 , &rbuff[0] , &rbuff[0] , renorm ) ;
+	VectorAdd( 3 , &matrix[0] , &rbuff[0] , &rbuff[0] ) ;
+	//	rescale row2
+	norm = VectorPower( 3 , &rbuff[3] ) ;
+	renorm = RMAX15 - norm ;
+	VectorScale( 3 , &rbuff[3] , &rbuff[3] , renorm ) ;
+	VectorAdd( 3 , &matrix[3] , &rbuff[3] , &rbuff[3] ) ;
+	//	rescale row3
+	norm = VectorPower( 3 , &rbuff[6] ) ;
+	renorm = RMAX15 - norm ;
+	VectorScale( 3 , &rbuff[6] , &rbuff[6] , renorm ) ;
+	VectorAdd( 3 , &matrix[6] , &rbuff[6] , &rbuff[6] ) ;
+	return ;
+}
+
 static void roll_pitch_drift(void)
 {
 	VectorCross(errorRP, gplane, &rmat[6]);

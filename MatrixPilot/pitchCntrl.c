@@ -286,5 +286,6 @@ void hoverPitchCntrl(void)
 		pitchAccum.WW = 0;
         pitchCorr = 0;
 	}
-	pitch_control = -pitchCorr + (int32_t)pitchAccum._.W1 + hoverpitchoffset;
+	pitch_control = 0; 
+	//-pitchCorr + (int32_t)pitchAccum._.W1 + hoverpitchoffset;
 }

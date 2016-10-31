@@ -22,6 +22,9 @@
 #include "../libUDB/heartbeat.h"
 #include "../libDCM/estAltitude.h"
 
+const int max_tilt = (int) (MAX_TILT*.7111) ;  // maximum tilt in byte cicular
+int commanded_tilt_gain ;
+
 #if (TEST == 1)
 #include <assert.h>
 #endif
@@ -51,6 +54,7 @@ int main(int argc, char** argv)
 #else
 int main(void)
 {
+	commanded_tilt_gain = sine ( max_tilt ) / 1000 ;
 	mcu_init();
 #endif
 #if (USE_TELELOG == 1)
