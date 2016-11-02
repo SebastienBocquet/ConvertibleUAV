@@ -84,22 +84,43 @@ void init_serial()
 #endif
 
 udb_serial_set_rate(19200);
-if (HEARTBEAT_UDB_EXTRA >= 10 || HEARTBEAT_UDB_LIGHT >= 10 )
+
+#if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_EXTRA)
+if (HEARTBEAT_UDB_EXTRA >= 10)
 {
 	udb_serial_set_rate(57600);
 }
-if (HEARTBEAT_UDB_EXTRA >= 40 || HEARTBEAT_UDB_LIGHT >= 40 )
+if (HEARTBEAT_UDB_EXTRA >= 40)
 {
 	udb_serial_set_rate(192000);
 }
-if (HEARTBEAT_UDB_EXTRA >= 80 || HEARTBEAT_UDB_LIGHT >= 80 )
+if (HEARTBEAT_UDB_EXTRA >= 80)
 {
 	udb_serial_set_rate(460800);
 }
-if (HEARTBEAT_UDB_EXTRA >= 200 || HEARTBEAT_UDB_LIGHT >= 200 )
+if (HEARTBEAT_UDB_EXTRA >= 160)
 {
 	udb_serial_set_rate(921600);
 }
+#endif
+#if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_LIGHT)
+if (HEARTBEAT_UDB_LIGHT >= 10)
+{
+	udb_serial_set_rate(57600);
+}
+if (HEARTBEAT_UDB_LIGHT >= 40)
+{
+	udb_serial_set_rate(192000);
+}
+if (HEARTBEAT_UDB_LIGHT >= 80)
+{
+	udb_serial_set_rate(460800);
+}
+if (HEARTBEAT_UDB_LIGHT >= 160)
+{
+	udb_serial_set_rate(921600);
+}
+#endif
 //	udb_serial_set_rate(38400);
 //	udb_serial_set_rate(57600);
 //	udb_serial_set_rate(115200);
@@ -525,7 +546,7 @@ void serial_output_8hz(void)
 	}
 }
 
-#elif (SERIAL_OUTPUT_FORMAT == SERIAL_UDB || SERIAL_OUTPUT_FORMAT == SERIAL_UDB_EXTRA)
+#elif (SERIAL_OUTPUT_FORMAT == SERIAL_UDB || SERIAL_OUTPUT_FORMAT == SERIAL_UDB_EXTRA || SERIAL_OUTPUT_FORMAT == SERIAL_UDB_LIGHT)
 
 extern int16_t waypointIndex;
 extern int16_t segmentIndex;
@@ -534,7 +555,7 @@ void serial_output_8hz(void)
 {
 	static int16_t telemetry_counter = 8;
 	static int toggle = 0;
-#if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_EXTRA)
+#if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_EXTRA || SERIAL_OUTPUT_FORMAT == SERIAL_UDB_LIGHT)
 	// SERIAL_UDB_EXTRA expected to be used with the OpenLog which can take greater transfer speeds than Xbee
 	// F2: SERIAL_UDB_EXTRA format is printed out every other time, although it is being called at 8Hz, this
 	//     version will output four F2 lines every second (4Hz updates)
