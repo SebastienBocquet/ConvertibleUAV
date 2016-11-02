@@ -24,17 +24,18 @@
 
 
 // number of heartbeats per second
-#define HEARTBEAT_HZ 200
+#define HEARTBEAT_HZ 160
 
 // number of servo updates per second
-#define SERVO_HZ 200
+#define SERVO_HZ 160
 
+ //unused
 // frequency of PID loop (HEARTBEAT_HZ / PID_HZ must be an integer)
-//#define PID_HZ 80 //does not seem activated
+//#define PID_HZ 80
 
 // frequency of writing in udb_extra output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
 #define HEARTBEAT_UDB_EXTRA 10
-#define HEARTBEAT_UDB_LIGHT 200
+#define HEARTBEAT_UDB_LIGHT 80
 
 // Read-only value increments with each heartbeat
 extern uint16_t udb_heartbeat_counter;

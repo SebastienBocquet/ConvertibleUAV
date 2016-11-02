@@ -187,9 +187,9 @@ void process_MPU_data(void)
 //  4 out of 5 samples are being ignored. IMU gets the most recent set of samples.
 //  Eventually, we will want to run write-read synchronously, and run the IMU at 200 Hz, using every sample.
 //  When we are ready to run the IMU at 200 Hz, turn the following back on
-	if (dcm_flags._.calib_finished) {
-		dcm_run_imu_step();
-	}
+//	if (dcm_flags._.calib_finished) {
+//		dcm_run_imu_step();
+//	}
 }
 
 void MPU6000_read(void)
