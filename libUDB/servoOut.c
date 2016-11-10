@@ -24,6 +24,7 @@
 #include "../libDCM/libDCM.h"
 #include "oscillator.h"
 #include "interrupt.h"
+#include "heartbeat.h"
 
 #if (BOARD_TYPE == UDB4_BOARD || BOARD_TYPE == UDB5_BOARD)
 
@@ -150,7 +151,7 @@ extern uint16_t maxstack;
 {                                                       \
 	if (NUM_OUTPUTS >= channel)                         \
 	{                                                   \
-		outputNum = channel;                            \
+		outputNum = channel;  							\
 		if (udb_pwOut[channel] > 0)                     \
 		{                                               \
 			PR4 = SCALE_FOR_PWM_OUT(udb_pwOut[channel]);\
@@ -160,15 +161,14 @@ extern uint16_t maxstack;
 		{                                               \
 			PR4 = SCALE_FOR_PWM_OUT(100);               \
 			pin = 0;                                    \
-		}                                               \
+		}                                              \
 		TMR4 = 0;                                       \
-	}                                                   \
+	}                                                 \
 	else                                                \
 	{                                                   \
 		_T4IE = 0;                                      \
 	}                                                   \
 }
-
 
 void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 {

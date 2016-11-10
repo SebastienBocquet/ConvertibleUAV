@@ -26,8 +26,11 @@
 // number of heartbeats per second
 #define HEARTBEAT_HZ 160
 
-// number of servo updates per second
-#define SERVO_HZ 160
+// number of output updates per second
+#define OUTPUT_HZ 80
+
+// number of servo updates per second (must be < OUTPUT_HZ)
+#define SERVO_HZ 80
 
  //unused
 // frequency of PID loop (HEARTBEAT_HZ / PID_HZ must be an integer)

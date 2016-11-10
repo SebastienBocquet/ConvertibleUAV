@@ -20,6 +20,7 @@
 
 #include "../libDCM/libDCM_internal.h"
 #include "defines.h"
+#include "../libUDB/heartbeat.h"
 
 #define MANUAL_DEADBAND 200 // amount of throttle before fly-by-wire controls engage
 #define MAXIMUM_ERROR_INTEGRAL ((int32_t) 32768000 )
@@ -30,6 +31,9 @@ extern void matrix_normalize ( int16_t[] ) ;
 extern void MatrixRotate( int16_t[] , int16_t[] ) ;
 extern int commanded_tilt_gain ;
 
+int16_t desired_roll;
+int16_t desired_pitch;
+int16_t desired_yaw;
 int16_t roll_quad_control ;
 int16_t pitch_quad_control ;
 int16_t yaw_quad_control ;
@@ -42,6 +46,9 @@ int16_t commanded_roll ;
 int16_t commanded_pitch ;
 int16_t commanded_yaw ;
 
+int16_t pitch_body_frame_control;
+int16_t roll_body_frame_control;
+
 int16_t roll_error ;
 int16_t pitch_error ;
 int16_t yaw_error ;
@@ -50,7 +57,7 @@ int16_t roll_error_previous = 0 ;
 int16_t pitch_error_previous = 0 ;
 int16_t yaw_error_previous = 0 ;
 
-union longww roll_error_integral = { 0 } ;
+union longww roll_quad_error_integral = { 0 } ;
 union longww pitch_quad_error_integral = { 0 } ;
 union longww yaw_quad_error_integral = { 0 } ;
 
@@ -77,6 +84,14 @@ void motorCntrl(void)
 	int16_t roll_error_delta ;
 	int16_t pitch_error_delta ;
 	int16_t yaw_error_delta ;
+
+	int16_t roll_rate;
+	int16_t pitch_rate;
+	int16_t yaw_rate;
+
+	int16_t roll_rate_error;
+	int16_t pitch_rate_error;
+	int16_t yaw_rate_error;
 
 	union longww long_accum ;
 //	union longww accum ; // debugging temporary
@@ -168,24 +183,24 @@ void motorCntrl(void)
 		commanded_roll = commanded_tilt[0] ;
 		commanded_pitch = commanded_tilt[1] ;
 
-#ifdef CONFIG_PLUS
+//#ifdef CONFIG_PLUS
 
 		commanded_pitch_body_frame = commanded_pitch ;
 		commanded_roll_body_frame = commanded_roll ;
-
-#endif
-
-#ifdef CONFIG_X
-
-		commanded_pitch_body_frame =  3*(( commanded_pitch - commanded_roll )/4) ; // approximation to .707, not critcal
-		commanded_roll_body_frame = 3*(( commanded_pitch + commanded_roll )/4) ; 
-
-#endif
+//
+//#endif
+//
+//#ifdef CONFIG_X
+//
+//		commanded_pitch_body_frame =  3*(( commanded_pitch - commanded_roll )/4) ; // approximation to .707, not critcal
+//		commanded_roll_body_frame = 3*(( commanded_pitch + commanded_roll )/4) ; 
+//
+//#endif
 
 
 
 //		Compute the orientation of the virtual quad (which is used only for yaw control)
-//		Set the earth vertical to match in both frames (since we are int16_terested only in yaw)
+//		Set the earth vertical to match in both frames (since we are interested only in yaw)
 
 		target_orientation[6] = rmat[6] ;
 		target_orientation[7] = rmat[7] ;
@@ -217,14 +232,14 @@ void motorCntrl(void)
 
 
 //		Compute the error integrals
-		roll_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*RMAX*TILT_KI/40.), roll_error ))>>5) ;
-		if ( roll_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
+		roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*RMAX*TILT_KI/40.), roll_error ))>>5) ;
+		if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
 		{
-			roll_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
+			roll_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
 		}
-		if ( roll_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
+		if ( roll_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
 		{
-			roll_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
+			roll_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
 		}
 
 		pitch_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*RMAX*TILT_KI/40.), pitch_error ))>>5) ;
@@ -248,13 +263,15 @@ void motorCntrl(void)
 		}
 
 //		Compute the derivatives
+// theta_delta seems to be zero all the time
 		theta_delta[0] = theta[0] - theta_previous[0] ;
 		theta_delta[1] = theta[1] - theta_previous[1] ;
 
 		theta_previous[0] = theta[0] ;
 		theta_previous[1] = theta[1] ;
 
-		roll_error_delta = roll_error - roll_error_previous ;
+		//debugger and cropper la derivee
+		roll_error_delta = roll_error - roll_error_previous;
 		roll_error_previous = roll_error ;
 
 		pitch_error_delta = pitch_error - pitch_error_previous ;
@@ -263,45 +280,128 @@ void motorCntrl(void)
 		yaw_error_delta = yaw_error - yaw_error_previous ;
 		yaw_error_previous = yaw_error ;
 
-//		Compute the PID(DD) signals
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KP) , roll_error ) ;
-		roll_quad_control = long_accum._.W1 ;
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , roll_error_delta ) ;
-		roll_quad_control += long_accum._.W1 ;
+//		roll stabilization
+
+//		Compute the PID(DD) signals on roll_error
+		//long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KP) , roll_error ) << 2  ;
+		long_accum.WW = __builtin_mulus ( (uint16_t) (HEARTBEAT_HZ*TILT_KP) , roll_error - roll_error_previous )  ;
+		if ( long_accum.WW > RMAX )
+		{
+			long_accum.WW = RMAX ;
+		}
+		if ( long_accum.WW < - RMAX )
+		{
+			long_accum.WW =  - RMAX ;
+		}
+		desired_roll = -(int16_t)long_accum.WW;
+
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , roll_error_delta ) << 2  ;
+		desired_roll -= long_accum._.W1 ;
 
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KDD) , -theta_delta[1] ) << 2 ;
-		roll_quad_control += long_accum._.W1 ;
+		desired_roll -= long_accum._.W1 ;
 
-		roll_quad_control += roll_error_integral._.W1 ;
+		desired_roll -= roll_quad_error_integral._.W1 << 2  ;
 
+//		compute error between angle_rate and first PID output
+		roll_rate = -omegaAccum[1];
+		roll_rate_error = roll_rate - desired_roll;
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KP) , pitch_error ) ;
-		pitch_quad_control = long_accum._.W1 ;
+//      compute PID (only P for the moment) on omega_error
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_RATE_KP) , roll_rate_error ) << 2 ;
+		roll_quad_control = -long_accum._.W1 ;
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , pitch_error_delta ) ;
-		pitch_quad_control += long_accum._.W1 ;
+		
+//		pitch stabilization
+
+//		Compute the PID(DD) signals on pitch_error
+//		pitch_error is -rmat7, with rmat7 the pitch angle
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KP) , pitch_error ) << 2  ;
+		desired_pitch = -long_accum._.W1 ;
+
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , pitch_error_delta ) << 2  ;
+		desired_pitch -= long_accum._.W1 ;
 
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KDD) , -theta_delta[0] ) << 2 ;
-		pitch_quad_control += long_accum._.W1 ;
+		desired_pitch -= long_accum._.W1 ;
 
-		pitch_quad_control += pitch_quad_error_integral._.W1 ;
+		desired_pitch -= pitch_quad_error_integral._.W1 << 2  ;
+
+//		compute error between angle_rate and first PID output
+//		to be coherent with the definition of pitch_error, pitch_rate is set as minus the pitch rate given by omega_gyro
+		long_accum.WW = (__builtin_mulss(rmat[8] , omegagyro[0])
+	               - __builtin_mulss(rmat[6] , omegagyro[2])) << 1;
+		pitch_rate = -long_accum._.W1;
+		pitch_rate_error = pitch_rate - desired_pitch;
+
+//      compute PID (only P for the moment) on omega_error
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_RATE_KP) , pitch_rate_error ) << 2 ;
+		pitch_quad_control = -long_accum._.W1 ;
 
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KP) , yaw_error ) ;
-		yaw_control = long_accum._.W1 ;
+//		yaw stabilization
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KD) , yaw_error_delta ) ;
-		yaw_control += long_accum._.W1 ;
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KP) , yaw_error ) << 2  ;
+		desired_yaw = -long_accum._.W1 ;
 
-		yaw_control += yaw_quad_error_integral._.W1 ;
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KD) , yaw_error_delta ) << 2  ;
+		desired_yaw -= long_accum._.W1 ;
 
+		desired_yaw -= yaw_quad_error_integral._.W1 << 2  ;
+
+//		compute error between angle_rate and first PID output
+//		use minus omegagyro to be coherent with yaw_error
+		yaw_rate = -omegagyro[2];
+		yaw_rate_error = yaw_rate - desired_yaw;
+
+		//      compute PID (only P for the moment) on omega_error
+		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_RATE_KP) , yaw_rate_error ) << 2 ;
+		yaw_quad_control = -long_accum._.W1 ;
+		
+
+		//output telemetry
+		additional_int16_export1 = roll_error;
+		additional_int16_export2 = pitch_error;
+		additional_int16_export3 = yaw_error;
+
+		additional_int16_export4 = roll_rate;
+		additional_int16_export5 = pitch_rate;
+		additional_int16_export6 = yaw_rate;
+
+		additional_int16_export7 = roll_quad_error_integral._.W1;
+		additional_int16_export8 = pitch_quad_error_integral._.W1;
+		additional_int16_export9 = yaw_quad_error_integral._.W1;
+
+
+#ifdef CONFIG_PLUS
+
+		pitch_body_frame_control = pitch_quad_control ;
+		roll_body_frame_control = roll_quad_control ;
+
+#endif
+
+#ifdef CONFIG_X
+
+		pitch_body_frame_control = 3*(( pitch_quad_control - roll_quad_control )/4) ;
+		roll_body_frame_control = 3*(( pitch_quad_control + roll_quad_control )/4) ;
+
+#endif
+
+
+#if (MOTOR_A_POSITION == 1)
 //		Mix in the yaw, pitch, and roll signals int16_to the motors
-		motor_A += +yaw_quad_control - pitch_quad_control ;
-		motor_B += -yaw_quad_control - roll_quad_control ;
-		motor_C += +yaw_quad_control + pitch_quad_control ;
-		motor_D += -yaw_quad_control + roll_quad_control ;
-
+		motor_A += +yaw_quad_control - pitch_body_frame_control ;
+		motor_B += -yaw_quad_control - roll_body_frame_control ;
+		motor_C += +yaw_quad_control + pitch_body_frame_control ;
+		motor_D += -yaw_quad_control + roll_body_frame_control ;
+#elif (MOTOR_A_POSITION == 3)
+//		Mix in the yaw, pitch, and roll signals int16_to the motors
+		motor_A += +yaw_quad_control + pitch_body_frame_control ;
+		motor_B += -yaw_quad_control + roll_body_frame_control ;
+		motor_C += +yaw_quad_control - pitch_body_frame_control ;
+		motor_D += -yaw_quad_control - roll_body_frame_control ;
+#endif
 //		Send the signals out to the motors
 		udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		
 		udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_B ) ;
@@ -311,6 +411,9 @@ void motorCntrl(void)
 	}
 }
 
+#ifndef MOTOR_A_POSITION
+#error ("You have not defined the position of motor A")
+#endif
 
 #ifndef CONFIG_PLUS
 #ifndef CONFIG_X

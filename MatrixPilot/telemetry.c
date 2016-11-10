@@ -735,6 +735,7 @@ void serial_output_8hz(void)
 	{
 				serial_output("F2:T%li:"
 				              "a%i:b%i:c%i:d%i:e%i:f%i:g%i:h%i:i%i:"
+                              "om0%i:om1%i:om2%i:"
                               "cpu%u:"
                               "ma%i:mb%i:mc%i:"
                               ,
@@ -742,6 +743,7 @@ void serial_output_8hz(void)
 				    rmat[0], rmat[1], rmat[2],
 				    rmat[3], rmat[4], rmat[5],
 				    rmat[6], rmat[7], rmat[8],
+					omegagyro[0], omegagyro[1], omegagyro[2],
                     (uint16_t)udb_cpu_load(),
 #if (MAG_YAW_DRIFT == 1)
 				    magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
@@ -779,6 +781,11 @@ void serial_output_8hz(void)
 				serial_output("tmp%i:prs%li:alt%li:",
                     get_barometer_temperature(), get_barometer_pressure(), get_barometer_altitude());
 #endif
+                serial_output("add1%i:add2%i:add3%i:add4%i:add5%i:add6%i:add7%i:add8%i:add9%i:",
+                   additional_int16_export1, additional_int16_export2, additional_int16_export3, 
+                   additional_int16_export4, additional_int16_export5, additional_int16_export6,
+                   additional_int16_export7, additional_int16_export8, additional_int16_export9);
+
 #if (RECORD_FREE_STACK_SPACE == 1)
 				extern uint16_t maxstack;
 				serial_output("stk%d:", (int16_t)(4096-maxstack));

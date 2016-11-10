@@ -54,10 +54,18 @@ void init_servoPrepare(void) // initialize the PWM
 
 #if (FIXED_TRIMPOINT == 1)
 	for (i=0; i <= NUM_OUTPUTS; i++)
-		udb_pwOut[i] = ((i == THROTTLE_OUTPUT_CHANNEL) ? THROTTLE_TRIMPOINT : CHANNEL_TRIMPOINT);
+		udb_pwOut[i] = ((i == THROTTLE_OUTPUT_CHANNEL || 
+							i == MOTOR_A_OUTPUT_CHANNEL ||
+							i == MOTOR_B_OUTPUT_CHANNEL ||
+							i == MOTOR_C_OUTPUT_CHANNEL ||
+							i == MOTOR_D_OUTPUT_CHANNEL) ? THROTTLE_TRIMPOINT : CHANNEL_TRIMPOINT);
 #else
 	for (i=0; i <= NUM_OUTPUTS; i++)
-		udb_pwOut[i] = ((i == THROTTLE_OUTPUT_CHANNEL) ? 0 : 3000);
+		udb_pwOut[i] = ((i == THROTTLE_OUTPUT_CHANNEL || 
+							i == MOTOR_A_OUTPUT_CHANNEL ||
+							i == MOTOR_B_OUTPUT_CHANNEL ||
+							i == MOTOR_C_OUTPUT_CHANNEL ||
+							i == MOTOR_D_OUTPUT_CHANNEL) ? 0 : 3000);
 #endif
 
 	cameraInit();
@@ -79,6 +87,8 @@ void dcm_servo_callback_prepare_outputs(void)
 			flight_mode_switch_2pos_poll();  // we always want this called at 40Hz
 		}
 
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)
+		{
 #if (DEADRECKONING == 1)
 		process_flightplan();
 #endif	
@@ -87,28 +97,33 @@ void dcm_servo_callback_prepare_outputs(void)
 		airspeedCntrl();
 #endif // ALTITUDE_GAINS_VARIABLE
 
-		updateBehavior();
-		wind_gain = wind_gain_adjustment ();
-
-        sonarCntrl();
-        sonarServoMix();
-
-		rollCntrl();
-		yawCntrl();
-		altitudeCntrl();
-		pitchCntrl();
+	
+			updateBehavior();
+			wind_gain = wind_gain_adjustment ();
+	
+	        sonarCntrl();
+	        sonarServoMix();
+	
+			rollCntrl();
+			yawCntrl();
+			altitudeCntrl();
+			pitchCntrl();
+	
+	        applyManoeuvres();
+			servoMix();
+		}
 
 		motorCntrl() ;
 
-        applyManoeuvres();
-		servoMix();
-
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)
+		{
 #if (USE_CAMERA_STABILIZATION == 1)
 		cameraCntrl();
 #endif
 
 		cameraServoMix();
 		updateTriggerAction();
+		}
 	}
 	else
 	{

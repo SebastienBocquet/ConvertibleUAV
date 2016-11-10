@@ -473,21 +473,28 @@
 
 #define CONFIG_X
 
-// Tilt PID(DD) control gains
-#define TILT_KI 0.05
-#define TILT_KP 0.08
-#define TILT_KD 0.5
-#define TILT_KDD 0.8
+// 1=SE, 2=NE, 3=NO, 4=SO. then motors B, C, D are placed following anticlockwise from motor A
+//motor A should have CW propeller
+#define MOTOR_A_POSITION     3
 
-// Yaw PID control gains
-#define YAW_KI 0.5
-#define YAW_KP 0.3
-#define YAW_KD 3.0
+// Tilt PID(DD) control gains on roll and pitch angle
+#define TILT_KI 0.075
+#define TILT_KP 0.15
+#define TILT_KD 0.
+#define TILT_KDD 0.
 
+// PID control gains on yaw angle
+#define YAW_KI 0.2
+#define YAW_KP 0.15
+#define YAW_KD 0.
+
+//Tilt PID control gains on roll and pitch rate
+#define TILT_RATE_KP 0.25
+#define YAW_RATE_KP 1.
 
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
-#define ACCEL_K 1.0
+#define ACCEL_K 0.
 
 #define MAX_YAW_RATE 51  // maximum yaw rate, degrees per second, must be between 50 and 500 degrees/second
 #define MAX_TILT 45       // maximum roll or pitch, degrees, not to exceed 45 degrees

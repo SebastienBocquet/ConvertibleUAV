@@ -243,14 +243,14 @@ void hoverRollCntrl(void)
         	roll_counter+=1;
     	}
 
-        additional_int16_export1 = rollAngle*2;
-        additional_int16_export2 = averaged_roll_error*2;
-        additional_int16_export3 = rmat[2];
-        additional_int16_export5 = roll_error_instant_filtered*2;
-        additional_int16_export6 = (int16_t)(error_integral_roll / (int16_t)(HEARTBEAT_HZ));
-        additional_int16_export7 = roll_nav_corr*2;
-        additional_int16_export8 = rollNavDeflection_filtered*2;
-        additional_int16_export9 = rmat[8];
+//        additional_int16_export1 = rollAngle*2;
+//        additional_int16_export2 = averaged_roll_error*2;
+//        additional_int16_export3 = rmat[2];
+//        additional_int16_export5 = roll_error_instant_filtered*2;
+//        additional_int16_export6 = (int16_t)(error_integral_roll / (int16_t)(HEARTBEAT_HZ));
+//        additional_int16_export7 = roll_nav_corr*2;
+//        additional_int16_export8 = rollNavDeflection_filtered*2;
+//        additional_int16_export9 = rmat[8];
 		
 	}
 	else
