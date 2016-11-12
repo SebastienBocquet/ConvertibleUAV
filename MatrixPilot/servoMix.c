@@ -27,10 +27,10 @@ int16_t rudderbgain;
 
 int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_max)
 {
-    int16_t tmp1 = pot_order - 2233;
-	tmp1=limit_value(tmp1, 0, 3823-2233);
+    int16_t tmp1 = pot_order - 2000;
+	tmp1=limit_value(tmp1, 0, 2000);
 	int32_t tmp2 = __builtin_mulss(order_max - order_min, tmp1);
-	return (int16_t)(tmp2/(3823-2233))+order_min;
+	return (int16_t)(tmp2/2000)+order_min;
 }
 
 void applyManoeuvres(void)

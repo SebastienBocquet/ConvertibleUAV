@@ -86,7 +86,7 @@ BAROMETER=0
 MAX_HOVER_RADIUS = 7
 EXPORT='LIGHT'
 
-file_number=2363
+file_number=2372
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -366,16 +366,16 @@ if EXPORT=='EXTRA':
 
 ##debug of quadricopter mode
 
-TILT_KI= 0.1
-TILT_KP= 0.15
+TILT_KI= 0.
+TILT_KP= 0.5
 TILT_KD= 0.
 
-YAW_KI= 0.2
-YAW_KP= 0.15
+YAW_KI= 0.
+YAW_KP= 0.
 YAW_KD= 0.
 
-TILT_RATE_KP= 0.25
-YAW_RATE_KP= 1.
+TILT_RATE_KP= 0.5
+YAW_RATE_KP= 0.
 
 
 
@@ -422,34 +422,35 @@ ax1.plot(time, p4o, 'r-', marker=None, label='motorD')
 finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=-500
-ymax=500
-ax2.plot(time, add1, 'k--', marker=None, label='roll_error')
-#ax2.plot(time, add4, 'b--', marker=None, label='roll rate')
-ax2.plot(time, add7, 'g--', marker=None, label='roll error integral')
-ax2.plot(time, desired_roll_reconst, 'r-', marker=None, label='roll control reconst')
+ymin=-2000
+ymax=2000
+ax2.plot(time, rmat6, 'k-', marker=None, label='roll_angle')
+ax2.plot(time, roll_error, 'k--', marker=None, label='roll_error')
+ax2.plot(time, roll_rate, 'b--', marker=None, label='roll rate')
+ax2.plot(time, roll_error_integral, 'g--', marker=None, label='roll error integral')
+ax2.plot(time, desired_roll_reconst, 'r-', marker=None, label='desired_roll_reconst')
 ax2.plot(time, -TILT_RATE_KP*(roll_rate-desired_roll_reconst), 'c-', marker=None, label='roll control reconst')
 
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=-500
-ymax=500
-ax3.plot(time, add2, 'k--', marker=None, label='pitch error')
-#ax3.plot(time, add5, 'b--', marker=None, label='pitch rate')
-ax3.plot(time, add8, 'g--', marker=None, label='pitch error integral')
-ax3.plot(time, desired_pitch_reconst, 'r-', marker=None, label='pitch control reconst')
+ymin=-2000
+ymax=2000
+ax3.plot(time, pitch_error, 'k--', marker=None, label='pitch error')
+ax3.plot(time, pitch_rate, 'b--', marker=None, label='pitch rate')
+ax3.plot(time, pitch_error_integral, 'g--', marker=None, label='pitch error integral')
+ax3.plot(time, desired_pitch_reconst, 'r-', marker=None, label='desired_pitch_reconst')
 ax3.plot(time, -TILT_RATE_KP*(pitch_rate-desired_pitch_reconst), 'c-', marker=None, label='pitch control reconst')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=-500
-ymax=500
-ax4.plot(time, add3, 'k--', marker=None, label='yaw error')
-#ax4.plot(time, add6, 'b--', marker=None, label='yaw rate')
-ax4.plot(time, add9, 'g--', marker=None, label='yaw error integral')
-ax4.plot(time, desired_yaw_reconst, 'r-', marker=None, label='yaw control reconst')
+ymin=-2000
+ymax=2000
+ax4.plot(time, yaw_error, 'k--', marker=None, label='yaw error')
+ax4.plot(time, yaw_rate, 'b--', marker=None, label='yaw rate')
+ax4.plot(time, yaw_error_integral, 'g--', marker=None, label='yaw error integral')
+ax4.plot(time, desired_yaw_reconst, 'r-', marker=None, label='desired_yaw_reconst')
 ax4.plot(time, -YAW_RATE_KP*(yaw_rate-desired_yaw_reconst), 'c-', marker=None, label='yaw control reconst')
 
 finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \

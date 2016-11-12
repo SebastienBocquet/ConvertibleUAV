@@ -478,19 +478,26 @@
 #define MOTOR_A_POSITION     3
 
 // Tilt PID(DD) control gains on roll and pitch angle
-#define TILT_KI 0.075
-#define TILT_KP 0.15
+#define TILT_KI 0.
+#define TILT_KP 0.63
 #define TILT_KD 0.
 #define TILT_KDD 0.
 
 // PID control gains on yaw angle
-#define YAW_KI 0.2
-#define YAW_KP 0.15
+#define YAW_KI 0.
+#define YAW_KP 0.
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
-#define TILT_RATE_KP 0.25
-#define YAW_RATE_KP 1.
+#define TILT_RATE_KI 0.
+#define TILT_RATE_KP 0.22
+#define YAW_RATE_KI 0.
+#define YAW_RATE_KP 0.
+
+//variable gains controlled from Tx
+#define VARIABLE_GAINS
+#define INPUT_CHANNEL_GAIN1  THROTTLE_INPUT_CHANNEL
+#define INPUT_CHANNEL_GAIN2  FLAP_INPUT_CHANNEL
 
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus

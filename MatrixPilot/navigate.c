@@ -450,6 +450,8 @@ void compute_hovering_dir(void)
     int32_t tmp2 = __builtin_mulss(255, tmp1);
     tmp1 = (int16_t)(tmp2/(3823-2233));
     plane_to_south = (int8_t)(tmp1);
+	//TO DO: try this insted of above lines
+	//compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], 0, 255);
 #else
 	plane_to_south = 128;
 #endif
