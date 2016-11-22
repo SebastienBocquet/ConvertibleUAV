@@ -30,11 +30,15 @@
 #define OUTPUT_HZ 80
 
 // number of servo updates per second (must be < OUTPUT_HZ)
-#define SERVO_HZ 80
+//#define SERVO_HZ 80
 
  //unused
 // frequency of PID loop (HEARTBEAT_HZ / PID_HZ must be an integer)
 //#define PID_HZ 80
+
+#define BAROMETER_HZ 80
+
+#define MAGNETOMETER_HZ 4
 
 // frequency of writing in udb_extra output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
 #define HEARTBEAT_UDB_EXTRA 10

@@ -82,11 +82,11 @@ plot_synthetic_throttle=0
 plot_rmat=0
 invdeltafilter_sonar=2
 SONAR=1
-BAROMETER=0
+BAROMETER=1
 MAX_HOVER_RADIUS = 7
 EXPORT='LIGHT'
 
-file_number=2372
+file_number=2391
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -366,34 +366,36 @@ if EXPORT=='EXTRA':
 
 ##debug of quadricopter mode
 
-TILT_KI= 0.
+
+
+TILT_KI= 0.05
 TILT_KP= 0.5
 TILT_KD= 0.
 
 YAW_KI= 0.
-YAW_KP= 0.
+YAW_KP= 0.3
 YAW_KD= 0.
 
-TILT_RATE_KP= 0.5
-YAW_RATE_KP= 0.
+TILT_RATE_KP= 0.22
+YAW_RATE_KP= 0.2
 
 
 
-roll_error =add1
-pitch_error =add2
-yaw_error =add3
+desired_roll =add1
+desired_pitch =add2
+desired_yaw =add3
 
-roll_error_integral =add7*4
-pitch_error_integral =add8*4
-yaw_error_integral =add9*4
+roll_rate_error_integral =add4
+pitch_rate_error_integral =add5
+yaw_rate_error_integral =add6
 
-roll_rate =add4
-pitch_rate =add5
-yaw_rate =add6
+roll_error_integral =add7
+pitch_error_integral =add8
+yaw_error_integral =add9
 
-desired_roll_reconst = -roll_error*TILT_KP-roll_error_integral*TILT_KI
-desired_pitch_reconst = -pitch_error*TILT_KP-pitch_error_integral*TILT_KI
-desired_yaw_reconst = -yaw_error*YAW_KP-yaw_error_integral*YAW_KI
+#desired_roll_reconst = -roll_error*TILT_KP-roll_error_integral*TILT_KI
+#desired_pitch_reconst = -pitch_error*TILT_KP-pitch_error_integral*TILT_KI
+#desired_yaw_reconst = -yaw_error*YAW_KP-yaw_error_integral*YAW_KI
 
 nb_subplot_v=4
 nb_subplot_h=1
@@ -425,33 +427,33 @@ finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=-2000
 ymax=2000
 ax2.plot(time, rmat6, 'k-', marker=None, label='roll_angle')
-ax2.plot(time, roll_error, 'k--', marker=None, label='roll_error')
-ax2.plot(time, roll_rate, 'b--', marker=None, label='roll rate')
+ax2.plot(time, add6, 'k-', marker=None, label='tilt_ki')
+#ax2.plot(time, roll_rate_error_integral, 'b--', marker=None, label='roll rate error integral')
 ax2.plot(time, roll_error_integral, 'g--', marker=None, label='roll error integral')
-ax2.plot(time, desired_roll_reconst, 'r-', marker=None, label='desired_roll_reconst')
-ax2.plot(time, -TILT_RATE_KP*(roll_rate-desired_roll_reconst), 'c-', marker=None, label='roll control reconst')
+ax2.plot(time, desired_roll, 'r-', marker=None, label='desired_roll_reconst')
+#ax2.plot(time, -TILT_RATE_KP*(roll_rate-desired_roll_reconst), 'c-', marker=None, label='roll control reconst')
 
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
 ymin=-2000
 ymax=2000
-ax3.plot(time, pitch_error, 'k--', marker=None, label='pitch error')
-ax3.plot(time, pitch_rate, 'b--', marker=None, label='pitch rate')
+ax3.plot(time, rmat7, 'k-', marker=None, label='pitch_angle')
+#ax3.plot(time, pitch_rate_error_integral, 'b--', marker=None, label='pitch rate error integral')
 ax3.plot(time, pitch_error_integral, 'g--', marker=None, label='pitch error integral')
-ax3.plot(time, desired_pitch_reconst, 'r-', marker=None, label='desired_pitch_reconst')
-ax3.plot(time, -TILT_RATE_KP*(pitch_rate-desired_pitch_reconst), 'c-', marker=None, label='pitch control reconst')
+ax3.plot(time, desired_pitch, 'r-', marker=None, label='desired_pitch_reconst')
+#ax3.plot(time, -TILT_RATE_KP*(pitch_rate-desired_pitch_reconst), 'c-', marker=None, label='pitch control reconst')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=-2000
-ymax=2000
-ax4.plot(time, yaw_error, 'k--', marker=None, label='yaw error')
-ax4.plot(time, yaw_rate, 'b--', marker=None, label='yaw rate')
+ymin=None
+ymax=None
+ax4.plot(time, rmat0, 'k-', marker=None, label='rmat0')
+#ax4.plot(time, yaw_rate_error_integral, 'b--', marker=None, label='yaw rate error integral')
 ax4.plot(time, yaw_error_integral, 'g--', marker=None, label='yaw error integral')
-ax4.plot(time, desired_yaw_reconst, 'r-', marker=None, label='desired_yaw_reconst')
-ax4.plot(time, -YAW_RATE_KP*(yaw_rate-desired_yaw_reconst), 'c-', marker=None, label='yaw control reconst')
+ax4.plot(time, desired_yaw, 'r-', marker=None, label='desired_yaw_reconst')
+#ax4.plot(time, -YAW_RATE_KP*(yaw_rate-desired_yaw_reconst), 'c-', marker=None, label='yaw control reconst')
 
 finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
@@ -461,23 +463,53 @@ finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 
 
 
-##nb_subplot_v=1
-##nb_subplot_h=1
-## 
-##fig = plt.figure(figsize=(16.0, 9.0))
-##
-##xlabel=''
-##ylabel=''
-##
-##fig.subplots_adjust(hspace=0.5)
+fig = plt.figure(figsize=(16.0, 9.0))
 
-##roll control in hover
+xlabel=''
+ylabel=''
 
-##ax = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
-##ax.set_title('navigation', fontweight='bold', fontsize=fontsize)
-##
-##ymin=-16384
-##ymax=16384
+fig.subplots_adjust(hspace=0.5)
+
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
+ax1.set_title('i2c+sonar check', fontweight='bold', fontsize=fontsize)
+
+ymin=None
+ymax=None
+
+ax1.plot(time, ma, 'k-', marker='', label='mag a')
+ax1.plot(time, mb, 'b-', marker='', label='mag b')
+ax1.plot(time, mc, 'g-', marker='', label='mag c')
+ax1.plot(time, (180./np.pi)*np.arctan2(mb,ma), 'r-', marker='', label='mag angle')
+#ax1.plot(time, rmat0, 'k--', marker=None, label='rmat0')
+#ax1.plot(time, rmat1, 'b--', marker=None, label='rmat1')
+#ax1.plot(time, rmat2, 'g--', marker=None, label='rmat2')
+#ax1.plot(time, rmat3, 'r--', marker=None, label='rmat3')
+#ax1.plot(time, rmat4, 'y--', marker=None, label='rmat4')
+#ax1.plot(time, rmat5, 'm--', marker=None, label='rmat5')
+#ax1.plot(time, rmat8, 'c--', marker=None, label='rmat8')
+
+finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+
+ymin=0
+ymax=550
+ax2.plot(time, barometer_pressure, 'k-', marker='', label='baro prs')
+ax2.plot(time, barometer_temperature, 'b-', marker='', label='baro temp')
+ax2.plot(time, barometer_altitude, 'g-', marker='', label='baro alt')
+
+finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+
+ymin=0
+ymax=550
+ax3.plot(time, sonar_dist, 'k-', marker='', label='sonar dist')
+ax3.plot(time, sonar_height, 'b-', marker='', label='sonar height')
+
+finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
+
+
+
 ##
 ##int16_to_degrees=90./16387.
 ##

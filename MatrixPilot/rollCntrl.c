@@ -263,7 +263,7 @@ void hoverRollCntrl(void)
     //roll offset proportional to throttle to compensate propeller torque
     //tmp=-__builtin_mulsu(hoverrolloffset, (int16_t)(throttle_control/2));
     //rollOffset=(int16_t)(tmp>>14);
-	//for the moment it is set to zero, it should be taken into account by the interagl term in the PI contoller on roll_averaged_error
+	//for the moment it is set to zero, it should be taken into account by the integral term in the PI contoller on roll_averaged_error
     rollOffset=0;
 
 	roll_control = 0;

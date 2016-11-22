@@ -232,13 +232,13 @@ void motorCntrl(void)
 
 
 #ifdef VARIABLE_GAINS
-	tilt_ki = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_GAIN1], 0, RMAX));
-	tilt_kp = 0;
-	tilt_rate_ki = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_GAIN2], 0, RMAX));
-	tilt_rate_kp = 0; 
+	tilt_ki = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_GAIN1], 0, RMAX) * 0.1);
+	tilt_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_GAIN2], 0, RMAX));
+	tilt_rate_ki = 0; //(uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_GAIN2], 0, RMAX));
+	tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP); 
 	yaw_ki = (uint16_t)(RMAX*YAW_KI);
 	yaw_kp = (uint16_t)(RMAX*YAW_KP);
-	yaw_rate_ki = (uint16_t)(RMAX*YAW_RATE_KI);
+	yaw_rate_ki = 0;
 	yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
 #else
 	tilt_ki = (uint16_t)(RMAX*TILT_KI);
@@ -422,18 +422,17 @@ void motorCntrl(void)
 		
 
 		//output telemetry
-		additional_int16_export1 = desired_roll ;
-		additional_int16_export2 = desired_pitch ;
-		additional_int16_export3 = desired_yaw ;
+		additional_int16_export1 = roll_error;
+		additional_int16_export2 = pitch_error ;
+		additional_int16_export3 = yaw_error ;
 
-		additional_int16_export4 = roll_rate_quad_error_integral._.W1 << 2;
-		additional_int16_export5 = pitch_rate_quad_error_integral._.W1 << 2;
-		additional_int16_export6 = yaw_quad_error_integral._.W1 << 2;
+		additional_int16_export4 = desired_roll;
+		additional_int16_export5 = desired_pitch;
+		additional_int16_export6 = desired_yaw;
 
 		additional_int16_export7 = roll_quad_error_integral._.W1 << 2;
 		additional_int16_export8 = pitch_quad_error_integral._.W1 << 2;
 		additional_int16_export9 = yaw_quad_error_integral._.W1 << 2;
-
 
 #ifdef CONFIG_PLUS
 

@@ -25,6 +25,7 @@
 #include "oscillator.h"
 #include "interrupt.h"
 #include "heartbeat.h"
+#include "../MatrixPilot/defines.h"
 
 #if (BOARD_TYPE == UDB4_BOARD || BOARD_TYPE == UDB5_BOARD)
 
@@ -161,9 +162,9 @@ extern uint16_t maxstack;
 		{                                               \
 			PR4 = SCALE_FOR_PWM_OUT(100);               \
 			pin = 0;                                    \
-		}                                              \
+		}                                               \
 		TMR4 = 0;                                       \
-	}                                                 \
+	}                                                   \
 	else                                                \
 	{                                                   \
 		_T4IE = 0;                                      \
@@ -177,18 +178,22 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 
 	switch (outputNum) {
 		case 0:
+			//additional_int16_export1 +=1;
 			HANDLE_SERVO_OUT(1, SERVO_OUT_PIN_1);
 			break;
 		case 1:
 			SERVO_OUT_PIN_1 = 0;
+			//additional_int16_export2 +=1;
 			HANDLE_SERVO_OUT(2, SERVO_OUT_PIN_2);
 			break;
 		case 2:
 			SERVO_OUT_PIN_2 = 0;
+			//additional_int16_export3 +=1;
 			HANDLE_SERVO_OUT(3, SERVO_OUT_PIN_3);
 			break;
 		case 3:
 			SERVO_OUT_PIN_3 = 0;
+			//additional_int16_export4 +=1;
 			HANDLE_SERVO_OUT(4, SERVO_OUT_PIN_4);
 			break;
 		case 4:

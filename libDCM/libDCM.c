@@ -99,19 +99,19 @@ void udb_callback_read_sensors(void)
 void do_I2C_stuff(int16_t toggle)
 {
 //	if (toggle) {
-//#if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
-//	// This is a simple counter to do stuff at 4hz
-//	if (udb_heartbeat_counter % (HEARTBEAT_HZ / 4) == 0)
-//	{
-//		rxMagnetometer(udb_magnetometer_callback);
-//	}
-//#endif
+#if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
+	// This is a simple counter to do stuff at MAGNETOMETER_HZ
+	if (udb_heartbeat_counter % (HEARTBEAT_HZ / MAGNETOMETER_HZ) == 0)
+	{
+		rxMagnetometer(udb_magnetometer_callback);
+	}
+#endif
 //	} 
 //    else
 //    {
-// This is a simple counter to do stuff at 80hz
+// This is a simple counter to do stuff at BAROMETER_HZ
 #if (BAROMETER_ALTITUDE == 1)
-	if (udb_heartbeat_counter % (HEARTBEAT_HZ / 80) == 0)
+	if (udb_heartbeat_counter % ((HEARTBEAT_HZ / BAROMETER_HZ)+1) == 0)
 	{
 		rxBarometer(udb_barometer_callback);
 	}
@@ -125,7 +125,7 @@ void udb_servo_callback_prepare_outputs(void)
     //toggle=0 means barometer_callback
 	do_I2C_stuff(toggle);
     //WARNING: if several sensors are connected via I2C, manage the callback to avoid clash
-    //toggle = !toggle;
+    toggle = !toggle;
 //#if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
 
 //#endif

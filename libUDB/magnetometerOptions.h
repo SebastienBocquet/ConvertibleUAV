@@ -66,7 +66,7 @@
 //#define MAG_BACKWARDS
 //#define MAG_INVERTED
 //#define MAG_FLIPPED
-#define MAG_FORWARDS
+#define MAG_INVERTED
 
 
 

@@ -159,7 +159,7 @@
 // Otherwise, if set to 0 the GPS will be used.
 // If you select this option, you also need to set magnetometer options in
 // the magnetometerOptions.h file, including declination and magnetometer type.
-#define MAG_YAW_DRIFT                       0
+#define MAG_YAW_DRIFT                       1
 
 
 // Racing Mode
@@ -221,7 +221,7 @@
 // Use as is, or edit to match your setup.
 //   - If you're set up to use Rudder Navigation (like MatrixNav), then you may want to swap
 //     the aileron and rudder channels so that rudder is CHANNEL_1, and aileron is 5.
-#define THROTTLE_HOVER_INPUT_CHANNEL         CHANNEL_1
+#define THROTTLE_HOVER_INPUT_CHANNEL        CHANNEL_1
 #define THROTTLE_INPUT_CHANNEL              CHANNEL_6
 #define AILERON_INPUT_CHANNEL               CHANNEL_2
 #define FLAP_INPUT_CHANNEL                  CHANNEL_7
@@ -485,14 +485,14 @@
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
-#define YAW_KP 0.
+#define YAW_KP 0.3
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
 #define TILT_RATE_KI 0.
 #define TILT_RATE_KP 0.22
 #define YAW_RATE_KI 0.
-#define YAW_RATE_KP 0.
+#define YAW_RATE_KP 0.2
 
 //variable gains controlled from Tx
 #define VARIABLE_GAINS
@@ -516,13 +516,11 @@
 #define ROLLKD                              0.
 #define YAWKP_AILERON                       0.04  //may need to be increase in hovering
 #define YAWKD_AILERON                       0.
-#define AILERON_BOOST                       0.33
+#define AILERON_BOOST                       1.
 
-//Obsolete
 #define HOVER_ROLLKP                        1.
 #define HOVER_ROLLKD                        0.
 #define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
-//
 
 #define HOVER_ROLLNAVKP                     0.075
 #define HOVER_ROLLNAVKI                     0.
@@ -540,7 +538,7 @@
 #define PITCHKD                              0.
 #define RUDDER_ELEV_MIX                      0.
 #define ROLL_ELEV_MIX                        0.
-#define ELEVATOR_BOOST                       0.33
+#define ELEVATOR_BOOST                       1.
 
 //Obsolete
 #define HOVER_PITCHKP                        0.4
@@ -570,13 +568,11 @@
 #define ROLLKP_RUDDER                       0.
 #define ROLLKD_RUDDER                       0.
 #define MANUAL_AILERON_RUDDER_MIX           0.
-#define RUDDER_BOOST                        0.33
+#define RUDDER_BOOST                        1.
 
-//Obsolete
 #define HOVER_YAWKP                         0.4
 #define HOVER_YAWKD                         0.
 #define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
-//
 
 #define HOVER_YAWTOWPKP                    0.4
 #define HOVER_YAWTOWPKI                    0.

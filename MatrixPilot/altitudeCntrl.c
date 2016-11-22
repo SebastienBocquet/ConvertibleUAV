@@ -544,6 +544,19 @@ void normalAltitudeCntrl(void)
 		pitchAltitudeAdjust = 0;
 		manualThrottle(throttleIn);
 	}
+
+#if ( BAROMETER_ALTITUDE == 1 )
+    if (udb_flags._.baro_valid)
+    {
+        estBaroAltitude();
+        int16_t z=(int16_t)(get_barometer_altitude());
+    }
+#endif
+
+#if ( USE_SONAR == 1 )
+    calculate_sonar_height_above_ground();
+#endif
+
 }
 
 void manualThrottle(int16_t throttleIn)
