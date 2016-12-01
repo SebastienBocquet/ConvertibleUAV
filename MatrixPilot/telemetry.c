@@ -773,6 +773,14 @@ void serial_output_8hz(void)
 				for (i= 1; i <= NUM_OUTPUTS; i++)
 					serial_output("p%io%i:",i,pwOut_save[i]);
 
+				serial_output("accz%i:tgz%i:tgvz%i:tgaccz%i:inz%i:invz%i:inaccz%i:ezi%i:evzi%i:eacczi%i:", 
+                    accelEarth[2], hover_target_z, hover_target_vz, hover_target_accz, 
+                    hover_z, hover_vz, hover_accz, hover_error_integral_z, hover_error_integral_vz, hover_error_integral_accz);
+
+				serial_output("rerr%i:perr%i:yerr%i:desr%i:desp%i:desy%i:intr%i:intp%i:inty%i",
+					roll_error, pitch_error, yaw_error, desired_roll, desired_pitch, desired_yaw,
+					roll_intgrl, pitch_intgrl, yaw_intgrl);
+
 #if ( USE_SONAR	== 1 )
 				serial_output("sond%i:sonhtg%i:", 
                     sonar_distance, sonar_height_to_ground) ;

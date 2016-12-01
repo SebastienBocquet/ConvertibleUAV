@@ -478,26 +478,26 @@
 #define MOTOR_A_POSITION     3
 
 // Tilt PID(DD) control gains on roll and pitch angle
-#define TILT_KI 0.
-#define TILT_KP 0.63
+#define TILT_KI 0.04
+#define TILT_KP 0.36
 #define TILT_KD 0.
-#define TILT_KDD 0.
+//#define TILT_KDD 0.
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
-#define YAW_KP 0.3
+#define YAW_KP 0.45
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
 #define TILT_RATE_KI 0.
 #define TILT_RATE_KP 0.22
 #define YAW_RATE_KI 0.
-#define YAW_RATE_KP 0.2
+#define YAW_RATE_KP 0.3
 
 //variable gains controlled from Tx
-#define VARIABLE_GAINS
-#define INPUT_CHANNEL_GAIN1  THROTTLE_INPUT_CHANNEL
-#define INPUT_CHANNEL_GAIN2  FLAP_INPUT_CHANNEL
+//#define VARIABLE_GAINS
+#define INPUT_CHANNEL_AUX1  THROTTLE_INPUT_CHANNEL
+#define INPUT_CHANNEL_AUX2  FLAP_INPUT_CHANNEL
 
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
@@ -595,19 +595,19 @@
 
 //////////altitude control/////////////
 
-#define MANUAL_TARGET_HEIGHT                0    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
+#define TRANSITION_ALTITUDE               50    //altitude in m at which hovering <=> airplane transition occurs                 
+#define MANUAL_TARGET_HEIGHT               1    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
                                                  //otherwise target height is set to hovertargetheightmin and target vz is set to hovertargetvzmin
 #define WAIT_SECONDS                       3     //number of seconds after transition to hovering during which:
                                                  //PI integral term is not computed
                                                  // throttle is set to HOVER_THROTTLE_OFFSET
-#define AIRCRAFT_MASS                      1150  //in g
-#define MAX_THRUST                         17    //maximul thrust in N 
-#define HOVER_ALTITUDE_MIN                 95    //height to ground below which altitude control switchs to failsafe mode to avoid damaging the rudder
-#define HOVER_THROTTLE_OFFSET              0.68
-#define HOVER_THROTTLE_MIN                 0.2
-#define HOVER_THROTTLE_MAX                 1.
-#define HOVER_TARGET_HEIGHT_MIN            150   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
-#define HOVER_TARGET_HEIGHT_MAX            400   // (cm)
+#define AIRCRAFT_MASS                      2000  //in g
+#define MAX_THRUST                         40    //maximul thrust in N 
+#define HOVER_THROTTLE_OFFSET              0.55
+#define HOVER_THROTTLE_MIN                 0.25
+#define HOVER_THROTTLE_MAX                 0.75
+#define HOVER_TARGET_HEIGHT_MIN            50   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
 #define HOVER_TARGET_VZ_MIN                -200   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_VZ_MAX                200   // (cm/s)
 #define USEABLE_SONAR_DISTANCE             400 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
@@ -629,7 +629,7 @@
 #define LIMIT_INTEGRAL_ACCZ                80000
 
 //Obsolete
-#define HALF_SPAN                          60  //half span in cm 
+//#define HALF_SPAN                          60  //half span in cm 
 //
 
 #define MAX_HOVERING_RADIUS                10   //max distance in m from origin where the aircraft is allowed to hover in GPS navigation mode

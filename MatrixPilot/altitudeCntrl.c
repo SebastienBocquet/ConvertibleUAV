@@ -147,8 +147,8 @@ int32_t error_integral_vz=0;
 int32_t error_integral_accz=0;
 int32_t previous_z32;
 boolean failsafe_throttle_mode = false;
-int16_t min_hover_alt = (int16_t)(HOVER_ALTITUDE_MIN);
 int16_t max_hover_alt = (int16_t)(HOVER_FAILSAFE_ALTITUDE);
+int32_t z_filt_debug;
 
 int16_t hover_target_z=0;
 int16_t hover_z=0;
@@ -178,6 +178,10 @@ float invdeltafiltervz;
 int32_t failsafe_start_time;
 boolean is_init_failsafe = 0;
 int16_t is_in_hovering_failsafe = 0;
+
+uint16_t *ptr;
+//ptr = ms_init(SGA);
+int16_t z_filtered_debug=0;
 
 //% Initialisation de Kalman
 //#define SCL 40
@@ -381,10 +385,10 @@ void hovering_failsafe()
 //        si z > 50m: transition horizontale, fin manoeuvre
 //        sinon: full throttle
 
-    int32_t failsafe_duration = 3000;
+//    int32_t failsafe_duration = 3000;
 	int32_t time = tow.WW;
-	struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200, -1000 }, 
-                                             { THROTTLE_OUTPUT_CHANNEL, 0, 1200, 1300 }};
+//	struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200, -1000 }, 
+//                                             { THROTTLE_OUTPUT_CHANNEL, 0, 1200, 1300 }};
 
 	if (!is_init_failsafe)
 	{
@@ -393,14 +397,16 @@ void hovering_failsafe()
 		is_init_failsafe=1;
 	}
 	
-	if (time < (failsafe_start_time + failsafe_duration))
-	{
-		set_throttle_control(hoverthrottlemax);
-	}
-	else
-	{
-		setManoeuvre(trans_vert_to_horiz, time - failsafe_duration - failsafe_start_time);
-	}
+	set_throttle_control(hoverthrottleoffset);
+
+//	if (time < (failsafe_start_time + failsafe_duration))
+//	{
+//		set_throttle_control(hoverthrottlemax);
+//	}
+//	else
+//	{
+//		setManoeuvre(trans_vert_to_horiz, time - failsafe_duration - failsafe_start_time);
+//	}
 }
 
 
@@ -544,19 +550,6 @@ void normalAltitudeCntrl(void)
 		pitchAltitudeAdjust = 0;
 		manualThrottle(throttleIn);
 	}
-
-#if ( BAROMETER_ALTITUDE == 1 )
-    if (udb_flags._.baro_valid)
-    {
-        estBaroAltitude();
-        int16_t z=(int16_t)(get_barometer_altitude());
-    }
-#endif
-
-#if ( USE_SONAR == 1 )
-    calculate_sonar_height_above_ground();
-#endif
-
 }
 
 void manualThrottle(int16_t throttleIn)
@@ -712,10 +705,10 @@ else
 #if (MANUAL_TARGET_HEIGHT == 1)
 
     //FLAP_INPUT_CHANNEL controls target_z
-    z_target = compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], hovertargetheightmin, hovertargetheightmax);  
+    z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
  
 	//CAMERA_PITCH_INPUT_CHANNEL controls target_vz
-    vz_target = compute_pot_order(udb_pwIn[CAMERA_PITCH_INPUT_CHANNEL], hovertargetvzmin, hovertargetvzmax);
+    vz_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], hovertargetvzmin, hovertargetvzmax);
 
 #else
 
@@ -747,6 +740,8 @@ else
 
     vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz, (int16_t)(HEARTBEAT_HZ));
     accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel, (int16_t)(HEARTBEAT_HZ));
+
+	
 
     //***************************************************//
     //PI controller on height to ground z
@@ -809,17 +804,6 @@ else
 		}
 	}
 
-	if (hover_counter <= nb_sample_wait)
-	{ 
-        //wait a few seconds that filtered vars a PIDs converge before applying throttle control
-		throttle_control_pre=hoverthrottleoffset;
-	}
-
-    if (z < min_hover_alt)
-	{
-        throttle_control_pre=hoverthrottlemax;
-    }
-
     if (z > max_hover_alt)  
 	{
 		//if max altitude is exceeded, reduce throttle
@@ -828,6 +812,12 @@ else
 
 	//si cas de panne dure plus d'une seconde, on declenche la manoeuvre failsafe
 	if (is_in_hovering_failsafe > HEARTBEAT_HZ) hovering_failsafe();
+
+	if (hover_counter <= nb_sample_wait)
+	{ 
+        //wait a few seconds that filtered vars a PIDs converge before applying throttle control
+		throttle_control_pre=hoverthrottlemin;
+	}
 
     //limit throttle value
     throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
@@ -848,6 +838,11 @@ else
     hover_target_vz=target_vz_bis;
     hover_target_accz=target_accz_bis;
 	hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
+
+	additional_int16_export1 = z;
+	additional_int16_export2 = vz;
+	additional_int16_export3 = IIR_Filter(&z_filt_debug, z, (int8_t)(64));
+	additional_int16_export4 = sga_filter(z, ptr);
     
 		//throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 	

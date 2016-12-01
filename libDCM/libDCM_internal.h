@@ -65,3 +65,38 @@ extern union intbb g_a_x_sim,  g_a_y_sim,  g_a_z_sim;
 extern union intbb p_sim_, q_sim_, r_sim_;
 extern union intbb p_sim,  q_sim,  r_sim;
 #endif // HILSIM
+
+#define EMA 0b00000100
+#define SGA 0b00001000
+
+/*Algorithm Parameters*/
+
+/*
+These parameters should be tuned depending on need. Each of these parameters affects
+run time and signal smoothing obtained. See documentation for specific instructions 
+on tuning these parameters.
+*/
+
+/*Savitzky Golay Filter -  */
+#ifndef SGA_LENGTH
+#define SGA_LENGTH 5 /* Window may 5, 7 or 9. 
+			 For window 5, only quadratic or cubic smoothing may be used */
+#endif
+
+#ifndef SGA_DEGREE
+#define SGA_DEGREE 3 /* For quadratic or cubic smoothing, enter degree 3. 
+			For quartic or quintic smoothing, enter degree 4.*/
+#endif
+
+#ifndef SGA_INDEX
+#define SGA_INDEX (SGA_DEGREE - SGA_LENGTH + 2)
+#endif
+
+#define SGA_MAX_LENGTH 9 /* Do not change */
+
+
+/*Function Prototypes*/
+
+uint16_t* ms_init(uint8_t );
+int sga_filter(int current_value, uint16_t history_SGA[]);
+void ms_deinit(uint16_t *);

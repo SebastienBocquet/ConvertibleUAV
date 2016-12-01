@@ -21,12 +21,14 @@
 
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
+#include "airspeed_options.h"
 
 int16_t current_orientation;
 union bfbts_word desired_behavior;
 int16_t cyclesUntilStartTriggerAction = 0;
 int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
+int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
 
 void triggerActionSetValue(boolean newValue);
 
@@ -74,6 +76,13 @@ boolean canStabilizeHover(void)
 
 void updateBehavior(void)
 {
+	//in cm/s
+	uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
+	                                   IMUvelocityy._.W1 - estimatedWind[1]);
+
+	int16_t current_altitude = IMUlocationz._.W1;
+	int16_t transition_altitude = TRANSITION_ALTITUDE * 100;
+
 	if (current_orientation == F_INVERTED)
 	{
 		if (canStabilizeHover() && rmat[7] < -14000)
@@ -91,8 +100,8 @@ void updateBehavior(void)
 	}
 	else if (current_orientation == F_HOVER)
 	{
-		//switch from hovering to normal if plane is at pitch angle -45deg
-		if (canStabilizeHover() && rmat[7] < 8000)
+		//remain in hovering mode if (horizontal_air_speed < minimum_airspeed or altitude < MAX_HOVERING_ALTITUDE)
+		if (canStabilizeHover() && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude))
 		//baseline: switch from hovering to normal if plane is at pitch angle 45deg
 		//if (canStabilizeHover() && rmat[7] < -8000)
 		{
@@ -115,7 +124,8 @@ void updateBehavior(void)
 		{
 			current_orientation = F_INVERTED;
 		}
-		else if (canStabilizeHover() && rmat[7] < -8000)
+		//switch from normal to hovering if (horizontal_air_speed <= minimum_airspeed horizontal_air_speed < minimum_airspeed or altitude < MAX_HOVERING_ALTITUDE)
+		else if (canStabilizeHover() && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude))
 		{
 			current_orientation = F_HOVER;
 		}

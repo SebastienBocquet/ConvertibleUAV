@@ -473,16 +473,19 @@ int16_t compute_pi_block(int16_t input, int16_t target, uint16_t kp, uint16_t ki
      return output;
 }
 
+int16_t IIR_Filter(int32_t *filter, int16_t sample, int8_t delta_filter)
+{	
+	//TODO: use use alpha=delta_filter/heartbeat_hz instead of alpha=delta_filter
+	int32_t local_sample = sample << 16;
+	*filter = (local_sample * (256 - delta_filter) + (*filter) * delta_filter) / 256;
+	return (int16_t)((*filter) >> 16);
+}
+
 int16_t exponential_filter(int16_t x, float *x_filtered, float invdeltafilter, int16_t heartbeat_hz)
-{
+{	
     float dt = 1.0 / (float)heartbeat_hz;
     *x_filtered = ((float)x * invdeltafilter + (float)(*x_filtered) * ((float)heartbeat_hz - invdeltafilter))*dt;
     return (int16_t)*x_filtered;
-
-//    int32_t tmp;
-//    tmp =__builtin_mulsu(x, invdeltafilter);
-//    tmp +=__builtin_mulsu(*x_filtered, heartbeat_hz-invdeltafilter);
-//    *x_filtered=(int16_t)(tmp/heartbeat_hz);
 }
 
 int32_t exponential_filter32(int32_t x, float *x_filtered, float invdeltafilter, int16_t heartbeat_hz)
@@ -490,9 +493,47 @@ int32_t exponential_filter32(int32_t x, float *x_filtered, float invdeltafilter,
     float dt = 1.0 / (float)heartbeat_hz;
     *x_filtered = ((float)x * invdeltafilter + (float)(*x_filtered) * ((float)heartbeat_hz - invdeltafilter))*dt;
     return (int32_t)*x_filtered;
+}
 
-//    int64_t tmp;
-//    tmp = (int64_t)((int64_t)x * (int64_t)invdeltafilter);
-//    tmp += (int64_t)((int64_t)(*x_filtered)*(int64_t)(heartbeat_hz-invdeltafilter));
-//    *x_filtered=(int32_t)(tmp/heartbeat_hz);
+/* SGA Coefficients*/
+const int16_t sga_coefficients[][SGA_MAX_LENGTH]={
+    {0, 0, -3, 12, 17, 12, -3, 0, 0},
+    {-21, 14, 39, 54, 59, 54, 39, 14, -21},
+    {15, -55, 30, 135, 179, 135, 30, -55, 15},
+    {0, -2, 3, 6, 7, 6, 3, -2, 0},
+    {0, 5, -30, 75, 131, 75, -30, 5, 0},
+};
+
+uint16_t normalization_value;
+
+uint16_t* ms_init(uint8_t algo)
+{
+	int i;
+	for(i=0; i<SGA_MAX_LENGTH; i++) 	
+	{
+		normalization_value += sga_coefficients[SGA_INDEX][i]; /*Pre-calculating the normalization value*/
+	}
+	
+	return (uint16_t *)calloc(SGA_LENGTH, sizeof(uint16_t));
+}
+
+int sga_filter(int current_value, uint16_t history_SGA[])
+{ 
+    uint64_t sum=0;
+    uint8_t SGA_MID = SGA_LENGTH/2;
+    uint8_t i;
+
+    for(i=1;i<SGA_LENGTH;i++)
+    {
+	history_SGA[i-1]=history_SGA[i];
+    }
+    history_SGA[SGA_LENGTH-1]=current_value;
+    
+    for(i=-SGA_MID;i<=(SGA_MID);i++)
+    {  
+	sum+=history_SGA[i+SGA_MID]*sga_coefficients[SGA_INDEX][i+SGA_MID];
+    }
+    
+    history_SGA[SGA_MID]=sum/normalization_value;
+    return history_SGA[SGA_MID];
 }

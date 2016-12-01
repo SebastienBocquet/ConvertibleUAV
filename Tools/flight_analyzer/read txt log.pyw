@@ -57,7 +57,7 @@ nb_subplot_v=2
 nb_subplot_h=2
 subplot_location=1
 fontsize=10
-line_len=48
+line_len=58
 t0=10
 tf=None
 HEARTBEAT_HZ=160
@@ -86,7 +86,7 @@ BAROMETER=1
 MAX_HOVER_RADIUS = 7
 EXPORT='LIGHT'
 
-file_number=2391
+file_number=2401
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -118,10 +118,21 @@ if SONAR:
 else:
     sonar_dist=np.zeros((len(time)))
     sonar_height=np.zeros((len(time)))
-    
+
+
+accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+target_z=extract_var(filename, input_dir, line_len, 'tgz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+target_vz=extract_var(filename, input_dir, line_len, 'tgvz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+target_accz=extract_var(filename, input_dir, line_len, 'tgaccz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+accz_filt=extract_var(filename, input_dir, line_len, 'inaccz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+vz_filt=extract_var(filename, input_dir, line_len, 'invz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+z_filt=extract_var(filename, input_dir, line_len, 'inz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+error_z_integral=extract_var(filename, input_dir, line_len, 'ezi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+error_vz_integral=extract_var(filename, input_dir, line_len, 'evzi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+error_accz_integral=extract_var(filename, input_dir, line_len, 'eacczi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
 if EXPORT=='EXTRA':
-    accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+
 
     imu_x=extract_var(filename, input_dir, line_len, 'imx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     imu_y=extract_var(filename, input_dir, line_len, 'imy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
@@ -132,17 +143,6 @@ if EXPORT=='EXTRA':
     wind_vx=extract_var(filename, input_dir, line_len, 'wvx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     wind_vy=extract_var(filename, input_dir, line_len, 'wvy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     wind_vz=extract_var(filename, input_dir, line_len, 'wvz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-
-    error_z_integral=extract_var(filename, input_dir, line_len, 'ezi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    error_vz_integral=extract_var(filename, input_dir, line_len, 'evzi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    error_accz_integral=extract_var(filename, input_dir, line_len, 'eacczi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-
-    target_z=extract_var(filename, input_dir, line_len, 'tgz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    target_vz=extract_var(filename, input_dir, line_len, 'tgvz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    target_accz=extract_var(filename, input_dir, line_len, 'tgaccz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    accz_filt=extract_var(filename, input_dir, line_len, 'inaccz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    vz_filt=extract_var(filename, input_dir, line_len, 'invz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    z_filt=extract_var(filename, input_dir, line_len, 'inz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
 ##error_x=extract_var(filename, input_dir, line_len, 'ex')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 ##error_x_integral=extract_var(filename, input_dir, line_len, 'exi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
@@ -462,50 +462,114 @@ finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 
 
 
+##
+##fig = plt.figure(figsize=(16.0, 9.0))
+##
+##xlabel=''
+##ylabel=''
+##
+##fig.subplots_adjust(hspace=0.5)
+##
+##fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
+##ax1.set_title('i2c+sonar check', fontweight='bold', fontsize=fontsize)
+##
+##ymin=None
+##ymax=None
+##
+##ax1.plot(time, ma, 'k-', marker='', label='mag a')
+##ax1.plot(time, mb, 'b-', marker='', label='mag b')
+##ax1.plot(time, mc, 'g-', marker='', label='mag c')
+##ax1.plot(time, (180./np.pi)*np.arctan2(mb,ma), 'r-', marker='', label='mag angle')
+###ax1.plot(time, rmat0, 'k--', marker=None, label='rmat0')
+###ax1.plot(time, rmat1, 'b--', marker=None, label='rmat1')
+###ax1.plot(time, rmat2, 'g--', marker=None, label='rmat2')
+###ax1.plot(time, rmat3, 'r--', marker=None, label='rmat3')
+###ax1.plot(time, rmat4, 'y--', marker=None, label='rmat4')
+###ax1.plot(time, rmat5, 'm--', marker=None, label='rmat5')
+###ax1.plot(time, rmat8, 'c--', marker=None, label='rmat8')
+##
+##finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+##                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+##
+##ymin=0
+##ymax=550
+##ax2.plot(time, barometer_pressure, 'k-', marker='', label='baro prs')
+##ax2.plot(time, barometer_temperature, 'b-', marker='', label='baro temp')
+##ax2.plot(time, barometer_altitude, 'g-', marker='', label='baro alt')
+##
+##finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+##                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+##
+##ymin=0
+##ymax=550
+##ax3.plot(time, sonar_dist, 'k-', marker='', label='sonar dist')
+##ax3.plot(time, sonar_height, 'b-', marker='', label='sonar height')
+##
+##finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+##                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
-fig = plt.figure(figsize=(16.0, 9.0))
+
+
+
+
+
+
+nb_subplot_v=4
+nb_subplot_h=1
+
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
 
 xlabel=''
 ylabel=''
 
 fig.subplots_adjust(hspace=0.5)
 
-fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
-ax1.set_title('i2c+sonar check', fontweight='bold', fontsize=fontsize)
+#ax1 = fig.add_subplot(nb_subplot_v, nb_subplot_h, 1)
+ax1.set_title('error', fontweight='bold', fontsize=fontsize)
 
-ymin=None
+ymin=-500.
 ymax=None
-
-ax1.plot(time, ma, 'k-', marker='', label='mag a')
-ax1.plot(time, mb, 'b-', marker='', label='mag b')
-ax1.plot(time, mc, 'g-', marker='', label='mag c')
-ax1.plot(time, (180./np.pi)*np.arctan2(mb,ma), 'r-', marker='', label='mag angle')
-#ax1.plot(time, rmat0, 'k--', marker=None, label='rmat0')
-#ax1.plot(time, rmat1, 'b--', marker=None, label='rmat1')
-#ax1.plot(time, rmat2, 'g--', marker=None, label='rmat2')
-#ax1.plot(time, rmat3, 'r--', marker=None, label='rmat3')
-#ax1.plot(time, rmat4, 'y--', marker=None, label='rmat4')
-#ax1.plot(time, rmat5, 'm--', marker=None, label='rmat5')
-#ax1.plot(time, rmat8, 'c--', marker=None, label='rmat8')
+ax1.plot(time, accz, '0.8', marker=None, label='accz')
+ax1.plot(time, accz_filt, 'r-', label='accz filt')
+ax1.plot(time, target_accz, 'k-', label='target accz')
 
 finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=0
-ymax=550
-ax2.plot(time, barometer_pressure, 'k-', marker='', label='baro prs')
-ax2.plot(time, barometer_temperature, 'b-', marker='', label='baro temp')
-ax2.plot(time, barometer_altitude, 'g-', marker='', label='baro alt')
+ymin=-500.
+ymax=500.
+
+ax2.plot(time, add2, 'b-', label=' vz')
+ax2.plot(time, vz_filt, 'c-', label=' vz filt')
+ax2.plot(time, target_vz, 'k--', label='target vz')
+ax2.plot(time, error_vz_integral, 'g--', label='error vz integral')
 
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+                  show_legend=True, legend_type='outer_right', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=0
-ymax=550
-ax3.plot(time, sonar_dist, 'k-', marker='', label='sonar dist')
-ax3.plot(time, sonar_height, 'b-', marker='', label='sonar height')
+ymin=-100.
+ymax=300.
+
+ax3.plot(time, add1, 'b-', label=' z')
+ax3.plot(time, z_filt, 'b--', label='z filt')
+ax3.plot(time, sonar_height, 'c-', label='sonar_height')
+ax3.plot(time, barometer_altitude, '0.8', label='pressure altitude')
+ax3.plot(time, target_z, 'k--', label='target height')
+ax3.plot(time, error_z_integral, 'g--', label='error z integral')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+
+
+ymin=None
+ymax=None
+
+ax4.plot(time, p1o, 'k-', marker=None, label='motorA')
+ax4.plot(time, p2o, 'b-', marker=None, label='motorB')
+ax4.plot(time, p3o, 'g-', marker=None, label='motorC')
+ax4.plot(time, p4o, 'r-', marker=None, label='motorD')
+
+finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
 

@@ -172,6 +172,7 @@ extern int16_t nb_sample_wait;
 //void matrix22_add(int32_t (*)[4], int32_t*, int32_t*);
 //void matrix22_sub(int32_t (*)[4], int32_t*, int32_t*);
 //void matrix22_transpose(int32_t (*)[4], int32_t*);
+int16_t IIR_Filter(int32_t*, int16_t, int8_t);
 int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max);
 int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*, int16_t, int32_t, boolean);
 int16_t exponential_filter(int16_t, float*, float, int16_t);
@@ -201,6 +202,22 @@ extern int8_t desired_dir;
 ////////////////////////////////////////////////////////////////////////////////
 // Quadcopter
 void motorCntrl( void ) ;
+
+extern int16_t roll_error;
+extern int16_t pitch_error;
+extern int16_t yaw_error;
+
+extern int16_t desired_roll;
+extern int16_t desired_pitch;
+extern int16_t desired_yaw;
+
+extern int16_t roll_intgrl;
+extern int16_t pitch_intgrl;
+extern int16_t yaw_intgrl;
+
+////////////////////////////////////////////////////////////////////////////////
+// speed management
+//extern int16_t minimum_airspeed;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Flight Planning modules - flightplan-waypoints.c and flightplan-logo.c

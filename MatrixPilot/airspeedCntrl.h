@@ -31,7 +31,7 @@ extern int16_t groundspeed;
 extern int16_t target_airspeed;
 extern int16_t airspeedError;
 
-extern int16_t minimum_airspeed;
+//extern int16_t minimum_airspeed;
 extern int16_t maximum_airspeed;
 extern int16_t cruise_airspeed;
 
