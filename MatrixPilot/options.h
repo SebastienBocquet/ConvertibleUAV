@@ -478,7 +478,7 @@
 #define MOTOR_A_POSITION     3
 
 // Tilt PID(DD) control gains on roll and pitch angle
-#define TILT_KI 0.04
+#define TILT_KI 0. //0.04
 #define TILT_KP 0.36
 #define TILT_KD 0.
 //#define TILT_KDD 0.

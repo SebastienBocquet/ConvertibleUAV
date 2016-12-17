@@ -140,7 +140,7 @@ void updateBehavior(void)
 	{
 		desired_behavior.W = current_orientation;
 	}
-	dcm_enable_yaw_drift_correction(current_orientation != F_HOVER);
+	dcm_enable_yaw_drift_correction(1);
 	
 }
 

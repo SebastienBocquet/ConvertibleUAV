@@ -87,7 +87,7 @@ void dcm_servo_callback_prepare_outputs(void)
 			flight_mode_switch_2pos_poll();  // we always want this called at 40Hz
 		}
 
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
 		{
 #if (DEADRECKONING == 1)
 		process_flightplan();
@@ -106,7 +106,12 @@ void dcm_servo_callback_prepare_outputs(void)
 	
 			rollCntrl();
 			yawCntrl();
-			altitudeCntrl();
+		}
+
+		altitudeCntrl();
+
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
+		{
 			pitchCntrl();
 	
 	        applyManoeuvres();
@@ -115,7 +120,7 @@ void dcm_servo_callback_prepare_outputs(void)
 
 		motorCntrl() ;
 
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
 		{
 #if (USE_CAMERA_STABILIZATION == 1)
 		cameraCntrl();

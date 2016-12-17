@@ -101,7 +101,7 @@ void do_I2C_stuff(int16_t toggle)
 //	if (toggle) {
 #if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
 	// This is a simple counter to do stuff at MAGNETOMETER_HZ
-	if (udb_heartbeat_counter % (HEARTBEAT_HZ / MAGNETOMETER_HZ) == 0)
+	if (udb_heartbeat_counter % 40 == 0)
 	{
 		rxMagnetometer(udb_magnetometer_callback);
 	}
@@ -111,7 +111,7 @@ void do_I2C_stuff(int16_t toggle)
 //    {
 // This is a simple counter to do stuff at BAROMETER_HZ
 #if (BAROMETER_ALTITUDE == 1)
-	if (udb_heartbeat_counter % ((HEARTBEAT_HZ / BAROMETER_HZ)+1) == 0)
+	if (udb_heartbeat_counter % 3 == 0)
 	{
 		rxBarometer(udb_barometer_callback);
 	}

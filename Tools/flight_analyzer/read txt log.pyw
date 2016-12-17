@@ -57,10 +57,10 @@ nb_subplot_v=2
 nb_subplot_h=2
 subplot_location=1
 fontsize=10
-line_len=58
-t0=10
+line_len=67
+t0=0
 tf=None
-HEARTBEAT_HZ=160
+HEARTBEAT_HZ=80
 throttle_offset=0.6*2000+2244
 HEARTBEAT_EXPORT=80
 ZKP=0.06
@@ -86,7 +86,7 @@ BAROMETER=1
 MAX_HOVER_RADIUS = 7
 EXPORT='LIGHT'
 
-file_number=2401
+file_number=2432
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -130,6 +130,16 @@ z_filt=extract_var(filename, input_dir, line_len, 'inz')[t0*HEARTBEAT_EXPORT:tf*
 error_z_integral=extract_var(filename, input_dir, line_len, 'ezi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 error_vz_integral=extract_var(filename, input_dir, line_len, 'evzi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 error_accz_integral=extract_var(filename, input_dir, line_len, 'eacczi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+
+roll_error=extract_var(filename, input_dir, line_len, 'rerr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+pitch_error=extract_var(filename, input_dir, line_len, 'perr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+yaw_error=extract_var(filename, input_dir, line_len, 'yerr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+desired_roll=extract_var(filename, input_dir, line_len, 'desr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+desired_pitch=extract_var(filename, input_dir, line_len, 'desp')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+desired_yaw=extract_var(filename, input_dir, line_len, 'desy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+roll_error_integral=extract_var(filename, input_dir, line_len, 'intr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+pitch_error_integral=extract_var(filename, input_dir, line_len, 'intp')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+yaw_error_integral=extract_var(filename, input_dir, line_len, 'inty')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
 if EXPORT=='EXTRA':
 
@@ -216,6 +226,8 @@ p5o=extract_var(filename, input_dir, line_len, 'p5o')[t0*HEARTBEAT_EXPORT:tf*HEA
 p6o=extract_var(filename, input_dir, line_len, 'p6o')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 p7o=extract_var(filename, input_dir, line_len, 'p7o')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 p8o=extract_var(filename, input_dir, line_len, 'p8o')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+
+
 
 add1=extract_var(filename, input_dir, line_len, 'add1')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 add2=extract_var(filename, input_dir, line_len, 'add2')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
@@ -366,36 +378,16 @@ if EXPORT=='EXTRA':
 
 ##debug of quadricopter mode
 
-
-
-TILT_KI= 0.05
-TILT_KP= 0.5
+TILT_KI= 0.
+TILT_KP= 0.36
 TILT_KD= 0.
 
 YAW_KI= 0.
-YAW_KP= 0.3
+YAW_KP= 0.45
 YAW_KD= 0.
 
 TILT_RATE_KP= 0.22
-YAW_RATE_KP= 0.2
-
-
-
-desired_roll =add1
-desired_pitch =add2
-desired_yaw =add3
-
-roll_rate_error_integral =add4
-pitch_rate_error_integral =add5
-yaw_rate_error_integral =add6
-
-roll_error_integral =add7
-pitch_error_integral =add8
-yaw_error_integral =add9
-
-#desired_roll_reconst = -roll_error*TILT_KP-roll_error_integral*TILT_KI
-#desired_pitch_reconst = -pitch_error*TILT_KP-pitch_error_integral*TILT_KI
-#desired_yaw_reconst = -yaw_error*YAW_KP-yaw_error_integral*YAW_KI
+YAW_RATE_KP= 0.3
 
 nb_subplot_v=4
 nb_subplot_h=1
@@ -413,9 +405,7 @@ ax1.set_title('motor control', fontweight='bold', fontsize=fontsize)
 
 ymin=None
 ymax=None
-#ax1.plot(time, omega0, 'k-', marker=None, label='omega gyro 0')
-#ax1.plot(time, omega1, 'b-', marker=None, label='omega gyro 1')
-#ax1.plot(time, omega2, 'g-', marker=None, label='omega gyro 2')
+
 ax1.plot(time, p1o, 'k-', marker=None, label='motorA')
 ax1.plot(time, p2o, 'b-', marker=None, label='motorB')
 ax1.plot(time, p3o, 'g-', marker=None, label='motorC')
@@ -427,11 +417,11 @@ finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=-2000
 ymax=2000
 ax2.plot(time, rmat6, 'k-', marker=None, label='roll_angle')
-ax2.plot(time, add6, 'k-', marker=None, label='tilt_ki')
-#ax2.plot(time, roll_rate_error_integral, 'b--', marker=None, label='roll rate error integral')
-ax2.plot(time, roll_error_integral, 'g--', marker=None, label='roll error integral')
-ax2.plot(time, desired_roll, 'r-', marker=None, label='desired_roll_reconst')
-#ax2.plot(time, -TILT_RATE_KP*(roll_rate-desired_roll_reconst), 'c-', marker=None, label='roll control reconst')
+ax2.plot(time, roll_error, 'b-', marker=None, label='roll error')
+ax2.plot(time, roll_error_integral, 'g-', marker=None, label='roll error integral')
+ax2.plot(time, omega0, 'c-', marker=None, label='omega gyro 0')
+ax2.plot(time, desired_roll, 'r-', marker=None, label='desired_roll')
+ax2.plot(time, -TILT_RATE_KP*(omega0-desired_roll), 'm-', marker=None, label='roll control reconst')
 
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
@@ -439,10 +429,11 @@ finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=-2000
 ymax=2000
 ax3.plot(time, rmat7, 'k-', marker=None, label='pitch_angle')
-#ax3.plot(time, pitch_rate_error_integral, 'b--', marker=None, label='pitch rate error integral')
-ax3.plot(time, pitch_error_integral, 'g--', marker=None, label='pitch error integral')
-ax3.plot(time, desired_pitch, 'r-', marker=None, label='desired_pitch_reconst')
-#ax3.plot(time, -TILT_RATE_KP*(pitch_rate-desired_pitch_reconst), 'c-', marker=None, label='pitch control reconst')
+ax3.plot(time, pitch_error, 'b-', marker=None, label='pitch error')
+ax3.plot(time, pitch_error_integral, 'g-', marker=None, label='pitch error integral')
+ax3.plot(time, omega1, 'c-', marker=None, label='omega gyro 1')
+ax3.plot(time, desired_pitch, 'r-', marker=None, label='desired_pitch')
+ax3.plot(time, -TILT_RATE_KP*(omega1-desired_pitch), 'm-', marker=None, label='pitch control reconst')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
@@ -450,16 +441,29 @@ finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=None
 ymax=None
 ax4.plot(time, rmat0, 'k-', marker=None, label='rmat0')
-#ax4.plot(time, yaw_rate_error_integral, 'b--', marker=None, label='yaw rate error integral')
-ax4.plot(time, yaw_error_integral, 'g--', marker=None, label='yaw error integral')
-ax4.plot(time, desired_yaw, 'r-', marker=None, label='desired_yaw_reconst')
-#ax4.plot(time, -YAW_RATE_KP*(yaw_rate-desired_yaw_reconst), 'c-', marker=None, label='yaw control reconst')
+ax4.plot(time, yaw_error, 'b-', marker=None, label='yaw error')
+ax4.plot(time, yaw_error_integral, 'g-', marker=None, label='yaw error integral')
+ax4.plot(time, omega2, 'c-', marker=None, label='omega gyro 2')
+ax4.plot(time, desired_yaw, 'r-', marker=None, label='desired_yaw')
+ax4.plot(time, -YAW_RATE_KP*(omega2-desired_yaw), 'm-', marker=None, label='yaw control reconst')
 
 finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
 
 
+fig, (ax) = plt.subplots(1, 1, sharex=True)
+ax.plot(time, ma, 'k-', marker=None, label='ma')
+ax.plot(time, mb, 'b-', marker=None, label='mb')
+ax.plot(time, mc, 'g-', marker=None, label='mc')
+ax.plot(time, (180./np.pi)*np.arctan2(mb,ma), 'r-', marker='', label='mag earth angle')
+ax.plot(time, add5, 'k--', marker=None, label='udb_magFieldBody0')
+ax.plot(time, add6, 'b--', marker=None, label='udb_magFieldBody1')
+ax.plot(time, add7, 'g--', marker=None, label='udb_magFieldBody2')
+ax.plot(time, (180./np.pi)*np.arctan2(add6,add5), 'r--', marker='', label='mag udb angle')
+ax.plot(time, cpu, 'c-', marker='', label='cpu load')
+finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
 
 ##
@@ -551,10 +555,10 @@ ymin=-100.
 ymax=300.
 
 ax3.plot(time, add1, 'b-', label=' z')
-ax3.plot(time, z_filt, 'b--', label='z filt')
+ax3.plot(time, z_filt, 'k-', label='z filt')
 ax3.plot(time, sonar_height, 'c-', label='sonar_height')
 ax3.plot(time, barometer_altitude, '0.8', label='pressure altitude')
-ax3.plot(time, target_z, 'k--', label='target height')
+ax3.plot(time, target_z, 'm--', label='target height')
 ax3.plot(time, error_z_integral, 'g--', label='error z integral')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \

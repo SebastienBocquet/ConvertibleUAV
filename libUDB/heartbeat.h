@@ -24,7 +24,7 @@
 
 
 // number of heartbeats per second
-#define HEARTBEAT_HZ 160
+#define HEARTBEAT_HZ 80
 
 // number of output updates per second
 #define OUTPUT_HZ 80
@@ -36,12 +36,9 @@
 // frequency of PID loop (HEARTBEAT_HZ / PID_HZ must be an integer)
 //#define PID_HZ 80
 
-#define BAROMETER_HZ 80
-
-#define MAGNETOMETER_HZ 4
-
 // frequency of writing in udb_extra output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
 #define HEARTBEAT_UDB_EXTRA 10
+//HEARTBEAT_HZ/2
 #define HEARTBEAT_UDB_LIGHT 80
 
 // Read-only value increments with each heartbeat

@@ -863,6 +863,9 @@ else
     //in case of panick, retrieve manual control as soon as throttle stick is pushed forward (higher priority) 
     if (throttleInOffset > (int16_t)(DEADBAND_HOVER))
     {
+		//throttle_hover_control will be zero because filterManual=False => weird logic, TODO: activate filterManual
+		// and remove pwManual[THROTTLE_HOVER_INPUT_CHANNEL] in mototrControl line442
+		//idem for normal mode
         manualHoverThrottle(throttleIn);
     }
 

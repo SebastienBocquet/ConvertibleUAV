@@ -170,6 +170,10 @@ static void I2C_callback(boolean I2CtrxOK)
 			udb_magFieldBody[1] = MAG_Y_SIGN((__builtin_mulsu((magFieldRaw[MAG_Y_AXIS]), magGain[MAG_Y_AXIS]))>>14) - (udb_magOffset[1]>>1);
 			udb_magFieldBody[2] = MAG_Z_SIGN((__builtin_mulsu((magFieldRaw[MAG_Z_AXIS]), magGain[MAG_Z_AXIS]))>>14) - (udb_magOffset[2]>>1);
 
+			additional_int16_export5 = udb_magFieldBody[0];
+			additional_int16_export6 = udb_magFieldBody[1];
+			additional_int16_export7 = udb_magFieldBody[2];
+
 			if ((abs(udb_magFieldBody[0]) < MAGNETICMAXIMUM) &&
 			    (abs(udb_magFieldBody[1]) < MAGNETICMAXIMUM) &&
 			    (abs(udb_magFieldBody[2]) < MAGNETICMAXIMUM))
