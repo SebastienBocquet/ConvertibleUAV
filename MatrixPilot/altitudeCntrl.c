@@ -52,6 +52,9 @@ union longww throttleFiltered = { 0 };
 #define HOVER_FAILSAFE_ALTITUDE 10000
 #define VZ_CORR_16           VZ_CORR*RMAX
 
+#define RAMPE_TIME 3
+#define RAMPE_INCREMENT 16384 / (HEARTBEAT_HZ * RAMPE_TIME);
+
 int16_t aircraft_mass       = AIRCRAFT_MASS;
 int16_t max_thrust          = MAX_THRUST;
 
@@ -148,7 +151,7 @@ int32_t error_integral_accz=0;
 int32_t previous_z32;
 boolean failsafe_throttle_mode = false;
 int16_t max_hover_alt = (int16_t)(HOVER_FAILSAFE_ALTITUDE);
-int32_t z_filt_debug;
+int16_t rampe;
 
 int16_t hover_target_z=0;
 int16_t hover_z=0;
@@ -178,10 +181,6 @@ float invdeltafiltervz;
 int32_t failsafe_start_time;
 boolean is_init_failsafe = 0;
 int16_t is_in_hovering_failsafe = 0;
-
-uint16_t *ptr;
-//ptr = ms_init(SGA);
-int16_t z_filtered_debug=0;
 
 //% Initialisation de Kalman
 //#define SCL 40
@@ -643,6 +642,7 @@ void hoverAltitudeCntrl(void)
  		previous_z32=(int32_t)(hovertargetheightmin)*100;
 		is_init_failsafe=0;
 		is_in_hovering_failsafe = 0;
+		rampe = 0;
     }
 
     if (hover_counter < RMAX)
@@ -663,7 +663,7 @@ void hoverAltitudeCntrl(void)
     if (udb_flags._.baro_valid)
     {
         estBaroAltitude();
-        z=(int16_t)(get_barometer_altitude());
+        z=(int16_t)(get_barometer_altitude()) + z_baro_offset;
         invdeltafilterheight=invdeltafilterbaro;
 		invdeltafiltervz=4.;
         alt_sensor_failure=false;
@@ -712,8 +712,8 @@ else
 
 #else
 
-    z_target = hovertargetheightmin; 
-    vz_target = hovertargetvzmin;
+    z_target = (hovertargetheightmin+hovertargetheightmax)/2; 
+    vz_target = (hovertargetvzmin+hovertargetvzmax)/2;
 
 #endif // end MANUAL_TARGET_HEIGHT
 }
@@ -749,8 +749,8 @@ else
 
 	//we are in target z mode:
 	// > in GPS mode, if it is requested by the segment
-	// > in stabilized mode, if the filtered altitude is higher than the max target height minus 30cm
-    if ((flags._.GPS_steering && is_target_alt()) || ((!flags._.GPS_steering) && z_filtered < (hovertargetheightmax - 30)))
+	// > in stabilized mode, if the filtered altitude is lower than the max target height
+    if ((flags._.GPS_steering && is_target_alt()) || ((!flags._.GPS_steering) && z_filtered < hovertargetheightmax))
 	{ 
         target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralz, (hover_counter > nb_sample_wait));
@@ -796,7 +796,7 @@ else
 	//  > si sonar OK: fait rien
 	//  > si sonar invalid: manoeuvre failsafe
 
-	if (hover_counter > nb_sample_wait)
+	if (hover_counter > (RAMPE_TIME*HEARTBEAT_HZ))
     {
 	    if (!udb_flags._.baro_valid && !udb_flags._.sonar_height_valid)
 		{
@@ -804,20 +804,22 @@ else
 		}
 	}
 
-    if (z > max_hover_alt)  
+    if (z_filtered > max_hover_alt)  
 	{
 		//if max altitude is exceeded, reduce throttle
-        throttle_control_pre=hoverthrottlemin;
+        throttle_control_pre=hoverthrottleoffset;
     }
 
 	//si cas de panne dure plus d'une seconde, on declenche la manoeuvre failsafe
 	if (is_in_hovering_failsafe > HEARTBEAT_HZ) hovering_failsafe();
 
 	if (hover_counter <= nb_sample_wait)
-	{ 
-        //wait a few seconds that filtered vars a PIDs converge before applying throttle control
-		throttle_control_pre=hoverthrottlemin;
-	}
+	{
+		rampe += RAMPE_INCREMENT;
+ 	}
+	if (rampe > RMAX) rampe = RMAX;
+
+	throttle_control_pre = (int16_t)(__builtin_mulsu(throttle_control_pre, rampe)>>14);
 
     //limit throttle value
     throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
@@ -841,8 +843,7 @@ else
 
 	additional_int16_export1 = z;
 	additional_int16_export2 = vz;
-	additional_int16_export3 = IIR_Filter(&z_filt_debug, z, (int8_t)(64));
-	additional_int16_export4 = sga_filter(z, ptr);
+	additional_int16_export4 = z_baro_offset;
     
 		//throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 	
@@ -882,10 +883,10 @@ else
 // over his landing area, which was a freshly cut straw field. Post flight, he anlaysed the CSV telemetry into a spreadsheet graph,
 // and determined that all measurements below 4 meters were true, as long as there were at least 3 consecutive measurements,
 // that were less than 4 meters (400 centimeters).
-#define SONAR_MINIMUM_DISTANCE                   90 // Normally, should be minimum possible sonar distance measurement (4 inch)
+#define SONAR_MINIMUM_DISTANCE                   60 // Normally, should be minimum possible sonar distance measurement (4 inch)
                                                      //here specifically for the SBACH 342, the sonar sees the elevator and returns 78cm.
                                                      //so we discard this value by setting to 90cm the minimum valid distance
-#define OUT_OF_RANGE_DISTANCE          			 550 // Distance in centimeters that denotes "out of range" for your Sonar device.
+#define OUT_OF_RANGE_DISTANCE          			 235 // Distance in centimeters that denotes "out of range" for your Sonar device.
 #define NO_READING_RECEIVED_DISTANCE			9999 // Distance denotes that no sonar reading was returned from sonar device
 #define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
 #define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 

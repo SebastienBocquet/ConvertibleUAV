@@ -273,10 +273,10 @@
 #define PASSTHROUGH_D_OUTPUT_CHANNEL        CHANNEL_UNUSED
 
 //Quadcopter engines
-#define MOTOR_A_OUTPUT_CHANNEL				CHANNEL_1		// + front or X left front, CCW
-#define MOTOR_B_OUTPUT_CHANNEL				CHANNEL_2		// + right or X right front, CW
-#define MOTOR_C_OUTPUT_CHANNEL				CHANNEL_3		// + rear or X right rear, CCW
-#define MOTOR_D_OUTPUT_CHANNEL				CHANNEL_4		// + left or Z left rear,	CW
+#define MOTOR_A_OUTPUT_CHANNEL				CHANNEL_1		
+#define MOTOR_B_OUTPUT_CHANNEL				CHANNEL_2		
+#define MOTOR_C_OUTPUT_CHANNEL				CHANNEL_3		
+#define MOTOR_D_OUTPUT_CHANNEL				CHANNEL_4		
 
 ////////////////////////////////////////////////////////////////////////////////
 // Servo Reversing Configuration
@@ -478,8 +478,8 @@
 #define MOTOR_A_POSITION     3
 
 // Tilt PID(DD) control gains on roll and pitch angle
-#define TILT_KI 0. //0.04
-#define TILT_KP 0.36
+#define TILT_KI 0.02
+#define TILT_KP 0.14
 #define TILT_KD 0.
 //#define TILT_KDD 0.
 
@@ -490,12 +490,12 @@
 
 //Tilt PID control gains on roll and pitch rate
 #define TILT_RATE_KI 0.
-#define TILT_RATE_KP 0.22
+#define TILT_RATE_KP 0.1
 #define YAW_RATE_KI 0.
 #define YAW_RATE_KP 0.3
 
 //variable gains controlled from Tx
-//#define VARIABLE_GAINS
+#define VARIABLE_GAINS
 #define INPUT_CHANNEL_AUX1  THROTTLE_INPUT_CHANNEL
 #define INPUT_CHANNEL_AUX2  FLAP_INPUT_CHANNEL
 
@@ -596,7 +596,7 @@
 //////////altitude control/////////////
 
 #define TRANSITION_ALTITUDE               50    //altitude in m at which hovering <=> airplane transition occurs                 
-#define MANUAL_TARGET_HEIGHT               1    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
+#define MANUAL_TARGET_HEIGHT               0    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
                                                  //otherwise target height is set to hovertargetheightmin and target vz is set to hovertargetvzmin
 #define WAIT_SECONDS                       3     //number of seconds after transition to hovering during which:
                                                  //PI integral term is not computed
@@ -608,8 +608,8 @@
 #define HOVER_THROTTLE_MAX                 0.75
 #define HOVER_TARGET_HEIGHT_MIN            50   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
-#define HOVER_TARGET_VZ_MIN                -200   // (cm/s)  //defines the target vertical velocity, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
-#define HOVER_TARGET_VZ_MAX                200   // (cm/s)
+#define HOVER_TARGET_VZ_MIN                -20   // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated
+#define HOVER_TARGET_VZ_MAX                20   // (cm/s)
 #define USEABLE_SONAR_DISTANCE             400 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
 #define VZ_CORR                            1     //0 means vz = imu_vz, 1 means vz is the derivative of sensor or barometer altitude
 #define HOVER_INV_DELTA_FILTER_TARGETZ     80.
@@ -619,7 +619,7 @@
 #define HOVER_ZKP                          5.58 //in 1/cm, should be between 0 and 10
 #define HOVER_ZKI                          0.  //in 1/(cm.s) dimensionless, should be between 0 and 10
 #define LIMIT_INTEGRAL_Z                   80000
-#define HOVER_LIMIT_TARGETVZ               450  //cutoff value for vertial velocity in cm/s
+#define HOVER_LIMIT_TARGETVZ               20  //cutoff value for vertial velocity in cm/s
 #define HOVER_VZKP                         4.8  // in 1/(cm/s), should be between 0 and 10
 #define HOVER_VZKI                         2.  // in 1/cm, should be between 0 and 10
 #define LIMIT_INTEGRAL_VZ                  40000

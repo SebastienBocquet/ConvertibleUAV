@@ -764,12 +764,12 @@ void serial_output_8hz(void)
 
 				// Save  pwIn and PwOut buffers for printing next time around
 				int16_t i;
-				for (i=0; i <= NUM_INPUTS; i++)
-					pwIn_save[i] = udb_pwIn[i];
+//				for (i=0; i <= NUM_INPUTS; i++)
+//					pwIn_save[i] = udb_pwIn[i];
 				for (i=0; i <= NUM_OUTPUTS; i++)
 					pwOut_save[i] = udb_pwOut[i];
-				for (i= 1; i <= NUM_INPUTS; i++)
-					serial_output("p%ii%i:",i,pwIn_save[i]);
+//				for (i= 1; i <= NUM_INPUTS; i++)
+//					serial_output("p%ii%i:",i,pwIn_save[i]);
 				for (i= 1; i <= NUM_OUTPUTS; i++)
 					serial_output("p%io%i:",i,pwOut_save[i]);
 

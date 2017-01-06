@@ -24,7 +24,7 @@
 
 
 // number of heartbeats per second
-#define HEARTBEAT_HZ 80
+#define HEARTBEAT_HZ 160
 
 // number of output updates per second
 #define OUTPUT_HZ 80
@@ -37,9 +37,9 @@
 //#define PID_HZ 80
 
 // frequency of writing in udb_extra output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
-#define HEARTBEAT_UDB_EXTRA 10
+#define HEARTBEAT_UDB_EXTRA 4
 //HEARTBEAT_HZ/2
-#define HEARTBEAT_UDB_LIGHT 80
+#define HEARTBEAT_UDB_LIGHT 10
 
 // Read-only value increments with each heartbeat
 extern uint16_t udb_heartbeat_counter;
