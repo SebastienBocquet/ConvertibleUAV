@@ -63,7 +63,7 @@ int16_t roll_intgrl;
 int16_t pitch_intgrl;
 int16_t	yaw_intgrl;
 
-int16_t rampe = 0;
+int16_t rampe_yaw = 0;
 
 uint16_t *ptr;
 int32_t z_filt_debug;
@@ -131,6 +131,10 @@ void motorCntrl(void)
 		else
 			pwManual[temp] = udb_pwTrim[temp];
 	
+	if (hover_counter==0)
+    {
+		rampe_yaw = 0;
+	}
 	
 	if (!dcm_flags._.calib_finished)
 	{
@@ -181,9 +185,9 @@ void motorCntrl(void)
 
 		if (udb_flags._.sonar_height_valid)
 		{
-			rampe += RAMPE_INCREMENT;
+			rampe_yaw += RAMPE_INCREMENT;
  		}
-		if (rampe > RMAX) rampe = RMAX;
+		if (rampe_yaw > RMAX) rampe_yaw = RMAX;
 
 		//insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in quad mode
 		commanded_roll =  ( pwManual[AILERON_INPUT_CHANNEL] 
@@ -242,7 +246,7 @@ void motorCntrl(void)
 		roll_error = rmat[6] - (-commanded_roll_body_frame) ;
 		pitch_error = - rmat[7] - (-commanded_pitch_body_frame) ;
 		yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
-		yaw_error = (int16_t)(__builtin_mulsu(yaw_error, rampe)>>14);
+		yaw_error = (int16_t)(__builtin_mulsu(yaw_error, rampe_yaw)>>14);
 
 //		Compute the signals that are common to all 4 motors
 		min_throttle = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
@@ -250,11 +254,10 @@ void motorCntrl(void)
 		accel_feedback = long_accum._.W1 ;
 	
 	#ifdef VARIABLE_GAINS
-		//tilt_ki = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX) * 0.1);
-		tilt_ki = (uint16_t)(RMAX*TILT_KI);
-		tilt_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
+		tilt_ki = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX) * 0.1);
+		tilt_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
 		tilt_rate_ki = 0;
-		tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
+		tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
 		yaw_ki = (uint16_t)(RMAX*YAW_KI);
 		yaw_kp = (uint16_t)(RMAX*YAW_KP);
 		yaw_rate_ki = 0;
@@ -271,7 +274,7 @@ void motorCntrl(void)
 	#endif
 	
 //		Compute the error integrals
-		if (abs(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]-udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL])>= MANUAL_DEADBAND )
+		if ((canStabilizeHover() && current_orientation == F_HOVER) || (current_orientation == F_NORMAL && abs(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]-udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]) > MANUAL_DEADBAND))
 		{
 			roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), roll_error ))>>5) ;
 			if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
@@ -421,7 +424,7 @@ void motorCntrl(void)
 //		use minus omegagyro to be coherent with yaw_error
 		yaw_rate = -omegagyro[2];
 		yaw_rate_error = yaw_rate - desired_yaw;
-		yaw_rate_error = (int16_t)(__builtin_mulsu(yaw_rate_error, rampe)>>14);
+		yaw_rate_error = (int16_t)(__builtin_mulsu(yaw_rate_error, rampe_yaw)>>14);
 
 //		Compute the error integrals
 		yaw_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*yaw_rate_ki/40.), yaw_rate_error ))>>5) ;

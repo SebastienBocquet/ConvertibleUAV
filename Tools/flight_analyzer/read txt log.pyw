@@ -86,7 +86,7 @@ BAROMETER=1
 MAX_HOVER_RADIUS = 7
 EXPORT='LIGHT'
 
-file_number=2496
+file_number=2506
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -465,7 +465,6 @@ finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=-16000
 ymax=16000
 ax4.plot(time, rmat0, 'k-', marker=None, label='rmat0')
-ax4.plot(time, add4, 'k--', marker=None, label='rampe')
 ax4.plot(time, yaw_error, 'b-', marker=None, label='yaw error')
 ax4.plot(time, yaw_error_integral, 'g-', marker=None, label='yaw error integral')
 ax4.plot(time, omega2, 'c-', marker=None, label='omega gyro')
@@ -587,7 +586,6 @@ ax3.plot(time, sonar_height, 'c-', label='sonar_height')
 ax3.plot(time, barometer_altitude, '0.8', label='pressure altitude')
 ax3.plot(time, target_z, 'm--', label='target height')
 ax3.plot(time, error_z_integral, 'g--', label='error z integral')
-ax3.plot(time, add4, 'r-', label='z baro offset')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
@@ -600,6 +598,7 @@ ax4.plot(time, p1o, 'k-', marker=None, label='motorA')
 ax4.plot(time, p2o, 'b-', marker=None, label='motorB')
 ax4.plot(time, p3o, 'g-', marker=None, label='motorC')
 ax4.plot(time, p4o, 'r-', marker=None, label='motorD')
+ax4.plot(time, add4, 'r-', marker=None, label='rampe throttle')
 
 finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)

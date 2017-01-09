@@ -151,7 +151,7 @@ int32_t error_integral_accz=0;
 int32_t previous_z32;
 boolean failsafe_throttle_mode = false;
 int16_t max_hover_alt = (int16_t)(HOVER_FAILSAFE_ALTITUDE);
-int16_t rampe;
+int16_t rampe_throttle;
 
 int16_t hover_target_z=0;
 int16_t hover_z=0;
@@ -642,7 +642,7 @@ void hoverAltitudeCntrl(void)
  		previous_z32=(int32_t)(hovertargetheightmin)*100;
 		is_init_failsafe=0;
 		is_in_hovering_failsafe = 0;
-		rampe = 0;
+		rampe_throttle = 0;
     }
 
     if (hover_counter < RMAX)
@@ -663,7 +663,7 @@ void hoverAltitudeCntrl(void)
     if (udb_flags._.baro_valid)
     {
         estBaroAltitude();
-        z=(int16_t)(get_barometer_altitude()) + z_baro_offset;
+        z=(int16_t)(get_barometer_altitude());
         invdeltafilterheight=invdeltafilterbaro;
 		invdeltafiltervz=4.;
         alt_sensor_failure=false;
@@ -813,13 +813,12 @@ else
 	//si cas de panne dure plus d'une seconde, on declenche la manoeuvre failsafe
 	if (is_in_hovering_failsafe > HEARTBEAT_HZ) hovering_failsafe();
 
-	if (hover_counter <= nb_sample_wait)
+	if (hover_counter <= (HEARTBEAT_HZ * RAMPE_TIME))
 	{
-		rampe += RAMPE_INCREMENT;
+		rampe_throttle += RAMPE_INCREMENT;
+		throttle_control_pre = (int16_t)(__builtin_mulsu(1.2*hoverthrottleoffset-hoverthrottlemin, rampe_throttle)>>14)+hoverthrottlemin;
  	}
-	if (rampe > RMAX) rampe = RMAX;
-
-	throttle_control_pre = (int16_t)(__builtin_mulsu(throttle_control_pre, rampe)>>14);
+	if (rampe_throttle > RMAX) rampe_throttle = RMAX;
 
     //limit throttle value
     throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
@@ -843,7 +842,8 @@ else
 
 	additional_int16_export1 = z;
 	additional_int16_export2 = vz;
-	additional_int16_export4 = z_baro_offset;
+	additional_int16_export4 = rampe_throttle;
+	additional_int16_export8 = throttle_control_pre;
     
 		//throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 	

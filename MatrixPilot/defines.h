@@ -135,6 +135,7 @@ extern int16_t sonar_height_to_ground ;		// calculated distance to ground in cm
 	extern int16_t vz_target;
 #endif
 
+extern int16_t hover_counter;
 extern int16_t z_filtered;
 extern int16_t hover_target_z;
 extern int16_t hover_z;
