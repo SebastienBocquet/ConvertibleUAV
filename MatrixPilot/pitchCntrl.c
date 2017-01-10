@@ -82,8 +82,8 @@ float pitch_error_filtered_flt = 0.;
 int16_t pitch_error_filtered = 0;
 int16_t pitch_hover_counter = 0;
 
-int16_t hover_error_x = 0;
-int16_t hover_error_integral_x = 0;
+int16_t hover_error_y = 0;
+int16_t hover_error_integral_y = 0;
 
 void normalPitchCntrl(void);
 void hoverPitchCntrl(void);
@@ -208,84 +208,50 @@ void normalPitchCntrl(void)
 void hoverPitchCntrl(void)
 {
 	union longww pitchAccum;
-	int16_t manualPitchOffset;
-    int16_t pitchCorr;
+    int16_t pitchCorr = 0;
+	int16_t pitchToWP = 0;
 
-	if (flags._.pitch_feedback)
+    if (flags._.pitch_feedback && HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
 	{
-		pitchAccum.WW = (__builtin_mulss(-rmat[7] , omegagyro[0])
-		               - __builtin_mulss(rmat[6] , omegagyro[1])) << 1;
-		pitchrate = pitchAccum._.W1;
-		
-		int16_t elevInput = (udb_flags._.radio_on == 1) ?
-		    REVERSE_IF_NEEDED(ELEVATOR_CHANNEL_REVERSED, udb_pwIn[ELEVATOR_INPUT_CHANNEL] - udb_pwTrim[ELEVATOR_INPUT_CHANNEL]) : 0;
+        //error along yaw axis between aircraft position and goal (origin point here) in cm
 
-#if (MANUAL_TARGET_HEIGHT == 0)
-	    manualPitchOffset = compute_pot_order(udb_pwIn[CAMERA_PITCH_INPUT_CHANNEL], -128, 127)*128;
-#else
-		manualPitchOffset = 0;
-#endif
-		int16_t pitchToWP;
+        if (hover_counter==0)
+        {
+            pitch_error_filtered = 0;
+            pitch_error_integral = 0;
+        }
 
-#ifdef TestGains
-        pitchToWP = 0;
-#else
-		if (HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
-		{
-
-            if (pitch_hover_counter==0)
-            {
-                pitch_error_filtered = 0;
-                pitch_error_integral = 0;
-            }
-
-		    if (pitch_hover_counter < RMAX)
-		    {
-		        pitch_hover_counter+=1;
-		    }
-
-            determine_navigation_deflection('h');
-            compute_hovering_dir();
-
-            int32_t tmp = __builtin_mulss(hovering_pitch_dir, tofinish_line);
+        determine_navigation_deflection('y');
             
-            int32_t tmp2 = __builtin_mulss((int16_t)(tmp/MAX_HOVERING_RADIUS), HOVERPTOWP);
-            
-			//pitchToWP = error along pitch axis between aircraft position and goal (origin point here) in cm
-			//filter error
-            pitchToWP = -exponential_filter(tmp2>>14, &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
+        int32_t tmp = __builtin_mulss(hovering_pitch_dir, tofinish_line);
+        int32_t tmp2 = __builtin_mulss((int16_t)(tmp/MAX_HOVERING_RADIUS), HOVERPTOWP);
 
-            //limit pitch to max angle
-            pitchToWP = limit_value(pitchToWP, -HOVERPTOWP, HOVERPTOWP);   
-		}
-		else
-		{
-			pitchToWP = 0;
-		}
-#endif 
+        //pitch_error ranges from -(max angle to WP in hover) to +(max angle to WP in hover)
 
-        //pitchAccum.WW = __builtin_mulsu(rmat[8] - pitchToWP + manualPitchOffset , hoverpitchkp)
-		//              + __builtin_mulus(hoverpitchkd , pitchrate);
+        //filter error
+        pitchToWP = -exponential_filter(tmp2>>14, &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
 
-		pitchAccum.WW = __builtin_mulus(hoverpitchkd , pitchrate);
+        //limit yaw to max angle
+        pitchToWP = limit_value(pitchToWP, -HOVERPTOWP, HOVERPTOWP);
 
-        //PI controller
-        int16_t pitch_error = rmat[8] - pitchToWP + manualPitchOffset;
+        //yawToWP = (tofinish_line > HOVER_NAV_MAX_PITCH_RADIUS) ?
+	    //    HOVERPTOWP : (HOVERPTOWP / (100*HOVER_NAV_MAX_PITCH_RADIUS) * error);  
 
-		//limit value to -HOVERPTOWP : 85*RMAX/57.3
-        pitch_error = limit_value(pitch_error, -HOVERPTOWP, (int32_t)(HOVER_ANGLE_TOWARDS_WP*(RMAX/57.3)));
+        pitchAccum.WW = __builtin_mulsu(pitchToWP, hoverpitchkp);
 
-        pitchCorr = compute_pi_block(pitch_error, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, (pitch_hover_counter > nb_sample_wait));
+        int16_t pitch_error = pitchToWP;
+
+		//PI controller on pitch_error
+		pitchCorr = compute_pi_block(pitch_error, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, (hover_counter > nb_sample_wait));
 
 		hover_error_x = pitch_error;
         hover_error_integral_x = (int16_t)(pitch_error_integral / (int16_t)(HEARTBEAT_HZ));
 	}
 	else
 	{
-		pitchAccum.WW = 0;
-        pitchCorr = 0;
+		pitchCorr = 0;
 	}
-	pitch_control = 0; 
-	//-pitchCorr + (int32_t)pitchAccum._.W1 + hoverpitchoffset;
+
+	pitch_control = -pitchCorr;
 }

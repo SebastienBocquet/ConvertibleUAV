@@ -522,6 +522,11 @@
 #define HOVER_ROLLKD                        0.
 #define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
 
+#define HOVER_ROLLTOWPKP                    0.4
+#define HOVER_ROLLTOWPKI                    0.
+#define LIMIT_INTEGRAL_ROLLTOWP             80000.
+#define HOVER_INV_DELTA_FILTER_ROLL         1.
+
 #define HOVER_ROLLNAVKP                     0.075
 #define HOVER_ROLLNAVKI                     0.
 #define LIMIT_INTEGRAL_ROLLNAV              533333
@@ -574,11 +579,6 @@
 #define HOVER_YAWKD                         0.
 #define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
 
-#define HOVER_YAWTOWPKP                    0.4
-#define HOVER_YAWTOWPKI                    0.
-#define LIMIT_INTEGRAL_YAWTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_YAW         1.
-
 // Gains for Hovering
 // Gains are named based on plane's frame of reference (roll means ailerons)
 // HOVER_ROLLKP is the roll-proportional feedback gain applied to the ailerons while navigating a hover
@@ -613,7 +613,7 @@
 #define USEABLE_SONAR_DISTANCE             400 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
 #define VZ_CORR                            1     //0 means vz = imu_vz, 1 means vz is the derivative of sensor or barometer altitude
 #define HOVER_INV_DELTA_FILTER_TARGETZ     80.
-#define HOVER_INV_DELTA_FILTER_SONAR       20.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
+#define HOVER_INV_DELTA_FILTER_SONAR       10.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_BARO        1.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
 #define HOVER_ZKP                          5.58 //in 1/cm, should be between 0 and 10

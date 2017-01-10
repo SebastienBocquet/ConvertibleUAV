@@ -248,6 +248,14 @@ void motorCntrl(void)
 		yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
 		yaw_error = (int16_t)(__builtin_mulsu(yaw_error, rampe_yaw)>>14);
 
+//		add navigation controls to the errors, in order to navigate in waypoints mode in hovering
+		if (flags._.pitch_feedback && HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
+		{
+			roll_error += roll_control;
+			pitch_error += pitch_control;
+			yaw_error += yaw_control;
+		}
+
 //		Compute the signals that are common to all 4 motors
 		min_throttle = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*ACCEL_K ) , accelEarth[2] ) ;

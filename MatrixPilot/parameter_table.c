@@ -58,8 +58,6 @@ const mavlink_parameter mavlink_parameters_list[] = {
     {"PID_HOVERPOFF" , {.param_int32=-90.} , {.param_int32=90.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &hoveryawoffset, sizeof(hoveryawoffset) },
     {"PID_HOVERROLLKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverrollkp, sizeof(hoverrollkp) },
     {"PID_HOVERROLLKD" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverrollkd, sizeof(hoverrollkd) },
-    {"PID_HOVERYAWKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoveryawkp, sizeof(hoveryawkp) },
-    {"PID_HOVERYAWKD" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoveryawkd, sizeof(hoveryawkd) },
     {"PID_HOVERPKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverpitchkp, sizeof(hoverpitchkp) },
     {"PID_HOVERPKD" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverpitchkd, sizeof(hoverpitchkd) },
     {"PID_HOVERVZKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hovertargetvzgain, sizeof(hovertargetvzgain) },

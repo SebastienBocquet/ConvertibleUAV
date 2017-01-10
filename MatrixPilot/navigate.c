@@ -43,6 +43,7 @@ int16_t tofinish_line  = 0;
 int16_t progress_to_goal = 0;
 int8_t desired_dir = 0;
 unsigned char is_init_flightplan0=0;
+int16_t heading_angle = 0;
 
 extern union longww IMUintegralAccelerationx;
 extern union longww IMUintegralAccelerationy;
@@ -437,6 +438,7 @@ int16_t determine_navigation_deflection(char navType)
 void compute_hovering_dir(void)
 {
 	int8_t plane_to_south;
+	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
 
     //we need to know plane orientation with respect to earth frame of reference 
     //to manage the yaw and pitch orders when plane will hover around the inital point.
@@ -465,14 +467,18 @@ void compute_hovering_dir(void)
     pitch_yaw_orders[1] = desired_bearing_over_ground_vector[1];
     rotate_2D_vector_by_angle (pitch_yaw_orders , plane_to_south);
 
-    hovering_yaw_dir = pitch_yaw_orders[0];
+	matrix_accum.x = pitch_yaw_orders[0] ;
+	matrix_accum.y = pitch_yaw_orders[1] ;
+	heading_angle = rect_to_polar16(&matrix_accum);
+
+    hovering_roll_dir = pitch_yaw_orders[0];
     hovering_pitch_dir = pitch_yaw_orders[1];
 
-    hovering_yaw_dir = limit_value(hovering_yaw_dir, -RMAX, RMAX);
+    hovering_roll_dir = limit_value(hovering_roll_dir, -RMAX, RMAX);
     hovering_pitch_dir = limit_value(hovering_pitch_dir, -RMAX, RMAX);
 
     //additional_int16_export2 = (int16_t)(plane_to_south);
-    //additional_int16_export5 = hovering_yaw_dir;
+    //additional_int16_export5 = hovering_roll_dir;
     //additional_int16_export3 = hovering_pitch_dir;
 
 }

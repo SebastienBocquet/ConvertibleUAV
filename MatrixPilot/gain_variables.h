@@ -133,8 +133,6 @@
 	extern uint16_t hoverrollkd;
 	extern uint16_t hoverpitchkp;
 	extern uint16_t hoverpitchkd;
-	extern uint16_t hoveryawkp;
-	extern uint16_t hoveryawkd;
 #else
     extern const int16_t hoverrolloffset;
     extern const int16_t hoverpitchoffset;
@@ -154,8 +152,6 @@
 	extern const uint16_t hoverrollkd;
 	extern const uint16_t hoverpitchgain;
 	extern const uint16_t hoverpitchkd;
-	extern const uint16_t hoveryawkp;
-	extern const uint16_t hoveryawkd;
 #endif
 
 

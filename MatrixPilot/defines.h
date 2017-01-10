@@ -74,7 +74,7 @@ void init_yawCntrl(void);void init_rollCntrl(void);void init_pitchCntrl(void);
 uint16_t wind_gain_adjustment(void);
 extern uint16_t wind_gain;
 
-extern int16_t pitch_control, roll_control, yaw_control, throttle_control, throttle_hover_control, flap_control, rollOffset;
+extern int16_t pitch_control, roll_control, yaw_control, throttle_control, throttle_hover_control, flap_control;
 extern union longww throttleFiltered;
 extern int16_t pitchAltitudeAdjust;
 
@@ -191,7 +191,8 @@ void reset_manoeuvre(void);
 extern unsigned char can_init_flightplan0;
 void compute_hovering_dir(void);
 extern int16_t hovering_pitch_dir;
-extern int16_t hovering_yaw_dir;
+extern int16_t hovering_roll_dir;
+extern int16_t heading_angle;
 
 struct waypointparameters { int16_t x; int16_t y; int16_t cosphi; int16_t sinphi; int8_t phi; int16_t height; int16_t fromHeight; int16_t legDist; };
 extern struct waypointparameters goal;
