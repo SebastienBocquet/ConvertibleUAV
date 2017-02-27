@@ -146,8 +146,6 @@
 // Set these to 1 to enable stabilization of hovering in stabilized and/or waypoint modes.
 #define HOVERING_STABILIZED_MODE            1  //stabilization of hovering (roll, yaw, pitch, throttle) in stabilized mode
                                                //in waypoint mode, throttle is controlled to navigate through the waypoints
-#define HOVERING_WAYPOINT_MODE_XY           0  //in waypoint mode, activates navigation through waypoints using roll and pitch 
-                                               //(for the moment, the goal is the origin point)
 
 // Note: As of MatrixPilot 3.0, Dead Reckoning and Wind Estimation are automatically enabled.
 
@@ -478,24 +476,27 @@
 #define MOTOR_A_POSITION     3
 
 // Tilt PID(DD) control gains on roll and pitch angle
-#define TILT_KI 0.025
-#define TILT_KP 0.42
+#define TILT_KI 0.2
+#define TILT_KP 0.34
 #define TILT_KD 0.
 //#define TILT_KDD 0.
+#define TILT_ERROR_INTEGRAL_LIMIT 2000
+#define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
-#define YAW_KP 0.7
+#define YAW_KP 0.35
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
 #define TILT_RATE_KI 0.
-#define TILT_RATE_KP 0.1
+#define TILT_RATE_KP 0.15
 #define YAW_RATE_KI 0.
-#define YAW_RATE_KP 0.3
+#define YAW_RATE_KP 0.15
 
 //variable gains controlled from Tx
-#define VARIABLE_GAINS
+#define MANUAL_HEADING      0
+//#define VARIABLE_GAINS
 #define INPUT_CHANNEL_AUX1  THROTTLE_INPUT_CHANNEL
 #define INPUT_CHANNEL_AUX2  FLAP_INPUT_CHANNEL
 
@@ -504,7 +505,7 @@
 #define ACCEL_K 0.
 
 #define MAX_YAW_RATE 51  // maximum yaw rate, degrees per second, must be between 50 and 500 degrees/second
-#define MAX_TILT 45       // maximum roll or pitch, degrees, not to exceed 45 degrees
+#define MAX_TILT 25       // maximum roll or pitch, degrees, not to exceed 45 degrees
 
 // Aileron/Roll Control Gains
 // ROLLKP is the proportional gain, approximately 0.25
@@ -518,19 +519,19 @@
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       1.
 
-#define HOVER_ROLLKP                        1.
-#define HOVER_ROLLKD                        0.
-#define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
+//#define HOVER_ROLLKP                        1.
+//#define HOVER_ROLLKD                        0.
+//#define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
 
-#define HOVER_ROLLTOWPKP                    0.4
+#define HOVER_ROLLTOWPKP                    0.1
 #define HOVER_ROLLTOWPKI                    0.
 #define LIMIT_INTEGRAL_ROLLTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_ROLL         1.
+#define HOVER_INV_DELTA_FILTER_ROLL         160
 
 #define HOVER_ROLLNAVKP                     0.075
 #define HOVER_ROLLNAVKI                     0.
 #define LIMIT_INTEGRAL_ROLLNAV              533333
-#define FLAP_OFFSET                         184  //flap offset to have flaps in neutral position at flap control = 0, and in hovering mode
+#define FLAP_OFFSET                         0  //flap offset to have flaps in neutral position at flap control = 0, and in hovering mode
 #define FLAP_ANGLE_MAX                      20.
 
 // Elevator/Pitch Control Gains
@@ -546,15 +547,15 @@
 #define ELEVATOR_BOOST                       1.
 
 //Obsolete
-#define HOVER_PITCHKP                        0.4
-#define HOVER_PITCHKD                        0.
-#define HOVER_PITCH_OFFSET                   0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
+//#define HOVER_PITCHKP                        0.4
+//#define HOVER_PITCHKD                        0.
+//#define HOVER_PITCH_OFFSET                   0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
 //
 
-#define HOVER_PITCHTOWPKP                    0.4
+#define HOVER_PITCHTOWPKP                    0.1
 #define HOVER_PITCHTOWPKI                    0.
 #define LIMIT_INTEGRAL_PITCHTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_PITCH         1.
+#define HOVER_INV_DELTA_FILTER_PITCH         160
 
 // Neutral pitch angle of the plane (in degrees) when flying inverted
 // Use this to add extra "up" elevator while the plane is inverted, to avoid losing altitude.
@@ -597,15 +598,13 @@
 
 #define TRANSITION_ALTITUDE               50    //altitude in m at which hovering <=> airplane transition occurs                 
 #define MANUAL_TARGET_HEIGHT               0    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
-                                                 //otherwise target height is set to hovertargetheightmin and target vz is set to hovertargetvzmin
-#define WAIT_SECONDS                       3     //number of seconds after transition to hovering during which:
-                                                 //PI integral term is not computed
-                                                 // throttle is set to HOVER_THROTTLE_OFFSET
+                                                 //otherwise target height is set to 0.5*(hovertargetheightmin+hovertargetheightmax)
+												 // and target vz is set to 0.5*(hovertargetvzmin+hovertargetvzmax)
 #define AIRCRAFT_MASS                      2000  //in g
 #define MAX_THRUST                         40    //maximul thrust in N 
 #define HOVER_THROTTLE_OFFSET              0.55
-#define HOVER_THROTTLE_MIN                 0.25
-#define HOVER_THROTTLE_MAX                 0.75
+#define HOVER_THROTTLE_MIN                 0.
+#define HOVER_THROTTLE_MAX                 1.
 #define HOVER_TARGET_HEIGHT_MIN            50   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
 #define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
 #define HOVER_TARGET_VZ_MIN                -20   // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated
@@ -616,7 +615,7 @@
 #define HOVER_INV_DELTA_FILTER_SONAR       10.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_BARO        1.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
-#define HOVER_ZKP                          5.58 //in 1/cm, should be between 0 and 10
+#define HOVER_ZKP                          9. //5.58 //in 1/cm, should be between 0 and 10
 #define HOVER_ZKI                          0.  //in 1/(cm.s) dimensionless, should be between 0 and 10
 #define LIMIT_INTEGRAL_Z                   80000
 #define HOVER_LIMIT_TARGETVZ               20  //cutoff value for vertial velocity in cm/s
@@ -628,13 +627,8 @@
 #define HOVER_ACCZKI                       0.  // in 1/(cm/s), should be between 0 and 10
 #define LIMIT_INTEGRAL_ACCZ                80000
 
-//Obsolete
-//#define HALF_SPAN                          60  //half span in cm 
-//
-
 #define MAX_HOVERING_RADIUS                10   //max distance in m from origin where the aircraft is allowed to hover in GPS navigation mode
-#define HOVER_ANGLE_TOWARDS_WP             20.0
-//#define HOVER_NAV_MAX_PITCH_RADIUS         3.
+#define HOVER_ANGLE_TOWARDS_WP             MAX_TILT
 
 ////////////////////////////////////////////////////////////////////////////////
 // The following define is used to enable vertical initialization for VTOL

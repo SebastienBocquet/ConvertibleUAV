@@ -55,9 +55,6 @@
 	int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
     float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
 #else
-	const uint16_t hoverrollkp	= (uint16_t)(HOVER_ROLLKP*RMAX);
-	const uint16_t hoverrollkd	= (uint16_t)(HOVER_ROLLKD*SCALEGYRO*RMAX);
-    const fractional hoverrolloffset = HOVER_ROLL_OFFSET*RMAX;
     const uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
     const uint16_t hoverrollToWPki = (uint16_t)(HOVER_ROLLTOWPKI*RMAX);
 	const int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
@@ -160,11 +157,11 @@ void normalRollCntrl(void)
 
 void hoverRollCntrl(void)
 {
-	union longww rollAccum;
+	//union longww rollAccum;
     int16_t rollCorr = 0;
-	int16_t rollToWP = 0;
+	int16_t roll_error_filt = 0;
 
-    if (flags._.pitch_feedback && HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
+    if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
         //error along yaw axis between aircraft position and goal (origin point here) in cm
 
@@ -176,37 +173,28 @@ void hoverRollCntrl(void)
 
         determine_navigation_deflection('y');
             
-        int32_t tmp = __builtin_mulss(hovering_roll_dir, tofinish_line);
-        int32_t tmp2 = __builtin_mulss((int16_t)(tmp/MAX_HOVERING_RADIUS), HOVERPTOWP);
-
-        //roll_error ranges from -(max angle to WP in hover) to +(max angle to WP in hover)
+        int16_t tofinish_line_roll = (int16_t)(__builtin_mulsu(hovering_roll_dir, tofinish_line)>>14);
+        int32_t roll_error32 = __builtin_mulsu(tofinish_line_roll, SERVORANGE) / MAX_HOVERING_RADIUS;
+		if (roll_error32 > SERVORANGE) roll_error32 = SERVORANGE;
+		if (roll_error32 < -SERVORANGE) roll_error32 = -SERVORANGE;
+        roll_error = (int16_t)(roll_error32);
 
         //filter error
-        rollToWP = -exponential_filter(tmp2>>14, &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
-
-        //limit yaw to max angle
-        rollToWP = limit_value(rollToWP, -HOVERPTOWP, HOVERPTOWP);
-
-        //yawToWP = (tofinish_line > HOVER_NAV_MAX_PITCH_RADIUS) ?
-	    //    HOVERPTOWP : (HOVERPTOWP / (100*HOVER_NAV_MAX_PITCH_RADIUS) * error);  
-
-        rollAccum.WW = __builtin_mulsu(rollToWP, hoverrollkp);
-
-        int16_t roll_error = rollToWP;
+        roll_error_filt = -exponential_filter(roll_error, &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
 
 		//PI controller on roll_error
-		rollCorr = compute_pi_block(roll_error, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
+		rollCorr = compute_pi_block(roll_error_filt, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralrollToWP, (hover_counter > nb_sample_wait));
 
-		hover_error_x = roll_error;
-        hover_error_integral_x = (int16_t)(roll_error_integral / (int16_t)(HEARTBEAT_HZ));
+		hover_error_y = roll_error_filt;
+        hover_error_integral_y = (int16_t)(roll_error_integral / (int16_t)(HEARTBEAT_HZ));
 	}
 	else
 	{
 		rollCorr = 0;
 	}
 
-	roll_control = -rollCorr;
+	roll_control = rollCorr;
 
     flap_control = (int16_t)(FLAP_OFFSET);
 }

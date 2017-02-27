@@ -121,10 +121,16 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T1Interrupt(void)
 
 	_T1IF = 0;              // clear the interrupt
 
-	// Start the sequential servo pulses at frequency OUTPUT_HZ
-	if (udb_heartbeat_counter % (HEARTBEAT_HZ/OUTPUT_HZ) == 0)
+	// Start the sequential servo pulses at frequency OUTPUT_HZ (pins 1 to 4)
+	if (udb_heartbeat_counter % (HEARTBEAT_HZ/ESC_HZ) == 0)
 	{
 		start_pwm_outputs();
+	}
+
+	// Start the sequential servo pulses at frequency OUTPUT_HZ (pins 4 to 8)
+	if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
+	{
+		start_pwm_outputs_2();
 	}
 
 	// Capture cpu_timer once per second.

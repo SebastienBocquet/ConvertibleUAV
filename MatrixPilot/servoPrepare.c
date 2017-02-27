@@ -117,7 +117,7 @@ void dcm_servo_callback_prepare_outputs(void)
 		{
 			pitchCntrl();
 	
-	        applyManoeuvres();
+	        //applyManoeuvres();
 			servoMix();
 		}
 

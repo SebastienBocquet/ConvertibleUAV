@@ -52,41 +52,21 @@ def limit_value(value, limit):
 ###################################
 
 input_dir='F:'
-#input_dir='E:\\projet autoentrepreneur\\prise de vue aerienne\\tests\\log files'
-nb_subplot_v=2
-nb_subplot_h=2
-subplot_location=1
 fontsize=10
-line_len=60
+line_len=64
 t0=0
 tf=None
 HEARTBEAT_HZ=160
 throttle_offset=0.6*2000+2244
 HEARTBEAT_EXPORT=10
-ZKP=0.06
-LIMIT_VZ=450.
-VZKP=0.1
-LIMIT_ACCZ=2500.
-VZKI=0.
-ACCZKP=0.06
-ACCZKI=0.35
-MAX_THRUST=17
-AIRCRAFT_MASS=1.15
 F_SYNTHETIC_THROTTLE=1
 MEASURED_TO_EXPECTED_ACCZ=1.
 MEASURED_TO_EXPECTED_VZ=1.
-plot_accz=1
-plot_vz=1
-plot_z=1
-plot_synthetic_throttle=0
-plot_rmat=0
-invdeltafilter_sonar=2
 SONAR=1
 BAROMETER=1
-MAX_HOVER_RADIUS = 7
 EXPORT='LIGHT'
 
-file_number=2506
+file_number=2579
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -99,7 +79,6 @@ xmin=None
 xmax=None
 
 filename='LOG%05d.TXT' %file_number
-#filename='target_v_indoor_2262_2016-07-03.TXT'
 
 tf=find_final_time(filename, input_dir, line_len, 'cpu', tf, HEARTBEAT_EXPORT)
 
@@ -120,6 +99,14 @@ else:
     sonar_height=np.zeros((len(time)))
 
 
+imu_x=extract_var(filename, input_dir, line_len, 'imx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+imu_y=extract_var(filename, input_dir, line_len, 'imy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+imu_z=extract_var(filename, input_dir, line_len, 'imz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+imu_vx=extract_var(filename, input_dir, line_len, 'tx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+imu_vy=extract_var(filename, input_dir, line_len, 'ty')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+imu_vz=extract_var(filename, input_dir, line_len, 'tz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+goal=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+
 accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 target_z=extract_var(filename, input_dir, line_len, 'tgz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 target_vz=extract_var(filename, input_dir, line_len, 'tgvz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
@@ -128,28 +115,16 @@ accz_filt=extract_var(filename, input_dir, line_len, 'inaccz')[t0*HEARTBEAT_EXPO
 vz_filt=extract_var(filename, input_dir, line_len, 'invz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 z_filt=extract_var(filename, input_dir, line_len, 'inz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 error_z_integral=extract_var(filename, input_dir, line_len, 'ezi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-error_vz_integral=extract_var(filename, input_dir, line_len, 'evzi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-error_accz_integral=extract_var(filename, input_dir, line_len, 'eacczi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
 roll_error=extract_var(filename, input_dir, line_len, 'rerr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 pitch_error=extract_var(filename, input_dir, line_len, 'perr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 yaw_error=extract_var(filename, input_dir, line_len, 'yerr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-desired_roll=extract_var(filename, input_dir, line_len, 'desr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-desired_pitch=extract_var(filename, input_dir, line_len, 'desp')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-desired_yaw=extract_var(filename, input_dir, line_len, 'desy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 roll_error_integral=extract_var(filename, input_dir, line_len, 'intr')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 pitch_error_integral=extract_var(filename, input_dir, line_len, 'intp')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 yaw_error_integral=extract_var(filename, input_dir, line_len, 'inty')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
 if EXPORT=='EXTRA':
 
-
-    imu_x=extract_var(filename, input_dir, line_len, 'imx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    imu_y=extract_var(filename, input_dir, line_len, 'imy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    imu_z=extract_var(filename, input_dir, line_len, 'imz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    imu_vx=extract_var(filename, input_dir, line_len, 'tx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    imu_vy=extract_var(filename, input_dir, line_len, 'ty')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    imu_vz=extract_var(filename, input_dir, line_len, 'tz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     wind_vx=extract_var(filename, input_dir, line_len, 'wvx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     wind_vy=extract_var(filename, input_dir, line_len, 'wvy')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     wind_vz=extract_var(filename, input_dir, line_len, 'wvz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
@@ -160,7 +135,6 @@ if EXPORT=='EXTRA':
 ##error_y_integral=extract_var(filename, input_dir, line_len, 'eyi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
     waypoint_index=extract_var(filename, input_dir, line_len, 'W')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    goal=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     waypoint_index=extract_var(filename, input_dir, line_len, 'W')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     #segment_index=extract_var(filename, input_dir, line_len, 'segi')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     lat_gps0=extract_var(filename, input_dir, line_len, 'N')[40*HEARTBEAT_EXPORT]
@@ -184,8 +158,8 @@ if EXPORT=='EXTRA':
     relative_velocity_norm=np.sqrt(relative_vx**2+relative_vy**2+relative_vz**2)
 
 if BAROMETER:
-    barometer_pressure=extract_var(filename, input_dir, line_len, 'prs')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-    barometer_temperature=extract_var(filename, input_dir, line_len, 'tmp')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+##    barometer_pressure=extract_var(filename, input_dir, line_len, 'prs')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+##    barometer_temperature=extract_var(filename, input_dir, line_len, 'tmp')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     barometer_altitude=extract_var(filename, input_dir, line_len, 'alt')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
     filt_barometer_altitude = exp_filter(barometer_altitude, 2, HEARTBEAT_HZ)
     barometer_vz=np.diff(filt_barometer_altitude) * HEARTBEAT_EXPORT
@@ -376,21 +350,25 @@ if EXPORT=='EXTRA':
 
 
 
-##debug of quadricopter mode
+####monitoring of quadricopter motor control
 
-TILT_KI= 0.016
-TILT_KP= 0.14
+TILT_KI= 0.045
+TILT_KP= 0.6
 TILT_KD= 0.
 
 YAW_KI= 0.
-YAW_KP= 0.45
+YAW_KP= 0.7
 YAW_KD= 0.
 
-TILT_RATE_KP= 0.19
+TILT_RATE_KP= 0.15
 YAW_RATE_KP= 0.3
 
 roll_rate = -omega1
 pitch_rate = -omega0
+
+desired_roll = -TILT_KP*roll_error-TILT_KI*roll_error_integral
+desired_pitch = -TILT_KP*pitch_error-TILT_KI*pitch_error_integral
+desired_yaw = -YAW_KP*yaw_error
 
 roll_quad_control = -TILT_RATE_KP*(roll_rate-desired_roll)
 pitch_quad_control = -TILT_RATE_KP*(pitch_rate-desired_pitch)
@@ -404,6 +382,20 @@ motor_A = 2000+yaw_quad_control + pitch_body_frame_control
 motor_B = 2000-yaw_quad_control - roll_body_frame_control
 motor_C = 2000+yaw_quad_control - pitch_body_frame_control
 motor_D = 2000-yaw_quad_control + roll_body_frame_control
+
+
+##debug of gps waypoint mode in hovering
+
+headingToWP = add8
+hovering_roll_dir = add6
+hovering_pitch_dir = add7
+goal_x = 0
+goal_y = 0
+plane_to_north_angle = add5
+earthYaw = add2
+earthRoll = -add1
+earthPitch = add9
+
 			
 nb_subplot_v=4
 nb_subplot_h=1
@@ -421,8 +413,6 @@ ax1.set_title('motor control', fontweight='bold', fontsize=fontsize)
 ymin=None
 ymax=None
 
-##ax1.plot(time, pitch_body_frame_control, 'm-', marker=None, label='pitch_body_frame_control')
-##ax1.plot(time, roll_body_frame_control, 'c-', marker=None, label='roll_body_frame_control')
 ax1.plot(time, motor_A, 'k--', marker=None, label='motorA reconst')
 ax1.plot(time, motor_B, 'b--', marker=None, label='motorB reconst')
 ax1.plot(time, motor_C, 'g--', marker=None, label='motorC reconst')
@@ -437,13 +427,11 @@ finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 
 ymin=-16000
 ymax=16000
-ax2.plot(time, rmat6, 'k-', marker=None, label='roll_angle')
-ax2.plot(time[:-1], np.diff(rmat6) * HEARTBEAT_EXPORT / 7, 'k--', marker=None, label='roll_rate reconst')
-ax2.plot(time, roll_error, 'b-', marker=None, label='roll error')
-#ax2.plot(time, add3, 'y-', marker=None, label='roll error filt')
+ax2.plot(time, rmat6, 'k--', marker=None, label='roll_angle')
+ax2.plot(time, earthRoll, 'y-', marker=None, label='earth roll')
+ax2.plot(time, roll_error, 'b--', marker=None, label='roll error')
 ax2.plot(time, roll_error_integral, 'g-', marker=None, label='roll error integral')
-ax2.plot(time, roll_rate, 'c-', marker=None, label='omega gyro')
-ax2.plot(time, desired_roll, 'r-', marker=None, label='desired_roll')
+ax2.plot(time, roll_rate, 'r-', marker=None, label='roll rate')
 ax2.plot(time, roll_quad_control, 'm-', marker=None, label='roll control reconst')
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
@@ -451,25 +439,25 @@ finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 
 ymin=-16000
 ymax=16000
-ax3.plot(time, -rmat7, 'k-', marker=None, label='pitch_angle')
-ax3.plot(time[:-1], np.diff(-rmat7) * HEARTBEAT_EXPORT / 7, 'k--', marker=None, label='pitch_rate reconst')
-ax3.plot(time, pitch_error, 'b-', marker=None, label='pitch error')
+ax3.plot(time, -rmat7, 'k--', marker=None, label='pitch_angle')
+ax3.plot(time, earthPitch, 'y-', marker=None, label='earth pitch')
+ax3.plot(time, pitch_error, 'b--', marker=None, label='pitch error')
 ax3.plot(time, pitch_error_integral, 'g-', marker=None, label='pitch error integral')
-ax3.plot(time, pitch_rate, 'c-', marker=None, label='omega gyro')
-ax3.plot(time, desired_pitch, 'r-', marker=None, label='desired_pitch')
+ax3.plot(time, pitch_rate, 'r-', marker=None, label='pitch rate')
 ax3.plot(time, pitch_quad_control, 'm-', marker=None, label='pitch control reconst')
 
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ymin=-16000
-ymax=16000
-ax4.plot(time, rmat0, 'k-', marker=None, label='rmat0')
-ax4.plot(time, yaw_error, 'b-', marker=None, label='yaw error')
+ymin=-33000
+ymax=33000
+ax4.plot(time, rmat0, 'k--', marker=None, label='rmat0')
+ax4.plot(time, plane_to_north_angle, 'y-', marker=None, label='manual plane to north heading')
+ax4.plot(time, earthYaw, 'k-', marker=None, label='earthYaw')
+ax4.plot(time, yaw_error, 'b--', marker=None, label='yaw error')
 ax4.plot(time, yaw_error_integral, 'g-', marker=None, label='yaw error integral')
-ax4.plot(time, omega2, 'c-', marker=None, label='omega gyro')
-ax4.plot(time, desired_yaw, 'r-', marker=None, label='desired_yaw')
-ax4.plot(time, -YAW_RATE_KP*(omega2-desired_yaw), 'm-', marker=None, label='yaw control reconst')
+ax4.plot(time, -omega2, 'c-', marker=None, label='omega gyro')
+ax4.plot(time, -YAW_RATE_KP*(-omega2-desired_yaw), 'm-', marker=None, label='yaw control reconst')
 
 finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
@@ -483,66 +471,55 @@ ax.plot(time, ma, 'k-', marker=None, label='ma')
 ax.plot(time, mb, 'b-', marker=None, label='mb')
 ax.plot(time, mc, 'g-', marker=None, label='mc')
 ax.plot(time, (180./np.pi)*np.arctan2(mb,ma), 'r-', marker='', label='mag earth angle')
-ax.plot(time, add5, 'k--', marker=None, label='udb_magFieldBody0')
-ax.plot(time, add6, 'b--', marker=None, label='udb_magFieldBody1')
-ax.plot(time, add7, 'g--', marker=None, label='udb_magFieldBody2')
+##ax.plot(time, add5, 'k--', marker=None, label='udb_magFieldBody0')
+##ax.plot(time, add6, 'b--', marker=None, label='udb_magFieldBody1')
+##ax.plot(time, add7, 'g--', marker=None, label='udb_magFieldBody2')
 ax.plot(time, (180./np.pi)*np.arctan2(add6,add5), 'r--', marker='', label='mag udb angle')
 ax.plot(time, cpu, 'c-', marker='', label='cpu load')
 finalize_plot(fig, ax, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
 
-##
-##fig = plt.figure(figsize=(16.0, 9.0))
-##
-##xlabel=''
-##ylabel=''
-##
-##fig.subplots_adjust(hspace=0.5)
-##
-##fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
-##ax1.set_title('i2c+sonar check', fontweight='bold', fontsize=fontsize)
-##
-##ymin=None
-##ymax=None
-##
-##ax1.plot(time, ma, 'k-', marker='', label='mag a')
-##ax1.plot(time, mb, 'b-', marker='', label='mag b')
-##ax1.plot(time, mc, 'g-', marker='', label='mag c')
-##ax1.plot(time, (180./np.pi)*np.arctan2(mb,ma), 'r-', marker='', label='mag angle')
-###ax1.plot(time, rmat0, 'k--', marker=None, label='rmat0')
-###ax1.plot(time, rmat1, 'b--', marker=None, label='rmat1')
-###ax1.plot(time, rmat2, 'g--', marker=None, label='rmat2')
-###ax1.plot(time, rmat3, 'r--', marker=None, label='rmat3')
-###ax1.plot(time, rmat4, 'y--', marker=None, label='rmat4')
-###ax1.plot(time, rmat5, 'm--', marker=None, label='rmat5')
-###ax1.plot(time, rmat8, 'c--', marker=None, label='rmat8')
-##
-##finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-##                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
-##
-##ymin=0
-##ymax=550
-##ax2.plot(time, barometer_pressure, 'k-', marker='', label='baro prs')
-##ax2.plot(time, barometer_temperature, 'b-', marker='', label='baro temp')
-##ax2.plot(time, barometer_altitude, 'g-', marker='', label='baro alt')
-##
-##finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-##                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
-##
-##ymin=0
-##ymax=550
-##ax3.plot(time, sonar_dist, 'k-', marker='', label='sonar dist')
-##ax3.plot(time, sonar_height, 'b-', marker='', label='sonar height')
-##
-##finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
-##                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
+
+
+
+fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+
+xlabel=''
+ylabel=''
+
+fig.subplots_adjust(hspace=0.5)
+
+ax1.set_title('gps waypoint mode control', fontweight='bold', fontsize=fontsize)
+
+ymin=None
+ymax=None
+
+ax1.plot(time, goal[:,0], 'k-', marker=None, label='goal x')
+ax1.plot(time, goal[:,1], 'b-', marker=None, label='goal y')
+ax1.plot(time, goal[:,2], 'g-', marker=None, label='goal z')
+ax1.plot(time, imu_x, 'r-', marker=None, label='imy x')
+ax1.plot(time, imu_y, 'm-', marker=None, label='imu y')
+ax1.plot(time, imu_z, 'c-', marker=None, label='imu z')
+
+finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
+
+ax2.plot(time, plane_to_north_angle, 'k-', marker=None, label='manual plane to north heading')
+ax2.plot(time, headingToWP, 'b--', marker=None, label='headingToWP')
+ax2.plot(time, earthYaw, 'k--', marker=None, label='earthYaw')
+ax2.plot(time, (headingToWP-earthYaw), 'g-', marker=None, label='heading_toward_goal')
+ax2.plot(time, hovering_roll_dir, 'r-.', marker=None, label='hovering roll dir')
+ax2.plot(time, hovering_pitch_dir, 'm-', marker=None, label='hovering pitch dir')
+
+finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
+                  show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)
 
 
 
 
 
-
+##monitoring of altitude control
 
 nb_subplot_v=4
 nb_subplot_h=1
@@ -569,10 +546,9 @@ finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=None
 ymax=None
 
-ax2.plot(time, add2, 'b-', label=' vz')
 ax2.plot(time, vz_filt, 'c-', label=' vz filt')
 ax2.plot(time, target_vz, 'k--', label='target vz')
-ax2.plot(time, error_vz_integral, 'g--', label='error vz integral')
+#ax2.plot(time, error_vz_integral, 'g--', label='error vz integral')
 
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_right', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
@@ -580,7 +556,6 @@ finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export
 ymin=None
 ymax=None
 
-ax3.plot(time, add1, 'b-', label=' z')
 ax3.plot(time, z_filt, 'k-', label='z filt')
 ax3.plot(time, sonar_height, 'c-', label='sonar_height')
 ax3.plot(time, barometer_altitude, '0.8', label='pressure altitude')

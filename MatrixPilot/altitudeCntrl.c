@@ -52,13 +52,13 @@ union longww throttleFiltered = { 0 };
 #define HOVER_FAILSAFE_ALTITUDE 10000
 #define VZ_CORR_16           VZ_CORR*RMAX
 
-#define RAMPE_TIME 3
+#define RAMPE_TIME 6
 #define RAMPE_INCREMENT 16384 / (HEARTBEAT_HZ * RAMPE_TIME);
 
 int16_t aircraft_mass       = AIRCRAFT_MASS;
 int16_t max_thrust          = MAX_THRUST;
 
-int16_t nb_sample_wait = (int16_t)(HEARTBEAT_HZ * WAIT_SECONDS);
+int16_t nb_sample_wait = (int16_t)(HEARTBEAT_HZ * RAMPE_TIME);
 
 int32_t speed_height = 0;
 int16_t pitchAltitudeAdjust = 0;
@@ -178,7 +178,6 @@ float invdeltafiltervz;
 #endif
 
 //failsafe
-int32_t failsafe_start_time;
 boolean is_init_failsafe = 0;
 int16_t is_in_hovering_failsafe = 0;
 
@@ -296,13 +295,15 @@ int16_t desiredSpeed = (DESIRED_SPEED*10);
 
 void altitudeCntrl(void)
 {
-	if (canStabilizeHover() && current_orientation == F_HOVER)
+#if ( USE_SONAR == 1 )
+    	calculate_sonar_height_above_ground();
+#endif
+	if (current_orientation == F_HOVER && canStabilizeHover())
 	{
 		hoverAltitudeCntrl();
 	}
 	else
 	{
-        //hoverAltitudeCntrl();
         hover_counter=0;
 		normalAltitudeCntrl();
 	}
@@ -378,34 +379,15 @@ void set_throttle_hover_control(int16_t throttle)
 
 void hovering_failsafe()
 {
-//	  manoeuvre failsafe:
-//    desactiver asservissement hover XY gps
-//    full throttle durant 3s, puis
-//        si z > 50m: transition horizontale, fin manoeuvre
-//        sinon: full throttle
-
-//    int32_t failsafe_duration = 3000;
 	int32_t time = tow.WW;
-//	struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200, -1000 }, 
-//                                             { THROTTLE_OUTPUT_CHANNEL, 0, 1200, 1300 }};
 
 	if (!is_init_failsafe)
 	{
-		failsafe_start_time = time;
 		flags._.GPS_steering = 0;
 		is_init_failsafe=1;
 	}
 	
 	set_throttle_control(hoverthrottleoffset);
-
-//	if (time < (failsafe_start_time + failsafe_duration))
-//	{
-//		set_throttle_control(hoverthrottlemax);
-//	}
-//	else
-//	{
-//		setManoeuvre(trans_vert_to_horiz, time - failsafe_duration - failsafe_start_time);
-//	}
 }
 
 
@@ -695,8 +677,16 @@ void hoverAltitudeCntrl(void)
 if (flags._.GPS_steering)
 {
 	//GPS mode
-    z_target = compute_target_alt();
-    vz_target = compute_target_vz();
+    z_target = goal.fromHeight + (((goal.height - goal.fromHeight) * (int32_t)progress_to_goal)>>12) ;
+
+	if ((goal.height - goal.fromHeight) > 0)
+	{ 
+		vz_target = hovertargetvzmax;
+	}
+	else
+	{
+		vz_target = hovertargetvzmin;
+	}
 }
 else
 {
@@ -747,19 +737,9 @@ else
     //PI controller on height to ground z
     error_z=z_filtered-target_z_filtered;
 
-	//we are in target z mode:
-	// > in GPS mode, if it is requested by the segment
-	// > in stabilized mode, if the filtered altitude is lower than the max target height
-    if ((flags._.GPS_steering && is_target_alt()) || ((!flags._.GPS_steering) && z_filtered < hovertargetheightmax))
-	{ 
-        target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
+    target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralz, (hover_counter > nb_sample_wait));
-        target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
-    }
-    else
-    {
-        target_vz_bis=target_vz_filtered;
-    }
+    target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
 
     //limit error_integral to avoid exceeding +/-16384
     //error_integral_z=limit_value(error_integral_z, -RMAX, RMAX);
@@ -840,10 +820,8 @@ else
     hover_target_accz=target_accz_bis;
 	hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
 
-	additional_int16_export1 = z;
-	additional_int16_export2 = vz;
-	additional_int16_export4 = rampe_throttle;
-	additional_int16_export8 = throttle_control_pre;
+	//additional_int16_export1 = z;
+	//additional_int16_export2 = vz;
     
 		//throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 	

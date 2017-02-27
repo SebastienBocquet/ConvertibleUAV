@@ -55,7 +55,7 @@ static void ent_returnS(void);
 //	Examine the state of the radio and GPS and supervisory channel to decide how to control the plane.
 
 void (*stateS)(void) = &startS;
-unsigned char can_init_flightplan0 = 0;
+//unsigned char can_init_flightplan0 = 0;
 
 void init_states(void)
 {
@@ -113,10 +113,8 @@ static void ent_calibrateS(void)
 
 	flags._.GPS_steering = 0;
 	flags._.pitch_feedback = 0;
-    flags._.test_hover_throttle = 0;
 	flags._.altitude_hold_throttle = 0;
 	flags._.altitude_hold_pitch = 0;
-    flags._.manoeuvre = 0;
 	waggle = 0;
 	stateS = &calibrateS;
 	calib_timer = CALIB_PAUSE;
@@ -130,10 +128,8 @@ static void ent_acquiringS(void)
 
 	flags._.GPS_steering = 0;
 	flags._.pitch_feedback = 0;
-    flags._.test_hover_throttle = 0;
 	flags._.altitude_hold_throttle = 0;
 	flags._.altitude_hold_pitch = 0;
-    flags._.manoeuvre = 0;
 
 	// almost ready to turn the control on, save the trims and sensor offsets
 #if (FIXED_TRIMPOINT != 1)	// Do not alter trims from preset when they are fixed
@@ -162,14 +158,11 @@ static void ent_manualS(void)
 
 	flags._.GPS_steering = 0;
 	flags._.pitch_feedback = 0;
-    flags._.test_hover_throttle = 0;
 	flags._.altitude_hold_throttle = 0;
 	flags._.altitude_hold_pitch = 0;
-    flags._.manoeuvre = 0;
 	waggle = 0;
 	LED_RED = LED_OFF;
 	stateS = &manualS;
-    can_init_flightplan0 = 0;
 }
 
 //	Auto state provides augmented control.
@@ -187,11 +180,9 @@ static void ent_stabilizedS(void)
 	flags._.pitch_feedback = 1;
 	flags._.altitude_hold_throttle = (ALTITUDEHOLD_STABILIZED == AH_FULL);
 	flags._.altitude_hold_pitch = (ALTITUDEHOLD_STABILIZED == AH_FULL || ALTITUDEHOLD_STABILIZED == AH_PITCH_ONLY);
-    flags._.manoeuvre = 0;
 	waggle = 0;
 	LED_RED = LED_ON;
 	stateS = &stabilizedS;
-    can_init_flightplan0 = 0;
 }
 
 //	Same as the come home state, except the radio is on.
@@ -207,8 +198,7 @@ static void ent_waypointS(void)
  
 	if (!(FAILSAFE_TYPE == FAILSAFE_MAIN_FLIGHTPLAN && stateS == &returnS))
 	{
-        can_init_flightplan0 = 1;
-		//init_flightplan(0); // Only reset non-rtl waypoints if not already following waypoints
+		init_flightplan(0); // Only reset non-rtl waypoints if not already following waypoints
 	}
 
 	waggle = 0;
@@ -225,7 +215,6 @@ static void ent_returnS(void)
 	flags._.pitch_feedback = 1;
 	flags._.altitude_hold_throttle = (ALTITUDEHOLD_WAYPOINT == AH_FULL);
 	flags._.altitude_hold_pitch = (ALTITUDEHOLD_WAYPOINT == AH_FULL || ALTITUDEHOLD_WAYPOINT == AH_PITCH_ONLY);
-    flags._.manoeuvre = 0;
 #if (FAILSAFE_HOLD == 1)
 	flags._.rtl_hold = 1;
 #endif	

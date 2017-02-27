@@ -46,8 +46,6 @@ struct flag_bits {
 	uint16_t rtl_hold                   : 1;
 	uint16_t f13_print_req              : 1;
 	uint16_t update_autopilot_state_asap: 1;
-    uint16_t test_hover_throttle        : 1;
-    uint16_t manoeuvre                  : 1;
 };
 
 union fbts_int { struct flag_bits _; int16_t WW; };
@@ -78,9 +76,9 @@ extern int16_t pitch_control, roll_control, yaw_control, throttle_control, throt
 extern union longww throttleFiltered;
 extern int16_t pitchAltitudeAdjust;
 
-extern int16_t current_manoeuvreValues[NUM_OUTPUTS];
-struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
-void setManoeuvre(struct manoeuvreDef*, int32_t);
+//extern int16_t current_manoeuvreValues[NUM_OUTPUTS];
+//struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
+//void setManoeuvre(struct manoeuvreDef*, int32_t);
 
 #if (SPEED_CONTROL == 1)
 extern int16_t desiredSpeed; // Stored in 10ths of meters per second
@@ -187,12 +185,12 @@ void update_goal_alt(int16_t z);
 void compute_bearing_to_goal (void);
 void process_flightplan(void);
 int16_t determine_navigation_deflection(char navType);
-void reset_manoeuvre(void);
-extern unsigned char can_init_flightplan0;
+//void reset_manoeuvre(void);
+//extern unsigned char can_init_flightplan0;
 void compute_hovering_dir(void);
 extern int16_t hovering_pitch_dir;
 extern int16_t hovering_roll_dir;
-extern int16_t heading_angle;
+extern int16_t plane_to_north;
 
 struct waypointparameters { int16_t x; int16_t y; int16_t cosphi; int16_t sinphi; int8_t phi; int16_t height; int16_t fromHeight; int16_t legDist; };
 extern struct waypointparameters goal;
@@ -210,10 +208,6 @@ extern int16_t roll_error;
 extern int16_t pitch_error;
 extern int16_t yaw_error;
 
-extern int16_t desired_roll;
-extern int16_t desired_pitch;
-extern int16_t desired_yaw;
-
 extern int16_t roll_intgrl;
 extern int16_t pitch_intgrl;
 extern int16_t yaw_intgrl;
@@ -228,11 +222,11 @@ void init_flightplan(int16_t flightplanNum);
 boolean use_fixed_origin(void);
 struct absolute3D get_fixed_origin(void);
 int32_t get_fixed_altitude(void);
-boolean is_target_alt(void);
+//boolean is_target_alt(void);
 void run_flightplan(void);
-void run_vertical_segments(void);
-int16_t compute_target_alt(void);
-int16_t compute_target_vz(void);
+//void run_vertical_segments(void);
+//int16_t compute_target_alt(void);
+//int16_t compute_target_vz(void);
 
 void flightplan_live_begin(void);
 void flightplan_live_received_byte(uint8_t inbyte);

@@ -24,10 +24,10 @@
 
 //struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
 
-struct vertical_segment { int16_t vz; int16_t alt_start; int16_t alt_end; int32_t duration; 
-                          boolean is_target_alt; int16_t flags; struct manoeuvreDef* manoeuvres; };
-
-int16_t current_manoeuvreValues[NUM_OUTPUTS];  
+//struct vertical_segment { int16_t vz; int16_t alt_start; int16_t alt_end; int32_t duration; 
+//                          boolean is_target_alt; int16_t flags; struct manoeuvreDef* manoeuvres; };
+//
+//int16_t current_manoeuvreValues[NUM_OUTPUTS];  
 
 
 #if (FLIGHT_PLAN_TYPE == FP_WAYPOINTS)
@@ -53,33 +53,33 @@ uint8_t wp_inject_pos = 0;
 #define WP_INJECT_READY 255
 const uint8_t wp_inject_byte_order[] = {3, 2, 1, 0, 7, 6, 5, 4, 9, 8, 11, 10, 15, 14, 13, 12, 19, 18, 17, 16, 21, 20 };
 
-void setManoeuvre(struct manoeuvreDef* manoeuvres, int32_t relative_time)
-{
-    if (manoeuvres != NULL)
-    {
-        int8_t i;
-        flags._.manoeuvre=1;
-
-        for (i = 0 ; i < (sizeof manoeuvres); i++)
-        {
-            if ( relative_time > manoeuvres[i].start_time && relative_time < manoeuvres[i].end_time )
-            {
-                current_manoeuvreValues[manoeuvres[i].channel] = manoeuvres[i].value;
-            }
-        }    
-    }
-}
-
-void reset_manoeuvre()
-{
-    int8_t i;
-    flags._.manoeuvre = 0;
-
-    for (i = 0 ; i < (sizeof current_manoeuvreValues); i++)
-    {
-        current_manoeuvreValues[i] = -RMAX;
-    }
-}
+//void setManoeuvre(struct manoeuvreDef* manoeuvres, int32_t relative_time)
+//{
+//    if (manoeuvres != NULL)
+//    {
+//        int8_t i;
+//        flags._.manoeuvre=1;
+//
+//        for (i = 0 ; i < (sizeof manoeuvres); i++)
+//        {
+//            if ( relative_time > manoeuvres[i].start_time && relative_time < manoeuvres[i].end_time )
+//            {
+//                current_manoeuvreValues[manoeuvres[i].channel] = manoeuvres[i].value;
+//            }
+//        }    
+//    }
+//}
+//
+//void reset_manoeuvre()
+//{
+//    int8_t i;
+//    flags._.manoeuvre = 0;
+//
+//    for (i = 0 ; i < (sizeof current_manoeuvreValues); i++)
+//    {
+//        current_manoeuvreValues[i] = -RMAX;
+//    }
+//}
 
 // For a relative waypoint, wp_to_relative() just passes the relative
 // waypoint location through unchanged.
@@ -266,108 +266,108 @@ void flightplan_live_commit(void)
 
 //compute target altitude based on the user defined vertical segments
 
-#define NUMBER_SEGMENTS ((sizeof take_off_segment) / sizeof (struct vertical_segment))
-struct vertical_segment standby_segment = {0,0,0,INT32_MAX,1,0};
-struct vertical_segment current_segment;
-struct relative3D originPoint = {0, 0, 0};
-int16_t segmentIndex=0;
-int16_t current_altitude=0;
-int32_t init_time=0;
-int32_t start_time;
-unsigned char initialized_time=0;
+//#define NUMBER_SEGMENTS ((sizeof take_off_segment) / sizeof (struct vertical_segment))
+//struct vertical_segment standby_segment = {0,0,0,INT32_MAX,1,0};
+//struct vertical_segment current_segment;
+//struct relative3D originPoint = {0, 0, 0};
+//int16_t segmentIndex=0;
+//int16_t current_altitude=0;
+//int32_t init_time=0;
+//int32_t start_time;
+//unsigned char initialized_time=0;
 
-boolean is_terminated(int32_t time, int16_t current_altitude)
-{
-    if (current_segment.duration == 0)
-    {
-        if((current_segment.vz > 0 && current_altitude > current_segment.alt_end)
-              || (current_segment.vz < 0 && current_altitude  < current_segment.alt_end))
-        {
-            setBehavior(current_segment.flags);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        if((time - start_time) > current_segment.duration)
-        {
-            setBehavior(current_segment.flags);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-}
+//boolean is_terminated(int32_t time, int16_t current_altitude)
+//{
+//    if (current_segment.duration == 0)
+//    {
+//        if((current_segment.vz > 0 && current_altitude > current_segment.alt_end)
+//              || (current_segment.vz < 0 && current_altitude  < current_segment.alt_end))
+//        {
+//            setBehavior(current_segment.flags);
+//            return true;
+//        }
+//        else
+//        {
+//            return false;
+//        }
+//    }
+//    else
+//    {
+//        if((time - start_time) > current_segment.duration)
+//        {
+//            setBehavior(current_segment.flags);
+//            return true;
+//        }
+//        else
+//        {
+//            return false;
+//        }
+//    }
+//}
 
-void next_segment(int32_t time, int16_t current_altitude) 
-{	
-    reset_manoeuvre();
-    set_goal(GPSlocation, originPoint);
-
-	if (segmentIndex >= NUMBER_SEGMENTS)
-    {
-        standby_segment.alt_start=current_altitude;
-        start_time = time;
-        current_segment=standby_segment;
-    }
-    else
-    {
-        current_segment=take_off_segment[segmentIndex];
-        start_time = time;
-    }
-
-    segmentIndex++;
-}
-
-boolean is_target_alt(void)
-{
-    return current_segment.is_target_alt;
-}
-
-int16_t compute_target_vz(void)
-{
-    return current_segment.vz;
-}
-
-int16_t compute_target_alt(void)
-{
-    return current_altitude;
-}
-
-void run_vertical_segments(void)
-{
-    int32_t time = tow.WW;
-
-    if (initialized_time==0)
-    {
-         init_time=time;
-         current_segment=take_off_segment[0];
-         start_time = 0;
-         segmentIndex++;
-         initialized_time=1;   
-    }
-
-    struct relative3D imu_location = { 0 , 0 , 0 };
-    imu_location.x = IMUlocationx._.W1;
-    imu_location.y = IMUlocationy._.W1;
-    imu_location.z = IMUlocationz._.W1;
-    set_goal(imu_location, originPoint);
-    compute_bearing_to_goal();
-
-    if (is_terminated(time-init_time, current_altitude))
-    {
-        next_segment(time-init_time, current_altitude);
-    }
-
-    setManoeuvre(current_segment.manoeuvres, time - init_time - start_time);
-    
-    current_altitude = (int16_t)(((int32_t)(current_segment.vz) * (time - init_time - start_time))/1000) + current_segment.alt_start;
-}
+//void next_segment(int32_t time, int16_t current_altitude) 
+//{	
+//    reset_manoeuvre();
+//    set_goal(GPSlocation, originPoint);
+//
+//	if (segmentIndex >= NUMBER_SEGMENTS)
+//    {
+//        standby_segment.alt_start=current_altitude;
+//        start_time = time;
+//        current_segment=standby_segment;
+//    }
+//    else
+//    {
+//        current_segment=take_off_segment[segmentIndex];
+//        start_time = time;
+//    }
+//
+//    segmentIndex++;
+//}
+//
+//boolean is_target_alt(void)
+//{
+//    return current_segment.is_target_alt;
+//}
+//
+//int16_t compute_target_vz(void)
+//{
+//    return current_segment.vz;
+//}
+//
+//int16_t compute_target_alt(void)
+//{
+//    return current_altitude;
+//}
+//
+//void run_vertical_segments(void)
+//{
+//    int32_t time = tow.WW;
+//
+//    if (initialized_time==0)
+//    {
+//         init_time=time;
+//         current_segment=take_off_segment[0];
+//         start_time = 0;
+//         segmentIndex++;
+//         initialized_time=1;   
+//    }
+//
+//    struct relative3D imu_location = { 0 , 0 , 0 };
+//    imu_location.x = IMUlocationx._.W1;
+//    imu_location.y = IMUlocationy._.W1;
+//    imu_location.z = IMUlocationz._.W1;
+//    set_goal(imu_location, originPoint);
+//    compute_bearing_to_goal();
+//
+//    if (is_terminated(time-init_time, current_altitude))
+//    {
+//        next_segment(time-init_time, current_altitude);
+//    }
+//
+//    setManoeuvre(current_segment.manoeuvres, time - init_time - start_time);
+//    
+//    current_altitude = (int16_t)(((int32_t)(current_segment.vz) * (time - init_time - start_time))/1000) + current_segment.alt_start;
+//}
 
 

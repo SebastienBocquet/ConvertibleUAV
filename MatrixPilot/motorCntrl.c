@@ -25,13 +25,16 @@
 #define MANUAL_DEADBAND 200 // amount of throttle before fly-by-wire controls engage
 #define MAXIMUM_ERROR_INTEGRAL ((int32_t) 32768000 )
 #define YAW_DEADBAND 5 // prevent Tx pulse variation from causing yaw drift
-#define RAMPE_TIME 3
-#define RAMPE_INCREMENT 16384 / (HEARTBEAT_HZ * RAMPE_TIME);
+#define RAMPE_TIME_YAW 5
+#define RAMPE_INCREMENT_YAW 16384 / (HEARTBEAT_HZ * RAMPE_TIME_YAW);
 
 extern int16_t theta[3] ;
 extern void matrix_normalize ( int16_t[] ) ;
 extern void MatrixRotate( int16_t[] , int16_t[] ) ;
 extern int commanded_tilt_gain ;
+
+int16_t throttlemin = (int16_t)(2.0*SERVORANGE*(1+HOVER_THROTTLE_MIN));
+int16_t throttlemax = (int16_t)(2.0*SERVORANGE*(1+HOVER_THROTTLE_MAX));
 
 int16_t desired_roll;
 int16_t desired_pitch;
@@ -51,6 +54,10 @@ int16_t commanded_yaw ;
 int16_t pitch_body_frame_control;
 int16_t roll_body_frame_control;
 
+int16_t earth_yaw;
+int16_t earth_roll;
+int16_t earth_pitch;
+
 int16_t roll_error ;
 int16_t pitch_error ;
 int16_t yaw_error ;
@@ -62,6 +69,10 @@ int16_t yaw_error_previous = 0 ;
 int16_t roll_intgrl;
 int16_t pitch_intgrl;
 int16_t	yaw_intgrl;
+
+int16_t roll_rate_intgrl;
+int16_t pitch_rate_intgrl;
+int16_t	yaw_rate_intgrl;
 
 int16_t rampe_yaw = 0;
 
@@ -121,6 +132,7 @@ void motorCntrl(void)
 
 	int16_t yaw_step ;
 	int16_t yaw_vector[3] ;
+	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
 	int16_t target_orientation_transposed[9] ;
 	int16_t orientation_error_matrix[9] ;
 	
@@ -131,10 +143,6 @@ void motorCntrl(void)
 		else
 			pwManual[temp] = udb_pwTrim[temp];
 	
-	if (hover_counter==0)
-    {
-		rampe_yaw = 0;
-	}
 	
 	if (!dcm_flags._.calib_finished)
 	{
@@ -185,7 +193,7 @@ void motorCntrl(void)
 
 		if (udb_flags._.sonar_height_valid)
 		{
-			rampe_yaw += RAMPE_INCREMENT;
+			rampe_yaw += RAMPE_INCREMENT_YAW;
  		}
 		if (rampe_yaw > RMAX) rampe_yaw = RMAX;
 
@@ -221,40 +229,56 @@ void motorCntrl(void)
 		commanded_pitch_body_frame = commanded_pitch ;
 		commanded_roll_body_frame = commanded_roll ;
 
-
-//		Compute the orientation of the virtual quad (which is used only for yaw control)
-//		Set the earth vertical to match in both frames (since we are interested only in yaw)
-
-		target_orientation[6] = rmat[6] ;
-		target_orientation[7] = rmat[7] ;
-		target_orientation[8] = rmat[8] ;
-
-//		renormalize to align other two axes int16_to the the plane perpendicular to the vertical
-		matrix_normalize( target_orientation ) ;
-		
-//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
-		yaw_step = commanded_yaw * yaw_command_gain ;
-		VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
-		VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
-		MatrixRotate( target_orientation , yaw_vector ) ;
-
-//		Compute the misalignment between target and actaul
-		MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
-		MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
-
 //		Compute orientation errors
-		roll_error = rmat[6] - (-commanded_roll_body_frame) ;
-		pitch_error = - rmat[7] - (-commanded_pitch_body_frame) ;
-		yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+
+		if (canStabilizeHover() && current_orientation == F_HOVER)
+		{
+			matrix_accum.x = rmat[4] ;
+ 			matrix_accum.y = -rmat[1] ;
+ 			earth_yaw = rect_to_polar(&matrix_accum)<<8 ; 
+			yaw_error = -earth_yaw + yaw_control;
+			additional_int16_export2 = earth_yaw;
+		}
+		else
+		{
+	//		Compute the orientation of the virtual quad (which is used only for yaw control)
+	//		Set the earth vertical to match in both frames (since we are interested only in yaw)
+	
+			target_orientation[6] = rmat[6] ;
+			target_orientation[7] = rmat[7] ;
+			target_orientation[8] = rmat[8] ;
+	
+	//		renormalize to align other two axes int16_to the the plane perpendicular to the vertical
+			matrix_normalize( target_orientation ) ;
+			
+	//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
+			yaw_step = commanded_yaw * yaw_command_gain ;
+			VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
+			VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
+			MatrixRotate( target_orientation , yaw_vector ) ;
+	
+	//		Compute the misalignment between target and actual
+			MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
+			MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
+	
+	//		Compute orientation errors
+			yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+		}
+
 		yaw_error = (int16_t)(__builtin_mulsu(yaw_error, rampe_yaw)>>14);
 
-//		add navigation controls to the errors, in order to navigate in waypoints mode in hovering
-		if (flags._.pitch_feedback && HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
-		{
-			roll_error += roll_control;
-			pitch_error += pitch_control;
-			yaw_error += yaw_control;
-		}
+//		matrix_accum.x = rmat[8] ;
+// 		matrix_accum.y = -rmat[6] ;
+// 		earth_roll = rect_to_polar(&matrix_accum)<<8 ;
+//
+// 		matrix_accum.y = -rmat[7] ;
+// 		earth_pitch = rect_to_polar(&matrix_accum)<<8 ; 
+//
+//		additional_int16_export1 = earth_roll;
+//		additional_int16_export9 = earth_pitch;
+
+		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
+		pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
 
 //		Compute the signals that are common to all 4 motors
 		min_throttle = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
@@ -262,10 +286,10 @@ void motorCntrl(void)
 		accel_feedback = long_accum._.W1 ;
 	
 	#ifdef VARIABLE_GAINS
-		tilt_ki = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX) * 0.1);
+		tilt_ki = (uint16_t)(RMAX*TILT_KI);
 		tilt_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
 		tilt_rate_ki = 0;
-		tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
+		tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
 		yaw_ki = (uint16_t)(RMAX*YAW_KI);
 		yaw_kp = (uint16_t)(RMAX*YAW_KP);
 		yaw_rate_ki = 0;
@@ -281,8 +305,9 @@ void motorCntrl(void)
 		yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
 	#endif
 	
-//		Compute the error integrals
-		if ((canStabilizeHover() && current_orientation == F_HOVER) || (current_orientation == F_NORMAL && abs(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]-udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]) > MANUAL_DEADBAND))
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+		if (udb_flags._.sonar_height_valid && ((canStabilizeHover() && current_orientation == F_HOVER) || (current_orientation == F_NORMAL && abs(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]-udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]) > MANUAL_DEADBAND)))
 		{
 			roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), roll_error ))>>5) ;
 			if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
@@ -319,9 +344,13 @@ void motorCntrl(void)
 			roll_quad_error_integral.WW  = 0;
 			pitch_quad_error_integral.WW  = 0;
 			yaw_quad_error_integral.WW  = 0;
+			rampe_yaw = 0;
 		}
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//		Compute the derivatives
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 // theta_delta seems to be zero all the time
 		theta_delta[0] = theta[0] - theta_previous[0] ;
 		theta_delta[1] = theta[1] - theta_previous[1] ;
@@ -339,8 +368,10 @@ void motorCntrl(void)
 		yaw_error_delta = yaw_error - yaw_error_previous ;
 		yaw_error_previous = yaw_error ;
 
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//		roll stabilization
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //		Compute the PID signals on roll_error
 
@@ -353,10 +384,16 @@ void motorCntrl(void)
 //		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KDD) , -theta_delta[1] ) << 2 ;
 //		desired_roll -= long_accum._.W1 ;
 
-		desired_roll -= roll_quad_error_integral._.W1 << 2  ;
+		roll_intgrl = limit_value(roll_quad_error_integral._.W1 << 2, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT)); 
+
+		desired_roll -= roll_intgrl;
 
 //		compute error between angle_rate and first PID output
 		roll_rate = -omegaAccum[1];
+
+		//filter error
+        //roll_rate_filt = roll_rate;
+		//exponential_filter(roll_rate, &roll_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));
 		roll_rate_error = roll_rate - desired_roll;
 
 //		Compute the error integrals
@@ -370,14 +407,18 @@ void motorCntrl(void)
 			roll_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
 		}
 
+		roll_rate_intgrl = limit_value(roll_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
+
 //      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( tilt_rate_kp , roll_rate_error ) << 2 ;
 		roll_quad_control = -long_accum._.W1 ;
 
-		roll_quad_control -= roll_rate_quad_error_integral._.W1 << 2  ;
+		roll_quad_control -= roll_rate_intgrl  ;
 
-		
-//		pitch stabilization
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //		Compute the PID signals on pitch_error
 //		pitch_error is -rmat7, with rmat7 the pitch angle
@@ -390,7 +431,9 @@ void motorCntrl(void)
 //		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KDD) , -theta_delta[0] ) << 2 ;
 //		desired_pitch -= long_accum._.W1 ;
 
-		desired_pitch -= pitch_quad_error_integral._.W1 << 2 ;
+		pitch_intgrl = limit_value(pitch_quad_error_integral._.W1 << 2, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+
+		desired_pitch -= pitch_intgrl;
 
 //		compute error between angle_rate and first PID output
 //		to be coherent with the definition of pitch_error, pitch_rate is set as minus the pitch rate given by omega_gyro
@@ -398,6 +441,8 @@ void motorCntrl(void)
 //	               - __builtin_mulss(rmat[6] , omegagyro[2])) << 1;
 //		pitch_rate = -long_accum._.W1;
 		pitch_rate = -omegagyro[0];
+		//pitch_rate_filt = pitch_rate;
+		//exponential_filter(pitch_rate, &pitch_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));
 		pitch_rate_error = pitch_rate - desired_pitch;
 
 //		Compute the error integrals
@@ -411,14 +456,19 @@ void motorCntrl(void)
 			pitch_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
 		}
 
+		pitch_rate_intgrl = limit_value(pitch_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
+
 //      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( tilt_rate_kp , pitch_rate_error ) << 2 ;
 		pitch_quad_control = -long_accum._.W1 ;
 
-		pitch_quad_control -= pitch_rate_quad_error_integral._.W1 << 2  ;
+		pitch_quad_control -= pitch_rate_intgrl  ;
 
 
-//		yaw stabilization
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		long_accum.WW = __builtin_mulus ( yaw_kp , yaw_error ) << 2  ;
 		desired_yaw = -long_accum._.W1 ;
@@ -426,7 +476,9 @@ void motorCntrl(void)
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KD) , yaw_error_delta ) << 2  ;
 		desired_yaw -= long_accum._.W1 ;
 
-		desired_yaw -= yaw_quad_error_integral._.W1 << 2  ;
+		yaw_intgrl = limit_value(yaw_quad_error_integral._.W1 << 2, -16384, 16384);
+
+		desired_yaw -= yaw_intgrl ;
 
 //		compute error between angle_rate and first PID output
 //		use minus omegagyro to be coherent with yaw_error
@@ -445,20 +497,19 @@ void motorCntrl(void)
 			yaw_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
 		}
 
+		yaw_rate_intgrl = limit_value(yaw_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
+
 		//      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( yaw_rate_kp , yaw_rate_error ) << 2 ;
 		yaw_quad_control = -long_accum._.W1 ;
 
-		yaw_quad_control -= yaw_rate_quad_error_integral._.W1 << 2  ;
-		
+		yaw_quad_control -= yaw_rate_intgrl  ;
 
-		//output telemetry
-		roll_intgrl = roll_quad_error_integral._.W1 << 2;
-		pitch_intgrl = pitch_quad_error_integral._.W1 << 2;
-		yaw_intgrl = yaw_quad_error_integral._.W1 << 2;
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		additional_int16_export3 = IIR_Filter(&z_filt_debug, roll_error, (int8_t)(64));
-		//additional_int16_export4 = sga_filter(roll_error, ptr);
+
+//		additional_int16_export3 = IIR_Filter(&z_filt_debug, roll_error, (int8_t)(64));
+//		additional_int16_export4 = sga_filter(roll_error, ptr);
 
 #ifdef CONFIG_PLUS
 
@@ -473,6 +524,9 @@ void motorCntrl(void)
 		roll_body_frame_control = 3*(( pitch_quad_control + roll_quad_control )/4) ;
 
 #endif
+
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		motor_A = motor_B = motor_C = motor_D = 0;
 
@@ -505,7 +559,15 @@ void motorCntrl(void)
 			motor_C += +yaw_quad_control - pitch_body_frame_control ;
 			motor_D += -yaw_quad_control + roll_body_frame_control ;
 #endif
+
+			//limit max throttle of each engine
+			motor_A = limit_value(motor_A, throttlemin, throttlemax);
+			motor_B = limit_value(motor_B, throttlemin, throttlemax);
+			motor_C = limit_value(motor_C, throttlemin, throttlemax);
+			motor_D = limit_value(motor_D, throttlemin, throttlemax);
 		}
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //		Send the signals out to the motors
 		udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		

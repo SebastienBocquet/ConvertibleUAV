@@ -143,17 +143,17 @@
 // Y is positive as you move north
 
 const struct waypointDef waypoints[] = {
-        { {   0, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } , 
-		{ {   -100, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } , 
-		{ {   -100, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
-		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
-		{ {   0, 100, 100 } , F_NORMAL, CAM_VIEW_LAUNCH } ,  
-		{ {   -100, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } , 
-		{ {   -100, 0, 50 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
-		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
-		{ {   0, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
-		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
-		{ {   0, 100, 75 } , F_LOITER, CAM_VIEW_LAUNCH } ,
+        { {   0, 0, 1 } , F_LOITER, CAM_VIEW_LAUNCH } , 
+//		{ {   -100, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } , 
+//		{ {   -100, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
+//		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
+//		{ {   0, 100, 100 } , F_NORMAL, CAM_VIEW_LAUNCH } ,  
+//		{ {   -100, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } , 
+//		{ {   -100, 0, 50 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
+//		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
+//		{ {   0, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
+//		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
+//		{ {   0, 100, 75 } , F_LOITER, CAM_VIEW_LAUNCH } ,
 };
  
 
@@ -251,15 +251,15 @@ const struct waypointDef waypoints[] = {
 //        { -30, 190, 120, 0, 0, 0, -1 } ,
 //        { 0, 120, 120, 5000, 1, 0, 2 } ,//};
 
-struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200, -1000 }, 
-                                             { THROTTLE_OUTPUT_CHANNEL, 0, 1200, 1300 }};
-
-struct vertical_segment take_off_segment[] = {
-		{ 0, 150, 150, 5000, 1, F_HOVER, NULL } ,
-    	{ 30, 150, 300, 0, 0, F_HOVER, NULL } ,
-    	{ 200, 300, 5000, 0, 0, F_HOVER, NULL } ,
-        { 0, 5000, 5000, 1200, 1, F_HOVER, trans_vert_to_horiz } ,
-};
+//struct manoeuvreDef trans_vert_to_horiz[] = {{ ELEVATOR_OUTPUT_CHANNEL, 0, 1200, -1000 }, 
+//                                             { THROTTLE_OUTPUT_CHANNEL, 0, 1200, 1300 }};
+//
+//struct vertical_segment take_off_segment[] = {
+//		{ 0, 150, 150, 5000, 1, F_HOVER, NULL } ,
+//    	{ 30, 150, 300, 0, 0, F_HOVER, NULL } ,
+//    	{ 200, 300, 5000, 0, 0, F_HOVER, NULL } ,
+//        { 0, 5000, 5000, 1200, 1, F_HOVER, trans_vert_to_horiz } ,
+//};
 
 
 

@@ -110,12 +110,12 @@ void updateBehavior(void)
 		else if (canStabilizeInverted() && rmat[8] < -6000)
 		{
 			current_orientation = F_INVERTED;
-			reset_manoeuvre();
+//			reset_manoeuvre();
 		}
 		else
 		{
 			current_orientation = F_NORMAL;
-			reset_manoeuvre();
+//			reset_manoeuvre();
 		}
 	}
 	else

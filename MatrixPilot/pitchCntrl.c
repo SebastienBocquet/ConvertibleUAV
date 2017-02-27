@@ -26,6 +26,7 @@
 
 //  If the state machine selects pitch feedback, compute it from the pitch gyro and accelerometer.
 
+//why 57.3 instead of 90. ?
 #define ANGLE_90DEG (RMAX/(2*57.3))
 #define RTLKICK ((int32_t)(RTL_PITCH_DOWN*(RMAX/57.3)))
 #define INVNPITCH ((int32_t)(INVERTED_NEUTRAL_PITCH*(RMAX/57.3)))
@@ -61,11 +62,8 @@
 #else
 	const uint16_t pitchgain = (uint16_t)(PITCHGAIN*RMAX);
 	const uint16_t pitchkd = (uint16_t) (PITCHKD*SCALEGYRO*RMAX);
-	const uint16_t hoverpitchkp = (uint16_t)(HOVER_PITCHKP*RMAX);
-	const uint16_t hoverpitchkd = (uint16_t) (HOVER_PITCHKD*SCALEGYRO*RMAX);
 	const uint16_t rudderElevMixGain = (uint16_t)(RMAX*RUDDER_ELEV_MIX);
 	const uint16_t rollElevMixGain = (uint16_t)(RMAX*ROLL_ELEV_MIX);
-    const int16_t hoverpitchoffset = (int16_t)(HOVER_PITCH_OFFSET*(SERVORANGE/60));
     const uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
     const uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
 	const int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
@@ -109,14 +107,12 @@ void pitchCntrl(void)
     if (flight_mode_switch_waypoints())
     {
         flags._.GPS_steering = 1; // turn navigation off
-	    flags._.pitch_feedback = 1; // turn stabilization on
-        flags._.test_hover_throttle = 1; //allow to pass into dead_reckoning even if GPS is not initialized   
+	    flags._.pitch_feedback = 1; // turn stabilization on 
     }
     else
     {
 	    flags._.GPS_steering = 0; // turn navigation off
 	    flags._.pitch_feedback = 1; // turn stabilization on
-        flags._.test_hover_throttle = 1; //allow to pass into dead_reckoning even if GPS is not initialized
     }
 #endif
 
@@ -207,11 +203,11 @@ void normalPitchCntrl(void)
 
 void hoverPitchCntrl(void)
 {
-	union longww pitchAccum;
+	//union longww pitchAccum;
     int16_t pitchCorr = 0;
-	int16_t pitchToWP = 0;
+	int16_t pitch_error_filt = 0;
 
-    if (flags._.pitch_feedback && HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
+    if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
         //error along yaw axis between aircraft position and goal (origin point here) in cm
 
@@ -222,27 +218,18 @@ void hoverPitchCntrl(void)
         }
 
         determine_navigation_deflection('y');
-            
-        int32_t tmp = __builtin_mulss(hovering_pitch_dir, tofinish_line);
-        int32_t tmp2 = __builtin_mulss((int16_t)(tmp/MAX_HOVERING_RADIUS), HOVERPTOWP);
-
-        //pitch_error ranges from -(max angle to WP in hover) to +(max angle to WP in hover)
+        
+        int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_pitch_dir, tofinish_line)>>14);
+		int32_t pitch_error32 = __builtin_mulsu(tofinish_line_pitch, SERVORANGE) / MAX_HOVERING_RADIUS;
+        if (pitch_error32 > SERVORANGE) pitch_error32 = SERVORANGE;
+		if (pitch_error32 < -SERVORANGE) pitch_error32 = -SERVORANGE;
+        pitch_error = (int16_t)(pitch_error32);
 
         //filter error
-        pitchToWP = -exponential_filter(tmp2>>14, &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
-
-        //limit yaw to max angle
-        pitchToWP = limit_value(pitchToWP, -HOVERPTOWP, HOVERPTOWP);
-
-        //yawToWP = (tofinish_line > HOVER_NAV_MAX_PITCH_RADIUS) ?
-	    //    HOVERPTOWP : (HOVERPTOWP / (100*HOVER_NAV_MAX_PITCH_RADIUS) * error);  
-
-        pitchAccum.WW = __builtin_mulsu(pitchToWP, hoverpitchkp);
-
-        int16_t pitch_error = pitchToWP;
+        pitch_error_filt = -exponential_filter(pitch_error, &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
 
 		//PI controller on pitch_error
-		pitchCorr = compute_pi_block(pitch_error, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
+		pitchCorr = compute_pi_block(pitch_error_filt, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, (hover_counter > nb_sample_wait));
 
 		hover_error_x = pitch_error;

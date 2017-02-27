@@ -43,7 +43,6 @@ int16_t tofinish_line  = 0;
 int16_t progress_to_goal = 0;
 int8_t desired_dir = 0;
 unsigned char is_init_flightplan0=0;
-int16_t heading_angle = 0;
 
 extern union longww IMUintegralAccelerationx;
 extern union longww IMUintegralAccelerationy;
@@ -122,35 +121,12 @@ void update_goal_alt(int16_t z)
 
 void process_flightplan(void)
 {
-	if (canStabilizeHover() && current_orientation == F_HOVER && flags._.GPS_steering)
+	if (gps_nav_valid() && flags._.GPS_steering)
 	{
-        is_init_flightplan0 = 0;
-	    run_vertical_segments();
+		compute_bearing_to_goal();
+		run_flightplan();
+		compute_camera_view();
 	}
-    else
-    {
-		if (gps_nav_valid() && flags._.GPS_steering)
-		{
-            if (!(is_init_flightplan0))
-            {    
-                reset_manoeuvre();
-
-                if (can_init_flightplan0)
-                {
-                    //init_flightplan is necessary (because goal was set to origin during vertical segments)
-                    //but we are not consistent with state.c, where init_flightplan(0) is allowed only if not (FAILSAFE_TYPE == FAILSAFE_MAIN_FLIGHTPLAN && stateS == &returnS)
-                    //we should either add a new state type (waypoint-hover, waypoint-horizontal), or use a boolean to protect the init_flightplan
-                    init_flightplan(0);
-                    
-                }
-
-                is_init_flightplan0 = 1;
-            }
-			compute_bearing_to_goal();
-			run_flightplan();
-			compute_camera_view();
-		}
-    }
 }
 
 int8_t desired_bearing_over_ground;
@@ -178,8 +154,6 @@ void compute_bearing_to_goal(void)
 	              + __builtin_mulss(togoal.y, goal.sinphi))<<2;
 
 	tofinish_line = temporary._.W1;
-
-    //additional_int16_export4 = tofinish_line;
 
 	//	Determine if aircraft is making forward progress.
 	//	If not, do not apply cross track correction.
@@ -437,48 +411,40 @@ int16_t determine_navigation_deflection(char navType)
 
 void compute_hovering_dir(void)
 {
-	int8_t plane_to_south;
+    int16_t pitch_roll_orders[2];
+	int16_t headingToWP;
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
 
-    //we need to know plane orientation with respect to earth frame of reference 
-    //to manage the yaw and pitch orders when plane will hover around the inital point.
-    //Without magnetometer, we need to initialize plane with nose pointing toward a given direction.
-    //plane_to_south is plane x axis angle relative to south direction.
-    //128=pi radians, so 128 means plane is initialized toward north
-
-#if (MANUAL_TARGET_HEIGHT == 0)
-    int16_t tmp1 = udb_pwIn[FLAP_INPUT_CHANNEL] - 2233;
-    tmp1=limit_value(tmp1, 0, 3823-2233);
-    int32_t tmp2 = __builtin_mulss(255, tmp1);
-    tmp1 = (int16_t)(tmp2/(3823-2233));
-    plane_to_south = (int8_t)(tmp1);
-	//TO DO: try this insted of above lines
-	//compute_pot_order(udb_pwIn[FLAP_INPUT_CHANNEL], 0, 255);
-#else
-	plane_to_south = 128;
-#endif
-
-    int16_t pitch_yaw_orders[2];
-
-    //we need to restrict the tofinish distance to a maximum
-    tofinish_line = limit_value(tofinish_line, -MAX_HOVERING_RADIUS, MAX_HOVERING_RADIUS);
+	matrix_accum.x = rmat[4] ;
+ 	matrix_accum.y = -rmat[1] ;
+ 	int16_t earth_yaw = rect_to_polar(&matrix_accum)<<8 ;
     
-    pitch_yaw_orders[0] = desired_bearing_over_ground_vector[0];
-    pitch_yaw_orders[1] = desired_bearing_over_ground_vector[1];
-    rotate_2D_vector_by_angle (pitch_yaw_orders , plane_to_south);
+    additional_int16_export3 = desired_bearing_over_ground_vector[0];
+    additional_int16_export4 = desired_bearing_over_ground_vector[1];
 
-	matrix_accum.x = pitch_yaw_orders[0] ;
-	matrix_accum.y = pitch_yaw_orders[1] ;
-	heading_angle = rect_to_polar16(&matrix_accum);
+    pitch_roll_orders[0] = desired_bearing_over_ground_vector[0];
+    pitch_roll_orders[1] = desired_bearing_over_ground_vector[1];
 
-    hovering_roll_dir = pitch_yaw_orders[0];
-    hovering_pitch_dir = pitch_yaw_orders[1];
+	//for debugging, monitor the desired heading toward waypoint. Note that matrix_accum is rotated
+	// in the rect_to_polar16 function
+	matrix_accum.x = pitch_roll_orders[0] ;
+	matrix_accum.y = pitch_roll_orders[1] ;
+    //headingToWP is the angle relative to north (ie to y axis)
+	headingToWP = rect_to_polar16(&matrix_accum) - 16384;
+	additional_int16_export8 = headingToWP;
+
+	matrix_accum.x = pitch_roll_orders[0] ;
+	matrix_accum.y = pitch_roll_orders[1] ;
+	int8_t heading = (int8_t)((headingToWP - earth_yaw)>>8);
+    rotate_2D_vector_by_angle (pitch_roll_orders , heading);
+
+    hovering_roll_dir = pitch_roll_orders[0];
+    hovering_pitch_dir = pitch_roll_orders[1];
 
     hovering_roll_dir = limit_value(hovering_roll_dir, -RMAX, RMAX);
     hovering_pitch_dir = limit_value(hovering_pitch_dir, -RMAX, RMAX);
 
-    //additional_int16_export2 = (int16_t)(plane_to_south);
-    //additional_int16_export5 = hovering_roll_dir;
-    //additional_int16_export3 = hovering_pitch_dir;
+    additional_int16_export6 = hovering_roll_dir;
+    additional_int16_export7 = hovering_pitch_dir;
 
 }

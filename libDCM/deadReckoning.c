@@ -80,7 +80,7 @@ extern int16_t errorYawground[];
 
 void dead_reckon(void)
 {
-	if (dcm_flags._.dead_reckon_enable == 1 || flags._.test_hover_throttle == 1)  // wait for startup of GPS
+	if (dcm_flags._.dead_reckon_enable == 1)  // wait for startup of GPS
 	{
 		//	integrate the accelerometers to update IMU velocity
 		IMUintegralAccelerationx.WW += __builtin_mulss(((int16_t)(ACCEL2DELTAV)) ,  accelEarth[0]);
@@ -91,6 +91,12 @@ void dead_reckon(void)
 		IMUlocationx.WW += (__builtin_mulss(((int16_t)(VELOCITY2LOCATION)) ,  IMUintegralAccelerationx._.W1)>>4);
 		IMUlocationy.WW += (__builtin_mulss(((int16_t)(VELOCITY2LOCATION)) ,  IMUintegralAccelerationy._.W1)>>4);
 		IMUlocationz.WW += (__builtin_mulss(((int16_t)(VELOCITY2LOCATION)) ,  IMUintegralAccelerationz._.W1)>>4);
+
+		//in hovering mode, use altitude from sonar/barometer
+		if (canStabilizeHover() && current_orientation == F_HOVER)
+		{
+			IMUlocationz._.W1 = (int16_t)(z_filtered/100);
+		}
 
 		if (dead_reckon_clock > 0)
 		//	apply drift adjustments only while valid GPS data is in force.
@@ -121,6 +127,12 @@ void dead_reckon(void)
 			IMUvelocityx.WW = IMUintegralAccelerationx.WW;
 			IMUvelocityy.WW = IMUintegralAccelerationy.WW;
 			IMUvelocityz.WW = IMUintegralAccelerationz.WW;
+
+			//in hovering mode, use altitude from sonar/barometer
+			if (canStabilizeHover() && current_orientation == F_HOVER)
+			{
+				IMUlocationz._.W1 = z_filtered;
+			}
 		}
 	
 		if (gps_nav_valid() && (dcm_flags._.reckon_req == 1))
@@ -133,26 +145,17 @@ void dead_reckon(void)
 			locationErrorEarth[1] = GPSlocation.y - IMUlocationy._.W1;
 			locationErrorEarth[2] = GPSlocation.z - IMUlocationz._.W1;
 
+			//in hovering mode, use altitude from sonar/barometer
+			if (canStabilizeHover() && current_orientation == F_HOVER)
+			{
+				locationErrorEarth[2] = z_filtered - IMUlocationz._.W1;
+			}
+			//to be tested: apply directly IMUlocationz._.W1 = z_filtered, or correct IMUlocationz by the error wrt z_filtered
+
 			velocityErrorEarth[0] = GPSvelocity.x - IMUintegralAccelerationx._.W1;
 			velocityErrorEarth[1] = GPSvelocity.y - IMUintegralAccelerationy._.W1;
 			velocityErrorEarth[2] = GPSvelocity.z - IMUintegralAccelerationz._.W1;
 		}
-
-        if (flags._.test_hover_throttle == 1)
-        {
-            //	compute error indications assuming gps_loc and gps_v = 0,and restart the dead reckoning clock to apply them
-			dcm_flags._.reckon_req = 0;
-			dead_reckon_clock = DR_PERIOD;
-	
-			locationErrorEarth[0] = - IMUlocationx._.W1;
-			locationErrorEarth[1] = - IMUlocationy._.W1;
-			locationErrorEarth[2] = - IMUlocationz._.W1;
-
-			velocityErrorEarth[0] = - IMUintegralAccelerationx._.W1;
-			velocityErrorEarth[1] = - IMUintegralAccelerationy._.W1;
-			velocityErrorEarth[2] = - IMUintegralAccelerationz._.W1;
-        }
-
 	}
 	else
 	{

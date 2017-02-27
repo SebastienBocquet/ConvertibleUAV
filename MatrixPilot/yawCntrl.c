@@ -47,6 +47,8 @@
 void normalYawCntrl(void);
 void hoverYawCntrl(void);
 
+int16_t plane_to_north = 0;
+
 #if (USE_CONFIGFILE == 1)
 void init_yawCntrl(void)
 {
@@ -142,16 +144,15 @@ void normalYawCntrl(void)
 
 void hoverYawCntrl(void)
 {
-    int16_t heading_angle = 0;
+#if (MANUAL_HEADING == 1)
+	plane_to_north = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], -128, 127)<<8;
+#else
+	plane_to_north = 0;
+#endif
 
-    if (flags._.pitch_feedback && HOVERING_WAYPOINT_MODE_XY && flags._.GPS_steering)
-	{
-		compute_hovering_dir();
-	}
-	else
-	{
-		heading_angle = 0;
-	}
+	additional_int16_export5 = plane_to_north;
 
-	yaw_control = heading_angle;
+	compute_hovering_dir();
+
+	yaw_control = plane_to_north;
 }

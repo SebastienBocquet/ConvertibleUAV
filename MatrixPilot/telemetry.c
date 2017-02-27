@@ -708,7 +708,7 @@ void serial_output_8hz(void)
                     hover_z, hover_vz, hover_accz, hover_error_integral_z, hover_error_integral_vz, hover_error_integral_accz, 
                     segmentIndex);
 
-                //serial_output("ex%i:exi%i:ey%i:eyi%i:", hover_error_x, hover_error_integral_x, hover_error_y, hover_error_integral_y);
+                serial_output("ex%i:exi%i:ey%i:eyi%i:", hover_error_x, hover_error_integral_x, hover_error_y, hover_error_integral_y);
 
 #if ( USE_SONAR	== 1 )
 				serial_output("sond%i:sonhtg%i:", 
@@ -739,7 +739,7 @@ void serial_output_8hz(void)
                               "cpu%u:"
                               "ma%i:mb%i:mc%i:"
                               ,
-				    tow.WW, 
+				    tow.WW,
 				    rmat[0], rmat[1], rmat[2],
 				    rmat[3], rmat[4], rmat[5],
 				    rmat[6], rmat[7], rmat[8],
@@ -773,21 +773,27 @@ void serial_output_8hz(void)
 				for (i= 1; i <= NUM_OUTPUTS; i++)
 					serial_output("p%io%i:",i,pwOut_save[i]);
 
-				serial_output("accz%i:tgz%i:tgvz%i:tgaccz%i:inz%i:invz%i:inaccz%i:ezi%i:evzi%i:eacczi%i:", 
-                    accelEarth[2], hover_target_z, hover_target_vz, hover_target_accz, 
-                    hover_z, hover_vz, hover_accz, hover_error_integral_z, hover_error_integral_vz, hover_error_integral_accz);
+				serial_output("imx%i:imy%i:imz%i:"
+                "tx%i:ty%i:tz%i:G%d,%d,%d:",IMUlocationx._.W1,IMUlocationy._.W1,IMUlocationz._.W1,
+				    IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1, goal.x, goal.y, goal.height);
 
-				serial_output("rerr%i:perr%i:yerr%i:desr%i:desp%i:desy%i:intr%i:intp%i:inty%i:",
-					roll_error, pitch_error, yaw_error, desired_roll, desired_pitch, desired_yaw,
+				serial_output("accz%i:tgz%i:tgvz%i:tgaccz%i:inz%i:invz%i:inaccz%i:ezi%i:", 
+                    accelEarth[2], hover_target_z, hover_target_vz, hover_target_accz, 
+                    hover_z, hover_vz, hover_accz, hover_error_integral_z);
+
+				serial_output("rerr%i:perr%i:yerr%i:intr%i:intp%i:inty%i:",
+					roll_error, pitch_error, yaw_error,
 					roll_intgrl, pitch_intgrl, yaw_intgrl);
+
+				serial_output("ex%i:exi%i:ey%i:eyi%i:", hover_error_x, hover_error_integral_x, hover_error_y, hover_error_integral_y);
 
 #if ( USE_SONAR	== 1 )
 				serial_output("sond%i:sonhtg%i:", 
                     sonar_distance, sonar_height_to_ground) ;
 #endif
 #if ( BAROMETER_ALTITUDE == 1)
-				serial_output("tmp%i:prs%li:alt%li:",
-                    get_barometer_temperature(), get_barometer_pressure(), get_barometer_altitude());
+				serial_output("alt%li:",
+                    get_barometer_altitude());
 #endif
                 serial_output("add1%i:add2%i:add3%i:add4%i:add5%i:add6%i:add7%i:add8%i:add9%i:",
                    additional_int16_export1, additional_int16_export2, additional_int16_export3, 
