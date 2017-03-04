@@ -143,7 +143,7 @@
 // Y is positive as you move north
 
 const struct waypointDef waypoints[] = {
-        { {   0, 0, 1 } , F_LOITER, CAM_VIEW_LAUNCH } , 
+        { {   0, -100, 1 } , F_LOITER, CAM_VIEW_LAUNCH } , 
 //		{ {   -100, 100, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } , 
 //		{ {   -100, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,
 //		{ {   0, 0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,

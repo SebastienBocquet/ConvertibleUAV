@@ -22,6 +22,7 @@
 #include "defines.h"
 #include "../libDCM/estAltitude.h"
 #include "../libUDB/libUDB.h"
+#include "../libUDB/heartbeat.h"
 
 //	Compute actual and desired courses.
 //	Actual course is simply the scaled GPS course over ground information.
@@ -43,6 +44,9 @@ int16_t tofinish_line  = 0;
 int16_t progress_to_goal = 0;
 int8_t desired_dir = 0;
 unsigned char is_init_flightplan0=0;
+
+float togoalx_flt = 0.;
+float togoaly_flt = 0.;
 
 extern union longww IMUintegralAccelerationx;
 extern union longww IMUintegralAccelerationy;
@@ -142,10 +146,18 @@ void compute_bearing_to_goal(void)
 #if (DEADRECKONING == 1)
 	togoal.x = goal.x - IMUlocationx._.W1;
 	togoal.y = goal.y - IMUlocationy._.W1;
+
+	if (canStabilizeHover() && current_orientation == F_HOVER)
+	{
+		togoal.x = exponential_filter(goal.x - IMUlocationx._.W1, &togoalx_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
+		togoal.y = exponential_filter(goal.y - IMUlocationy._.W1, &togoaly_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
+	}	
 #else
 	togoal.x = goal.x - GPSlocation.x;
 	togoal.y = goal.y - GPSlocation.y;
 #endif
+
+	
 
 	// project the goal vector onto the direction vector between waypoints
 	// to get the distance to the "finish" line:
@@ -419,8 +431,8 @@ void compute_hovering_dir(void)
  	matrix_accum.y = -rmat[1] ;
  	int16_t earth_yaw = rect_to_polar(&matrix_accum)<<8 ;
     
-    additional_int16_export3 = desired_bearing_over_ground_vector[0];
-    additional_int16_export4 = desired_bearing_over_ground_vector[1];
+    //additional_int16_export3 = desired_bearing_over_ground_vector[0];
+    //additional_int16_export4 = desired_bearing_over_ground_vector[1];
 
     pitch_roll_orders[0] = desired_bearing_over_ground_vector[0];
     pitch_roll_orders[1] = desired_bearing_over_ground_vector[1];

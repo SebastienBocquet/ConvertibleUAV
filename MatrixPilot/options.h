@@ -146,7 +146,7 @@
 // Set these to 1 to enable stabilization of hovering in stabilized and/or waypoint modes.
 #define HOVERING_STABILIZED_MODE            1  //stabilization of hovering (roll, yaw, pitch, throttle) in stabilized mode
                                                //in waypoint mode, throttle is controlled to navigate through the waypoints
-
+#define TOGOAL_FILTER 1.
 // Note: As of MatrixPilot 3.0, Dead Reckoning and Wind Estimation are automatically enabled.
 
 // Camera Stabilization
@@ -478,24 +478,24 @@
 // Tilt PID(DD) control gains on roll and pitch angle
 #define TILT_KI 0.2
 #define TILT_KP 0.34
-#define TILT_KD 0.
-//#define TILT_KDD 0.
 #define TILT_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
-#define YAW_KP 0.35
+#define YAW_KP 0.45
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
-#define TILT_RATE_KI 0.
+//#define TILT_RATE_KI 0.
 #define TILT_RATE_KP 0.15
-#define YAW_RATE_KI 0.
-#define YAW_RATE_KP 0.15
+#define TILT_RATE_KD 1.5
+#define TILT_RATE_DELTA_FILTER 20.
+//#define YAW_RATE_KI 0.
+#define YAW_RATE_KP 0.20
 
 //variable gains controlled from Tx
-#define MANUAL_HEADING      0
+#define MANUAL_HEADING      1
 //#define VARIABLE_GAINS
 #define INPUT_CHANNEL_AUX1  THROTTLE_INPUT_CHANNEL
 #define INPUT_CHANNEL_AUX2  FLAP_INPUT_CHANNEL
@@ -597,7 +597,7 @@
 //////////altitude control/////////////
 
 #define TRANSITION_ALTITUDE               50    //altitude in m at which hovering <=> airplane transition occurs                 
-#define MANUAL_TARGET_HEIGHT               0    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
+#define MANUAL_TARGET_HEIGHT               1    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
                                                  //otherwise target height is set to 0.5*(hovertargetheightmin+hovertargetheightmax)
 												 // and target vz is set to 0.5*(hovertargetvzmin+hovertargetvzmax)
 #define AIRCRAFT_MASS                      2000  //in g

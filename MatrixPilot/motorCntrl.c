@@ -43,8 +43,6 @@ int16_t roll_quad_control ;
 int16_t pitch_quad_control ;
 int16_t yaw_quad_control ;
 int16_t accel_feedback ;
-int16_t theta_previous[2] = { 0 , 0 } ;
-int16_t theta_delta[2] ;
 
 int16_t pwManual[NUM_INPUTS+1] ;
 int16_t commanded_roll ;
@@ -62,17 +60,20 @@ int16_t roll_error ;
 int16_t pitch_error ;
 int16_t yaw_error ;
 
-int16_t roll_error_previous = 0 ;
-int16_t pitch_error_previous = 0 ;
-int16_t yaw_error_previous = 0 ;
-
 int16_t roll_intgrl;
 int16_t pitch_intgrl;
 int16_t	yaw_intgrl;
 
-int16_t roll_rate_intgrl;
-int16_t pitch_rate_intgrl;
-int16_t	yaw_rate_intgrl;
+//int16_t roll_rate_intgrl;
+//int16_t pitch_rate_intgrl;
+//int16_t	yaw_rate_intgrl;
+
+int16_t roll_rate_error_delta_filt = 0;
+int16_t pitch_rate_error_delta_filt = 0;
+int16_t roll_rate_error_previous = 0 ;
+int16_t pitch_rate_error_previous = 0 ;
+float roll_rate_error_delta_filt_flt = 0.;
+float pitch_rate_error_delta_filt_flt = 0.;
 
 int16_t rampe_yaw = 0;
 
@@ -82,9 +83,9 @@ int32_t z_filt_debug;
 union longww roll_quad_error_integral = { 0 } ;
 union longww pitch_quad_error_integral = { 0 } ;
 union longww yaw_quad_error_integral = { 0 } ;
-union longww roll_rate_quad_error_integral = { 0 } ;
-union longww pitch_rate_quad_error_integral = { 0 } ;
-union longww yaw_rate_quad_error_integral = { 0 } ;
+//union longww roll_rate_quad_error_integral = { 0 } ;
+//union longww pitch_rate_quad_error_integral = { 0 } ;
+//union longww yaw_rate_quad_error_integral = { 0 } ;
 
 int16_t target_orientation[9] = { RMAX , 0 , 0 , 0 , RMAX , 0 , 0 , 0 , RMAX } ;
 
@@ -92,8 +93,9 @@ const int16_t yaw_command_gain = ((long) MAX_YAW_RATE )*(0.03) ;
 
 uint16_t tilt_ki;
 uint16_t tilt_kp;
-uint16_t tilt_rate_ki;
+//uint16_t tilt_rate_ki;
 uint16_t tilt_rate_kp;
+uint16_t tilt_rate_kd;
 uint16_t yaw_ki;
 uint16_t yaw_kp;
 uint16_t yaw_rate_ki;
@@ -115,9 +117,9 @@ void motorCntrl(void)
 
 	int16_t commanded_tilt[3] ;
 
-	int16_t roll_error_delta ;
-	int16_t pitch_error_delta ;
-	int16_t yaw_error_delta ;
+//	int16_t roll_error_delta ;
+//	int16_t pitch_error_delta ;
+//	int16_t yaw_error_delta ;
 
 	int16_t roll_rate;
 	int16_t pitch_rate;
@@ -126,6 +128,9 @@ void motorCntrl(void)
 	int16_t roll_rate_error;
 	int16_t pitch_rate_error;
 	int16_t yaw_rate_error;
+
+	int16_t roll_rate_error_delta = 0;
+	int16_t pitch_rate_error_delta = 0;
 
 	union longww long_accum ;
 //	union longww accum ; // debugging temporary
@@ -288,8 +293,9 @@ void motorCntrl(void)
 	#ifdef VARIABLE_GAINS
 		tilt_ki = (uint16_t)(RMAX*TILT_KI);
 		tilt_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
-		tilt_rate_ki = 0;
+		//tilt_rate_ki = 0;
 		tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
+		tilt_rate_kd = (uint16_t)(RMAX*TILT_RATE_KD);
 		yaw_ki = (uint16_t)(RMAX*YAW_KI);
 		yaw_kp = (uint16_t)(RMAX*YAW_KP);
 		yaw_rate_ki = 0;
@@ -297,11 +303,12 @@ void motorCntrl(void)
 	#else
 		tilt_ki = (uint16_t)(RMAX*TILT_KI);
 		tilt_kp = (uint16_t)(RMAX*TILT_KP);
-		tilt_rate_ki = (uint16_t)(RMAX*TILT_RATE_KI);
+		//tilt_rate_ki = (uint16_t)(RMAX*TILT_RATE_KI);
 		tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
+		tilt_rate_kd = (uint16_t)(RMAX*TILT_RATE_KD);
 		yaw_ki = (uint16_t)(RMAX*YAW_KI);
 		yaw_kp = (uint16_t)(RMAX*YAW_KP);
-		yaw_rate_ki = (uint16_t)(RMAX*YAW_RATE_KI);
+		//yaw_rate_ki = (uint16_t)(RMAX*YAW_RATE_KI);
 		yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
 	#endif
 	
@@ -349,28 +356,6 @@ void motorCntrl(void)
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-// theta_delta seems to be zero all the time
-		theta_delta[0] = theta[0] - theta_previous[0] ;
-		theta_delta[1] = theta[1] - theta_previous[1] ;
-
-		theta_previous[0] = theta[0] ;
-		theta_previous[1] = theta[1] ;
-
-		//debugger and cropper la derivee
-		roll_error_delta = roll_error - roll_error_previous;
-		roll_error_previous = roll_error ;
-
-		pitch_error_delta = pitch_error - pitch_error_previous ;
-		pitch_error_previous = pitch_error ;
-
-		yaw_error_delta = yaw_error - yaw_error_previous ;
-		yaw_error_previous = yaw_error ;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //		Compute the PID signals on roll_error
@@ -378,8 +363,8 @@ void motorCntrl(void)
 		long_accum.WW = __builtin_mulus ( tilt_kp , roll_error ) << 2  ;
 		desired_roll = -long_accum._.W1 ;
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , roll_error_delta ) << 2  ;
-		desired_roll -= long_accum._.W1 ;
+//		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , roll_error_delta ) << 2  ;
+//		desired_roll -= long_accum._.W1 ;
 
 //		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KDD) , -theta_delta[1] ) << 2 ;
 //		desired_roll -= long_accum._.W1 ;
@@ -390,30 +375,39 @@ void motorCntrl(void)
 
 //		compute error between angle_rate and first PID output
 		roll_rate = -omegaAccum[1];
-
 		//filter error
         //roll_rate_filt = roll_rate;
 		//exponential_filter(roll_rate, &roll_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));
 		roll_rate_error = roll_rate - desired_roll;
 
-//		Compute the error integrals
-		roll_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_rate_ki/40.), roll_rate_error ))>>5) ;
-		if ( roll_rate_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-		{
-			roll_rate_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-		}
-		if ( roll_rate_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-		{
-			roll_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-		}
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		roll_rate_intgrl = limit_value(roll_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
+		roll_rate_error_delta = roll_rate_error - roll_rate_error_previous;
+		roll_rate_error_previous = roll_rate_error ;
+		roll_rate_error_delta_filt = exponential_filter(roll_rate_error_delta, &roll_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER), (int16_t)(HEARTBEAT_HZ));
+		additional_int16_export3 = roll_rate_error_delta_filt;
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+//		Compute the error integrals
+//		roll_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_rate_ki/40.), roll_rate_error ))>>5) ;
+//		if ( roll_rate_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
+//		{
+//			roll_rate_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
+//		}
+//		if ( roll_rate_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
+//		{
+//			roll_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
+//		}
+//
+//		roll_rate_intgrl = limit_value(roll_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
 
 //      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( tilt_rate_kp , roll_rate_error ) << 2 ;
 		roll_quad_control = -long_accum._.W1 ;
-
-		roll_quad_control -= roll_rate_intgrl  ;
+		long_accum.WW = __builtin_mulus ( tilt_rate_kd , roll_rate_error_delta_filt ) << 2 ;
+		roll_quad_control = -long_accum._.W1 ;
+		//roll_quad_control -= roll_rate_intgrl  ;
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -425,8 +419,8 @@ void motorCntrl(void)
 		long_accum.WW = __builtin_mulus ( tilt_kp , pitch_error ) << 2  ;
 		desired_pitch = -long_accum._.W1 ;
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , pitch_error_delta ) << 2  ;
-		desired_pitch -= long_accum._.W1 ;
+//		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KD) , pitch_error_delta ) << 2  ;
+//		desired_pitch -= long_accum._.W1 ;
 
 //		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*TILT_KDD) , -theta_delta[0] ) << 2 ;
 //		desired_pitch -= long_accum._.W1 ;
@@ -441,28 +435,37 @@ void motorCntrl(void)
 //	               - __builtin_mulss(rmat[6] , omegagyro[2])) << 1;
 //		pitch_rate = -long_accum._.W1;
 		pitch_rate = -omegagyro[0];
-		//pitch_rate_filt = pitch_rate;
-		//exponential_filter(pitch_rate, &pitch_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));
+		//exponential_filter(pitch_rate, &pitch_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));		
 		pitch_rate_error = pitch_rate - desired_pitch;
 
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+		pitch_rate_error_delta = pitch_rate_error - pitch_rate_error_previous ;
+		pitch_rate_error_previous = pitch_rate_error ;
+		pitch_rate_error_delta_filt = exponential_filter(pitch_rate_error_delta, &pitch_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER), (int16_t)(HEARTBEAT_HZ));
+		additional_int16_export4 = pitch_rate_error_delta_filt;
+
+//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 //		Compute the error integrals
-		pitch_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_rate_ki/40.), pitch_rate_error ))>>5) ;
-		if ( pitch_rate_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-		{
-			pitch_rate_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-		}
-		if ( pitch_rate_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-		{
-			pitch_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-		}
-
-		pitch_rate_intgrl = limit_value(pitch_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
-
+//		pitch_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_rate_ki/40.), pitch_rate_error ))>>5) ;
+//		if ( pitch_rate_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
+//		{
+//			pitch_rate_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
+//		}
+//		if ( pitch_rate_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
+//		{
+//			pitch_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
+//		}
+//
+//		pitch_rate_intgrl = limit_value(pitch_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
+//
 //      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( tilt_rate_kp , pitch_rate_error ) << 2 ;
 		pitch_quad_control = -long_accum._.W1 ;
-
-		pitch_quad_control -= pitch_rate_intgrl  ;
+		long_accum.WW = __builtin_mulus ( tilt_rate_kd , pitch_rate_error_delta_filt ) << 2 ;
+		pitch_quad_control = -long_accum._.W1 ;
+		//pitch_quad_control -= pitch_rate_intgrl  ;
 
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -473,8 +476,8 @@ void motorCntrl(void)
 		long_accum.WW = __builtin_mulus ( yaw_kp , yaw_error ) << 2  ;
 		desired_yaw = -long_accum._.W1 ;
 
-		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KD) , yaw_error_delta ) << 2  ;
-		desired_yaw -= long_accum._.W1 ;
+//		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*YAW_KD) , yaw_error_delta ) << 2  ;
+//		desired_yaw -= long_accum._.W1 ;
 
 		yaw_intgrl = limit_value(yaw_quad_error_integral._.W1 << 2, -16384, 16384);
 
@@ -487,23 +490,23 @@ void motorCntrl(void)
 		yaw_rate_error = (int16_t)(__builtin_mulsu(yaw_rate_error, rampe_yaw)>>14);
 
 //		Compute the error integrals
-		yaw_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*yaw_rate_ki/40.), yaw_rate_error ))>>5) ;
-		if ( yaw_rate_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-		{
-			yaw_rate_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-		}
-		if ( yaw_rate_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-		{
-			yaw_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-		}
-
-		yaw_rate_intgrl = limit_value(yaw_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
-
+//		yaw_rate_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*yaw_rate_ki/40.), yaw_rate_error ))>>5) ;
+//		if ( yaw_rate_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
+//		{
+//			yaw_rate_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
+//		}
+//		if ( yaw_rate_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
+//		{
+//			yaw_rate_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
+//		}
+//
+//		yaw_rate_intgrl = limit_value(yaw_rate_quad_error_integral._.W1 << 2, -(int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
+//
 		//      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( yaw_rate_kp , yaw_rate_error ) << 2 ;
 		yaw_quad_control = -long_accum._.W1 ;
 
-		yaw_quad_control -= yaw_rate_intgrl  ;
+		//yaw_quad_control -= yaw_rate_intgrl  ;
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

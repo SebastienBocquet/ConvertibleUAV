@@ -58,7 +58,7 @@ t0=0
 tf=None
 HEARTBEAT_HZ=160
 throttle_offset=0.6*2000+2244
-HEARTBEAT_EXPORT=10
+HEARTBEAT_EXPORT=160
 F_SYNTHETIC_THROTTLE=1
 MEASURED_TO_EXPECTED_ACCZ=1.
 MEASURED_TO_EXPECTED_VZ=1.
@@ -66,7 +66,7 @@ SONAR=1
 BAROMETER=1
 EXPORT='LIGHT'
 
-file_number=2579
+file_number=2599
 plot_name='hover_measured'
 savegard_name='target_v_indoor'
 
@@ -105,7 +105,7 @@ imu_z=extract_var(filename, input_dir, line_len, 'imz')[t0*HEARTBEAT_EXPORT:tf*H
 imu_vx=extract_var(filename, input_dir, line_len, 'tx')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 imu_vy=extract_var(filename, input_dir, line_len, 'ty')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 imu_vz=extract_var(filename, input_dir, line_len, 'tz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
-goal=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
+#goal=extract_var(filename, input_dir, line_len, 'G', 1)[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 
 accz=extract_var(filename, input_dir, line_len, 'accz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
 target_z=extract_var(filename, input_dir, line_len, 'tgz')[t0*HEARTBEAT_EXPORT:tf*HEARTBEAT_EXPORT]
@@ -433,6 +433,7 @@ ax2.plot(time, roll_error, 'b--', marker=None, label='roll error')
 ax2.plot(time, roll_error_integral, 'g-', marker=None, label='roll error integral')
 ax2.plot(time, roll_rate, 'r-', marker=None, label='roll rate')
 ax2.plot(time, roll_quad_control, 'm-', marker=None, label='roll control reconst')
+ax2.plot(time, 10*add3, 'c-', marker=None, label='roll delta')
 finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
@@ -445,7 +446,7 @@ ax3.plot(time, pitch_error, 'b--', marker=None, label='pitch error')
 ax3.plot(time, pitch_error_integral, 'g-', marker=None, label='pitch error integral')
 ax3.plot(time, pitch_rate, 'r-', marker=None, label='pitch rate')
 ax3.plot(time, pitch_quad_control, 'm-', marker=None, label='pitch control reconst')
-
+ax3.plot(time, 10*add4, 'c-', marker=None, label='pitch delta')
 finalize_plot(fig, ax3, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='', \
                   show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 

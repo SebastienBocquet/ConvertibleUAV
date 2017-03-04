@@ -20,12 +20,13 @@
 
 
 #define INT_PRI_T1      6   // background.c : high priority HEARTBEAT_HZ heartbeat of libUDB
-//#define INT_PRI_T2      ?   // radioIn.c : does not use the timer interrupt
+#define INT_PRI_T2      7   // radioIn.c : does not use the timer interrupt
 #define INT_PRI_T3      7   // servoOut.c : highest priority interrupt for pwm
 #define INT_PRI_T4      7   // servoOut.c : highest priority interrupt for pwm
 #define INT_PRI_T5      6   // background.c : high priority, but ISR is very short - used to measure CPU usage.
 #define INT_PRI_T6      3   // background.c : trigger from the high priority heartbeat ISR to start all the HEARTBEAT_HZ processing at a lower priority - NOTE: timer 6 is not actually being used
 #define INT_PRI_T7      2   // background.c : used to trigger background tasks such as navigation processing after binary data is received from the GPS
+#define INT_PRI_T8      7   // servoOut.c : highest priority interrupt for pwm
 
 #define INT_PRI_SPI1    6   // mpu6000.c : SPI1 (UDB4 or AUAV3) else,
 #define INT_PRI_SPI2    6   // mpu6000.c : SPI2 (UDB4 or UDB5)

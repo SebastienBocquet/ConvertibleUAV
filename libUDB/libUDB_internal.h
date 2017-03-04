@@ -46,5 +46,6 @@ void MPU6000_init16(void);
 
 void start_pwm_outputs(void);
 void start_pwm_outputs_2(void);
+void start_pwm_outputs_3(void);
 
 void calculate_analog_sensor_values(void);

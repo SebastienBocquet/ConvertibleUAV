@@ -85,18 +85,14 @@ void dcm_servo_callback_prepare_outputs(void)
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
 		{
 			flight_mode_switch_2pos_poll();  // we always want this called at 40Hz
-		}
 
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
-		{
 #if (DEADRECKONING == 1)
-		process_flightplan();
+			process_flightplan();
 #endif	
 
 #if (ALTITUDE_GAINS_VARIABLE == 1)
-		airspeedCntrl();
+			airspeedCntrl();
 #endif // ALTITUDE_GAINS_VARIABLE
-
 	
 			updateBehavior();
 			wind_gain = wind_gain_adjustment ();
@@ -116,8 +112,6 @@ void dcm_servo_callback_prepare_outputs(void)
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
 		{
 			pitchCntrl();
-	
-	        //applyManoeuvres();
 			servoMix();
 		}
 
@@ -126,11 +120,10 @@ void dcm_servo_callback_prepare_outputs(void)
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
 		{
 #if (USE_CAMERA_STABILIZATION == 1)
-		cameraCntrl();
+			cameraCntrl();
 #endif
-
-		cameraServoMix();
-		updateTriggerAction();
+			cameraServoMix();
+			updateTriggerAction();
 		}
 	}
 	else

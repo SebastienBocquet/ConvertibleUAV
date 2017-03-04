@@ -76,7 +76,7 @@
 int16_t udb_pwOut[NUM_OUTPUTS+1];   // pulse widths for servo outputs
 int16_t outputNum;
 int16_t outputNum2;
-
+int16_t outputNum3;
 
 void udb_init_pwm(void) // initialize the PWM
 {
@@ -106,7 +106,17 @@ void udb_init_pwm(void) // initialize the PWM
 		T3CONbits.TCKPS = 1;        // prescaler 8:1
 #endif
 		_T3IP = INT_PRI_T3;         // set interrupt priority
-		_T3IE = 0;                  // disable timer 4 interrupt for now (enable for each set of pulses)
+		_T3IE = 0;                  // disable timer 3 interrupt for now (enable for each set of pulses)
+
+		// Set up Timer 9.  Use it to send PWM outputs manually, at high priority.
+		T8CON = 0b1000000000000000; // turn on timer 4 with no prescaler
+#if (MIPS == 64)
+		T8CONbits.TCKPS = 2;        // prescaler 64:1
+#else
+		T8CONbits.TCKPS = 1;        // prescaler 8:1
+#endif
+		_T8IP = INT_PRI_T8;         // set interrupt priority
+		_T8IE = 0;                  // disable timer 2 interrupt for now (enable for each set of pulses)
 	}
 
 #if (BOARD_TYPE == UDB4_BOARD || BOARD_TYPE == UDB5_BOARD)
@@ -161,7 +171,20 @@ void start_pwm_outputs_2(void)
 		
 		TMR3 = 0;                       // start timer at 0
 		_T3IF = 0;                      // clear the interrupt
-		_T3IE = 1;                      // enable timer 4 interrupt
+		_T3IE = 1;                      // enable timer 3 interrupt
+	}
+}
+
+void start_pwm_outputs_3(void)
+{
+	if (NUM_OUTPUTS > 0)
+	{
+		outputNum3 = 0;
+		PR8 = SCALE_FOR_PWM_OUT(200);   // set timer to delay 0.1ms
+		
+		TMR8 = 0;                       // start timer at 0
+		_T8IF = 0;                      // clear the interrupt
+		_T8IE = 1;                      // enable timer 2 interrupt
 	}
 }
 
@@ -200,9 +223,9 @@ extern uint16_t maxstack;
 	if (NUM_OUTPUTS >= channel)                         \
 	{                                                   \
 		outputNum2 = channel;  							\
-		if (udb_pwOut[channel+4] > 0)                     \
+		if (udb_pwOut[channel+2] > 0)                     \
 		{                                               \
-			PR3 = SCALE_FOR_PWM_OUT(udb_pwOut[channel+4]);\
+			PR3 = SCALE_FOR_PWM_OUT(udb_pwOut[channel+2]);\
 			pin = 1;                                    \
 		}                                               \
 		else                                            \
@@ -218,6 +241,29 @@ extern uint16_t maxstack;
 	}                                                   \
 }
 
+#define HANDLE_SERVO_OUT_3(channel, pin)                  \
+{                                                       \
+	if (NUM_OUTPUTS >= channel)                         \
+	{                                                   \
+		outputNum3 = channel;  							\
+		if (udb_pwOut[channel+4] > 0)                     \
+		{                                               \
+			PR8 = SCALE_FOR_PWM_OUT(udb_pwOut[channel+4]);\
+			pin = 1;                                    \
+		}                                               \
+		else                                            \
+		{                                               \
+			PR8 = SCALE_FOR_PWM_OUT(100);               \
+			pin = 0;                                    \
+		}                                               \
+		TMR8 = 0;                                       \
+	}                                                   \
+	else                                                \
+	{                                                   \
+		_T8IE = 0;                                      \
+	}                                                   \
+}
+
 void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 {
 	indicate_loading_inter;
@@ -225,24 +271,26 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 
 	switch (outputNum) {
 		case 0:
-			//additional_int16_export1 +=1;
 			HANDLE_SERVO_OUT(1, SERVO_OUT_PIN_1);
 			break;
 		case 1:
 			SERVO_OUT_PIN_1 = 0;
-			//additional_int16_export2 +=1;
 			HANDLE_SERVO_OUT(2, SERVO_OUT_PIN_2);
 			break;
 		case 2:
 			SERVO_OUT_PIN_2 = 0;
-			//additional_int16_export3 +=1;
-			HANDLE_SERVO_OUT(3, SERVO_OUT_PIN_3);
+			_T4IE = 0;              // disable timer 4 interrupt
 			break;
-		case 3:
-			SERVO_OUT_PIN_3 = 0;
-			//additional_int16_export4 +=1;
-			HANDLE_SERVO_OUT(4, SERVO_OUT_PIN_4);
-			break;
+//		case 2:
+//			SERVO_OUT_PIN_2 = 0;
+//			//additional_int16_export3 +=1;
+//			HANDLE_SERVO_OUT(3, SERVO_OUT_PIN_3);
+//			break;
+//		case 3:
+//			SERVO_OUT_PIN_3 = 0;
+//			//additional_int16_export4 +=1;
+//			HANDLE_SERVO_OUT(4, SERVO_OUT_PIN_4);
+//			break;
 //		case 4:
 //			SERVO_OUT_PIN_4 = 0;
 //			HANDLE_SERVO_OUT(5, SERVO_OUT_PIN_5);
@@ -273,10 +321,10 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 //			_T4IE = 0;              // disable timer 4 interrupt
 //			break;
 //#else
-		case 4:
-			SERVO_OUT_PIN_4 = 0;
-			_T4IE = 0;              // disable timer 4 interrupt
-			break;
+//		case 4:
+//			SERVO_OUT_PIN_4 = 0;
+//			_T4IE = 0;              // disable timer 4 interrupt
+//			break;
 //#endif // SERVO_OUT_PIN_10
 	}
 
@@ -296,6 +344,7 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 	// interrupt_restore_corcon;
 }
 
+
 void __attribute__((__interrupt__,__no_auto_psv__)) _T3Interrupt(void)
 {
 	indicate_loading_inter;
@@ -303,30 +352,49 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T3Interrupt(void)
 
 	switch (outputNum2) {
 		case 0:
-			//additional_int16_export1 +=1;
-			SERVO_OUT_PIN_4 = 0;
-			HANDLE_SERVO_OUT_2(1, SERVO_OUT_PIN_5);
+			SERVO_OUT_PIN_2 = 0;
+			HANDLE_SERVO_OUT_2(1, SERVO_OUT_PIN_3);
 			break;
 		case 1:
-			SERVO_OUT_PIN_5 = 0;
-			//additional_int16_export2 +=1;
-			HANDLE_SERVO_OUT_2(2, SERVO_OUT_PIN_6);
+			SERVO_OUT_PIN_3 = 0;
+			HANDLE_SERVO_OUT_2(2, SERVO_OUT_PIN_4);
 			break;
 		case 2:
-			SERVO_OUT_PIN_6 = 0;
-			//additional_int16_export3 +=1;
-			HANDLE_SERVO_OUT_2(3, SERVO_OUT_PIN_7);
-			break;
-		case 3:
-			SERVO_OUT_PIN_7 = 0;
-			//additional_int16_export4 +=1;
-			HANDLE_SERVO_OUT_2(4, SERVO_OUT_PIN_8);
-			break;
-		case 4:
-			SERVO_OUT_PIN_8 = 0;
-			_T3IE = 0;              // disable timer 4 interrupt
+			SERVO_OUT_PIN_4 = 0;
+			_T3IE = 0;              // disable timer 3 interrupt
 			break;
 	}
 
 	_T3IF = 0;                      // clear the interrupt
 }
+void __attribute__((__interrupt__,__no_auto_psv__)) _T8Interrupt(void)
+{
+	indicate_loading_inter;
+	// interrupt_save_set_corcon;
+
+	switch (outputNum3) {
+		case 0:
+			SERVO_OUT_PIN_4 = 0;
+			HANDLE_SERVO_OUT_3(1, SERVO_OUT_PIN_5);
+			break;
+		case 1:
+			SERVO_OUT_PIN_5 = 0;
+			HANDLE_SERVO_OUT_3(2, SERVO_OUT_PIN_6);
+			break;
+		case 2:
+			SERVO_OUT_PIN_6 = 0;
+			HANDLE_SERVO_OUT_3(3, SERVO_OUT_PIN_7);
+			break;
+		case 3:
+			SERVO_OUT_PIN_7 = 0;
+			HANDLE_SERVO_OUT_3(4, SERVO_OUT_PIN_8);
+			break;
+		case 4:
+			SERVO_OUT_PIN_8 = 0;
+			_T8IE = 0;              // disable timer 2 interrupt
+			break;
+	}
+
+	_T8IF = 0;                      // clear the interrupt
+}
+

@@ -95,7 +95,13 @@ void dead_reckon(void)
 		//in hovering mode, use altitude from sonar/barometer
 		if (canStabilizeHover() && current_orientation == F_HOVER)
 		{
-			IMUlocationz._.W1 = (int16_t)(z_filtered/100);
+#if ( BAROMETER_ALTITUDE == 1 )
+    		if (udb_flags._.baro_valid) IMUlocationz._.W1 = (int16_t)(z_filtered/100);
+#endif
+
+#if ( USE_SONAR == 1 )
+			if (udb_flags._.sonar_height_valid) IMUlocationz._.W1 = (int16_t)(z_filtered/100);
+#endif
 		}
 
 		if (dead_reckon_clock > 0)
@@ -128,11 +134,16 @@ void dead_reckon(void)
 			IMUvelocityy.WW = IMUintegralAccelerationy.WW;
 			IMUvelocityz.WW = IMUintegralAccelerationz.WW;
 
-			//in hovering mode, use altitude from sonar/barometer
-			if (canStabilizeHover() && current_orientation == F_HOVER)
-			{
-				IMUlocationz._.W1 = z_filtered;
-			}
+		if (canStabilizeHover() && current_orientation == F_HOVER)
+		{
+#if ( BAROMETER_ALTITUDE == 1 )
+    		if (udb_flags._.baro_valid) IMUlocationz._.W1 = (int16_t)(z_filtered/100);
+#endif
+
+#if ( USE_SONAR == 1 )
+			if (udb_flags._.sonar_height_valid) IMUlocationz._.W1 = (int16_t)(z_filtered/100);
+#endif
+		}
 		}
 	
 		if (gps_nav_valid() && (dcm_flags._.reckon_req == 1))
@@ -144,13 +155,6 @@ void dead_reckon(void)
 			locationErrorEarth[0] = GPSlocation.x - IMUlocationx._.W1;
 			locationErrorEarth[1] = GPSlocation.y - IMUlocationy._.W1;
 			locationErrorEarth[2] = GPSlocation.z - IMUlocationz._.W1;
-
-			//in hovering mode, use altitude from sonar/barometer
-			if (canStabilizeHover() && current_orientation == F_HOVER)
-			{
-				locationErrorEarth[2] = z_filtered - IMUlocationz._.W1;
-			}
-			//to be tested: apply directly IMUlocationz._.W1 = z_filtered, or correct IMUlocationz by the error wrt z_filtered
 
 			velocityErrorEarth[0] = GPSvelocity.x - IMUintegralAccelerationx._.W1;
 			velocityErrorEarth[1] = GPSvelocity.y - IMUintegralAccelerationy._.W1;
