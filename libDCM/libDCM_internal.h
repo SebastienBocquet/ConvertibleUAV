@@ -78,25 +78,16 @@ on tuning these parameters.
 */
 
 /*Savitzky Golay Filter -  */
-#ifndef SGA_LENGTH
+#define SGA_MAX_LENGTH 9 /* Do not change */
 #define SGA_LENGTH 5 /* Window may 5, 7 or 9. 
 			 For window 5, only quadratic or cubic smoothing may be used */
-#endif
-
-#ifndef SGA_DEGREE
-#define SGA_DEGREE 3 /* For quadratic or cubic smoothing, enter degree 3. 
+#define SGA_DEGREE 2 /* For quadratic or cubic smoothing, enter degree 3. 
 			For quartic or quintic smoothing, enter degree 4.*/
-#endif
 
-#ifndef SGA_INDEX
-#define SGA_INDEX (SGA_DEGREE - SGA_LENGTH + 2)
-#endif
-
-#define SGA_MAX_LENGTH 9 /* Do not change */
-
+#define SGA_PRIM_INDEX (SGA_LENGTH - SGA_DEGREE - 2)
+#define SGA_MAX_MID (SGA_MAX_LENGTH-1)/2
+#define SGA_MID (SGA_LENGTH-1)/2
 
 /*Function Prototypes*/
 
-uint16_t* ms_init(uint8_t );
-int sga_filter(int current_value, uint16_t history_SGA[]);
-void ms_deinit(uint16_t *);
+int16_t sga_prim(int16_t current_value);

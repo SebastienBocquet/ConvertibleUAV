@@ -55,9 +55,6 @@ void init_yawCntrl(void)
 	yawkdrud 	= (uint16_t)(YAWKD_RUDDER*SCALEGYRO*RMAX);
 	rollkprud 	= (uint16_t)(ROLLKP_RUDDER*RMAX);
 	rollkdrud 	= (uint16_t)(ROLLKD_RUDDER*SCALEGYRO*RMAX);
-	hoveryawkp 	= (uint16_t)(HOVER_YAWKP*RMAX);
-	hoveryawkd 	= (uint16_t)(HOVER_YAWKD*SCALEGYRO*RMAX);
-    hoveryawoffset = (int16_t)(HOVER_YAW_OFFSET*(SERVORANGE/60));
     uint16_t hoveryawToWPkp = (uint16_t)(HOVER_YAWTOWPKP*COEF_SCALING);
     uint16_t hoveryawToWPki = (uint16_t)(HOVER_YAWTOWPKI*COEF_SCALING);
 }

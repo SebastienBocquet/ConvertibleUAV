@@ -487,15 +487,13 @@
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
-//#define TILT_RATE_KI 0.
-#define TILT_RATE_KP 0.15
-#define TILT_RATE_KD 1.5
-#define TILT_RATE_DELTA_FILTER 20.
-//#define YAW_RATE_KI 0.
+#define TILT_RATE_KP 0.12
+#define TILT_RATE_KD 0.41
+#define TILT_RATE_DELTA_FILTER 160.
 #define YAW_RATE_KP 0.20
 
 //variable gains controlled from Tx
-#define MANUAL_HEADING      1
+#define MANUAL_HEADING      0
 //#define VARIABLE_GAINS
 #define INPUT_CHANNEL_AUX1  THROTTLE_INPUT_CHANNEL
 #define INPUT_CHANNEL_AUX2  FLAP_INPUT_CHANNEL
@@ -519,21 +517,13 @@
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       1.
 
-//#define HOVER_ROLLKP                        1.
-//#define HOVER_ROLLKD                        0.
-//#define HOVER_ROLL_OFFSET                   0.5 //aileron offset at max throttle expressed in fraction of max servo arm angle. The offset is linear with throttle
-
-#define HOVER_ROLLTOWPKP                    0.1
+#define HOVER_ROLLTOWPKP                    0.5
 #define HOVER_ROLLTOWPKI                    0.
 #define LIMIT_INTEGRAL_ROLLTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_ROLL         160
+#define HOVER_INV_DELTA_FILTER_ROLL         160.
 
-#define HOVER_ROLLNAVKP                     0.075
-#define HOVER_ROLLNAVKI                     0.
-#define LIMIT_INTEGRAL_ROLLNAV              533333
-#define FLAP_OFFSET                         0  //flap offset to have flaps in neutral position at flap control = 0, and in hovering mode
-#define FLAP_ANGLE_MAX                      20.
-
+#define FLAP_OFFSET                         0.   
+            
 // Elevator/Pitch Control Gains
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125
 // PITCHKD feedback gain for pitch damping, around 0.0625
@@ -546,16 +536,10 @@
 #define ROLL_ELEV_MIX                        0.
 #define ELEVATOR_BOOST                       1.
 
-//Obsolete
-//#define HOVER_PITCHKP                        0.4
-//#define HOVER_PITCHKD                        0.
-//#define HOVER_PITCH_OFFSET                   0.   //elevator offset expressed in servo arm angle (in degrees) + leans towards top, - leans towards bottom
-//
-
-#define HOVER_PITCHTOWPKP                    0.1
+#define HOVER_PITCHTOWPKP                    0.5
 #define HOVER_PITCHTOWPKI                    0.
 #define LIMIT_INTEGRAL_PITCHTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_PITCH         160
+#define HOVER_INV_DELTA_FILTER_PITCH         160.
 
 // Neutral pitch angle of the plane (in degrees) when flying inverted
 // Use this to add extra "up" elevator while the plane is inverted, to avoid losing altitude.
@@ -575,10 +559,6 @@
 #define ROLLKD_RUDDER                       0.
 #define MANUAL_AILERON_RUDDER_MIX           0.
 #define RUDDER_BOOST                        1.
-
-#define HOVER_YAWKP                         0.4
-#define HOVER_YAWKD                         0.
-#define HOVER_YAW_OFFSET                    0.  //rudder offset expressed in servo arm angle (in degrees)
 
 // Gains for Hovering
 // Gains are named based on plane's frame of reference (roll means ailerons)
@@ -627,7 +607,7 @@
 #define HOVER_ACCZKI                       0.  // in 1/(cm/s), should be between 0 and 10
 #define LIMIT_INTEGRAL_ACCZ                80000
 
-#define MAX_HOVERING_RADIUS                10   //max distance in m from origin where the aircraft is allowed to hover in GPS navigation mode
+#define MAX_HOVERING_RADIUS                60   //max distance in dcm from origin where the aircraft is allowed to hover in GPS navigation mode
 #define HOVER_ANGLE_TOWARDS_WP             MAX_TILT
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -219,20 +219,19 @@ void hoverPitchCntrl(void)
 
         determine_navigation_deflection('y');
         
-        int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_pitch_dir, tofinish_line)>>14);
+        int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_pitch_dir, tofinish_line_factor10)>>14);
 		int32_t pitch_error32 = __builtin_mulsu(tofinish_line_pitch, SERVORANGE) / MAX_HOVERING_RADIUS;
         if (pitch_error32 > SERVORANGE) pitch_error32 = SERVORANGE;
 		if (pitch_error32 < -SERVORANGE) pitch_error32 = -SERVORANGE;
-        pitch_error = (int16_t)(pitch_error32);
 
         //filter error
-        pitch_error_filt = -exponential_filter(pitch_error, &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
+        pitch_error_filt = -exponential_filter((int16_t)(pitch_error32), &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
 
 		//PI controller on pitch_error
 		pitchCorr = compute_pi_block(pitch_error_filt, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, (hover_counter > nb_sample_wait));
 
-		hover_error_x = pitch_error;
+		hover_error_x = pitch_error_filt;
         hover_error_integral_x = (int16_t)(pitch_error_integral / (int16_t)(HEARTBEAT_HZ));
 	}
 	else

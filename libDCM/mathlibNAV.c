@@ -20,6 +20,7 @@
 
 
 #include "libDCM_internal.h"
+#include "../libUDB/heartbeat.h"
 
 //  math libraray
 
@@ -495,45 +496,34 @@ int32_t exponential_filter32(int32_t x, float *x_filtered, float invdeltafilter,
     return (int32_t)*x_filtered;
 }
 
-/* SGA Coefficients*/
-const int16_t sga_coefficients[][SGA_MAX_LENGTH]={
-    {0, 0, -3, 12, 17, 12, -3, 0, 0},
-    {-21, 14, 39, 54, 59, 54, 39, 14, -21},
-    {15, -55, 30, 135, 179, 135, 30, -55, 15},
-    {0, -2, 3, 6, 7, 6, 3, -2, 0},
-    {0, 5, -30, 75, 131, 75, -30, 5, 0},
+const int16_t sga_prim_coefficients[][SGA_MAX_LENGTH]={
+    {0, 0, 1, -8, 0, 8, -1, 0, 0},
+    {0, 0, -2, -1, 0, 1, 2, 0, 0},
+    {0, 22, -67, -58, 0, 58, 67, -22, 0},
+    {0, -3, -2, -1, 0, 1, 2, 3, 0},
+    {86, -142, -193, -126, 0, 126, 193, 142, -86},
+    {-4, -3, -2, -1, 0, 1, 2, 3, 4},
 };
 
-uint16_t normalization_value;
+const int16_t sga_prim_normalization[]= {12,10,252,28,1188,60};
 
-uint16_t* ms_init(uint8_t algo)
-{
-	int i;
-	for(i=0; i<SGA_MAX_LENGTH; i++) 	
-	{
-		normalization_value += sga_coefficients[SGA_INDEX][i]; /*Pre-calculating the normalization value*/
-	}
-	
-	return (uint16_t *)calloc(SGA_LENGTH, sizeof(uint16_t));
-}
+int16_t history_SGA[SGA_LENGTH];
 
-int sga_filter(int current_value, uint16_t history_SGA[])
+int16_t sga_prim(int16_t current_value)
 { 
-    uint64_t sum=0;
-    uint8_t SGA_MID = SGA_LENGTH/2;
-    uint8_t i;
+    int64_t sum=0;
+    int16_t i;
 
     for(i=1;i<SGA_LENGTH;i++)
     {
-	history_SGA[i-1]=history_SGA[i];
+		history_SGA[i-1]=history_SGA[i];
     }
     history_SGA[SGA_LENGTH-1]=current_value;
     
-    for(i=-SGA_MID;i<=(SGA_MID);i++)
+    for(i=-SGA_MID;i<=SGA_MID;i++)
     {  
-	sum+=history_SGA[i+SGA_MID]*sga_coefficients[SGA_INDEX][i+SGA_MID];
+		sum+=history_SGA[i+SGA_MID]*sga_prim_coefficients[SGA_PRIM_INDEX][i+SGA_MAX_MID];
     }
     
-    history_SGA[SGA_MID]=sum/normalization_value;
-    return history_SGA[SGA_MID];
+    return (int16_t)(sum/sga_prim_normalization[SGA_PRIM_INDEX]);
 }

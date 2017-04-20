@@ -61,7 +61,6 @@
     const float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
 #endif
 
-int16_t flap_min = (int16_t)(-FLAP_ANGLE_MAX*(SERVORANGE/60));
 int16_t hovering_roll_dir;
 int32_t roll_error_integral = 0;
 float roll_error_filtered_flt = 0.;
@@ -151,7 +150,7 @@ void normalRollCntrl(void)
 	// Servo reversing is handled in servoMix.c
 
     //flap control
-    flap_control = (int16_t)(FLAP_OFFSET + (udb_pwIn[FLAP_INPUT_CHANNEL] - 2000)*(2*FLAP_ANGLE_MAX)/120+flap_min);
+    //flap_control = (int16_t)(FLAP_OFFSET);
 }
 
 
@@ -173,14 +172,13 @@ void hoverRollCntrl(void)
 
         determine_navigation_deflection('y');
             
-        int16_t tofinish_line_roll = (int16_t)(__builtin_mulsu(hovering_roll_dir, tofinish_line)>>14);
-        int32_t roll_error32 = __builtin_mulsu(tofinish_line_roll, SERVORANGE) / MAX_HOVERING_RADIUS;
+        int16_t tofinish_line_roll = (int16_t)(__builtin_mulsu(hovering_roll_dir, tofinish_line_factor10)>>14);
+        int32_t roll_error32 = __builtin_mulsu(tofinish_line_roll, SERVORANGE) / (10 * MAX_HOVERING_RADIUS);
 		if (roll_error32 > SERVORANGE) roll_error32 = SERVORANGE;
 		if (roll_error32 < -SERVORANGE) roll_error32 = -SERVORANGE;
-        roll_error = (int16_t)(roll_error32);
 
         //filter error
-        roll_error_filt = -exponential_filter(roll_error, &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
+        roll_error_filt = -exponential_filter((int16_t)(roll_error32), &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
 
 		//PI controller on roll_error
 		rollCorr = compute_pi_block(roll_error_filt, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
@@ -195,6 +193,4 @@ void hoverRollCntrl(void)
 	}
 
 	roll_control = rollCorr;
-
-    flap_control = (int16_t)(FLAP_OFFSET);
 }

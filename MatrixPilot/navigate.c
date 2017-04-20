@@ -41,12 +41,14 @@
 struct waypointparameters goal;
 struct relative2D togoal = { 0 , 0 };
 int16_t tofinish_line  = 0;
+int16_t tofinish_line_factor10  = 0;
 int16_t progress_to_goal = 0;
 int8_t desired_dir = 0;
 unsigned char is_init_flightplan0=0;
 
-float togoalx_flt = 0.;
-float togoaly_flt = 0.;
+float desired_bearing_over_ground_x_flt = 0.;
+float desired_bearing_over_ground_y_flt = 0.;
+float tofinish_line_flt = 0.;
 
 extern union longww IMUintegralAccelerationx;
 extern union longww IMUintegralAccelerationy;
@@ -145,19 +147,11 @@ void compute_bearing_to_goal(void)
 
 #if (DEADRECKONING == 1)
 	togoal.x = goal.x - IMUlocationx._.W1;
-	togoal.y = goal.y - IMUlocationy._.W1;
-
-	if (canStabilizeHover() && current_orientation == F_HOVER)
-	{
-		togoal.x = exponential_filter(goal.x - IMUlocationx._.W1, &togoalx_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
-		togoal.y = exponential_filter(goal.y - IMUlocationy._.W1, &togoaly_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
-	}	
+	togoal.y = goal.y - IMUlocationy._.W1;	
 #else
 	togoal.x = goal.x - GPSlocation.x;
 	togoal.y = goal.y - GPSlocation.y;
 #endif
-
-	
 
 	// project the goal vector onto the direction vector between waypoints
 	// to get the distance to the "finish" line:
@@ -166,6 +160,7 @@ void compute_bearing_to_goal(void)
 	              + __builtin_mulss(togoal.y, goal.sinphi))<<2;
 
 	tofinish_line = temporary._.W1;
+	tofinish_line_factor10 = exponential_filter(10*tofinish_line, &tofinish_line_flt, 40., (int16_t)(HEARTBEAT_HZ));
 
 	//	Determine if aircraft is making forward progress.
 	//	If not, do not apply cross track correction.
@@ -417,7 +412,6 @@ int16_t determine_navigation_deflection(char navType)
 
 	// multiply by wind gain adjustment, and multiply by 2
 	deflectionAccum.WW = (__builtin_mulsu (deflectionAccum._.W1 , wind_gain)<<1); 
-    //additional_int16_export3 = deflectionAccum._.W1;
 	return deflectionAccum._.W1;
 }
 
@@ -430,12 +424,13 @@ void compute_hovering_dir(void)
 	matrix_accum.x = rmat[4] ;
  	matrix_accum.y = -rmat[1] ;
  	int16_t earth_yaw = rect_to_polar(&matrix_accum)<<8 ;
-    
-    //additional_int16_export3 = desired_bearing_over_ground_vector[0];
-    //additional_int16_export4 = desired_bearing_over_ground_vector[1];
 
-    pitch_roll_orders[0] = desired_bearing_over_ground_vector[0];
-    pitch_roll_orders[1] = desired_bearing_over_ground_vector[1];
+	//pitch_roll_orders
+	pitch_roll_orders[0] = exponential_filter(desired_bearing_over_ground_vector[0], &desired_bearing_over_ground_x_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
+	pitch_roll_orders[1] = exponential_filter(desired_bearing_over_ground_vector[1], &desired_bearing_over_ground_y_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
+
+	additional_int16_export6 = pitch_roll_orders[0];
+	additional_int16_export7 = pitch_roll_orders[1];
 
 	//for debugging, monitor the desired heading toward waypoint. Note that matrix_accum is rotated
 	// in the rect_to_polar16 function
@@ -444,6 +439,7 @@ void compute_hovering_dir(void)
     //headingToWP is the angle relative to north (ie to y axis)
 	headingToWP = rect_to_polar16(&matrix_accum) - 16384;
 	additional_int16_export8 = headingToWP;
+	additional_int16_export9 = tofinish_line_factor10;
 
 	matrix_accum.x = pitch_roll_orders[0] ;
 	matrix_accum.y = pitch_roll_orders[1] ;
@@ -456,7 +452,7 @@ void compute_hovering_dir(void)
     hovering_roll_dir = limit_value(hovering_roll_dir, -RMAX, RMAX);
     hovering_pitch_dir = limit_value(hovering_pitch_dir, -RMAX, RMAX);
 
-    additional_int16_export6 = hovering_roll_dir;
-    additional_int16_export7 = hovering_pitch_dir;
+    additional_int16_export3 = hovering_roll_dir;
+    additional_int16_export4 = hovering_pitch_dir;
 
 }

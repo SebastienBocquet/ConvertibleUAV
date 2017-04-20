@@ -81,7 +81,7 @@ void updateBehavior(void)
 	                                   IMUvelocityy._.W1 - estimatedWind[1]);
 
 	int16_t current_altitude = IMUlocationz._.W1;
-	int16_t transition_altitude = TRANSITION_ALTITUDE * 100;
+	int16_t transition_altitude = TRANSITION_ALTITUDE;
 
 	if (current_orientation == F_INVERTED)
 	{

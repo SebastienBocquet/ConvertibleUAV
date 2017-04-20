@@ -379,14 +379,6 @@ void set_throttle_hover_control(int16_t throttle)
 
 void hovering_failsafe()
 {
-	int32_t time = tow.WW;
-
-	if (!is_init_failsafe)
-	{
-		flags._.GPS_steering = 0;
-		is_init_failsafe=1;
-	}
-	
 	set_throttle_control(hoverthrottleoffset);
 }
 
@@ -888,9 +880,6 @@ void calculate_sonar_height_above_ground(void)
 
         accum.WW = __builtin_muluu( udb_pwm_sonar , UDB_SONAR_PWM_UNITS_TO_CENTIMETERS ) ;
 		sonar_distance = accum._.W1 << 1 ;
-
-        //analog input on analog input 1
-        //sonar_distance = (int16_t)(udb_analogInputs[0].input/73 + 440);
 
 		// RMAT 7 is the cosine of the tilt of the plane in pitch with respect to vertical axis (z)	;
 //		cos_pitch_roll = rmat[7] ;
