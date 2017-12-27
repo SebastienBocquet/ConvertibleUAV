@@ -100,8 +100,9 @@ void dcm_servo_callback_prepare_outputs(void)
                     
 			wind_gain = wind_gain_adjustment ();
 	
-	        sonarCntrl();
-	        sonarServoMix();
+	        //Manage sonar orientation via servo (unused))
+            //sonarCntrl();
+	        //sonarServoMix();
 	
 			rollCntrl();
 			yawCntrl();

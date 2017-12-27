@@ -592,7 +592,7 @@
 #define SONAR_MINIMUM_DISTANCE             60 // Normally, should be minimum possible sonar distance measurement (4 inch)
 #define USEABLE_SONAR_DISTANCE             235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
 #define OUT_OF_RANGE_DISTANCE              60 // Distance in centimeters that denotes "out of range" for your Sonar device.
-#define HOVER_TARGET_HEIGHT_MIN            80   // (cm)
+#define HOVER_TARGET_HEIGHT_MIN            80   // (cm) Do not set below 80cm
 #define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
 #define HOVER_TARGET_VZ_MIN                -20   // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated
 #define HOVER_TARGET_VZ_MAX                20   // (cm/s)

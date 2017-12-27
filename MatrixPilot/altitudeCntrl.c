@@ -824,9 +824,9 @@ if (flags._.emergency_landing) z_target = emergency_landing();
     if (z_filtered > max_hover_alt)  
 	{
 		//if max altitude is exceeded, reduce throttle
-        throttle_control_pre=hoverthrottleoffset;
+        flags._.emergency_landing = 1;
     }
-            
+          
     if (is_alt_sensor_failure())
     {
         throttle_control_pre = hoverthrottleoffset;
