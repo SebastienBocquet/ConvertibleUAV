@@ -64,7 +64,7 @@
 	const uint16_t pitchkd = (uint16_t) (PITCHKD*SCALEGYRO*RMAX);
 	const uint16_t rudderElevMixGain = (uint16_t)(RMAX*RUDDER_ELEV_MIX);
 	const uint16_t rollElevMixGain = (uint16_t)(RMAX*ROLL_ELEV_MIX);
-    const uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
+    uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
     const uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
 	const int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
     const float invdeltafilterpitch = (float)(HOVER_INV_DELTA_FILTER_PITCH);
@@ -74,14 +74,12 @@ int16_t pitchrate;
 int16_t navElevMix;
 int16_t elevInput;
 
-int16_t hovering_pitch_dir;
+int16_t hovering_pitch_order;
 int32_t pitch_error_integral = 0;
 float pitch_error_filtered_flt = 0.;
 int16_t pitch_error_filtered = 0;
 int16_t pitch_hover_counter = 0;
-
-int16_t hover_error_y = 0;
-int16_t hover_error_integral_y = 0;
+int16_t pitch_hover_corr = 0;
 
 void normalPitchCntrl(void);
 void hoverPitchCntrl(void);
@@ -204,7 +202,6 @@ void normalPitchCntrl(void)
 void hoverPitchCntrl(void)
 {
 	//union longww pitchAccum;
-    int16_t pitchCorr = 0;
 	int16_t pitch_error_filt = 0;
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
@@ -217,27 +214,26 @@ void hoverPitchCntrl(void)
             pitch_error_integral = 0;
         }
 
+        hoverpitchToWPkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
+        
         determine_navigation_deflection('y');
         
-        int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_pitch_dir, tofinish_line_factor10)>>14);
+        int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_pitch_order, tofinish_line_factor10)>>14);
 		int32_t pitch_error32 = __builtin_mulsu(tofinish_line_pitch, SERVORANGE) / MAX_HOVERING_RADIUS;
         if (pitch_error32 > SERVORANGE) pitch_error32 = SERVORANGE;
 		if (pitch_error32 < -SERVORANGE) pitch_error32 = -SERVORANGE;
 
         //filter error
-        pitch_error_filt = -exponential_filter((int16_t)(pitch_error32), &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
+        pitch_error_filt = exponential_filter((int16_t)(pitch_error32), &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
 
 		//PI controller on pitch_error
-		pitchCorr = compute_pi_block(pitch_error_filt, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, (hover_counter > nb_sample_wait));
-
-		hover_error_x = pitch_error_filt;
-        hover_error_integral_x = (int16_t)(pitch_error_integral / (int16_t)(HEARTBEAT_HZ));
+		pitch_hover_corr = compute_pi_block(pitch_error_filt, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, flags._.is_in_flight);
 	}
 	else
 	{
-		pitchCorr = 0;
+		pitch_hover_corr = 0;
 	}
 
-	pitch_control = -pitchCorr;
+	pitch_control = pitch_hover_corr;
 }

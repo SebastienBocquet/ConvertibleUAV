@@ -65,6 +65,11 @@ void init_states(void)
 	gps_data_age = GPS_DATA_MAX_AGE+1;
 	dcm_flags._.dead_reckon_enable = 0;
 	flags._.update_autopilot_state_asap = 0;
+    flags._.is_in_flight = 0;
+    flags._.auto_land = 0;
+    flags._.low_battery = 0;
+    flags._.emergency_landing = 0;
+    flags._.engines_off = 0;
 	stateS = &startS;
 }
 
@@ -181,7 +186,7 @@ static void ent_stabilizedS(void)
 	flags._.altitude_hold_throttle = (ALTITUDEHOLD_STABILIZED == AH_FULL);
 	flags._.altitude_hold_pitch = (ALTITUDEHOLD_STABILIZED == AH_FULL || ALTITUDEHOLD_STABILIZED == AH_PITCH_ONLY);
 	waggle = 0;
-	LED_RED = LED_ON;
+	LED_RED = LED_OFF;
 	stateS = &stabilizedS;
 }
 
@@ -202,8 +207,9 @@ static void ent_waypointS(void)
 	}
 
 	waggle = 0;
-	LED_RED = LED_ON;
+	LED_RED = LED_OFF;
 	stateS = &waypointS;
+    flags._.emergency_landing = 0;
 }
 
 //	Come home state, entered when the radio signal is lost, and gps is locked.
@@ -229,6 +235,7 @@ static void ent_returnS(void)
 
 	waggle = 0;
 	LED_RED = LED_ON;
+    flags._.emergency_landing = 1;
 	stateS = &returnS;
 }
 

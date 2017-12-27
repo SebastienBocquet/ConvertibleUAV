@@ -25,7 +25,7 @@
 
 #if (BOARD_TYPE == UDB5_BOARD)
 
-#define ALMOST_ENOUGH_SAMPLES 216 // there are 222 or 223 samples in a sum
+#define ALMOST_ENOUGH_SAMPLES 54 // there are 222 or 223 samples in a sum at 40Hz, so about 54 at 200Hz
 
 #if (NUM_ANALOG_INPUTS >= 1)
 struct ADchannel udb_analogInputs[NUM_ANALOG_INPUTS]; // 0-indexed, unlike servo pwIn/Out/Trim arrays

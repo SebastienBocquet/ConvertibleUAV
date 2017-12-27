@@ -429,30 +429,28 @@ void compute_hovering_dir(void)
 	pitch_roll_orders[0] = exponential_filter(desired_bearing_over_ground_vector[0], &desired_bearing_over_ground_x_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
 	pitch_roll_orders[1] = exponential_filter(desired_bearing_over_ground_vector[1], &desired_bearing_over_ground_y_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
 
-	additional_int16_export6 = pitch_roll_orders[0];
-	additional_int16_export7 = pitch_roll_orders[1];
-
 	//for debugging, monitor the desired heading toward waypoint. Note that matrix_accum is rotated
 	// in the rect_to_polar16 function
 	matrix_accum.x = pitch_roll_orders[0] ;
 	matrix_accum.y = pitch_roll_orders[1] ;
     //headingToWP is the angle relative to north (ie to y axis)
 	headingToWP = rect_to_polar16(&matrix_accum) - 16384;
-	additional_int16_export8 = headingToWP;
-	additional_int16_export9 = tofinish_line_factor10;
+    
+	additional_int16_export1 = headingToWP;
+	additional_int16_export2 = earth_yaw;
 
 	matrix_accum.x = pitch_roll_orders[0] ;
 	matrix_accum.y = pitch_roll_orders[1] ;
 	int8_t heading = (int8_t)((headingToWP - earth_yaw)>>8);
     rotate_2D_vector_by_angle (pitch_roll_orders , heading);
 
-    hovering_roll_dir = pitch_roll_orders[0];
-    hovering_pitch_dir = pitch_roll_orders[1];
+    hovering_roll_order = pitch_roll_orders[0];
+    hovering_pitch_order = pitch_roll_orders[1];
 
-    hovering_roll_dir = limit_value(hovering_roll_dir, -RMAX, RMAX);
-    hovering_pitch_dir = limit_value(hovering_pitch_dir, -RMAX, RMAX);
+    hovering_roll_order = limit_value(hovering_roll_order, -RMAX, RMAX);
+    hovering_pitch_order = limit_value(hovering_pitch_order, -RMAX, RMAX);
 
-    additional_int16_export3 = hovering_roll_dir;
-    additional_int16_export4 = hovering_pitch_dir;
+    additional_int16_export3 = hovering_roll_order;
+    additional_int16_export4 = hovering_pitch_order;
 
 }

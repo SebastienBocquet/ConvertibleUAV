@@ -160,14 +160,14 @@ struct ADchannel {
 
 
 struct udb_flag_bits {
-	uint16_t unused     : 6;   // shouldn't this be 14 bits?
-	uint16_t a2d_read   : 1;
-	uint16_t radio_on   : 1;
-    uint16_t sonar_updated	: 1 ;
-    uint16_t sonar_height_valid	: 1 ;
-	uint16_t baro_valid	: 1 ;
-    uint16_t flap_updated	: 1 ;
-	uint16_t sonar_print_telemetry  : 1 ;
+	uint16_t unused                  : 6;   // shouldn't this be 14 bits?
+	uint16_t a2d_read                : 1;
+	uint16_t radio_on                : 1;
+    uint16_t sonar_updated	         : 1 ;
+    uint16_t sonar_height_valid	     : 1 ;
+	uint16_t baro_valid              : 1 ;
+    uint16_t flap_updated	         : 1 ;
+	uint16_t sonar_print_telemetry   : 1 ;
 };
 
 
@@ -205,11 +205,14 @@ struct udb_flag_bits {
 #define SERVOMAX SERVOCENTER + SERVORANGE
 #define SERVOMIN SERVOCENTER - SERVORANGE
 
-#define MAX_CURRENT             900 // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
-#define CURRENT_SENSOR_OFFSET   10  // Add 1.0 Amp to whatever value we sense
+#define MAX_CURRENT             1788 // 178.8 Amps max for the sensor from SparkFun (in tenths of Amps)
+#define CURRENT_SENSOR_OFFSET   0    // Add 0 Amp to whatever value we sense
+#define MAX_USEABLE_MAH         1680 //For a 2400mAh battery, we set the max useable mAH to 2400 * 0.7
 
-#define MAX_VOLTAGE             543 // 54.3 Volts max for the sensor from SparkFun (in tenths of Volts)
+#define MAX_VOLTAGE             518 // 51.8 Volts max for the sensor from SparkFun (in tenths of Volts)
 #define VOLTAGE_SENSOR_OFFSET   0   // Add 0.0 Volts to whatever value we sense
+#define LOW_VOLTAGE             108 // 11.2 Volts considered as low voltage for a 3S battery
+#define NB_LOW_VOLTAGE_SECONDS 3  //if battery voltage is low during this number of seconds, then the emergency landing is activated
 
 extern int16_t magMessage;
 extern int16_t vref_adj;

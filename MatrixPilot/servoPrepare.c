@@ -95,6 +95,9 @@ void dcm_servo_callback_prepare_outputs(void)
 #endif // ALTITUDE_GAINS_VARIABLE
 	
 			updateBehavior();
+            
+            enforce_manual_hover_throttle();
+                    
 			wind_gain = wind_gain_adjustment ();
 	
 	        sonarCntrl();

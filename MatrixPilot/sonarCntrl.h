@@ -19,34 +19,12 @@
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#include "libUDB.h"
-
-extern int16_t failSafePulses;
-extern int16_t noisePulses;
+#ifndef SONARCNTRL_H
+#define SONARCNTRL_H
 
 
-extern volatile int16_t trap_flags;
-extern volatile int32_t trap_source;
-extern volatile int16_t osc_fail_count;
+#include "define.h"
 
-// Get flags telling the reason for the last reset (RCON)
-uint16_t get_reset_flags(void);
+#define LED_RED_SONAR_CHECK                   1
 
-
-void udb_init_leds(void);
-void udb_init_ADC(void);
-void udb_init_clock(void);
-void udb_init_capture(void);
-void udb_init_GPS(void);
-void udb_init_USART(void);
-void udb_init_pwm(void);
-void udb_init_osd(void);
-void udb_eeprom_init(void);
-void MPU6000_init16(void);
-
-void start_pwm_outputs(void);
-void start_pwm_outputs_2(void);
-void start_pwm_outputs_3(void);
-
-void calculate_analog_sensor_values(void);
-void detect_low_battery(void);
+#endif // SONARCNTRL_H

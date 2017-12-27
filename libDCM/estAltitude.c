@@ -71,6 +71,11 @@ void estBaroAltitude(void)
 #if (SILSIM == 1)
 	return;
 #endif
+    
+#if (TEST == 1)
+    barometer_altitude = (int16_t)(HOVER_TARGET_HEIGHT_MAX);
+	return;
+#endif           
 
 #if (BAROMETER_ALTITUDE == 1)
 //	float pressure_ambient = barometer_pressure;

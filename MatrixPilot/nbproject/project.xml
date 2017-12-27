@@ -4,12 +4,12 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>MatrixPilot-udb5</name>
-            <creation-uuid>62f0ef25-4774-4b6c-a56f-e02e6e3dd216</creation-uuid>
+            <creation-uuid>3c5ae5c4-8e41-4f24-a0f3-69a76bf54cc7</creation-uuid>
             <make-project-type>0</make-project-type>
-            <c-extensions/>
+            <c-extensions>c</c-extensions>
             <cpp-extensions/>
-            <header-extensions/>
-            <asminc-extensions/>
+            <header-extensions>h</header-extensions>
+            <asminc-extensions>inc</asminc-extensions>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
         </data>

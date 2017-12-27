@@ -20,7 +20,6 @@
 
 #include "defines.h" 
 
-#define LED_RED_SONAR_CHECK                   1
 
 // servo_ratios are used to convert degrees of rotation into servo pulse code lengths
 // This code is configured for the full throw of the servo to be achieved by a range of

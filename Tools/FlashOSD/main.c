@@ -81,8 +81,7 @@ void udb_background_callback_periodic(void)
 	{
 		if (charPosition == 256 && !didDisplay)
 		{
-			LED_GREEN = LED_ON;
-			LED_GREEN = LED_ON;
+			LED_GREEN = LED_OFF;
 
 			osd_spi_write(0x04, 0);     // DMM set to 0
 			osd_spi_write(0x0, 0x08);   // VM0: enable display of OSD image

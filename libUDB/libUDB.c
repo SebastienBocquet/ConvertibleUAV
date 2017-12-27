@@ -23,6 +23,8 @@
 #include "oscillator.h"
 #include "interrupt.h"
 #include "events.h"
+#include "../libUDB/heartbeat.h"
+#include "defines.h"
 
 #if (USE_TELELOG == 1)
 #include "telemetry_log.h"
@@ -54,6 +56,7 @@
 
 
 union udb_fbts_byte udb_flags;
+int16_t low_battery = 0;
 
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
 union longww battery_current;
@@ -239,17 +242,21 @@ void calculate_analog_sensor_values(void)
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
 	// Shift up from [-2^15 , 2^15-1] to [0 , 2^16-1]
 	// Convert to current in tenths of Amps
-	battery_current.WW = (udb_analogInputs[ANALOG_CURRENT_INPUT_CHANNEL-1].value + (int32_t)32768) * (MAX_CURRENT) + (((int32_t)(CURRENT_SENSOR_OFFSET)) << 16);
-	
+    //multiplication by two because the sensor is mounted on one half of the power circuit
+	battery_current.WW = (udb_analogInputs[ANALOG_CURRENT_INPUT_CHANNEL-1].value + (int32_t)32768) * 2 * MAX_CURRENT + (((int32_t)(CURRENT_SENSOR_OFFSET)) << 16);
 	// mAh = mA / (HEARTBEAT_HZ*60*60) (increment per HEARTBEAT_HZ Hz tick)
 	// 90000/(HEARTBEAT_HZ*60*60) == 900/(HEARTBEAT_HZ*36)
 	battery_mAh_used.WW += (battery_current.WW / (int32_t)(HEARTBEAT_HZ*36));
+    
+    current = battery_current._.W1 ;
+    mAh_used = battery_mAh_used._.W1 ;
 #endif
 
 #if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
 	// Shift up from [-2^15 , 2^15-1] to [0 , 2^16-1]
 	// Convert to voltage in tenths of Volts
-	battery_voltage.WW = (udb_analogInputs[ANALOG_VOLTAGE_INPUT_CHANNEL-1].value + (int32_t)32768) * (MAX_VOLTAGE) + (((int32_t)(VOLTAGE_SENSOR_OFFSET)) << 16);
+	battery_voltage.WW = (udb_analogInputs[ANALOG_VOLTAGE_INPUT_CHANNEL-1].value + (int32_t)(32768)) * (MAX_VOLTAGE) + (((int32_t)(VOLTAGE_SENSOR_OFFSET)) << 16);
+    voltage = battery_voltage._.W1 ;
 #endif
 
 #if (ANALOG_RSSI_INPUT_CHANNEL != CHANNEL_UNUSED)
@@ -262,4 +269,26 @@ void calculate_analog_sensor_values(void)
 	else
 		rc_signal_strength = (uint8_t)rssi_accum._.W1;
 #endif
+}
+
+void detect_low_battery(void)
+{
+#if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
+    if (voltage < LOW_VOLTAGE)
+    {
+        low_battery ++;
+    }
+#endif
+    
+#if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
+    if (mAh_used > MAX_USEABLE_MAH)
+    {
+        low_battery ++;
+    }
+#endif
+    
+    if (low_battery > (NB_LOW_VOLTAGE_SECONDS*HEARTBEAT_HZ))
+    {
+        flags._.emergency_landing = 1;
+    }
 }

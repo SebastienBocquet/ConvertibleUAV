@@ -69,7 +69,7 @@ void udb_background_callback_periodic(void)
 	else
 	{
 		// No longer calibrating: solid RED and send debug output
-		LED_RED = LED_ON;
+		LED_RED = LED_OFF;
 	}
 }
 

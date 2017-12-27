@@ -283,12 +283,10 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T4Interrupt(void)
 			break;
 //		case 2:
 //			SERVO_OUT_PIN_2 = 0;
-//			//additional_int16_export3 +=1;
 //			HANDLE_SERVO_OUT(3, SERVO_OUT_PIN_3);
 //			break;
 //		case 3:
 //			SERVO_OUT_PIN_3 = 0;
-//			//additional_int16_export4 +=1;
 //			HANDLE_SERVO_OUT(4, SERVO_OUT_PIN_4);
 //			break;
 //		case 4:

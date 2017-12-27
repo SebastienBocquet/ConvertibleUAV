@@ -55,20 +55,18 @@
 	int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
     float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
 #else
-    const uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
+    uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
     const uint16_t hoverrollToWPki = (uint16_t)(HOVER_ROLLTOWPKI*RMAX);
 	const int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
     const float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
 #endif
 
-int16_t hovering_roll_dir;
+int16_t hovering_roll_order;
 int32_t roll_error_integral = 0;
 float roll_error_filtered_flt = 0.;
 int16_t roll_error_filtered = 0;
 int16_t roll_hover_counter = 0;
-
-int16_t hover_error_x = 0;
-int16_t hover_error_integral_x = 0;
+int16_t roll_hover_corr = 0;
 
 void normalRollCntrl(void);
 void hoverRollCntrl(void);
@@ -157,7 +155,6 @@ void normalRollCntrl(void)
 void hoverRollCntrl(void)
 {
 	//union longww rollAccum;
-    int16_t rollCorr = 0;
 	int16_t roll_error_filt = 0;
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
@@ -170,27 +167,26 @@ void hoverRollCntrl(void)
             roll_error_integral = 0;
         }
 
+        hoverrollToWPkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));  
+
         determine_navigation_deflection('y');
             
-        int16_t tofinish_line_roll = (int16_t)(__builtin_mulsu(hovering_roll_dir, tofinish_line_factor10)>>14);
+        int16_t tofinish_line_roll = (int16_t)(__builtin_mulsu(hovering_roll_order, tofinish_line_factor10)>>14);
         int32_t roll_error32 = __builtin_mulsu(tofinish_line_roll, SERVORANGE) / (10 * MAX_HOVERING_RADIUS);
 		if (roll_error32 > SERVORANGE) roll_error32 = SERVORANGE;
 		if (roll_error32 < -SERVORANGE) roll_error32 = -SERVORANGE;
 
         //filter error
-        roll_error_filt = -exponential_filter((int16_t)(roll_error32), &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
+        roll_error_filt = exponential_filter((int16_t)(roll_error32), &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
 
 		//PI controller on roll_error
-		rollCorr = compute_pi_block(roll_error_filt, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralrollToWP, (hover_counter > nb_sample_wait));
-
-		hover_error_y = roll_error_filt;
-        hover_error_integral_y = (int16_t)(roll_error_integral / (int16_t)(HEARTBEAT_HZ));
+		roll_hover_corr = compute_pi_block(roll_error_filt, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralrollToWP, flags._.is_in_flight);
 	}
 	else
 	{
-		rollCorr = 0;
+		roll_hover_corr = 0;
 	}
 
-	roll_control = rollCorr;
+	roll_control = roll_hover_corr;
 }

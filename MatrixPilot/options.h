@@ -85,6 +85,11 @@
 #define GPS_TYPE                            GPS_STD 
 
 ////////////////////////////////////////////////////////////////////////////////
+#define DEADBAND            150
+#define DEADBAND_HOVER      350
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 // Enable/Disable core features of this firmware
 //
 // Roll, Pitch, and Yaw Stabilization
@@ -220,12 +225,13 @@
 //   - If you're set up to use Rudder Navigation (like MatrixNav), then you may want to swap
 //     the aileron and rudder channels so that rudder is CHANNEL_1, and aileron is 5.
 #define THROTTLE_HOVER_INPUT_CHANNEL        CHANNEL_1
-#define THROTTLE_INPUT_CHANNEL              CHANNEL_6
+#define THROTTLE_INPUT_CHANNEL              CHANNEL_1
 #define AILERON_INPUT_CHANNEL               CHANNEL_2
-#define FLAP_INPUT_CHANNEL                  CHANNEL_7
 #define ELEVATOR_INPUT_CHANNEL              CHANNEL_3
 #define RUDDER_INPUT_CHANNEL                CHANNEL_4
 #define MODE_SWITCH_INPUT_CHANNEL           CHANNEL_5
+#define INPUT_CHANNEL_AUX1                  CHANNEL_6
+#define INPUT_CHANNEL_AUX2                  CHANNEL_7
 #define CAMERA_PITCH_INPUT_CHANNEL          CHANNEL_UNUSED
 #define CAMERA_YAW_INPUT_CHANNEL            CHANNEL_UNUSED
 #define CAMERA_MODE_INPUT_CHANNEL           CHANNEL_UNUSED
@@ -387,7 +393,7 @@
 //   2 also enables Radio In 2 as another analog Input
 //   NOTE: Can only be set this higher than 0 if USE_PPM_INPUT is enabled above.
 // For UDB4 boards: Set to 0-4.  Analog pins are AN15 - AN18.
-#define NUM_ANALOG_INPUTS                   0
+#define NUM_ANALOG_INPUTS                   2
 
 // Channel numbers for each analog input
 //   - Only assign each channel number to one analog sensor
@@ -403,7 +409,7 @@
 // voltage input channel to the voltage output from the current sensor.  Values for
 // instantaneous current, voltage, and mAh used will become available for use with the
 // OSD layout.
-//
+//   
 // ANALOG_RSSI_INPUT_CHANNEL lets you connect your RC Receiver's RSSI output to your
 // UDB, in order to see the RC signal strength on your OSD.  Just plug RSSI and ground
 // from your Receiver to Input2's signal and ground on your UDB.  If you use this feature,
@@ -411,8 +417,8 @@
 // to match your Receiver's RSSI format.  Note that some receivers use a higher voltage to 
 // represent a lower signal strength, so you may need to set MIN higher than MAX.
 
-#define ANALOG_CURRENT_INPUT_CHANNEL        CHANNEL_UNUSED
-#define ANALOG_VOLTAGE_INPUT_CHANNEL        CHANNEL_UNUSED
+#define ANALOG_CURRENT_INPUT_CHANNEL        2
+#define ANALOG_VOLTAGE_INPUT_CHANNEL        1
 #define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
 
 // RSSI - RC Receiver signal strength
@@ -476,8 +482,8 @@
 #define MOTOR_A_POSITION     3
 
 // Tilt PID(DD) control gains on roll and pitch angle
-#define TILT_KI 0.2
-#define TILT_KP 0.34
+#define TILT_KI 0.25
+#define TILT_KP 0.5
 #define TILT_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 
@@ -487,16 +493,14 @@
 #define YAW_KD 0.
 
 //Tilt PID control gains on roll and pitch rate
-#define TILT_RATE_KP 0.12
-#define TILT_RATE_KD 0.41
+#define TILT_RATE_KP 0.22
+#define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
 #define YAW_RATE_KP 0.20
 
 //variable gains controlled from Tx
 #define MANUAL_HEADING      0
 //#define VARIABLE_GAINS
-#define INPUT_CHANNEL_AUX1  THROTTLE_INPUT_CHANNEL
-#define INPUT_CHANNEL_AUX2  FLAP_INPUT_CHANNEL
 
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
@@ -580,16 +584,19 @@
 #define MANUAL_TARGET_HEIGHT               1    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
                                                  //otherwise target height is set to 0.5*(hovertargetheightmin+hovertargetheightmax)
 												 // and target vz is set to 0.5*(hovertargetvzmin+hovertargetvzmax)
-#define AIRCRAFT_MASS                      2000  //in g
+#define AIRCRAFT_MASS                      1250  //in g
 #define MAX_THRUST                         40    //maximul thrust in N 
 #define HOVER_THROTTLE_OFFSET              0.55
-#define HOVER_THROTTLE_MIN                 0.
-#define HOVER_THROTTLE_MAX                 1.
-#define HOVER_TARGET_HEIGHT_MIN            50   // (cm)  //defines the target altitude, ranging between min and max depending on the FLAP_INPUT_CHANNEL (for testing only)
+#define HOVER_THROTTLE_MIN                 0.2
+#define HOVER_THROTTLE_MAX                 0.7
+#define SONAR_MINIMUM_DISTANCE             60 // Normally, should be minimum possible sonar distance measurement (4 inch)
+#define USEABLE_SONAR_DISTANCE             235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
+#define OUT_OF_RANGE_DISTANCE              60 // Distance in centimeters that denotes "out of range" for your Sonar device.
+#define HOVER_TARGET_HEIGHT_MIN            80   // (cm)
 #define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
 #define HOVER_TARGET_VZ_MIN                -20   // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated
 #define HOVER_TARGET_VZ_MAX                20   // (cm/s)
-#define USEABLE_SONAR_DISTANCE             400 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
+#define EMERGENCY_VZ                       100
 #define VZ_CORR                            1     //0 means vz = imu_vz, 1 means vz is the derivative of sensor or barometer altitude
 #define HOVER_INV_DELTA_FILTER_TARGETZ     80.
 #define HOVER_INV_DELTA_FILTER_SONAR       10.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)

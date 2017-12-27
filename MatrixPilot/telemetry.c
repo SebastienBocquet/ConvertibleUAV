@@ -77,6 +77,10 @@ int16_t additional_int16_export8 = 0;
 int16_t additional_int16_export9 = 0;
 int32_t additional_int32_export1 = 0;
 
+int16_t voltage = 0;
+int16_t current = 0;
+int16_t mAh_used = 0;
+
 void init_serial()
 {
 #if (SERIAL_OUTPUT_FORMAT == SERIAL_OSD_REMZIBI)
@@ -708,8 +712,6 @@ void serial_output_8hz(void)
                     hover_z, hover_vz, hover_accz, hover_error_integral_z, hover_error_integral_vz, hover_error_integral_accz, 
                     segmentIndex);
 
-                serial_output("ex%i:exi%i:ey%i:eyi%i:", hover_error_x, hover_error_integral_x, hover_error_y, hover_error_integral_y);
-
 #if ( USE_SONAR	== 1 )
 				serial_output("sond%i:sonhtg%i:", 
                     sonar_distance, sonar_height_to_ground) ;
@@ -736,6 +738,7 @@ void serial_output_8hz(void)
 				serial_output("F2:T%li:"
 				              "a%i:b%i:c%i:d%i:e%i:f%i:g%i:h%i:i%i:"
                               "om0%i:om1%i:om2%i:"
+                              "aqv%i:aqc%i:aqu%i:"
                               "cpu%u:"
                               "ma%i:mb%i:mc%i:"
                               ,
@@ -744,6 +747,7 @@ void serial_output_8hz(void)
 				    rmat[3], rmat[4], rmat[5],
 				    rmat[6], rmat[7], rmat[8],
 					omegagyro[0], omegagyro[1], omegagyro[2],
+                    voltage, current, mAh_used,
                     (uint16_t)udb_cpu_load(),
 #if (MAG_YAW_DRIFT == 1)
 				    magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
@@ -781,11 +785,14 @@ void serial_output_8hz(void)
                     accelEarth[2], hover_target_z, hover_target_vz, hover_target_accz, 
                     hover_z, hover_vz, hover_accz, hover_error_integral_z);
 
-				serial_output("rerr%i:perr%i:yerr%i:intr%i:intp%i:inty%i:",
-					roll_error, pitch_error, yaw_error,
-					roll_intgrl, pitch_intgrl, yaw_intgrl);
+				serial_output("rerr%i:perr%i:yerr%i:",
+					roll_error, pitch_error, yaw_error);
 
-				serial_output("ex%i:exi%i:ey%i:eyi%i:", hover_error_x, hover_error_integral_x, hover_error_y, hover_error_integral_y);
+				serial_output("inf%i:eml%i:lowb%i:autl%i:engo%i:", 
+                        flags._.is_in_flight, flags._.emergency_landing, flags._.low_battery, 
+                        flags._.auto_land, flags._.engines_off);
+                
+                serial_output("rco%i:pco%i:", roll_hover_corr, pitch_hover_corr);
 
 #if ( USE_SONAR	== 1 )
 				serial_output("sond%i:sonhtg%i:", 
@@ -795,10 +802,10 @@ void serial_output_8hz(void)
 				serial_output("alt%li:",
                     get_barometer_altitude());
 #endif
-                serial_output("add1%i:add2%i:add3%i:add4%i:add5%i:add6%i:add7%i:add8%i:add9%i:",
+                serial_output("add1%i:add2%i:add3%i:add4%i:add5%i:add6%i:add7%i:",
                    additional_int16_export1, additional_int16_export2, additional_int16_export3, 
                    additional_int16_export4, additional_int16_export5, additional_int16_export6,
-                   additional_int16_export7, additional_int16_export8, additional_int16_export9);
+                   additional_int16_export7);
 
 #if (RECORD_FREE_STACK_SPACE == 1)
 				extern uint16_t maxstack;

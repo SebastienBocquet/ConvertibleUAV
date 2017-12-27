@@ -216,13 +216,13 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T6Interrupt(void)
 				udb_flags._.radio_on = 0;
 				udb_callback_radio_did_turn_off();
 			}
-			LED_GREEN = LED_OFF;
+			//LED_GREEN = LED_OFF;
 			noisePulses = 0; // reset count of noise pulses
 		}
 		else
 		{
 			udb_flags._.radio_on = 1;
-			LED_GREEN = LED_ON;
+			//LED_GREEN = LED_OFF;
 		}
 		failSafePulses = 0;
 	}
@@ -241,6 +241,7 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T6Interrupt(void)
 #endif // VREF
 
 	calculate_analog_sensor_values();
+    detect_low_battery();
 	udb_callback_read_sensors();
 	udb_flags._.a2d_read = 1; // signal the A/D to start the next summation
 

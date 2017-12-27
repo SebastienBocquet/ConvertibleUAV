@@ -46,6 +46,11 @@ struct flag_bits {
 	uint16_t rtl_hold                   : 1;
 	uint16_t f13_print_req              : 1;
 	uint16_t update_autopilot_state_asap: 1;
+    uint16_t is_in_flight               : 1 ;
+    uint16_t auto_land                  : 1 ;
+    uint16_t low_battery                : 1 ;
+    uint16_t emergency_landing          : 1 ;
+    uint16_t engines_off                : 1 ;
 };
 
 union fbts_int { struct flag_bits _; int16_t WW; };
@@ -65,7 +70,9 @@ void yawCntrl(void);
 void altitudeCntrl(void);
 void setTargetAltitude(int16_t targetAlt);
 
-void init_yawCntrl(void);void init_rollCntrl(void);void init_pitchCntrl(void);
+void init_yawCntrl(void);
+void init_rollCntrl(void);
+void init_pitchCntrl(void);
 
 
 // wind gain adjustment
@@ -121,6 +128,7 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 
 ////////////////////////////////////////////////////////////////////////////////
 // AltitudeCntrl.c
+#define LED_RED_SONAR_CHECK                   1
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2
 extern int16_t sonar_height_to_ground ;		// calculated distance to ground in cm
@@ -148,12 +156,6 @@ extern int16_t hover_target_vz;
 extern int16_t hover_target_accz;
 extern int16_t hover_error_integral_accz;
 
-extern int16_t hover_error_x;
-extern int16_t hover_error_integral_x;
-
-extern int16_t hover_error_y;
-extern int16_t hover_error_integral_y;
-
 extern int16_t additional_int16_export1;
 extern int16_t additional_int16_export2;
 extern int16_t additional_int16_export3;
@@ -164,14 +166,7 @@ extern int16_t additional_int16_export7;
 extern int16_t additional_int16_export8;
 extern int16_t additional_int16_export9;
 extern int32_t additional_int32_export1;
-extern int16_t nb_sample_wait;
 
-//void matrix22_inverse(int32_t (*)[4], int32_t*);
-//void matrix22_multiply(int32_t (*)[4], int32_t*, int32_t*);
-//void matrix22_vector_multiply(int32_t (*)[2], int32_t*, int32_t*);
-//void matrix22_add(int32_t (*)[4], int32_t*, int32_t*);
-//void matrix22_sub(int32_t (*)[4], int32_t*, int32_t*);
-//void matrix22_transpose(int32_t (*)[4], int32_t*);
 int16_t IIR_Filter(int32_t*, int16_t, int8_t);
 int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max);
 int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*, int16_t, int32_t, boolean);
@@ -185,12 +180,13 @@ void update_goal_alt(int16_t z);
 void compute_bearing_to_goal (void);
 void process_flightplan(void);
 int16_t determine_navigation_deflection(char navType);
-//void reset_manoeuvre(void);
-//extern unsigned char can_init_flightplan0;
+
 void compute_hovering_dir(void);
-extern int16_t hovering_pitch_dir;
-extern int16_t hovering_roll_dir;
+extern int16_t hovering_pitch_order;
+extern int16_t hovering_roll_order;
 extern int16_t plane_to_north;
+extern int16_t roll_hover_corr;
+extern int16_t pitch_hover_corr;
 
 struct waypointparameters { int16_t x; int16_t y; int16_t cosphi; int16_t sinphi; int8_t phi; int16_t height; int16_t fromHeight; int16_t legDist; };
 extern struct waypointparameters goal;
@@ -214,8 +210,10 @@ extern int16_t pitch_intgrl;
 extern int16_t yaw_intgrl;
 
 ////////////////////////////////////////////////////////////////////////////////
-// speed management
-//extern int16_t minimum_airspeed;
+// energy management
+extern int16_t voltage;
+extern int16_t current;
+extern int16_t mAh_used;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Flight Planning modules - flightplan-waypoints.c and flightplan-logo.c
@@ -250,6 +248,8 @@ void updateBehavior(void);
 void updateTriggerAction(void);
 boolean canStabilizeInverted(void);
 boolean canStabilizeHover(void);
+void update_throttle_activation_state(int16_t throttle);
+void enforce_manual_hover_throttle(void);
 
 struct behavior_flag_bits {
 	uint16_t takeoff        : 1;    // disable altitude interpolation for faster climbout
@@ -292,6 +292,8 @@ extern union bfbts_word desired_behavior;
 #define TRIGGER_PULSE_LOW      8
 #define TRIGGER_TOGGLE        16
 #define TRIGGER_REPEATING     32
+
+extern boolean is_manual_hover_throttle;
 
 
 ////////////////////////////////////////////////////////////////////////////////

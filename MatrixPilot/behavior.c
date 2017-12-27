@@ -29,6 +29,9 @@ int16_t cyclesUntilStartTriggerAction = 0;
 int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
+boolean is_manual_hover_throttle = 1;
+int16_t throttle_activation = 0;
+boolean throttle_deactivation = 0;
 
 void triggerActionSetValue(boolean newValue);
 
@@ -82,6 +85,7 @@ void updateBehavior(void)
 
 	int16_t current_altitude = IMUlocationz._.W1;
 	int16_t transition_altitude = TRANSITION_ALTITUDE;
+    boolean isHovering = canStabilizeHover() && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude);
 
 	if (current_orientation == F_INVERTED)
 	{
@@ -101,9 +105,7 @@ void updateBehavior(void)
 	else if (current_orientation == F_HOVER)
 	{
 		//remain in hovering mode if (horizontal_air_speed < minimum_airspeed or altitude < MAX_HOVERING_ALTITUDE)
-		if (canStabilizeHover() && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude))
-		//baseline: switch from hovering to normal if plane is at pitch angle 45deg
-		//if (canStabilizeHover() && rmat[7] < -8000)
+		if (isHovering)
 		{
 			current_orientation = F_HOVER;
 		}
@@ -115,7 +117,6 @@ void updateBehavior(void)
 		else
 		{
 			current_orientation = F_NORMAL;
-//			reset_manoeuvre();
 		}
 	}
 	else
@@ -125,7 +126,7 @@ void updateBehavior(void)
 			current_orientation = F_INVERTED;
 		}
 		//switch from normal to hovering if (horizontal_air_speed <= minimum_airspeed horizontal_air_speed < minimum_airspeed or altitude < MAX_HOVERING_ALTITUDE)
-		else if (canStabilizeHover() && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude))
+		else if (isHovering)
 		{
 			current_orientation = F_HOVER;
 		}
@@ -135,7 +136,6 @@ void updateBehavior(void)
 		}
 	}
 //	if (flags._.pitch_feedback && !flags._.GPS_steering)
-    //for the moment we want the behavior being determine by plane orientation 
     if (flags._.pitch_feedback) 
 	{
 		desired_behavior.W = current_orientation;
@@ -200,4 +200,71 @@ void triggerActionSetValue(boolean newValue)
 		}
 	}
 	currentTriggerActionValue = newValue;
+}
+
+void update_throttle_activation_state(int16_t throttle)
+{
+    if ( (throttle_activation == 0) && (throttle > HOVER_THROTTLE_MIN*(2.0*SERVORANGE)) )
+    {   
+        throttle_activation = 1;
+    }
+
+    if ( (throttle <= HOVER_THROTTLE_MIN*(2.0*SERVORANGE)) && (throttle_activation == 1) )
+    {
+        throttle_deactivation = 1;
+    }
+    
+    if ( (throttle_activation >= 1) && (throttle_deactivation) )
+    {
+        if ( throttle > HOVER_THROTTLE_MIN*(2.0*SERVORANGE) )
+        { 
+            throttle_activation = 2;
+        }
+    }
+    
+    if (flags._.engines_off)
+    {
+        throttle_activation = 0;
+        throttle_deactivation = 0;
+    }
+}
+
+void enforce_manual_hover_throttle(void)
+{   
+    if (current_orientation == F_HOVER)
+    {
+        update_throttle_activation_state(udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]));
+                    
+        if ( udb_flags._.radio_on == 1 )
+        {
+            if (!flags._.is_in_flight) 
+            {
+                is_manual_hover_throttle = true;
+            }
+            else
+            {
+                if (throttle_activation == 0)
+                {
+                    is_manual_hover_throttle = true;
+                }
+                else if (throttle_activation == 1)
+                {
+                    is_manual_hover_throttle = false;
+                }
+                else
+                {
+                    is_manual_hover_throttle = true;
+                }
+            }
+        }
+        else
+        {
+            is_manual_hover_throttle = false;
+        }
+    }
+    else
+    {
+        is_manual_hover_throttle = true;
+    }
+   
 }
