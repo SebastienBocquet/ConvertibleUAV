@@ -54,14 +54,12 @@
 int16_t udb_pwIn[NUM_INPUTS+1];     // pulse widths of radio inputs
 int16_t udb_pwTrim[NUM_INPUTS+1];   // initial pulse widths for trimming
 
-#if ( USE_SONAR_ON_PWM_INPUT_8	== 1 )
+#if ( USE_SONAR_ON_PWM_INPUT_7	== 1 )
 uint16_t udb_pwm_sonar = 0 ;		// pulse width of sonar signal
 #endif
-
-//#if ( USE_SONAR_ON_PWM_INPUT_7	== 1 )
-//int udb_pwm_flap  ;		// pulse width of flap signal
-//int udb_pwm_flap_rise ;
-//#endif
+#if ( USE_LIDAR_ON_PWM_INPUT_8	== 1 )
+uint16_t udb_pwm_lidar = 0 ;		// pulse width of lidar signal
+#endif
 
 int16_t failSafePulses = 0;
 int16_t noisePulses = 0;
@@ -126,11 +124,11 @@ void udb_init_capture(void)
 	if (NUM_INPUTS > 4) IC_INIT(5, REGTOK1, REGTOK2);
 	if (NUM_INPUTS > 5) IC_INIT(6, REGTOK1, REGTOK2);
     if (NUM_INPUTS > 6) IC_INIT(7, REGTOK1, REGTOK2);
-//    if ((NUM_INPUTS > 6) || (USE_SONAR_ON_PWM_INPUT_7 == 1)) IC_INIT(7, REGTOK1, REGTOK2);
-	if ((NUM_INPUTS > 7) || (USE_SONAR_ON_PWM_INPUT_8 == 1)) IC_INIT(8, REGTOK1, REGTOK2);
+    if ((NUM_INPUTS > 6) || (USE_SONAR_ON_PWM_INPUT_7 == 1)) IC_INIT(7, REGTOK1, REGTOK2);
+	if ((NUM_INPUTS > 7) || (USE_LIDAR_ON_PWM_INPUT_8 == 1)) IC_INIT(8, REGTOK1, REGTOK2);
 #else
-//    if (USE_SONAR_ON_PWM_INPUT_7 == 1) IC_INIT(7, REGTOK1, REGTOK2);
-    if (USE_SONAR_ON_PWM_INPUT_8 == 1) IC_INIT(8, REGTOK1, REGTOK2);
+    if (USE_SONAR_ON_PWM_INPUT_7 == 1) IC_INIT(7, REGTOK1, REGTOK2);
+    if (USE_LIDAR_ON_PWM_INPUT_8 == 1) IC_INIT(8, REGTOK1, REGTOK2);
 #endif // USE_PPM_INPUT
 
 #endif // NORADIO
@@ -217,13 +215,12 @@ IC_HANDLER(3, REGTOK1, IC_PIN3);
 IC_HANDLER(4, REGTOK1, IC_PIN4);
 IC_HANDLER(5, REGTOK1, IC_PIN5);
 IC_HANDLER(6, REGTOK1, IC_PIN6);
+
+#if ( USE_SONAR_ON_PWM_INPUT_7	!= 1 )
 IC_HANDLER(7, REGTOK1, IC_PIN7);
+#endif
 
-//#if ( USE_SONAR_ON_PWM_INPUT_7	!= 1 )
-//IC_HANDLER(7, REGTOK1, IC_PIN7);
-//#endif
-
-#if ( USE_SONAR_ON_PWM_INPUT_8	!= 1 )
+#if ( USE_LIDAR_ON_PWM_INPUT_8	!= 1 )
 IC_HANDLER(8, REGTOK1, IC_PIN8);
 #endif
 
@@ -306,36 +303,36 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _IC1Interrupt(void)
 
 #endif // USE_PPM_INPUT
 
-//#if (USE_SONAR_ON_PWM_INPUT_7	== 1)
-//unsigned int flap_pwm_count ;
-//void __attribute__((__interrupt__,__no_auto_psv__)) _IC7Interrupt(void)
-//{
-//	indicate_loading_inter;
-//	interrupt_save_set_corcon;
-//	static uint16_t rise = 0;
-//	uint16_t time = 0;
-//	_IC7IF = 0;
-//	while (IC7CONbits.ICBNE)
-//    {
-//		time = IC7BUF;
-//    }
-//	if (IC_PIN7)
-//    {
-//		rise = time;
-//        flap_pwm_count++ ;
-//    }
-//	else
-//    {
-//		udb_pwm_flap = time - rise;
-//        udb_flags._.flap_updated = 1;
-//    }
-//	interrupt_restore_corcon;
-//}
-//
-//#endif // ( USE_SONAR_ON_PWM_INPUT_8	is True )
-
-#if (USE_SONAR_ON_PWM_INPUT_8	== 1)
+#if (USE_SONAR_ON_PWM_INPUT_7	== 1)
 unsigned int sonar_pwm_count ;
+void __attribute__((__interrupt__,__no_auto_psv__)) _IC7Interrupt(void)
+{
+	indicate_loading_inter;
+	interrupt_save_set_corcon;
+	static uint16_t rise = 0;
+	uint16_t time = 0;
+	_IC7IF = 0;
+	while (IC7CONbits.ICBNE)
+    {
+		time = IC7BUF;
+    }
+	if (IC_PIN7)
+    {
+		rise = time;
+        sonar_pwm_count++ ;
+    }
+	else
+    {
+		udb_pwm_sonar = time - rise;
+        udb_flags._.sonar_updated = 1;
+    }
+	interrupt_restore_corcon;
+}
+
+#endif // ( USE_SONAR_ON_PWM_INPUT_7	is True )
+
+#if (USE_LIDAR_ON_PWM_INPUT_8	== 1)
+unsigned int lidar_pwm_count ;
 void __attribute__((__interrupt__,__no_auto_psv__)) _IC8Interrupt(void)
 {
 	indicate_loading_inter;
@@ -350,17 +347,17 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _IC8Interrupt(void)
 	if (IC_PIN8)
     {
 		rise = time;
-        sonar_pwm_count++ ;
+        lidar_pwm_count++ ;
     }
 	else
     {
-		udb_pwm_sonar = time - rise;
-        udb_flags._.sonar_updated = 1;
+		udb_pwm_lidar = time - rise;
+        udb_flags._.lidar_updated = 1;
     }
 	interrupt_restore_corcon;
 }
 
-#endif // ( USE_SONAR_ON_PWM_INPUT_8	is True )
+#endif // ( USE_LIDAR_ON_PWM_INPUT_8	is True )
 
 #endif // NOARADIO !=1
 

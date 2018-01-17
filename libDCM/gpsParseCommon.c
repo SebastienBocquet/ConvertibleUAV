@@ -20,7 +20,7 @@
 
 
 #include "libDCM_internal.h"
-#include "estAltitude.h"
+#include "barometerAltitude.h"
 #include <string.h>
 
 

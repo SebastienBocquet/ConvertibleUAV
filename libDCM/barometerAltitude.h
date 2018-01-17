@@ -19,8 +19,8 @@
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef ESTALTITUDE_H
-#define ESTALTITUDE_H
+#ifndef BAROALTITUDE_H
+#define BAROALTITUDE_H
 
 
 void udb_barometer_callback(long pressure, int temperature, char status);
@@ -33,4 +33,4 @@ inline int get_barometer_temperature(void);
 inline long get_barometer_agl_altitude(void);
 
 
-#endif // ESTALTITUDE_H
+#endif // BAROALTITUDE_H

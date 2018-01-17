@@ -20,7 +20,7 @@
 
 
 #include "defines.h"
-#include "../libDCM/estAltitude.h"
+#include "../libDCM/barometerAltitude.h"
 #include "../libUDB/libUDB.h"
 #include "../libUDB/heartbeat.h"
 

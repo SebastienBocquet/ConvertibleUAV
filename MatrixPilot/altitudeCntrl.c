@@ -21,7 +21,9 @@
 
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
-#include "../libDCM/estAltitude.h"
+#include "../libDCM/lidarAltitude.h"
+#include "../libDCM/sonarAltitude.h"
+#include "../libDCM/barometerAltitude.h"
 #include "../libUDB/barometer.h"
 #include "../libDCM/libDCM_internal.h"
 
@@ -169,14 +171,6 @@ int16_t hover_target_accz=0;
 
 float invdeltafilterheight;
 float invdeltafiltervz;
-
-#if ( USE_SONAR == 1 )
-   int16_t sonar_distance ;          // distance to target in centimeters
-   int16_t sonar_height_to_ground ; // calculated distance to ground in Earth's Z Plane allowing for tilt
-   unsigned char good_sample_count  = 0 ;  // Tracks the number of consequtive good samples up until SONAR_SAMPLE_THRESHOLD is reached.
-//   fractional cos_pitch_roll ;  // tilt of the plane in UDB fractional units * 2.
-   void calculate_sonar_height_above_ground(void);
-#endif
 
 //failsafe
 boolean alt_sensor_failure = true;
@@ -673,7 +667,7 @@ void hoverAltitudeCntrl(void)
     }
 #endif
 
-    //if sonar is used, use sonar altitude (higher priority in order to accurately control landing)
+    //if sonar is used, use sonar altitude
 #if ( USE_SONAR == 1 )
 
     calculate_sonar_height_above_ground();
@@ -681,6 +675,20 @@ void hoverAltitudeCntrl(void)
 	if (udb_flags._.sonar_height_valid)
 	{
         z=sonar_height_to_ground;
+        invdeltafilterheight=invdeltafiltersonar;
+        invdeltafiltervz=4.;
+		alt_sensor_failure=false;
+	}
+#endif
+    
+    //if lidar is used, use lidar altitude (higher priority in order to accurately control landing)
+#if ( USE_LIDAR == 1 )
+
+    calculate_lidar_height_above_ground();
+
+	if (udb_flags._.lidar_height_valid)
+	{
+        z=lidar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
         invdeltafiltervz=4.;
 		alt_sensor_failure=false;
@@ -877,103 +885,7 @@ if (flags._.emergency_landing) z_target = emergency_landing();
 
 
 
-#if ( USE_SONAR == 1 )
 
-// USEABLE_SONAR_DISTANCE may well vary with type of ground cover (e.g. long grass may be less).
-// Pete Hollands ran the code with #define SERIAL_OUTPUT SERIAL_UDB_SONAR while flying low
-// over his landing area, which was a freshly cut straw field. Post flight, he anlaysed the CSV telemetry into a spreadsheet graph,
-// and determined that all measurements below 4 meters were true, as long as there were at least 3 consecutive measurements,
-// that were less than 4 meters (400 centimeters).
-#define NO_READING_RECEIVED_DISTANCE			9999 // Distance denotes that no sonar reading was returned from sonar device
-#define SONAR_SAMPLE_THRESHOLD 					  3 // Number of readings before code deems "certain" of a true reading.
-#define UDB_SONAR_PWM_UNITS_TO_CENTIMETERS       278  // 
-
-#if ( USE_SONAR_ON_PWM_INPUT_8	== 0)
-    uint16_t udb_pwm_sonar = 0;
-#endif
-
-unsigned char no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
-int16_t distance_yaw_corr = 0;  //correction of sonar distance in cm, to account for yaw angle of the plane
-
-void calculate_sonar_height_above_ground(void)
-{
-#if (SILSIM == 1)
-	return;
-#endif
-
-#if (TEST == 1)
-    sonar_distance = (int16_t)(HOVER_TARGET_HEIGHT_MAX);
-#endif
-	if ( udb_flags._.sonar_updated == 1 ) 
-	{	
-		union longbbbb accum ;
-		no_readings_count  = 0 ;
-
-        accum.WW = __builtin_muluu( udb_pwm_sonar , UDB_SONAR_PWM_UNITS_TO_CENTIMETERS ) ;
-		sonar_distance = accum._.W1 << 1 ;
-
-		// cos of pitch angle
-		//fractional rmat7 = rmat[7] ;
-        // cos of roll angle
-        //fractional rmat6 = rmat[6] ;
-        
-		if ( sonar_distance > USEABLE_SONAR_DISTANCE || sonar_distance < SONAR_MINIMUM_DISTANCE )
-		{
-			sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
-			good_sample_count = 0 ; 
-            udb_flags._.sonar_height_valid = 0;
-#if (LED_RED_SONAR_CHECK == 1)
-			LED_RED = LED_ON;
-#endif
-		}
-		else 
-		{
-			good_sample_count++ ;
-			if  (good_sample_count > SONAR_SAMPLE_THRESHOLD) 
-			{
-				good_sample_count = SONAR_SAMPLE_THRESHOLD ;
-//                uint32_t tan2_pitch = __builtin_mulss(rmat7, rmat7);
-//                uint32_t tan2_roll = __builtin_mulss(rmat6, rmat6);
-//                uint32_t unity = __builtin_mulss(16383, 16383);
-//                uint32_t denom2 = unity + tan2_pitch + tan2_roll;
-//                uint16_t denom = sqrt_long(denom2);
-//                int16_t distance_corr = ((int32_t)(sonar_distance)*RMAX) / denom ;
-                sonar_height_to_ground = sonar_distance;
-                udb_flags._.sonar_height_valid = 1;
-#if (LED_RED_SONAR_CHECK == 1)
-				LED_RED = LED_OFF;
-#endif
-			}
-			else
-			{
-				sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
-                udb_flags._.sonar_height_valid = 0;
-#if (LED_RED_SONAR_CHECK == 1)
-				LED_RED = LED_ON;
-#endif
-			}
-		}
-		udb_flags._.sonar_updated = 0 ;
-		udb_flags._.sonar_print_telemetry = 1 ;
-	}
-	else
-	{
-		if ( no_readings_count < 7 ) // This assumes runnig at 40HZ UDB frame rate
-		{
-		 	no_readings_count++ ;
-		}
-		else
-		{
-	    	sonar_height_to_ground = NO_READING_RECEIVED_DISTANCE ;
-			udb_flags._.sonar_height_valid = 0;
-#if (LED_RED_SONAR_CHECK == 1)
-			LED_RED = LED_ON;
-#endif
-		}
-	}
-	return ;
-}
-#endif
 
 
 #endif //(ALTITUDE_GAINS_VARIABLE != 1)

@@ -117,6 +117,7 @@ void sonarServoMix(void);
 #define REVERSE_IF_NEEDED(NEEDS_REVERSING, VALUE) ((NEEDS_REVERSING) ? (-(VALUE)) : (VALUE))
 
 extern uint16_t udb_pwm_sonar ;				// Raw pwm units from sonar device
+extern uint16_t udb_pwm_lidar ;				// Raw pwm units from lidar device
 extern int16_t sonar_pitch_servo_pwm_delta; 
 extern int16_t cam_pitch_servo_pwm_delta;  
 extern int16_t cam_yaw_servo_pwm_delta;
@@ -132,6 +133,10 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2
 extern int16_t sonar_height_to_ground ;		// calculated distance to ground in cm
+
+#define LED_ORANGE_LIDAR_CHECK                   1
+extern int16_t lidar_distance ;				// direct distance from sonar to a target in cm
+extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
 
 #if (SILSIM == 1)
 	extern long barometer_altitude;

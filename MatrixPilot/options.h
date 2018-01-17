@@ -180,7 +180,11 @@
 
 //Use of ultrasonic sonar for accurate height over ground measurement within a few meters over ground (typically for hovering)
 #define USE_SONAR                           1
-#define USE_SONAR_ON_PWM_INPUT_8			1
+#define USE_SONAR_ON_PWM_INPUT_7			0
+
+//Use of a lidar for accurate height over ground measurement
+#define USE_LIDAR                           1
+#define USE_LIDAR_ON_PWM_INPUT_8			1
 
 //Use of barometer for altitude measurement
 #define BAROMETER_ALTITUDE                  1
@@ -393,7 +397,7 @@
 //   2 also enables Radio In 2 as another analog Input
 //   NOTE: Can only be set this higher than 0 if USE_PPM_INPUT is enabled above.
 // For UDB4 boards: Set to 0-4.  Analog pins are AN15 - AN18.
-#define NUM_ANALOG_INPUTS                   2
+#define NUM_ANALOG_INPUTS                   3
 
 // Channel numbers for each analog input
 //   - Only assign each channel number to one analog sensor
@@ -420,6 +424,7 @@
 #define ANALOG_CURRENT_INPUT_CHANNEL        2
 #define ANALOG_VOLTAGE_INPUT_CHANNEL        1
 #define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
+#define ANALOG_SONAR_INPUT_CHANNEL          3
 
 // RSSI - RC Receiver signal strength
 #define RSSI_MIN_SIGNAL_VOLTAGE             0.5     // Voltage when RSSI should show 0%
@@ -591,7 +596,11 @@
 #define HOVER_THROTTLE_MAX                 0.7
 #define SONAR_MINIMUM_DISTANCE             60 // Normally, should be minimum possible sonar distance measurement (4 inch)
 #define USEABLE_SONAR_DISTANCE             235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
-#define OUT_OF_RANGE_DISTANCE              60 // Distance in centimeters that denotes "out of range" for your Sonar device.
+#define LIDAR_MINIMUM_DISTANCE             5 // Normally, should be minimum possible sonar distance measurement (4 inch)
+#define USEABLE_LIDAR_DISTANCE             3275 // Reliable lidar measurement distance (centimeters) for your specific landing area. 
+                                                //Here it could go up to 4000cm, but we restrict to 3276cm because of the maximum pwm pulse duration 
+                                                //stored in an unsigned int 16bits (see comments in lidarAltitude.c)
+#define OUT_OF_RANGE_DISTANCE              -99 // Distance in centimeters that denotes "out of range" for your Sonar device.
 #define HOVER_TARGET_HEIGHT_MIN            80   // (cm) Do not set below 80cm
 #define HOVER_TARGET_HEIGHT_MAX            200   // (cm)
 #define HOVER_TARGET_VZ_MIN                -20   // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated

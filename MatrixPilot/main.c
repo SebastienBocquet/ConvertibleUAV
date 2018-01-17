@@ -20,7 +20,7 @@
 
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
-#include "../libDCM/estAltitude.h"
+#include "../libDCM/barometerAltitude.h"
 
 const int max_tilt = (int) (MAX_TILT*.7111) ;  // maximum tilt in byte cicular
 int commanded_tilt_gain ;

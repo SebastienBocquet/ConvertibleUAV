@@ -21,7 +21,7 @@
 
 #include "../libUDB/libUDB.h"
 #include "../libUDB/interrupt.h"
-#include "../libDCM/estAltitude.h"
+#include "../libDCM/barometerAltitude.h"
 #include "../libUDB/uart.h"
 #include <string.h>
 #include <stdio.h>

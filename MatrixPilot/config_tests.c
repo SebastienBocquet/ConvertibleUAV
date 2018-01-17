@@ -173,12 +173,21 @@
 #endif
 
 // Sonar settings
-#if (USE_PPM_INPUT != 1 && NUM_INPUTS > 7 && USE_SONAR_ON_PWM_INPUT_8 == 1 )
-	#error("SONAR INPUT on PWM INPUT 8 in Conflict with NUMBER of PWM NUM_INPUTS which is 8 or more")
+#if (USE_PPM_INPUT != 1 && NUM_INPUTS > 6 && USE_SONAR_ON_PWM_INPUT_7 == 1 )
+	#error("SONAR INPUT on PWM INPUT 7 in Conflict with NUMBER of PWM NUM_INPUTS which is 8 or more")
 #endif
 
-#if (USE_SONAR == 1 && USE_SONAR_ON_PWM_INPUT_8 != 1 )
-    #error("if USE SONAR = 1, USE_SONAR_ON_PWM_INPUT_8 must be set to 1")
+#if (USE_SONAR == 1 && USE_SONAR_ON_PWM_INPUT_7 != 1 && ANALOG_SONAR_INPUT_CHANNEL == 0)
+    #error("if USE SONAR = 1, USE_SONAR_ON_PWM_INPUT_8 must be set to 1 or ANALOG_SONAR_INPUT_CHANNEL must set to 1, 2, 3, or 4")
+#endif
+
+// Lidar settings
+#if (USE_PPM_INPUT != 1 && NUM_INPUTS > 7 && USE_LIDAR_ON_PWM_INPUT_8 == 1 )
+	#error("LIDAR INPUT on PWM INPUT 8 in Conflict with NUMBER of PWM NUM_INPUTS which is 7 or more")
+#endif
+
+#if (USE_LIDAR == 1 && USE_LIDAR_ON_PWM_INPUT_8 != 1 )
+    #error("if USE LIDAR = 1, USE_LIDAR_ON_PWM_INPUT_8 must be set to 1")
 #endif
 
 #if (GPS_TYPE != GPS_STD && GPS_TYPE != GPS_UBX_2HZ && GPS_TYPE != GPS_UBX_4HZ && GPS_TYPE != GPS_MTEK)

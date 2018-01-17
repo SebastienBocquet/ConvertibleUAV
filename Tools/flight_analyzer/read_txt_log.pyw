@@ -41,11 +41,13 @@ HEARTBEAT_EXPORT = 10
 F_SYNTHETIC_THROTTLE = 1
 MEASURED_TO_EXPECTED_ACCZ = 1.
 MEASURED_TO_EXPECTED_VZ = 1.
+LIDAR = 1
 SONAR = 1
 BAROMETER = 1
 EXPORT = 'LIGHT'
+SERVO_RANGE = 1000
 
-file_number = 2693
+file_number = 2697
 plot_name = 'hover_measured'
 savegard_name = 'target_v_indoor'
 
@@ -75,13 +77,16 @@ for i in range(len(cpu) - 8):
     time[i + 8] = i * 1. / HEARTBEAT_EXPORT
 
 if SONAR:
-    sonar_dist = lib.extract_var(bidon, line_len, 'sond')[
-        t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-    sonar_height = lib.extract_var(bidon, line_len, 'sonhtg')[
+    sonar_height = lib.extract_var(bidon, line_len, 'sonh')[
         t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
 else:
-    sonar_dist = np.zeros((len(time)))
     sonar_height = np.zeros((len(time)))
+
+if LIDAR:
+    lidar_height = lib.extract_var(bidon, line_len, 'lidh')[
+        t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
+else:
+    lidar_height = np.zeros((len(time)))
 
 voltage = 0.1 * lib.extract_var(bidon,
                 line_len, 'aqv')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
@@ -128,12 +133,6 @@ pitch_error = lib.extract_var(bidon, line_len, 'perr')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
 yaw_error = lib.extract_var(bidon, line_len, 'yerr')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-roll_error_integral = lib.extract_var(bidon, line_len, 'intr')[
-    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-pitch_error_integral = lib.extract_var(bidon, line_len, 'intp')[
-    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-yaw_error_integral = lib.extract_var(bidon, line_len, 'inty')[
-    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
 
 if BAROMETER:
     # barometer_pressure=lib.extract_var(bidon, line_len, 'prs')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
@@ -162,10 +161,8 @@ mb = lib.extract_var(bidon, line_len, 'mb')[
 mc = lib.extract_var(bidon, line_len, 'mc')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
 
-error_x = lib.extract_var(bidon, line_len, 'ex')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-error_x_integral = lib.extract_var(bidon, line_len, 'exi')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-error_y = lib.extract_var(bidon, line_len, 'ey')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
-error_y_integral = lib.extract_var(bidon, line_len, 'eyi')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
+roll_hover_corr = lib.extract_var(bidon, line_len, 'rco')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
+pitch_hover_corr = lib.extract_var(bidon, line_len, 'pco')[t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
 
 rmat0 = lib.extract_var(bidon, line_len, 'a')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
@@ -209,6 +206,17 @@ p7o = lib.extract_var(bidon, line_len, 'p7o')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
 p8o = lib.extract_var(bidon, line_len, 'p8o')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
+
+is_in_flight = lib.extract_var(bidon, line_len, 'inf')[
+    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]    
+emergency_landing = lib.extract_var(bidon, line_len, 'eml')[
+    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]  
+low_battery = lib.extract_var(bidon, line_len, 'lowb')[
+    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]  
+automatic_landing = lib.extract_var(bidon, line_len, 'autl')[
+    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]  
+engines_off = lib.extract_var(bidon, line_len, 'engo')[
+    t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]  
 
 add1 = lib.extract_var(bidon, line_len, 'add1')[
     t0 * HEARTBEAT_EXPORT:tf * HEARTBEAT_EXPORT]
@@ -281,8 +289,8 @@ YAW_RATE_KP = 0.41
 roll_rate = -omega1
 pitch_rate = -omega0
 
-desired_roll = -TILT_KP * roll_error - TILT_KI * roll_error_integral
-desired_pitch = -TILT_KP * pitch_error - TILT_KI * pitch_error_integral
+desired_roll = -TILT_KP * roll_error
+desired_pitch = -TILT_KP * pitch_error
 desired_yaw = -YAW_KP * yaw_error
 
 roll_quad_control = -TILT_RATE_KP * (roll_rate - desired_roll)
@@ -302,8 +310,8 @@ motor_D = 2000 - yaw_quad_control + roll_body_frame_control
 # debug of gps waypoint mode in hovering
 
 headingToWP = add1
-hovering_roll_dir = add3
-hovering_pitch_dir = add4
+hovering_roll_order = add3
+hovering_pitch_order = add4
 goal_x = 0
 goal_y = 0
 earthYaw = add2
@@ -344,8 +352,6 @@ ymin = -16000
 ymax = 16000
 ax2.plot(time, rmat6, 'k--', marker=None, label='roll_angle')
 ax2.plot(time, roll_error, 'b--', marker=None, label='roll error')
-ax2.plot(time, roll_error_integral, 'g-',
-         marker=None, label='roll error integral')
 ax2.plot(time, roll_rate, 'r-', marker=None, label='roll rate')
 ax2.plot(time, roll_quad_control, 'm-',
          marker=None, label='roll control reconst')
@@ -356,8 +362,6 @@ tool.finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, e
 ymin = -16000
 ymax = 16000
 ax3.plot(time, pitch_error, 'b--', marker=None, label='pitch error')
-ax3.plot(time, pitch_error_integral, 'g-',
-         marker=None, label='pitch error integral')
 ax3.plot(time, pitch_rate, 'r-', marker=None, label='pitch rate')
 ax3.plot(time, pitch_quad_control, 'm-',
          marker=None, label='pitch control reconst')
@@ -369,8 +373,6 @@ ymax = 33000
 ax4.plot(time, rmat0, 'k--', marker=None, label='rmat0')
 ax4.plot(time, earthYaw, 'k-', marker=None, label='earthYaw')
 ax4.plot(time, yaw_error, 'b--', marker=None, label='yaw error')
-ax4.plot(time, yaw_error_integral, 'g-',
-         marker=None, label='yaw error integral')
 ax4.plot(time, -omega2, 'c-', marker=None, label='omega gyro')
 ax4.plot(time, -YAW_RATE_KP * (-omega2 - desired_yaw),
          'm--', marker=None, label='yaw control reconst')
@@ -411,18 +413,18 @@ ax1.plot(time, headingToWP, 'b--', marker=None, label='headingToWP')
 ax1.plot(time, earthYaw, 'k--', marker=None, label='earthYaw')
 ax1.plot(time, (headingToWP-earthYaw), 'g-',
          marker=None, label='heading_toward_goal in udb frame')
-ax1.plot(time, hovering_roll_dir, 'r-.',
+ax1.plot(time, hovering_roll_order, 'r-.',
          marker=None, label='roll order toward goal in udb frame')
-ax1.plot(time, hovering_pitch_dir, 'm-',
+ax1.plot(time, hovering_pitch_order, 'm-',
          marker=None, label='pitch order toward goal in udb frame')
 
 tool.finalize_plot(fig, ax1, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='',
                    show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
 
-ax2.plot(time, error_y, 'y-',
-         marker=None, label='roll error in udb frame')
-ax2.plot(time, error_x, 'c-',
-         marker=None, label='pitch error in udb frame')
+ax2.plot(time, roll_hover_corr, 'y-',
+         marker=None, label='roll correction correction')
+ax2.plot(time, pitch_hover_corr, 'c-',
+         marker=None, label='pitch hover correction')
 ax2.plot(time, 1000*imu_x/10, 'y--', marker=None, label='imy x')
 ax2.plot(time, 1000*imu_y/10, 'c--', marker=None, label='imu y')
 
@@ -455,7 +457,6 @@ ymax = None
 
 ax2.plot(time, vz_filt, 'c-', label=' vz filt')
 ax2.plot(time, target_vz, 'k--', label='target vz')
-# ax2.plot(time, error_vz_integral, 'g--', label='error vz integral')
 
 tool.finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='',
                    show_legend=True, legend_type='outer_right', logscale_x=False, logscale_y=False, show=False, tick_fontsize=None)
@@ -463,8 +464,8 @@ tool.finalize_plot(fig, ax2, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, e
 ymin = None
 ymax = None
 ax3.plot(time, z_filt, 'k-', label='z filt')
-ax3.plot(time, sonar_dist, 'c-', label='sonar_dist')
-ax3.plot(time, sonar_height, 'r-', label='sonar_height')
+ax3.plot(time, lidar_height, 'c-', label='lidar height')
+ax3.plot(time, sonar_height, 'r-', label='sonar height')
 ax3.plot(time, z_baro_filt, 'k--', label='baro height filtered')
 ax3.plot(time, barometer_altitude, '0.8', label='pressure altitude')
 ax3.plot(time, target_z, 'm--', label='target height')
@@ -481,7 +482,11 @@ ax4.plot(time, p1o, 'k-', marker=None, label='motorA')
 ax4.plot(time, p2o, 'b-', marker=None, label='motorB')
 ax4.plot(time, p3o, 'g-', marker=None, label='motorC')
 ax4.plot(time, p4o, 'r-', marker=None, label='motorD')
-# ax4.plot(time, 1000*add6+2000, 'g--', marker=None, label='in flight')
+ax4.plot(time, SERVO_RANGE * is_in_flight, 'k-', marker=None, label='is in flight')
+ax4.plot(time, SERVO_RANGE * automatic_landing, 'b-', marker=None, label='auto land')
+ax4.plot(time, SERVO_RANGE * low_battery, 'g-', marker=None, label='low battery')
+ax4.plot(time, SERVO_RANGE * emergency_landing, 'r-', marker=None, label='emergency landing')
+ax4.plot(time, SERVO_RANGE * engines_off, 'g--', marker=None, label='engines off')
 
 tool.finalize_plot(fig, ax4, xmin, xmax, ymin, ymax, xlabel, ylabel, fontsize, export_dir='', output_file='',
                    show_legend=True, legend_type='outer_left', logscale_x=False, logscale_y=False, show=True, tick_fontsize=None)

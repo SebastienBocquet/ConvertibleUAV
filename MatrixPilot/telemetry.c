@@ -28,7 +28,7 @@
 #include "../libUDB/libUDB_internal.h" // Needed for access to RCON
 #endif
 #include "../libDCM/libDCM_internal.h" // Needed for access to internal DCM values
-#include "../libDCM/estAltitude.h"
+#include "../libDCM/barometerAltitude.h"
 #include <string.h>
 
 #if (SERIAL_OUTPUT_FORMAT != SERIAL_MAVLINK) // All MAVLink telemetry code is in MAVLink.c
@@ -794,9 +794,11 @@ void serial_output_8hz(void)
                 
                 serial_output("rco%i:pco%i:", roll_hover_corr, pitch_hover_corr);
 
+#if ( USE_LIDAR	== 1 )
+				serial_output("lidh%i:", lidar_height_to_ground) ;
+#endif
 #if ( USE_SONAR	== 1 )
-				serial_output("sond%i:sonhtg%i:", 
-                    sonar_distance, sonar_height_to_ground) ;
+				serial_output("sonh%i:", sonar_height_to_ground) ;
 #endif
 #if ( BAROMETER_ALTITUDE == 1)
 				serial_output("alt%li:",

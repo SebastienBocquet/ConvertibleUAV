@@ -23,7 +23,7 @@
 #include "../libUDB/heartbeat.h"
 #include "../libUDB/magnetometer.h"
 #include "../libUDB/barometer.h"
-#include "estAltitude.h"
+#include "barometerAltitude.h"
 #include "rmat.h"
 
 
