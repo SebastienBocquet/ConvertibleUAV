@@ -31,6 +31,21 @@
 #include "../libDCM/barometerAltitude.h"
 #include <string.h>
 
+int16_t additional_int16_export1 = 0;
+int16_t additional_int16_export2 = 0;
+int16_t additional_int16_export3 = 0;
+int16_t additional_int16_export4 = 0;
+int16_t additional_int16_export5 = 0;
+int16_t additional_int16_export6 = 0;
+int16_t additional_int16_export7 = 0;
+int16_t additional_int16_export8 = 0;
+int16_t additional_int16_export9 = 0;
+int32_t additional_int32_export1 = 0;
+
+int16_t voltage = 0;
+int16_t current = 0;
+int16_t mAh_used = 0;
+
 #if (SERIAL_OUTPUT_FORMAT != SERIAL_MAVLINK) // All MAVLink telemetry code is in MAVLink.c
 
 #if (FLY_BY_DATALINK_ENABLED == 1)
@@ -65,21 +80,6 @@ void (*sio_parse)(uint8_t inchar) = &sio_newMsg;
 char serial_buffer[SERIAL_BUFFER_SIZE+1];
 int16_t sb_index = 0;
 int16_t end_index = 0;
-
-int16_t additional_int16_export1 = 0;
-int16_t additional_int16_export2 = 0;
-int16_t additional_int16_export3 = 0;
-int16_t additional_int16_export4 = 0;
-int16_t additional_int16_export5 = 0;
-int16_t additional_int16_export6 = 0;
-int16_t additional_int16_export7 = 0;
-int16_t additional_int16_export8 = 0;
-int16_t additional_int16_export9 = 0;
-int32_t additional_int32_export1 = 0;
-
-int16_t voltage = 0;
-int16_t current = 0;
-int16_t mAh_used = 0;
 
 void init_serial()
 {
@@ -464,15 +464,99 @@ int16_t udb_serial_callback_get_byte_to_send(void)
 	return -1;
 }
 
-#if (SERIAL_OUTPUT_FORMAT == SERIAL_DEBUG)
+#if (SERIAL_OUTPUT_FORMAT == SERIAL_TELEMETRY)
 
+extern int16_t waypointIndex;
+extern int16_t segmentIndex;
+    
 void serial_output_8hz(void)
 {
-	serial_output("lat: %li, long: %li, alt: %li\r\nrmat: %i, %i, %i, %i, %i, %i, %i, %i, %i\r\n",
-	    lat_gps.WW, long_gps.WW, alt_sl_gps.WW,
-	    rmat[0], rmat[1], rmat[2],
-	    rmat[3], rmat[4], rmat[5],
-	    rmat[6], rmat[7], rmat[8]);
+    static int16_t telemetry_counter = 8;
+	static int toggle = 0;
+    
+    if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_LIGHT) == 0)
+	{
+        static int16_t pwIn_save[NUM_INPUTS + 1];
+        static int16_t pwOut_save[NUM_OUTPUTS + 1];
+
+        serial_output("F2;T:%li;"
+                      "a:%i;b:%i;c:%i;"
+                      "d:%i;e:%i;f:%i;"
+                      "g:%i;h:%i;i:%i;"
+                      "om0:%i;om1:%i;om2:%i;"
+                      "aqv:%i;aqc:%i;aqu:%i;"
+                      "cpu:%u;"
+                      "ma:%i;mb:%i;mc:%i;"
+                      ,
+            tow.WW,
+            rmat[0], rmat[1], rmat[2],
+            rmat[3], rmat[4], rmat[5],
+            rmat[6], rmat[7], rmat[8],
+            omegagyro[0], omegagyro[1], omegagyro[2],
+            voltage, current, mAh_used,
+            (uint16_t)udb_cpu_load(),
+    #if (MAG_YAW_DRIFT == 1)
+            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
+    #else
+            (int16_t)0, (int16_t)0, (int16_t)0
+    #endif // MAG_YAW_DRIFT
+            );
+        
+            // Approximate time passing between each telemetry line, even though
+            // we may not have new GPS time data each time through.
+            //when using 4Hz output
+            //if (tow.WW > 0) tow.WW += 250; 
+#ifdef TestGains
+            tow.WW += (int16_t)(1000/HEARTBEAT_UDB_LIGHT);
+#else
+            if (tow.WW > 0) tow.WW += (int16_t)(1000/HEARTBEAT_UDB_LIGHT);
+#endif
+
+            // Save  pwIn and PwOut buffers for printing next time around
+            int16_t i;
+//				for (i=0; i <= NUM_INPUTS; i++)
+//					pwIn_save[i] = udb_pwIn[i];
+            for (i=0; i <= NUM_OUTPUTS; i++)
+                pwOut_save[i] = udb_pwOut[i];
+//				for (i= 1; i <= NUM_INPUTS; i++)
+//					serial_output("p%ii%i:",i,pwIn_save[i]);
+            for (i= 1; i <= NUM_OUTPUTS; i++)
+                serial_output("p%io:%i;",i,pwOut_save[i]);
+
+            serial_output("imx:%i;imy:%i;imz:%i;"
+                "tx:%i;ty:%i;tz:%i;G:%d,%d,%d;",IMUlocationx._.W1,IMUlocationy._.W1,IMUlocationz._.W1,
+                IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1, goal.x, goal.y, goal.height);
+
+            serial_output("accz:%i;tgz:%i;tgvz:%i;tgaccz:%i;inz:%i;invz:%i;inaccz:%i;ezi:%i;", 
+                accelEarth[2], hover_target_z, hover_target_vz, hover_target_accz, 
+                hover_z, hover_vz, hover_accz, hover_error_integral_z);
+            
+            serial_output("rerr:%i;perr:%i;yerr:%i;",
+                roll_error, pitch_error, yaw_error);
+
+            serial_output("inf:%i;eml:%i;lowb:%i;autl:%i;engo:%i;", 
+                    flags._.is_in_flight, flags._.emergency_landing, flags._.low_battery, 
+                    flags._.auto_land, flags._.engines_off);
+                
+            serial_output("rco:%i;pco:%i;", roll_hover_corr, pitch_hover_corr);
+
+#if ( USE_LIDAR	== 1 )
+            serial_output("lidh:%i;", lidar_height_to_ground) ;
+#endif
+#if ( USE_SONAR	== 1 )
+            serial_output("sonh:%i:", sonar_height_to_ground) ;
+#endif
+#if ( BAROMETER_ALTITUDE == 1)
+            serial_output("alt:%li;",
+                get_barometer_altitude());
+#endif
+            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;",
+                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
+                additional_int16_export4, additional_int16_export5, additional_int16_export6,
+                additional_int16_export7);
+        
+        serial_output("end;\r\n");
+    }
 }
 
 #elif (SERIAL_OUTPUT_FORMAT == SERIAL_ARDUSTATION)

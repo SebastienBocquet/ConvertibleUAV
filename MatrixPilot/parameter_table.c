@@ -53,23 +53,13 @@ const mavlink_parameter_parser    mavlink_parameter_parsers[] = {
     };
 
 const mavlink_parameter mavlink_parameters_list[] = {
-     {"PID_HOVERROFF" , {.param_int32=-90.} , {.param_int32=90.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &hoverrolloffset, sizeof(hoverrolloffset) },
-    {"PID_HOVERYOFF" , {.param_int32=-90.} , {.param_int32=90.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &hoveryawoffset, sizeof(hoveryawoffset) },
-    {"PID_HOVERPOFF" , {.param_int32=-90.} , {.param_int32=90.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &hoveryawoffset, sizeof(hoveryawoffset) },
-    {"PID_HOVERROLLKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverrollkp, sizeof(hoverrollkp) },
-    {"PID_HOVERROLLKD" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverrollkd, sizeof(hoverrollkd) },
-    {"PID_HOVERPKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverpitchkp, sizeof(hoverpitchkp) },
-    {"PID_HOVERPKD" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverpitchkd, sizeof(hoverpitchkd) },
-    {"PID_HOVERVZKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hovertargetvzgain, sizeof(hovertargetvzgain) },
     {"PID_HOVERTVKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverthrottlevzkp, sizeof(hoverthrottlevzkp) },
     {"PID_HOVERTVKI" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverthrottlevzki, sizeof(hoverthrottlevzki) },
     {"PID_HOVERTAKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverthrottleacczkp, sizeof(hoverthrottleacczkp) },
     {"PID_HOVERTAKI" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverthrottleacczki, sizeof(hoverthrottleacczki) },
     {"PID_HOVERTOFF" , {.param_float=0.0} , {.param_float=1.} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &hoverthrottleoffset, sizeof(hoverthrottleoffset) },
-    {"PID_HOVERWAITVZ" , {.param_int32=0.0} , {.param_int32=400.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &hoverwaitvzstable, sizeof(hoverwaitvzstable) },
     {"PID_HOVERLIMVZ" , {.param_int32=0.0} , {.param_int32=500.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &limittargetvz, sizeof(limittargetvz) },
     {"PID_HOVERLIMAZ" , {.param_int32=0.0} , {.param_int32=2500.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &limittargetaccz, sizeof(limittargetaccz) },
-    {"PID_HOVERFILTH" , {.param_int32=0.0} , {.param_int32=40.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &invdeltafilterheight, sizeof(invdeltafilterheight) },
 	{"PID_HOVERFILTA" , {.param_int32=0.0} , {.param_int32=40.} , UDB_TYPE_INT, PARAMETER_READWRITE, (void*) &invdeltafilteraccel, sizeof(invdeltafilteraccel) },
     {"PID_ROLLKP" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_Q14, PARAMETER_READWRITE, (void*) &rollkp, sizeof(rollkp) },
     {"PID_ROLLKD" , {.param_float=0.0} , {.param_float=0.5} , UDB_TYPE_GYROSCALE_Q14, PARAMETER_READWRITE, (void*) &rollkd, sizeof(rollkd) },

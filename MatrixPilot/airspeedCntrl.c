@@ -27,10 +27,7 @@
 // If mavlink is being used but the gains are not variable
 // implement the malink parameter variables for airspeed here
 #if (SERIAL_OUTPUT_FORMAT == SERIAL_MAVLINK)
-#include "airspeedCntrl.h"
-
 int16_t minimum_groundspeed = MINIMUM_GROUNDSPEED * 100;
-int16_t minimum_airspeed    = MINIMUM_AIRSPEED    * 100;
 int16_t maximum_airspeed    = MAXIMUM_AIRSPEED    * 100;
 int16_t cruise_airspeed     = CRUISE_AIRSPEED     * 100;
 

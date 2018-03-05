@@ -47,7 +47,7 @@ BAROMETER = 1
 EXPORT = 'LIGHT'
 SERVO_RANGE = 1000
 
-file_number = 2697
+file_number = 2698
 plot_name = 'hover_measured'
 savegard_name = 'target_v_indoor'
 

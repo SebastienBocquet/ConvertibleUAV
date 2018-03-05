@@ -320,6 +320,7 @@ void mavlink_output_40hz(void);
 #define SERIAL_CAM_TRACK    8    // Output Location in a format usable by a 2nd UDB to target its camera at this plane
 #define SERIAL_MAVLINK      9    // The Micro Air Vehicle Link protocol from the PixHawk Project
 #define SERIAL_UDB_LIGHT    10    // very light telemetry output to test heartbeat at 200Hz
+#define SERIAL_TELEMETRY    11    // telemetry sent through nrf905 wireless link
 
 ////////////////////////////////////////////////////////////////////////////////
 // cameraCntrl.c

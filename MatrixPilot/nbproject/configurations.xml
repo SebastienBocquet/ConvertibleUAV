@@ -378,7 +378,7 @@
         <property key="oXC16gcc-sfr-warn" value="false"/>
         <property key="oXC16gcc-smar-io-lvl" value="1"/>
         <property key="oXC16gcc-smart-io-fmt" value=""/>
-        <property key="optimization-level" value="0"/>
+        <property key="optimization-level" value="1"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="UDB5"/>
@@ -394,7 +394,7 @@
         <property key="assembler-symbols" value="PSV_ERRATA=1"/>
         <property key="expand-macros" value="false"/>
         <property key="extra-include-directories-for-assembler"
-                  value="..\libVectorMatrix;;."/>
+                  value="..\libVectorMatrix;."/>
         <property key="extra-include-directories-for-preprocessor" value=""/>
         <property key="false-conditionals" value="false"/>
         <property key="keep-locals" value="false"/>
@@ -409,7 +409,6 @@
         <property key="preprocessor-macros" value=""/>
         <property key="relax" value="false"/>
         <property key="warning-level" value="emit-warnings"/>
-        <appendMe value="-g"/>
       </C30-AS>
       <C30-LD>
         <property key="additional-options-use-response-files" value="false"/>

@@ -47,14 +47,8 @@
 #elif ((SERIAL_OUTPUT_FORMAT == SERIAL_MAVLINK) || (GAINS_VARIABLE == 1))
 	uint16_t pitchgain = (uint16_t)(PITCHGAIN*RMAX);
 	uint16_t pitchkd = (uint16_t) (PITCHKD*SCALEGYRO*RMAX);
-	uint16_t hoverpitchkp = (uint16_t)(HOVER_PITCHKP*RMAX);
-	uint16_t hoverpitchkd = (uint16_t) (HOVER_PITCHKD*SCALEGYRO*RMAX);
 	uint16_t rudderElevMixGain = (uint16_t)(RMAX*RUDDER_ELEV_MIX);
 	uint16_t rollElevMixGain = (uint16_t)(RMAX*ROLL_ELEV_MIX);
-    //this is to impose an offset on the axis angle of the plane
-    //int16_t hoverpitchoffset = (int16_t)(HOVER_PITCH_OFFSET*(RMAX/57.3));
-    //this is to impose an offset to the control surface angle
-    int16_t hoverpitchoffset = (int16_t)(HOVER_PITCH_OFFSET*(SERVORANGE/60));
     uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
     uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
 	int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);

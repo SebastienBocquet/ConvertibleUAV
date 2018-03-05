@@ -32,6 +32,7 @@ void calculate_lidar_height_above_ground(void)
         //should be : udb_pwm_lidar (in micro sec) / 10. Here there must be a scaling * 2 of the pwm pulse duration, so we divide by 20
         //udb_pwm_lidar is an unsigned int, so it range between 0 to 65535. So lidar distance can range between 0 to 65535/20=3276cm = 32.76m.
         lidar_distance = (int16_t)(udb_pwm_lidar / 20) ;
+#endif
         
         if ( lidar_distance > USEABLE_LIDAR_DISTANCE || lidar_distance < LIDAR_MINIMUM_DISTANCE )
 		{

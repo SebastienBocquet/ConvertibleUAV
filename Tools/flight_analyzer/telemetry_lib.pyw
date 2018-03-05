@@ -31,7 +31,7 @@ def read_first_line(bidon, separator, line_len, var_name, show_header=0):
             break
 
     if index_var == -1:
-        print('could not find %s in log file %s' % (var_name, textfilename))
+        print('could not find %s in log file' % (var_name))
         print('please check line length and variable name')
 
     return index_var
@@ -93,9 +93,7 @@ def read_header(input_dir, filename, nb_header_lines):
 
 ################################################################
 
-def extract_var(bidon, line_len, var_name, var_index=1):
-
-    nb_header_lines = 10
+def extract_var(bidon, line_len, var_name, var_index=1, nb_header_lines = 10):
 
     print('extracting variable', var_name)
 

@@ -100,6 +100,8 @@ int16_t limittargetaccz = (int16_t)(HOVER_LIMIT_TARGETACCZ);
 uint16_t hovertargetzkp = (uint16_t)(HOVER_ZKP*COEF_SCALING);
 uint16_t hovertargetzki = (uint16_t)(HOVER_ZKI*COEF_SCALING);
 int32_t limitintegralz = (int32_t)(LIMIT_INTEGRAL_Z);
+uint16_t hoverthrottlezkp = (uint16_t)(HOVER_ZKP*COEF_SCALING);
+uint16_t hoverthrottlezki = (uint16_t)(HOVER_ZKI*COEF_SCALING);
 uint16_t hoverthrottlevzkp = (uint16_t)(HOVER_VZKP*COEF_SCALING);
 uint16_t hoverthrottlevzki = (uint16_t)(HOVER_VZKI*COEF_SCALING);
 int32_t limitintegralvz = (int32_t)(LIMIT_INTEGRAL_VZ);
@@ -636,7 +638,6 @@ void hoverAltitudeCntrl(void)
         accz_filtered_flt=0.;
  		previous_z32=(int32_t)(hovertargetheightmin)*100;
 		is_in_alt_sensor_failure = 0;
-        flags._.engines_off = 0;
 		rampe_throttle = 0;
         target_z_mem = -1;
     }

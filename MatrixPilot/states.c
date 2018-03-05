@@ -236,6 +236,7 @@ static void ent_returnS(void)
 	waggle = 0;
 	LED_RED = LED_ON;
     flags._.emergency_landing = 1;
+    flags._.engines_off = 1;
 	stateS = &returnS;
 }
 

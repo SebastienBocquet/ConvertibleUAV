@@ -47,11 +47,8 @@
 	uint16_t hoverrollkp;
 	uint16_t hoverrollkd;
 #elif ((SERIAL_OUTPUT_FORMAT == SERIAL_MAVLINK) || (GAINS_VARIABLE == 1))
-	uint16_t hoverrollkp		= (uint16_t)(HOVER_ROLLKP*RMAX);
-	uint16_t hoverrollkd		= (uint16_t)(HOVER_ROLLKD*SCALEGYRO*RMAX);
-    fractional hoverrolloffset = HOVER_ROLL_OFFSET*RMAX;
-	uint16_t hoverrollnavkp = (uint16_t)(HOVER_ROLLNAVKP*RMAX);
-	uint16_t hoverrollnavki = (uint16_t)(HOVER_ROLLNAVKI*RMAX);
+    uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
+    uint16_t hoverrollToWPki = (uint16_t)(HOVER_ROLLTOWPKI*RMAX);
 	int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
     float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
 #else
