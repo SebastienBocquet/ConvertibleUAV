@@ -218,7 +218,7 @@ void hoverPitchCntrl(void)
 		if (pitch_error32 < -SERVORANGE) pitch_error32 = -SERVORANGE;
 
         //filter error
-        pitch_error_filt = exponential_filter((int16_t)(pitch_error32), &pitch_error_filtered_flt, invdeltafilterpitch, (int16_t)(HEARTBEAT_HZ));
+        pitch_error_filt = exponential_filter((int16_t)(pitch_error32), &pitch_error_filtered_flt, invdeltafilterpitch);
 
 		//PI controller on pitch_error
 		pitch_hover_corr = compute_pi_block(pitch_error_filt, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 

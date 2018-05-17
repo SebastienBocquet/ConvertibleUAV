@@ -136,9 +136,7 @@ const int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
 int16_t hover_counter=0;
 int16_t take_off_counter = 0;
 float z_filtered_flt=0.;
-float z_baro_filtered_flt=0.;
 int16_t z_filtered=0;
-int16_t z_baro_filtered=0;
 float z_filtered32_flt=0.;
 int32_t z_filtered32=0;
 float target_z_filtered_flt=0.;
@@ -595,7 +593,7 @@ void manualHoverThrottle(int16_t throttleIn)
 int16_t compute_vz_alt_sensor(int16_t z)
 {
     int32_t z32 = (int32_t)(z)*100;
-	z_filtered32 = exponential_filter32(z32, &z_filtered32_flt, invdeltafilterheight, (int16_t)(HEARTBEAT_HZ));
+	z_filtered32 = exponential_filter32(z32, &z_filtered32_flt, invdeltafilterheight);
     int32_t vz_alt_sensor32=(z_filtered32-previous_z32)*((int32_t)(HEARTBEAT_HZ));
 	previous_z32=z_filtered32;
     return (int16_t)(vz_alt_sensor32/100);
@@ -630,7 +628,6 @@ void hoverAltitudeCntrl(void)
         error_integral_vz=0;
         error_integral_accz=0;
         z_filtered_flt=(float)hovertargetheightmin;
-        z_baro_filtered_flt=(float)(SONAR_MINIMUM_DISTANCE);
         z_filtered32_flt=(float)hovertargetheightmin;
         target_z_filtered_flt=(float)hovertargetheightmin;
         target_vz_filtered_flt=0.;
@@ -664,7 +661,7 @@ void hoverAltitudeCntrl(void)
         invdeltafilterheight=invdeltafilterbaro;
 		invdeltafiltervz=4.;
         alt_sensor_failure=false;
-        z_baro_filtered = exponential_filter(z, &z_baro_filtered_flt, invdeltafilterheight, (int16_t)(HEARTBEAT_HZ));
+        setFailureSonarDist(z);
     }
 #endif
 
@@ -679,6 +676,7 @@ void hoverAltitudeCntrl(void)
         invdeltafilterheight=invdeltafiltersonar;
         invdeltafiltervz=4.;
 		alt_sensor_failure=false;
+        setFailureLidarDist(z);
 	}
 #endif
     
@@ -745,9 +743,9 @@ if (flags._.emergency_landing) z_target = emergency_landing();
     z = IMUlocationz._.W1*100+50;
 #endif
 
-    target_z_filtered = exponential_filter(z_target, &target_z_filtered_flt, invdeltafiltertargetz, (int16_t)(HEARTBEAT_HZ));
+    target_z_filtered = exponential_filter(z_target, &target_z_filtered_flt, invdeltafiltertargetz);
 
-    z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight, (int16_t)(HEARTBEAT_HZ));
+    z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
 
     //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
     //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
@@ -759,8 +757,8 @@ if (flags._.emergency_landing) z_target = emergency_landing();
                     + __builtin_mulsu(compute_vz_alt_sensor(z), VZ_CORR_16))>>14;
 	}
 
-    vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz, (int16_t)(HEARTBEAT_HZ));
-    accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel, (int16_t)(HEARTBEAT_HZ));
+    vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz);
+    accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel);
 
     //detection whether we are in flight 
     isInFlight(udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]));
@@ -860,9 +858,6 @@ if (flags._.emergency_landing) z_target = emergency_landing();
     hover_target_vz=target_vz_bis;
     hover_target_accz=target_accz_bis;
 	hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
-
-    additional_int16_export7 = z_baro_filtered;
-    //additional_int16_export6 = flags._.is_in_flight;
     
     //throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 

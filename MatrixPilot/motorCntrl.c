@@ -309,7 +309,7 @@ void motorCntrl(void)
 
 		roll_rate_error_delta = roll_rate_error - roll_rate_error_previous;
 		roll_rate_error_previous = roll_rate_error ;
-		roll_rate_error_delta_filt = exponential_filter(roll_rate_error_delta, &roll_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER), (int16_t)(HEARTBEAT_HZ));
+		roll_rate_error_delta_filt = exponential_filter(roll_rate_error_delta, &roll_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
 		//additional_int16_export5 = roll_rate_error_delta_filt;
 		//additional_int16_export1 = sga_prim(roll_rate_error);
 
@@ -343,7 +343,7 @@ void motorCntrl(void)
 
 		pitch_rate_error_delta = pitch_rate_error - pitch_rate_error_previous ;
 		pitch_rate_error_previous = pitch_rate_error ;
-		pitch_rate_error_delta_filt = exponential_filter(pitch_rate_error_delta, &pitch_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER), (int16_t)(HEARTBEAT_HZ));
+		pitch_rate_error_delta_filt = exponential_filter(pitch_rate_error_delta, &pitch_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -14,10 +14,17 @@
 //uint16_t udb_pwm_lidar = 0;
 int16_t lidar_distance ;          // distance to target in centimeter
 int16_t lidar_height_to_ground ; // calculated distance to ground in Earth's Z Plane allowing for tilt
+int16_t failure_lidar_distance = OUT_OF_RANGE_DISTANCE ;
 unsigned char lidar_good_sample_count  = 0 ;  // Tracks the number of consequtive good samples up until SONAR_SAMPLE_THRESHOLD is reached.
 unsigned char lidar_no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
 #define NO_READING_RECEIVED_DISTANCE			9999 // Distance denotes that no sonar reading was returned from sonar device
 #define LIDAR_SAMPLE_THRESHOLD 					   1 // Number of readings before code deems "certain" of a true reading.
+
+void setFailureLidarDist(int16_t distance)
+{
+    failure_lidar_distance = distance ;
+}
+    
 
 void calculate_lidar_height_above_ground(void)
 {
@@ -36,7 +43,7 @@ void calculate_lidar_height_above_ground(void)
         
         if ( lidar_distance > USEABLE_LIDAR_DISTANCE || lidar_distance < LIDAR_MINIMUM_DISTANCE )
 		{
-			lidar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
+			lidar_height_to_ground = failure_lidar_distance ;
 			lidar_good_sample_count = 0 ; 
             udb_flags._.lidar_height_valid = 0;
 #if (LED_ORANGE_SONAR_CHECK == 1)
@@ -57,7 +64,7 @@ void calculate_lidar_height_above_ground(void)
 			}
 			else
 			{
-				lidar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
+				lidar_height_to_ground = failure_lidar_distance ;
                 udb_flags._.lidar_height_valid = 0;
 #if (LED_ORANGE_SONAR_CHECK == 1)
 				LED_ORANGE = LED_ON;

@@ -359,7 +359,7 @@
         <property key="enable-procedural-abstraction" value="false"/>
         <property key="enable-short-double" value="false"/>
         <property key="enable-symbols" value="true"/>
-        <property key="enable-unroll-loops" value="false"/>
+        <property key="enable-unroll-loops" value="true"/>
         <property key="extra-include-directories"
                   value="..\MAVLink\include;..\MAVLink\include\common;..\MAVLink\include\matrixpilot;..\libDCM;..\libUDB;."/>
         <property key="isolate-each-function" value="false"/>

@@ -82,7 +82,7 @@ void dcm_servo_callback_prepare_outputs(void)
 {
 	if (dcm_flags._.calib_finished)
 	{
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
 		{
 			flight_mode_switch_2pos_poll();  // we always want this called at 40Hz
 
@@ -113,7 +113,7 @@ void dcm_servo_callback_prepare_outputs(void)
 			altitudeCntrl();
 		}
 
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
 		{
 			pitchCntrl();
 			servoMix();
@@ -121,7 +121,7 @@ void dcm_servo_callback_prepare_outputs(void)
 
 		motorCntrl() ;
 
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/40) == 0)
+		if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
 		{
 #if (USE_CAMERA_STABILIZATION == 1)
 			cameraCntrl();

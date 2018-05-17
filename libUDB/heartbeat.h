@@ -24,15 +24,16 @@
 
 
 // number of heartbeats per second
-#define HEARTBEAT_HZ 250
+#define HEARTBEAT_HZ 160
 
 // number of output updates per second
 #define SERVO_HZ 40
-#define ESC_HZ 250
+#define ESC_HZ HEARTBEAT_HZ
 
 // frequency of writing in udb_extra output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
 #define HEARTBEAT_UDB_EXTRA 4
 #define HEARTBEAT_UDB_LIGHT 4
+#define HEARTBEAT_UDB_TELEMETRY 4
 
 // Read-only value increments with each heartbeat
 extern uint16_t udb_heartbeat_counter;

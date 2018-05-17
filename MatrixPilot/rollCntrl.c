@@ -174,7 +174,7 @@ void hoverRollCntrl(void)
 		if (roll_error32 < -SERVORANGE) roll_error32 = -SERVORANGE;
 
         //filter error
-        roll_error_filt = exponential_filter((int16_t)(roll_error32), &roll_error_filtered_flt, invdeltafilterroll, (int16_t)(HEARTBEAT_HZ));
+        roll_error_filt = exponential_filter((int16_t)(roll_error32), &roll_error_filtered_flt, invdeltafilterroll);
 
 		//PI controller on roll_error
 		roll_hover_corr = compute_pi_block(roll_error_filt, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 

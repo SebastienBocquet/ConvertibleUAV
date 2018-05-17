@@ -29,5 +29,6 @@
 #define SONARALTITUDE_H
 
 void calculate_sonar_height_above_ground(void);
+void setFailureSonarDist(int16_t);
 
 #endif // SONARALTITUDE_H

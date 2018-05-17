@@ -175,8 +175,8 @@ extern int32_t additional_int32_export1;
 int16_t IIR_Filter(int32_t*, int16_t, int8_t);
 int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max);
 int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*, int16_t, int32_t, boolean);
-int16_t exponential_filter(int16_t, float*, float, int16_t);
-int32_t exponential_filter32(int32_t, float*, float, int16_t);
+int16_t exponential_filter(int16_t, float*, float);
+int32_t exponential_filter32(int32_t, float*, float);
 
 ////////////////////////////////////////////////////////////////////////////////
 // navigation.c

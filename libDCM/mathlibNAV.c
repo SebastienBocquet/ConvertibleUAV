@@ -482,17 +482,17 @@ int16_t IIR_Filter(int32_t *filter, int16_t sample, int8_t delta_filter)
 	return (int16_t)((*filter) >> 16);
 }
 
-int16_t exponential_filter(int16_t x, float *x_filtered, float invdeltafilter, int16_t heartbeat_hz)
+int16_t exponential_filter(int16_t x, float *x_filtered, float invdeltafilter)
 {	
-    float dt = 1.0 / (float)heartbeat_hz;
-    *x_filtered = ((float)x * invdeltafilter + (float)(*x_filtered) * ((float)heartbeat_hz - invdeltafilter))*dt;
+    float dt = 1.0 / (float)(HEARTBEAT_HZ);
+    *x_filtered = ((float)x * invdeltafilter + (float)(*x_filtered) * ((float)(HEARTBEAT_HZ) - invdeltafilter))*dt;
     return (int16_t)*x_filtered;
 }
 
-int32_t exponential_filter32(int32_t x, float *x_filtered, float invdeltafilter, int16_t heartbeat_hz)
+int32_t exponential_filter32(int32_t x, float *x_filtered, float invdeltafilter)
 {
-    float dt = 1.0 / (float)heartbeat_hz;
-    *x_filtered = ((float)x * invdeltafilter + (float)(*x_filtered) * ((float)heartbeat_hz - invdeltafilter))*dt;
+    float dt = 1.0 / (float)(HEARTBEAT_HZ);
+    *x_filtered = ((float)x * invdeltafilter + (float)(*x_filtered) * ((float)(HEARTBEAT_HZ) - invdeltafilter))*dt;
     return (int32_t)*x_filtered;
 }
 

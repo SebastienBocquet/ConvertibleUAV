@@ -80,7 +80,7 @@ int main(void)
         printf("exponential_filter\n");
         int16_t x = 2;
         float x_filtered = 2.0;
-        int16_t result = exponential_filter(x, &x_filtered, 80., 80);
+        int16_t result = exponential_filter(x, &x_filtered, 80.);
         printf("result x_filtered %d %f\n", result, x_filtered);
 	    assert(result == 2);
         assert(x_filtered == 2.0);

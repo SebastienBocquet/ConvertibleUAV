@@ -29,6 +29,7 @@
 #define LIDARALTITUDE_H
 
 void calculate_lidar_height_above_ground(void);
+void setFailureLidarDist(int16_t);
 
 #endif // LIDARALTITUDE_H
 

@@ -160,7 +160,7 @@ void compute_bearing_to_goal(void)
 	              + __builtin_mulss(togoal.y, goal.sinphi))<<2;
 
 	tofinish_line = temporary._.W1;
-	tofinish_line_factor10 = exponential_filter(10*tofinish_line, &tofinish_line_flt, 40., (int16_t)(HEARTBEAT_HZ));
+	tofinish_line_factor10 = exponential_filter(10*tofinish_line, &tofinish_line_flt, 40.);
 
 	//	Determine if aircraft is making forward progress.
 	//	If not, do not apply cross track correction.
@@ -426,8 +426,8 @@ void compute_hovering_dir(void)
  	int16_t earth_yaw = rect_to_polar(&matrix_accum)<<8 ;
 
 	//pitch_roll_orders
-	pitch_roll_orders[0] = exponential_filter(desired_bearing_over_ground_vector[0], &desired_bearing_over_ground_x_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
-	pitch_roll_orders[1] = exponential_filter(desired_bearing_over_ground_vector[1], &desired_bearing_over_ground_y_flt, (float)(TOGOAL_FILTER), (int16_t)(HEARTBEAT_HZ));
+	pitch_roll_orders[0] = exponential_filter(desired_bearing_over_ground_vector[0], &desired_bearing_over_ground_x_flt, (float)(TOGOAL_FILTER));
+	pitch_roll_orders[1] = exponential_filter(desired_bearing_over_ground_vector[1], &desired_bearing_over_ground_y_flt, (float)(TOGOAL_FILTER));
 
 	//for debugging, monitor the desired heading toward waypoint. Note that matrix_accum is rotated
 	// in the rect_to_polar16 function

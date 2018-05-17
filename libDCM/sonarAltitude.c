@@ -25,8 +25,16 @@
 
 int16_t sonar_distance ;          // distance to target in centimeter
 int16_t sonar_height_to_ground ; // calculated distance to ground in Earth's Z Plane allowing for tilt
+int16_t failure_sonar_distance = OUT_OF_RANGE_DISTANCE;
 unsigned char sonar_good_sample_count  = 0 ;  // Tracks the number of consequtive good samples up until SONAR_SAMPLE_THRESHOLD is reached.
 unsigned char sonar_no_readings_count  = 0 ;  // Tracks number of UDB frames since last sonar reading was sent by sonar device
+
+
+void setFailureSonarDist(int16_t distance)
+{
+    failure_sonar_distance = distance ;
+}
+
 
 void calculate_sonar_height_above_ground(void)
 {
@@ -58,7 +66,7 @@ void calculate_sonar_height_above_ground(void)
         
 		if ( sonar_distance > USEABLE_SONAR_DISTANCE || sonar_distance < SONAR_MINIMUM_DISTANCE )
 		{
-			sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
+			sonar_height_to_ground = failure_sonar_distance ;
 			sonar_good_sample_count = 0 ; 
             udb_flags._.sonar_height_valid = 0;
 #if (LED_RED_SONAR_CHECK == 1)
@@ -79,7 +87,7 @@ void calculate_sonar_height_above_ground(void)
 			}
 			else
 			{
-				sonar_height_to_ground = OUT_OF_RANGE_DISTANCE ;
+				sonar_height_to_ground = failure_sonar_distance ;
                 udb_flags._.sonar_height_valid = 0;
 #if (LED_RED_SONAR_CHECK == 1)
 				LED_RED = LED_ON;
