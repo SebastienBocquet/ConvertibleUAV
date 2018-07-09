@@ -23,8 +23,6 @@
 #include "mode_switch.h"
 #include "../libUDB/heartbeat.h"
 
-#define HOVERPTOWP ((int32_t)(HOVER_ANGLE_TOWARDS_WP*(RMAX/57.3)))
-
 #if (USE_CONFIGFILE == 1)
 #include "config.h"
 #include "redef.h"
@@ -50,19 +48,18 @@
     uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
     uint16_t hoverrollToWPki = (uint16_t)(HOVER_ROLLTOWPKI*RMAX);
 	int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
-    float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
 #else
-    uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
-    const uint16_t hoverrollToWPki = (uint16_t)(HOVER_ROLLTOWPKI*RMAX);
-	const int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
-    const float invdeltafilterroll = (float)(HOVER_INV_DELTA_FILTER_ROLL);
+    uint16_t hoverrollToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
+    uint16_t hoverrollToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
+    uint16_t hoverrollToWPvkp = (uint16_t)(HOVER_PITCHTOWPVKP*RMAX);
+	const int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
+    const int32_t limitintegralrollVToWP = (int32_t)(LIMIT_INTEGRAL_VPITCHTOWP);
+    const int16_t limittargetrollV = (int16_t)(HOVER_LIMIT_TARGETVPITCH);
 #endif
 
 int16_t hovering_roll_order;
 int32_t roll_error_integral = 0;
-float roll_error_filtered_flt = 0.;
-int16_t roll_error_filtered = 0;
-int16_t roll_hover_counter = 0;
+int32_t roll_v_error_integral = 0;
 int16_t roll_hover_corr = 0;
 
 void normalRollCntrl(void);
@@ -151,34 +148,56 @@ void normalRollCntrl(void)
 
 void hoverRollCntrl(void)
 {
-	//union longww rollAccum;
-	int16_t roll_error_filt = 0;
+    
+    //union longww rollAccum;
+    int16_t target_roll = 0;
+    int16_t max_tilt_sine = sine((int8_t)(MAX_TILT*.7111));
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
+        compute_hovering_dir();
+        
         //error along yaw axis between aircraft position and goal (origin point here) in cm
 
-        if (hover_counter==0)
+        determine_navigation_deflection('y');
+        
+        //DEBUG
+        hovering_roll_order = 16384;
+        
+        if (control_position_hold)
         {
-            roll_error_filtered = 0;
+            target_roll = compute_target_pitch(hovering_roll_order, tofinish_line_factor10, max_tilt_sine);
+        }
+        else
+        {
+            target_roll = 0;
             roll_error_integral = 0;
+            roll_v_error_integral = 0;
         }
 
-        hoverrollToWPkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));  
-
-        determine_navigation_deflection('y');
-            
-        int16_t tofinish_line_roll = (int16_t)(__builtin_mulsu(hovering_roll_order, tofinish_line_factor10)>>14);
-        int32_t roll_error32 = __builtin_mulsu(tofinish_line_roll, SERVORANGE) / (10 * MAX_HOVERING_RADIUS);
-		if (roll_error32 > SERVORANGE) roll_error32 = SERVORANGE;
-		if (roll_error32 < -SERVORANGE) roll_error32 = -SERVORANGE;
-
-        //filter error
-        roll_error_filt = exponential_filter((int16_t)(roll_error32), &roll_error_filtered_flt, invdeltafilterroll);
-
-		//PI controller on roll_error
-		roll_hover_corr = compute_pi_block(roll_error_filt, 0, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralrollToWP, flags._.is_in_flight);
+        additional_int16_export2 = target_roll;
+        
+        uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
+	                                   IMUvelocityy._.W1 - estimatedWind[1]);
+        
+        //DEBUG
+        horizontal_air_speed = 0;
+        
+		//PI controller on roll angle
+		int16_t roll_v_target = compute_pi_block(rmat[6], -target_roll, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
+                                    (int16_t)(SERVO_HZ), limitintegralrollToWP, control_position_hold);
+        
+        additional_int16_export6 = rmat[6];
+        additional_int16_export3 = roll_v_target;
+                
+        roll_v_target = limit_value(roll_v_target, -limittargetrollV, limittargetrollV);
+        
+        additional_int16_export4 = roll_v_target;
+        
+        roll_hover_corr = compute_pi_block(horizontal_air_speed, roll_v_target, hoverrollToWPvkp, 0, &roll_v_error_integral, 
+                                  (int16_t)(SERVO_HZ), limitintegralrollVToWP, control_position_hold);
+        
+        additional_int16_export5 = roll_hover_corr;
 	}
 	else
 	{

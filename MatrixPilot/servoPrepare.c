@@ -104,8 +104,8 @@ void dcm_servo_callback_prepare_outputs(void)
             //sonarCntrl();
 	        //sonarServoMix();
 	
-			rollCntrl();
-			yawCntrl();
+            rollCntrl();
+            yawCntrl();
 		}
 
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)

@@ -310,8 +310,6 @@ void motorCntrl(void)
 		roll_rate_error_delta = roll_rate_error - roll_rate_error_previous;
 		roll_rate_error_previous = roll_rate_error ;
 		roll_rate_error_delta_filt = exponential_filter(roll_rate_error_delta, &roll_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
-		//additional_int16_export5 = roll_rate_error_delta_filt;
-		//additional_int16_export1 = sga_prim(roll_rate_error);
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -398,6 +396,7 @@ void motorCntrl(void)
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		motor_A = motor_B = motor_C = motor_D = 0;
+        flags._.engines_off = true;
 
 		if (current_orientation == F_HOVER)
         {

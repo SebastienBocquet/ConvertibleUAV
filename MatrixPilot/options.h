@@ -151,7 +151,7 @@
 // Set these to 1 to enable stabilization of hovering in stabilized and/or waypoint modes.
 #define HOVERING_STABILIZED_MODE            1  //stabilization of hovering (roll, yaw, pitch, throttle) in stabilized mode
                                                //in waypoint mode, throttle is controlled to navigate through the waypoints
-#define TOGOAL_FILTER 1.
+#define TOGOAL_FILTER                       40. //navigation in hovering mode: filtering of the distance to goal (=HEARTBEAT_HZ means no filtering, 1=max filtering)
 // Note: As of MatrixPilot 3.0, Dead Reckoning and Wind Estimation are automatically enabled.
 
 // Camera Stabilization
@@ -526,11 +526,6 @@
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       1.
 
-#define HOVER_ROLLTOWPKP                    0.5
-#define HOVER_ROLLTOWPKI                    0.
-#define LIMIT_INTEGRAL_ROLLTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_ROLL         160.
-
 #define FLAP_OFFSET                         0.   
             
 // Elevator/Pitch Control Gains
@@ -545,10 +540,13 @@
 #define ROLL_ELEV_MIX                        0.
 #define ELEVATOR_BOOST                       1.
 
-#define HOVER_PITCHTOWPKP                    0.5
+#define HOVER_PITCHTOWPKP                    0.045
 #define HOVER_PITCHTOWPKI                    0.
 #define LIMIT_INTEGRAL_PITCHTOWP             80000.
-#define HOVER_INV_DELTA_FILTER_PITCH         160.
+#define HOVER_PITCHTOWPVKP                   0.4
+#define LIMIT_INTEGRAL_VPITCHTOWP            80000.
+
+#define HOVER_LIMIT_TARGETVPITCH             300         //in cm/s
 
 // Neutral pitch angle of the plane (in degrees) when flying inverted
 // Use this to add extra "up" elevator while the plane is inverted, to avoid losing altitude.
@@ -594,10 +592,10 @@
 #define HOVER_THROTTLE_OFFSET              0.55
 #define HOVER_THROTTLE_MIN                 0.2
 #define HOVER_THROTTLE_MAX                 0.7
-#define SONAR_MINIMUM_DISTANCE             60 // Normally, should be minimum possible sonar distance measurement (4 inch)
-#define USEABLE_SONAR_DISTANCE             235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
-#define LIDAR_MINIMUM_DISTANCE             5 // should be minimum possible lidar distance measurement
-#define USEABLE_LIDAR_DISTANCE             3275 // Reliable lidar measurement distance (centimeters) for your specific landing area. 
+#define SONAR_MINIMUM_DISTANCE             60 //60 // Normally, should be minimum possible sonar distance measurement (4 inch)
+#define USEABLE_SONAR_DISTANCE             235 //235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
+#define LIDAR_MINIMUM_DISTANCE             50 //5 // should be minimum possible lidar distance measurement
+#define USEABLE_LIDAR_DISTANCE             3275 //3275 // Reliable lidar measurement distance (centimeters) for your specific landing area. 
                                                 //Here it could go up to 4000cm, but we restrict to 3276cm because of the maximum pwm pulse duration 
                                                 //stored in an unsigned int 16bits (see comments in lidarAltitude.c)
 #define OUT_OF_RANGE_DISTANCE              -99 // Distance in centimeters that denotes "out of range" for your Sonar device.

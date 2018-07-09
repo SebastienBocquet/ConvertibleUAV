@@ -185,6 +185,9 @@ void update_goal_alt(int16_t z);
 void compute_bearing_to_goal (void);
 void process_flightplan(void);
 int16_t determine_navigation_deflection(char navType);
+boolean isInControlPositionHold(int16_t);
+int16_t compute_target_pitch(int16_t, int16_t, int16_t);
+extern boolean control_position_hold;
 
 void compute_hovering_dir(void);
 extern int16_t hovering_pitch_order;

@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
+#include "defines.h"
 #include "libDCM_internal.h"
 #include "../libUDB/magnetometerOptions.h"
 
@@ -671,7 +671,7 @@ static void mag_drift(void)
 		magFieldEarth[0] = VectorDotProduct(3, &rmatDelayCompensated[0], udb_magFieldBody)<<1;
 		magFieldEarth[1] = VectorDotProduct(3, &rmatDelayCompensated[3], udb_magFieldBody)<<1;
 		magFieldEarth[2] = VectorDotProduct(3, &rmatDelayCompensated[6], udb_magFieldBody)<<1;
-
+        
 		// Normalize the magnetic vector to RMAT
 		vector3_normalize(magFieldEarthNormalized, magFieldEarth);
 		vector2_normalize(magFieldEarthHorzNorm, magFieldEarth);

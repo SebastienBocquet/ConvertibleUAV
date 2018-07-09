@@ -30,7 +30,6 @@
 #define ANGLE_90DEG (RMAX/(2*57.3))
 #define RTLKICK ((int32_t)(RTL_PITCH_DOWN*(RMAX/57.3)))
 #define INVNPITCH ((int32_t)(INVERTED_NEUTRAL_PITCH*(RMAX/57.3)))
-#define HOVERPTOWP ((int32_t)(HOVER_ANGLE_TOWARDS_WP*(RMAX/57.3)))
 
 #if (USE_CONFIGFILE == 1)
 #include "config.h"
@@ -52,16 +51,17 @@
     uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
     uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
 	int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
-    float invdeltafilterpitch = (float)(HOVER_INV_DELTA_FILTER_PITCH);
 #else
 	const uint16_t pitchgain = (uint16_t)(PITCHGAIN*RMAX);
 	const uint16_t pitchkd = (uint16_t) (PITCHKD*SCALEGYRO*RMAX);
 	const uint16_t rudderElevMixGain = (uint16_t)(RMAX*RUDDER_ELEV_MIX);
 	const uint16_t rollElevMixGain = (uint16_t)(RMAX*ROLL_ELEV_MIX);
     uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
-    const uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
+    uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
+    uint16_t hoverpitchToWPvkp = (uint16_t)(HOVER_PITCHTOWPVKP*RMAX);
 	const int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
-    const float invdeltafilterpitch = (float)(HOVER_INV_DELTA_FILTER_PITCH);
+    const int32_t limitintegralpitchVToWP = (int32_t)(LIMIT_INTEGRAL_VPITCHTOWP);
+    const int16_t limittargetpitchV = (int16_t)(HOVER_LIMIT_TARGETVPITCH);
 #endif
 
 int16_t pitchrate;
@@ -70,9 +70,7 @@ int16_t elevInput;
 
 int16_t hovering_pitch_order;
 int32_t pitch_error_integral = 0;
-float pitch_error_filtered_flt = 0.;
-int16_t pitch_error_filtered = 0;
-int16_t pitch_hover_counter = 0;
+int32_t pitch_v_error_integral = 0;
 int16_t pitch_hover_corr = 0;
 
 void normalPitchCntrl(void);
@@ -196,33 +194,54 @@ void normalPitchCntrl(void)
 void hoverPitchCntrl(void)
 {
 	//union longww pitchAccum;
-	int16_t pitch_error_filt = 0;
+    int16_t target_pitch = 0;
+    int16_t max_tilt_sine = sine((int8_t)(MAX_TILT*.7111));
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
         //error along yaw axis between aircraft position and goal (origin point here) in cm
 
-        if (hover_counter==0)
-        {
-            pitch_error_filtered = 0;
-            pitch_error_integral = 0;
-        }
-
-        hoverpitchToWPkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
+        //hoverpitchToWPkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
         
         determine_navigation_deflection('y');
         
-        int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_pitch_order, tofinish_line_factor10)>>14);
-		int32_t pitch_error32 = __builtin_mulsu(tofinish_line_pitch, SERVORANGE) / MAX_HOVERING_RADIUS;
-        if (pitch_error32 > SERVORANGE) pitch_error32 = SERVORANGE;
-		if (pitch_error32 < -SERVORANGE) pitch_error32 = -SERVORANGE;
+        //DEBUG
+        hovering_pitch_order = 16384;
+        
+        if (control_position_hold)
+        {
+            target_pitch = compute_target_pitch(hovering_pitch_order, tofinish_line_factor10, max_tilt_sine);
+        }
+        else
+        {
+            target_pitch = 0;
+            pitch_error_integral = 0;
+            pitch_v_error_integral = 0;
+        }
 
-        //filter error
-        pitch_error_filt = exponential_filter((int16_t)(pitch_error32), &pitch_error_filtered_flt, invdeltafilterpitch);
-
-		//PI controller on pitch_error
-		pitch_hover_corr = compute_pi_block(pitch_error_filt, 0, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralpitchToWP, flags._.is_in_flight);
+        //additional_int16_export2 = target_pitch;
+        
+        uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
+	                                   IMUvelocityy._.W1 - estimatedWind[1]);
+        
+        //DEBUG
+        horizontal_air_speed = 0;
+        
+		//PI controller on pitch angle
+		int16_t pitch_v_target = compute_pi_block(-rmat[7], -target_pitch, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
+                                    (int16_t)(SERVO_HZ), limitintegralpitchToWP, control_position_hold);
+        
+        //additional_int16_export6 = -rmat[7];
+        //additional_int16_export3 = pitch_v_target;
+                
+        pitch_v_target = limit_value(pitch_v_target, -limittargetpitchV, limittargetpitchV);
+        
+        //additional_int16_export4 = pitch_v_target;
+        
+        pitch_hover_corr = compute_pi_block(horizontal_air_speed, pitch_v_target, hoverpitchToWPvkp, 0, &pitch_v_error_integral, 
+                                  (int16_t)(SERVO_HZ), limitintegralpitchVToWP, control_position_hold);
+        
+        //additional_int16_export5 = pitch_hover_corr;
 	}
 	else
 	{

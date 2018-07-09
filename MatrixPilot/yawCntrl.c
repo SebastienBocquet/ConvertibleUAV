@@ -149,7 +149,5 @@ void hoverYawCntrl(void)
 
 	//additional_int16_export5 = plane_to_north;
 
-	compute_hovering_dir();
-
 	yaw_control = plane_to_north;
 }

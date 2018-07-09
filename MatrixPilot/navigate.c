@@ -49,6 +49,9 @@ unsigned char is_init_flightplan0=0;
 float desired_bearing_over_ground_x_flt = 0.;
 float desired_bearing_over_ground_y_flt = 0.;
 float tofinish_line_flt = 0.;
+int16_t is_in_control = 0;
+boolean has_reached_max_radius = false;
+boolean control_position_hold = false;
 
 extern union longww IMUintegralAccelerationx;
 extern union longww IMUintegralAccelerationy;
@@ -144,7 +147,7 @@ void compute_bearing_to_goal(void)
 	union longww temporary;
 
 	// compute the goal vector from present position to waypoint target in meters:
-
+    
 #if (DEADRECKONING == 1)
 	togoal.x = goal.x - IMUlocationx._.W1;
 	togoal.y = goal.y - IMUlocationy._.W1;	
@@ -160,8 +163,9 @@ void compute_bearing_to_goal(void)
 	              + __builtin_mulss(togoal.y, goal.sinphi))<<2;
 
 	tofinish_line = temporary._.W1;
-	tofinish_line_factor10 = exponential_filter(10*tofinish_line, &tofinish_line_flt, 40.);
-
+	tofinish_line_factor10 = exponential_filter(10*tofinish_line, &tofinish_line_flt, (int16_t)(TOGOAL_FILTER));
+    //additional_int16_export5 = tofinish_line_factor10;
+    
 	//	Determine if aircraft is making forward progress.
 	//	If not, do not apply cross track correction.
 	//	This is done to prevent "waggles" during a 180 degree turn.
@@ -415,42 +419,102 @@ int16_t determine_navigation_deflection(char navType)
 	return deflectionAccum._.W1;
 }
 
+boolean isInControlPositionHold(int16_t tofinish_line_factor10)
+{
+    if (tofinish_line_factor10 > 35)
+    {
+        is_in_control += 1;
+    }
+    else
+    {
+        if ((tofinish_line_factor10 <= 35 && tofinish_line_factor10 > 25) && has_reached_max_radius)
+        {
+            is_in_control += 1;
+        }
+        else
+        {
+            is_in_control -= 1;
+        }
+    }
+
+    if (is_in_control > (int16_t)(SERVO_HZ))
+    {
+        is_in_control = (int16_t)(SERVO_HZ);
+        additional_int16_export5 = is_in_control;
+        has_reached_max_radius = true;
+        return true;
+    }
+    else
+    {
+        if (is_in_control < 0)
+        {
+            is_in_control = 0;
+            additional_int16_export5 = is_in_control;
+            has_reached_max_radius = false;
+            return false;
+        }
+        else
+        {
+            additional_int16_export5 = is_in_control;
+            return false;
+        }
+    }
+    
+}
+
 void compute_hovering_dir(void)
 {
     int16_t pitch_roll_orders[2];
-	int16_t headingToWP;
+    int8_t local_heading;
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
 
+    //earth_yaw is the yaw angle of the UDB relative to the x axis in earth frame (i.e. relative to the east)
 	matrix_accum.x = rmat[4] ;
- 	matrix_accum.y = -rmat[1] ;
- 	int16_t earth_yaw = rect_to_polar(&matrix_accum)<<8 ;
-
+ 	matrix_accum.y = rmat[1] ;
+ 	int16_t earth_yaw = rect_to_polar16(&matrix_accum);
+    earth_yaw += 16384;
+    
 	//pitch_roll_orders
-	pitch_roll_orders[0] = exponential_filter(desired_bearing_over_ground_vector[0], &desired_bearing_over_ground_x_flt, (float)(TOGOAL_FILTER));
-	pitch_roll_orders[1] = exponential_filter(desired_bearing_over_ground_vector[1], &desired_bearing_over_ground_y_flt, (float)(TOGOAL_FILTER));
-
+	pitch_roll_orders[0] = -desired_bearing_over_ground_vector[0];
+	pitch_roll_orders[1] = -desired_bearing_over_ground_vector[1];
+            
 	//for debugging, monitor the desired heading toward waypoint. Note that matrix_accum is rotated
 	// in the rect_to_polar16 function
 	matrix_accum.x = pitch_roll_orders[0] ;
 	matrix_accum.y = pitch_roll_orders[1] ;
-    //headingToWP is the angle relative to north (ie to y axis)
-	headingToWP = rect_to_polar16(&matrix_accum) - 16384;
     
-	additional_int16_export1 = headingToWP;
-	additional_int16_export2 = earth_yaw;
+    //heading_to_wp is the angle relative to the east (ie to the x axis)
+	//heading_to_wp = -rect_to_polar16(&matrix_accum);
+    
+	//additional_int16_export1 = heading_to_wp;
+	//additional_int16_export2 = earth_yaw;
 
-	matrix_accum.x = pitch_roll_orders[0] ;
-	matrix_accum.y = pitch_roll_orders[1] ;
-	int8_t heading = (int8_t)((headingToWP - earth_yaw)>>8);
-    rotate_2D_vector_by_angle (pitch_roll_orders , heading);
+	local_heading = (int8_t)((-earth_yaw)>>8);
+    rotate_2D_vector_by_angle (pitch_roll_orders , local_heading);
 
-    hovering_roll_order = pitch_roll_orders[0];
-    hovering_pitch_order = pitch_roll_orders[1];
+    hovering_pitch_order = pitch_roll_orders[0];
+    hovering_roll_order = pitch_roll_orders[1];
 
+    //additional_int16_export3 = hovering_pitch_order;
+	//additional_int16_export4 = hovering_roll_order;
+    
+    hovering_pitch_order = limit_value(hovering_pitch_order, -RMAX, RMAX); 
     hovering_roll_order = limit_value(hovering_roll_order, -RMAX, RMAX);
-    hovering_pitch_order = limit_value(hovering_pitch_order, -RMAX, RMAX);
+    
+    //DEBUG
+    tofinish_line_factor10 = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(60)));
+    additional_int16_export1 = tofinish_line_factor10;
+    
+    control_position_hold = isInControlPositionHold(tofinish_line_factor10);
+    
+}
 
-    additional_int16_export3 = hovering_roll_order;
-    additional_int16_export4 = hovering_pitch_order;
-
+int16_t compute_target_pitch(int16_t hovering_order, int16_t tofinish_line_factor10, int16_t max_tilt_sine)
+{
+    int32_t target_pitch32;
+    int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_order, tofinish_line_factor10)>>14);
+    target_pitch32 = __builtin_mulsu(tofinish_line_pitch, max_tilt_sine) / MAX_HOVERING_RADIUS;
+    if (target_pitch32 > max_tilt_sine) target_pitch32 = max_tilt_sine;
+    if (target_pitch32 < -max_tilt_sine) target_pitch32 = -max_tilt_sine;
+    return (int16_t)(target_pitch32);
 }
