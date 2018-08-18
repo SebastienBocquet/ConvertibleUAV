@@ -157,12 +157,10 @@ void hoverRollCntrl(void)
 	{
         compute_hovering_dir();
         
-        //error along yaw axis between aircraft position and goal (origin point here) in cm
+        //error along x axis between aircraft position and goal (origin point here) in cm
 
-        determine_navigation_deflection('y');
-        
-        //DEBUG
-        hovering_roll_order = 16384;
+        //Useless a priori
+        //determine_navigation_deflection('y');
         
         if (control_position_hold)
         {
@@ -179,6 +177,8 @@ void hoverRollCntrl(void)
         
         uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
 	                                   IMUvelocityy._.W1 - estimatedWind[1]);
+        
+        additional_int16_export7 = horizontal_air_speed;
         
         //DEBUG
         horizontal_air_speed = 0;

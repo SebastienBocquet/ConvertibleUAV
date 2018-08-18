@@ -92,10 +92,10 @@ void udb_background_callback_periodic(void)
 		if (gps_data_age < GPS_DATA_MAX_AGE) gps_data_age++;
 		dcm_flags._.nav_capable = (gps_data_age < GPS_DATA_MAX_AGE);
 #ifdef TestGains
-    //if (flight_mode_switch_waypoints())
-    //{
+    if (flight_mode_switch_waypoints())
+    {
         dcm_flags._.nav_capable = 1;
-    //}
+    }
 #endif
 #endif
 		// Execute the activities for the current state.
@@ -236,7 +236,6 @@ static void ent_returnS(void)
 	waggle = 0;
 	LED_RED = LED_ON;
     flags._.emergency_landing = 1;
-    flags._.engines_off = 1;
 	stateS = &returnS;
 }
 
@@ -316,10 +315,10 @@ static void manualS(void)
 {
 	if (udb_flags._.radio_on)
 	{
-		if (flight_mode_switch_waypoints() & dcm_flags._.nav_capable)
-			ent_waypointS();
-		else if (flight_mode_switch_stabilize())
-			ent_stabilizedS();
+        if (flight_mode_switch_waypoints() & dcm_flags._.nav_capable)
+            ent_waypointS();
+        else if (flight_mode_switch_stabilize())
+            ent_stabilizedS();
 	}
 	else
 	{

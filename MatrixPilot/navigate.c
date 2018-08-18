@@ -164,7 +164,6 @@ void compute_bearing_to_goal(void)
 
 	tofinish_line = temporary._.W1;
 	tofinish_line_factor10 = exponential_filter(10*tofinish_line, &tofinish_line_flt, (int16_t)(TOGOAL_FILTER));
-    //additional_int16_export5 = tofinish_line_factor10;
     
 	//	Determine if aircraft is making forward progress.
 	//	If not, do not apply cross track correction.
@@ -502,8 +501,8 @@ void compute_hovering_dir(void)
     hovering_roll_order = limit_value(hovering_roll_order, -RMAX, RMAX);
     
     //DEBUG
-    tofinish_line_factor10 = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(60)));
-    additional_int16_export1 = tofinish_line_factor10;
+    //tofinish_line_factor10 = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(60)));
+    additional_int16_export1 = (int16_t)(10*tofinish_line_factor10);
     
     control_position_hold = isInControlPositionHold(tofinish_line_factor10);
     
@@ -511,10 +510,10 @@ void compute_hovering_dir(void)
 
 int16_t compute_target_pitch(int16_t hovering_order, int16_t tofinish_line_factor10, int16_t max_tilt_sine)
 {
-    int32_t target_pitch32;
-    int16_t tofinish_line_pitch = (int16_t)(__builtin_mulss(hovering_order, tofinish_line_factor10)>>14);
-    target_pitch32 = __builtin_mulsu(tofinish_line_pitch, max_tilt_sine) / MAX_HOVERING_RADIUS;
-    if (target_pitch32 > max_tilt_sine) target_pitch32 = max_tilt_sine;
-    if (target_pitch32 < -max_tilt_sine) target_pitch32 = -max_tilt_sine;
-    return (int16_t)(target_pitch32);
+    int32_t target_order32;
+    int16_t tofinish_line_proj = (int16_t)(__builtin_mulss(hovering_order, tofinish_line_factor10)>>14);
+    target_order32 = __builtin_mulsu(tofinish_line_proj, max_tilt_sine) / MAX_HOVERING_RADIUS;
+    if (target_order32 > max_tilt_sine) target_order32 = max_tilt_sine;
+    if (target_order32 < -max_tilt_sine) target_order32 = -max_tilt_sine;
+    return (int16_t)(target_order32);
 }

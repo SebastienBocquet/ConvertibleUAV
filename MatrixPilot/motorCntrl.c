@@ -129,6 +129,12 @@ void motorCntrl(void)
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
 	int16_t target_orientation_transposed[9] ;
 	int16_t orientation_error_matrix[9] ;
+    
+#ifdef TestAltitude
+    flags._.engines_off = 1;
+    flags._.is_in_flight = 1;
+    is_manual_hover_throttle = 0;
+#endif
 	
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
 	for (temp = 0; temp <= NUM_INPUTS; temp++)
@@ -136,7 +142,6 @@ void motorCntrl(void)
 			pwManual[temp] = udb_pwIn[temp];
 		else
 			pwManual[temp] = udb_pwTrim[temp];
-	
 	
 	if (!dcm_flags._.calib_finished)
 	{
@@ -285,7 +290,7 @@ void motorCntrl(void)
 			roll_quad_error_integral.WW  = 0;
 			pitch_quad_error_integral.WW  = 0;
 			yaw_quad_error_integral.WW  = 0;
-			rampe_yaw = 0;
+            rampe_yaw = 0;
 		}
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -392,11 +397,9 @@ void motorCntrl(void)
 
 #endif
 
-
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		motor_A = motor_B = motor_C = motor_D = 0;
-        flags._.engines_off = true;
 
 		if (current_orientation == F_HOVER)
         {
@@ -433,7 +436,7 @@ void motorCntrl(void)
 			motor_C = limit_value(motor_C, throttlemin, throttlemax);
 			motor_D = limit_value(motor_D, throttlemin, throttlemax);
 		}
-        else   
+        else
         {
             motor_A = motor_D = pwManual[THROTTLE_INPUT_CHANNEL] + REVERSE_IF_NEEDED(THROTTLE_CHANNEL_REVERSED, throttle_control);
             motor_B = motor_C = motor_A;

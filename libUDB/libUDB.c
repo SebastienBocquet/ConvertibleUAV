@@ -289,6 +289,10 @@ void detect_low_battery(void)
     
     if (low_battery > (NB_LOW_VOLTAGE_SECONDS*HEARTBEAT_HZ))
     {
-        flags._.emergency_landing = 1;
+#ifdef TestGains
+        flags._.low_battery = 0;
+#else
+        flags._.low_battery = 1;
+#endif
     }
 }

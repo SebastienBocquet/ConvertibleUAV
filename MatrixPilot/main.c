@@ -25,10 +25,6 @@
 const int max_tilt = (int) (MAX_TILT*.7111) ;  // maximum tilt in byte cicular
 int commanded_tilt_gain ;
 
-#if (TEST == 1)
-#include <assert.h>
-#endif
-
 #if (USE_TELELOG == 1)
 #include "telemetry_log.h"
 #endif
@@ -73,23 +69,7 @@ int main(void)
 	init_behavior();
 	init_serial();
 
-#if (TEST == 1)
-
-    void test_expfilter()
-    {
-        printf("exponential_filter\n");
-        int16_t x = 2;
-        float x_filtered = 2.0;
-        int16_t result = exponential_filter(x, &x_filtered, 80.);
-        printf("result x_filtered %d %f\n", result, x_filtered);
-	    assert(result == 2);
-        assert(x_filtered == 2.0);
-        printf("exponential_filter PASSED\n");
-    }
-
-#else
 	udb_run();
-#endif
 	
 	// This never returns.
 

@@ -41,10 +41,6 @@ void calculate_sonar_height_above_ground(void)
 #if (SILSIM == 1)
 	return;
 #endif
-
-#if (TEST == 1)
-    sonar_distance = (int16_t)(HOVER_TARGET_HEIGHT_MAX);
-#endif
     
     sonar_distance = OUT_OF_RANGE_DISTANCE;
     

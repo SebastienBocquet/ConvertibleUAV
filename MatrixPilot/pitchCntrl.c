@@ -41,7 +41,11 @@
 	uint16_t hoverpitchkd;
 	uint16_t rudderElevMixGain;
 	uint16_t rollElevMixGain;
-    int16_t hoverpitchffset;
+    uint16_t hoverpitchToWPkp;
+    uint16_t hoverpitchToWPki;
+    uint16_t hoverpitchToWPvkp;
+	int32_t limitintegralpitchToWP;
+    int16_t limittargetpitchV;
 
 #elif ((SERIAL_OUTPUT_FORMAT == SERIAL_MAVLINK) || (GAINS_VARIABLE == 1))
 	uint16_t pitchgain = (uint16_t)(PITCHGAIN*RMAX);
@@ -50,7 +54,9 @@
 	uint16_t rollElevMixGain = (uint16_t)(RMAX*ROLL_ELEV_MIX);
     uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
     uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
+    uint16_t hoverpitchToWPvkp = (uint16_t)(HOVER_PITCHTOWPVKP*RMAX);
 	int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
+    int16_t limittargetpitchV = (int16_t)(HOVER_LIMIT_TARGETVPITCH);
 #else
 	const uint16_t pitchgain = (uint16_t)(PITCHGAIN*RMAX);
 	const uint16_t pitchkd = (uint16_t) (PITCHKD*SCALEGYRO*RMAX);
@@ -96,7 +102,7 @@ void pitchCntrl(void)
 #ifdef TestGains
     if (flight_mode_switch_waypoints())
     {
-        flags._.GPS_steering = 1; // turn navigation off
+        flags._.GPS_steering = 1; // turn navigation on
 	    flags._.pitch_feedback = 1; // turn stabilization on 
     }
     else
@@ -199,14 +205,10 @@ void hoverPitchCntrl(void)
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
-        //error along yaw axis between aircraft position and goal (origin point here) in cm
-
-        //hoverpitchToWPkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
+        //error along y axis between aircraft position and goal (origin point here) in cm
         
-        determine_navigation_deflection('y');
-        
-        //DEBUG
-        hovering_pitch_order = 16384;
+        //Useless a priori
+        //determine_navigation_deflection('y');
         
         if (control_position_hold)
         {
@@ -219,7 +221,7 @@ void hoverPitchCntrl(void)
             pitch_v_error_integral = 0;
         }
 
-        //additional_int16_export2 = target_pitch;
+        //additional_int16_export4 = target_pitch;
         
         uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
 	                                   IMUvelocityy._.W1 - estimatedWind[1]);
@@ -231,17 +233,14 @@ void hoverPitchCntrl(void)
 		int16_t pitch_v_target = compute_pi_block(-rmat[7], -target_pitch, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
                                     (int16_t)(SERVO_HZ), limitintegralpitchToWP, control_position_hold);
         
-        //additional_int16_export6 = -rmat[7];
-        //additional_int16_export3 = pitch_v_target;
+        //additional_int16_export3 = -rmat[7];
                 
         pitch_v_target = limit_value(pitch_v_target, -limittargetpitchV, limittargetpitchV);
-        
-        //additional_int16_export4 = pitch_v_target;
         
         pitch_hover_corr = compute_pi_block(horizontal_air_speed, pitch_v_target, hoverpitchToWPvkp, 0, &pitch_v_error_integral, 
                                   (int16_t)(SERVO_HZ), limitintegralpitchVToWP, control_position_hold);
         
-        //additional_int16_export5 = pitch_hover_corr;
+        //additional_int16_export8 = pitch_hover_corr;
 	}
 	else
 	{
