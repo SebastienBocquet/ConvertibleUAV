@@ -63,10 +63,12 @@ void servoMix(void)
 
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
 	for (temp = 0; temp <= NUM_INPUTS; temp++)
+    {
 		if (udb_flags._.radio_on)
 			pwManual[temp] = udb_pwIn[temp];
 		else
 			pwManual[temp] = udb_pwTrim[temp];
+    }
 
 	// Apply boosts if in a stabilized mode
 	if (udb_flags._.radio_on && flags._.pitch_feedback)
@@ -233,13 +235,13 @@ void cameraServoMix(void)
 	int16_t pwManual[NUM_INPUTS+1];
 
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
-	for (temp = 0; temp <= NUM_INPUTS; temp++)
-	{
+    for (temp = 0; temp <= NUM_INPUTS; temp++)
+    {
 		if (udb_flags._.radio_on)
 			pwManual[temp] = udb_pwIn[temp];
 		else
 			pwManual[temp] = udb_pwTrim[temp];
-	}
+    }
 
     temp = (pwManual[CAMERA_PITCH_INPUT_CHANNEL] - 3000) + REVERSE_IF_NEEDED(CAMERA_PITCH_CHANNEL_REVERSED, 
 		cam_pitch_servo_pwm_delta);

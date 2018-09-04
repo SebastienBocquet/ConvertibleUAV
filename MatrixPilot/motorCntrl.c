@@ -132,8 +132,6 @@ void motorCntrl(void)
     
 #ifdef TestAltitude
     flags._.engines_off = 1;
-    flags._.is_in_flight = 1;
-    is_manual_hover_throttle = 0;
 #endif
 	
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
@@ -399,52 +397,79 @@ void motorCntrl(void)
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		motor_A = motor_B = motor_C = motor_D = 0;
-        
-		if (current_orientation == F_HOVER)
+        if (flags._.engines_off)
         {
-            if (is_manual_hover_throttle) 
+            motor_A = motor_B = motor_C = motor_D = 0;
+        }
+        else
+        {
+            if (!(current_orientation == F_HOVER))
             {
                 motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
             }
             else
             {
-                int16_t hover_altitude_throttle = REVERSE_IF_NEEDED(THROTTLE_HOVER_CHANNEL_REVERSED, throttle_hover_control) \
-                    - accel_feedback \
-                    + udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
-                motor_A = motor_B = motor_C = motor_D = (int16_t)(__builtin_mulsu(hover_altitude_throttle, rampe_yaw)>>14) + (int16_t)(__builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], RMAX-rampe_yaw)>>14); 
-            }
-
-			//apply roll, pitch, yaw stabilization
+                if(canStabilizeHover())
+                {      
+                    if (is_manual_hover_throttle) 
+                    {
+                        motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+                    }
+                    else
+                    {
+                        int16_t hover_altitude_throttle = REVERSE_IF_NEEDED(THROTTLE_HOVER_CHANNEL_REVERSED, throttle_hover_control) \
+                            - accel_feedback \
+                            + udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
+                        motor_A = motor_B = motor_C = motor_D = (int16_t)(__builtin_mulsu(hover_altitude_throttle, rampe_yaw)>>14) + (int16_t)(__builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], RMAX-rampe_yaw)>>14); 
+                    }
+                    //apply roll, pitch, yaw stabilization
 #if (MOTOR_A_POSITION == 1)
-		//	Mix in the yaw, pitch, and roll signals int16_to the motors
-			motor_A += +yaw_quad_control - pitch_body_frame_control ;
-			motor_B += -yaw_quad_control - roll_body_frame_control ;
-			motor_C += +yaw_quad_control + pitch_body_frame_control ;
-			motor_D += -yaw_quad_control + roll_body_frame_control ;
+                    //	Mix in the yaw, pitch, and roll signals int16_to the motors
+                    motor_A += +yaw_quad_control - pitch_body_frame_control ;
+                    motor_B += -yaw_quad_control - roll_body_frame_control ;
+                    motor_C += +yaw_quad_control + pitch_body_frame_control ;
+                    motor_D += -yaw_quad_control + roll_body_frame_control ;
 #elif (MOTOR_A_POSITION == 3)
-		//	Mix in the yaw, pitch, and roll signals int16_to the motors
-			motor_A += +yaw_quad_control + pitch_body_frame_control ;
-			motor_B += -yaw_quad_control - roll_body_frame_control ;
-			motor_C += +yaw_quad_control - pitch_body_frame_control ;
-			motor_D += -yaw_quad_control + roll_body_frame_control ;
+                    //	Mix in the yaw, pitch, and roll signals int16_to the motors
+                    motor_A += +yaw_quad_control + pitch_body_frame_control ;
+                    motor_B += -yaw_quad_control - roll_body_frame_control ;
+                    motor_C += +yaw_quad_control - pitch_body_frame_control ;
+                    motor_D += -yaw_quad_control + roll_body_frame_control ;
 #endif
-
-			//limit max throttle of each engine
-			motor_A = limit_value(motor_A, throttlemin, throttlemax);
-			motor_B = limit_value(motor_B, throttlemin, throttlemax);
-			motor_C = limit_value(motor_C, throttlemin, throttlemax);
-			motor_D = limit_value(motor_D, throttlemin, throttlemax);
-		}
-        else
-        {
-            motor_A = motor_D = pwManual[THROTTLE_INPUT_CHANNEL] + REVERSE_IF_NEEDED(THROTTLE_CHANNEL_REVERSED, throttle_control);
-            motor_B = motor_C = motor_A;
-        }
-        
-        if (flags._.engines_off)
-        {
-            motor_A = motor_B = motor_C = motor_D = 0;
+                    //limit max throttle of each engine
+                    motor_A = limit_value(motor_A, throttlemin, throttlemax);
+                    motor_B = limit_value(motor_B, throttlemin, throttlemax);
+                    motor_C = limit_value(motor_C, throttlemin, throttlemax);
+                    motor_D = limit_value(motor_D, throttlemin, throttlemax);
+                }
+                else
+                {
+                    motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_INPUT_CHANNEL];
+                    
+                    if((udb_servo_pulsesat(pwManual[THROTTLE_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_INPUT_CHANNEL])) > HOVER_THROTTLE_MIN*(2.0*SERVORANGE))
+                    {
+                        //apply roll, pitch, yaw stabilization
+#if (MOTOR_A_POSITION == 1)
+                        //	Mix in the yaw, pitch, and roll signals int16_to the motors
+                        motor_A += +yaw_quad_control - pitch_body_frame_control ;
+                        motor_B += -yaw_quad_control - roll_body_frame_control ;
+                        motor_C += +yaw_quad_control + pitch_body_frame_control ;
+                        motor_D += -yaw_quad_control + roll_body_frame_control ;
+#elif (MOTOR_A_POSITION == 3)
+                        //	Mix in the yaw, pitch, and roll signals int16_to the motors
+                        motor_A += +yaw_quad_control + pitch_body_frame_control ;
+                        motor_B += -yaw_quad_control - roll_body_frame_control ;
+                        motor_C += +yaw_quad_control - pitch_body_frame_control ;
+                        motor_D += -yaw_quad_control + roll_body_frame_control ;
+#endif
+                        //limit max throttle of each engine
+                        motor_A = limit_value(motor_A, throttlemin, throttlemax);
+                        motor_B = limit_value(motor_B, throttlemin, throttlemax);
+                        motor_C = limit_value(motor_C, throttlemin, throttlemax);
+                        motor_D = limit_value(motor_D, throttlemin, throttlemax);
+                    }
+                }   
+            }
         }
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

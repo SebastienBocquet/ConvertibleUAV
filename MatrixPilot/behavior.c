@@ -85,11 +85,11 @@ void updateBehavior(void)
 
 	int16_t current_altitude = IMUlocationz._.W1;
 	int16_t transition_altitude = TRANSITION_ALTITUDE;
-    boolean isHovering = canStabilizeHover() && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude);
+    boolean isHovering = HOVERING_STABILIZED_MODE && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude);
 
 	if (current_orientation == F_INVERTED)
 	{
-		if (canStabilizeHover() && rmat[7] < -14000)
+		if (HOVERING_STABILIZED_MODE && rmat[7] < -14000)
 		{
 			current_orientation = F_HOVER;
 		}
@@ -135,7 +135,7 @@ void updateBehavior(void)
 			current_orientation = F_NORMAL;
 		}
 	}
-//	if (flags._.pitch_feedback && !flags._.GPS_steering)
+
     if (flags._.pitch_feedback) 
 	{
 		desired_behavior.W = current_orientation;
@@ -233,7 +233,13 @@ void enforce_manual_hover_throttle(void)
 {   
     if (current_orientation == F_HOVER)
     {
-        update_throttle_activation_state(udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]));
+        int16_t throttle;
+        if (udb_flags._.radio_on)
+			throttle = udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
+		else
+			throttle = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL];
+        
+        update_throttle_activation_state(udb_servo_pulsesat(throttle) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]));
                     
         if ( udb_flags._.radio_on == 1 )
         {
