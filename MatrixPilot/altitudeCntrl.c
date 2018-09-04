@@ -843,7 +843,7 @@ void hoverAltitudeCntrl(void)
 
     rampe_throttle = limit_value(rampe_throttle, 0, RMAX);
 
-    if (z_filtered > max_hover_alt || flags._.low_battery)  
+    if (z_filtered > max_hover_alt) // || flags._.low_battery)  
     {
         //if max altitude is exceeded, reduce throttle
         flags._.emergency_landing = 1;

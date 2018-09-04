@@ -400,7 +400,7 @@ void motorCntrl(void)
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		motor_A = motor_B = motor_C = motor_D = 0;
-
+        
 		if (current_orientation == F_HOVER)
         {
             if (is_manual_hover_throttle) 

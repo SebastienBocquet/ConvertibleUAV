@@ -278,6 +278,10 @@ void detect_low_battery(void)
     {
         low_battery ++;
     }
+    else
+    {
+        low_battery --;
+    }
 #endif
     
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
@@ -285,7 +289,16 @@ void detect_low_battery(void)
     {
         low_battery ++;
     }
+    else
+    {
+        low_battery --;
+    }
 #endif
+    
+    if (low_battery < 0)
+    {
+        low_battery = 0;
+    }
     
     if (low_battery > (NB_LOW_VOLTAGE_SECONDS*HEARTBEAT_HZ))
     {

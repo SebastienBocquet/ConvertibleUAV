@@ -25,7 +25,7 @@
 int16_t aileronbgain;
 int16_t elevatorbgain;
 int16_t rudderbgain;
-const float invdeltaservofilter = (float)(80.);
+const float invdeltaservofilter = (float)(2 * SERVO_HZ);
 float roll_filtered_flt=0.;
 float pitch_filtered_flt=0.;
 float yaw_filtered_flt=0.;

@@ -523,14 +523,14 @@ void serial_output_8hz(void)
             for (i=1; i <= NUM_OUTPUTS; i++)
                 serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("pmo:%i;", throttle_hover_control+2000);
+            serial_output("pmo:%i;", throttle_hover_control);
 
-//            serial_output("pmo:%i;imx:%i;imy:%i;imz:%i;"
-//                "tx:%i;ty:%i;tz:%i;",throttle_hover_control, 
-//                    (int16_t)(100*IMUlocationx._.W1), 
-//                    (int16_t)(100*IMUlocationy._.W1), 
-//                    (int16_t)(100*IMUlocationz._.W1),
-//                IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1);
+            serial_output("pmo:%i;imx:%i;imy:%i;imz:%i;"
+                "tx:%i;ty:%i;tz:%i;",throttle_hover_control, 
+                    (int16_t)(100*IMUlocationx._.W1), 
+                    (int16_t)(100*IMUlocationy._.W1), 
+                    (int16_t)(100*IMUlocationz._.W1),
+                    IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1);
 
             serial_output("accz:%i;tgz:%i;tgvz:%i;inz:%i;invz:%i;ezi:%i;", 
                 accelEarth[2], hover_target_z, hover_target_vz, 

@@ -188,7 +188,6 @@ void hoverRollCntrl(void)
                                     (int16_t)(SERVO_HZ), limitintegralrollToWP, control_position_hold);
         
         additional_int16_export6 = rmat[6];
-        additional_int16_export3 = roll_v_target;
                 
         roll_v_target = limit_value(roll_v_target, -limittargetrollV, limittargetrollV);
         
