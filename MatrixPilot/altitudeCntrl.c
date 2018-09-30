@@ -46,13 +46,12 @@ union longww throttleFiltered = { 0 };
 #define PITCHATZERO         (ALT_HOLD_PITCH_HIGH*(RMAX/57.3))
 #define PITCHHEIGHTGAIN     ((PITCHATMAX - PITCHATMIN) / (HEIGHT_MARGIN*2.0))
 #define HEIGHTTHROTTLEGAIN  ((1.5*(HEIGHT_TARGET_MAX-HEIGHT_TARGET_MIN)* 1024.0) / (SERVORANGE*SERVOSAT))
-#define HOVER_FAILSAFE_ALTITUDE 10000
 #define VZ_CORR_16           VZ_CORR*RMAX
 #define RAMPE_TIME_LANDING 3
 #define RAMPE_DECREMENT -RMAX / (HEARTBEAT_HZ * RAMPE_TIME_LANDING)
-#define IN_FLIGHT_DETECT_TIME 2
-#define ALT_SENSOR_UNCERTAINTY 15 //in cm
 
+#define RELIABLE_ALT_MEAS_DETECT_TIME 2 //is seconds
+#define ALT_SENSOR_UNCERTAINTY 15 //in cm
 
 int16_t aircraft_mass       = AIRCRAFT_MASS;
 int16_t max_thrust          = MAX_THRUST;
@@ -62,8 +61,6 @@ int16_t pitchAltitudeAdjust = 0;
 boolean filterManual = false;
 
 int16_t desiredHeight;
-
-int16_t throttle_control_mem = -1;
 
 void normalAltitudeCntrl(void);
 void manualThrottle(int16_t throttleIn);
@@ -158,9 +155,9 @@ int32_t error_integral_z=0;
 int32_t error_integral_vz=0;
 int32_t error_integral_accz=0;
 int32_t previous_z32;
-boolean failsafe_throttle_mode = false;
-int16_t max_hover_alt = (int16_t)(HOVER_FAILSAFE_ALTITUDE);
 int16_t rampe_throttle;
+int16_t throttle_control_mem = -1;
+int16_t reliable_altitude_measurement_counter = 0;
 
 int16_t hover_target_z=0;
 int16_t hover_z=0;
@@ -181,9 +178,7 @@ float invdeltafiltervz;
 //failsafe
 boolean alt_sensor_failure = true;
 int16_t is_in_alt_sensor_failure = 0;
-int16_t is_in_flight = 0;
-boolean is_in_flight_mem = 0;
-int16_t target_z_mem = -1;
+int16_t z_target_mem = -1;
 
 #if (SPEED_CONTROL == 1)  // speed control loop
 
@@ -343,9 +338,43 @@ void set_throttle_hover_control(int16_t throttle)
 	}
 }
 
-boolean is_alt_sensor_failure()
+void determine_reliable_altitude_measurement(int16_t throttle, int16_t z)
 {
-    if (flags._.is_in_flight)
+    if (!flags._.reliable_altitude_measurement)
+    {
+        if (throttle > hoverthrottlemin)
+        {
+            if (z > (HOVER_TARGET_HEIGHT_MIN + ALT_SENSOR_UNCERTAINTY))
+            {
+                reliable_altitude_measurement_counter += 1;
+            }
+        }
+    }
+    else
+    {
+        if (z <= (HOVER_TARGET_HEIGHT_MIN + ALT_SENSOR_UNCERTAINTY))
+        {
+           reliable_altitude_measurement_counter -= 1;
+        }
+    }
+    
+    if (reliable_altitude_measurement_counter >= (RELIABLE_ALT_MEAS_DETECT_TIME * HEARTBEAT_HZ))
+    {
+        flags._.reliable_altitude_measurement = 1;
+        reliable_altitude_measurement_counter = (RELIABLE_ALT_MEAS_DETECT_TIME * HEARTBEAT_HZ);
+        LED_GREEN = LED_ON;
+    }
+    if (reliable_altitude_measurement_counter < 0)
+    {
+        flags._.reliable_altitude_measurement = 0;
+        reliable_altitude_measurement_counter = 0;
+        LED_GREEN = LED_OFF;
+    }
+}
+
+boolean is_alt_sensor_failure(void)
+{
+    if (flags._.reliable_altitude_measurement)
     {
 	    if (alt_sensor_failure)
 		{
@@ -378,46 +407,18 @@ boolean is_alt_sensor_failure()
     
 }
 
-void isInFlight(int16_t throttle)
-{
-    if ((!is_in_flight_mem) && throttle > hoverthrottlemin && (z_filtered > (HOVER_TARGET_HEIGHT_MIN + ALT_SENSOR_UNCERTAINTY)))
-    {
-        is_in_flight += 1;
-    }
-    
-    if ( (flags._.is_in_flight) && (z_filtered <= (HOVER_TARGET_HEIGHT_MIN + ALT_SENSOR_UNCERTAINTY)) )
-    {
-        is_in_flight -= 1;
-    }
-    
-    if (is_in_flight >= (IN_FLIGHT_DETECT_TIME*HEARTBEAT_HZ))
-    {
-        flags._.is_in_flight = 1;
-        is_in_flight_mem = 1;
-        is_in_flight = (IN_FLIGHT_DETECT_TIME*HEARTBEAT_HZ);
-        LED_GREEN = LED_ON;
-    }
-    if (is_in_flight < 0){
-        flags._.auto_land = 1;
-        is_in_flight = 0;
-        LED_GREEN = LED_OFF;
-    }
-}
-
 int16_t emergency_landing()
 {
-    LED_BLUE = LED_ON;
-            
-    if (target_z_mem == -1) target_z_mem = target_z_filtered;
+    if (z_target_mem == -1) z_target_mem = target_z_filtered;
     
     if (udb_heartbeat_counter % (HEARTBEAT_HZ/10) == 0)
     {
-        target_z_mem -= (int16_t)(EMERGENCY_VZ/10);
+        z_target_mem -= (int16_t)(EMERGENCY_VZ/10);
     }
     
-    target_z_mem = limit_value(target_z_mem, hovertargetheightmin, hovertargetheightmax);
+    z_target_mem = limit_value(z_target_mem, hovertargetheightmin, hovertargetheightmax);
     
-    return target_z_mem;
+    return z_target_mem;
 }
 
 void setTargetAltitude(int16_t targetAlt)
@@ -649,21 +650,14 @@ void hoverAltitudeCntrl(void)
  		previous_z32=(int32_t)(hovertargetheightmin)*100;
 		is_in_alt_sensor_failure = 0;
 		rampe_throttle = 0;
-        target_z_mem = -1;
+        z_target_mem = -1;
     }
 
     if (hover_counter < RMAX)
     {
         hover_counter+=1;
     }
-
-#ifdef TestAltitude
-    is_in_flight_mem = 1;
-#else
-    //detection whether we are in flight 
-    isInFlight(udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]));
-#endif
-    
+            
     //determine height to ground (in cm) according to available sensor and validity
 
     //by default use IMU altitude and velocity
@@ -762,6 +756,10 @@ void hoverAltitudeCntrl(void)
     target_z_filtered = exponential_filter(z_target, &target_z_filtered_flt, invdeltafiltertargetz);
     z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
 
+    determine_reliable_altitude_measurement(
+            udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
+            z_filtered);
+    
     //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
     //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
     //VZ_CORR=1 means only altitude sensor derivative is considered
@@ -783,7 +781,7 @@ void hoverAltitudeCntrl(void)
     //PI controller on height to ground z
     error_z=z_filtered-target_z_filtered;
     target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralz, flags._.is_in_flight);
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralz, flags._.reliable_altitude_measurement);
     target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
     //***************************************************//
 
@@ -791,7 +789,7 @@ void hoverAltitudeCntrl(void)
     //PI controller on vertical velocity
     error_vz=vz_filtered-target_vz_bis;
     target_accz=compute_pi_block(vz_filtered, target_vz_bis, hoverthrottlevzkp, hoverthrottlevzki, &error_integral_vz, 
-                                  (int16_t)(HEARTBEAT_HZ), limitintegralvz, flags._.is_in_flight);
+                                  (int16_t)(HEARTBEAT_HZ), limitintegralvz, flags._.reliable_altitude_measurement);
     target_accz_bis=limit_value(target_accz*COEF_MAX, -limittargetaccz, limittargetaccz);
     //***************************************************//
 
@@ -799,64 +797,56 @@ void hoverAltitudeCntrl(void)
     //PI controller on vertical acceleration
     error_accz=accz_filtered-target_accz_bis;
     throttle=compute_pi_block(accz_filtered, target_accz_bis, hoverthrottleacczkp, hoverthrottleacczki, &error_integral_accz, 
-                               (int16_t)(HEARTBEAT_HZ), limitintegralaccz, flags._.is_in_flight);
-    throttle_control_pre=throttle*COEF_MAX;
-    //***************************************************//
-
-    //apply coefficient to make PI gains independent of aircraft mass and maximum propeller thrust
-    int32_t tmp=__builtin_mulsu(throttle_control_pre, 2*aircraft_mass);
-    throttle_control_pre=(int16_t)((tmp/100)/max_thrust);
-
-    //add throttle offset
-    throttle_control_pre+=hoverthrottleoffset;
-
-    if (!is_in_flight_mem)
+                               (int16_t)(HEARTBEAT_HZ), limitintegralaccz, flags._.reliable_altitude_measurement);
+    
+    if (current_flight_phase == F_MANUAL_TAKE_OFF)
     {
         throttle_control_pre = 0;
     }
-        
-    //si plus en vol, c'est que l'on est tres proche du sol. On reduit le throttle
-    if (flags._.auto_land){
-        LED_ORANGE = LED_ON;
-        if (throttle_control_mem == -1)
-        {
-            throttle_control_mem = throttle_control_pre;
-            rampe_throttle = RMAX;
-        }
-        rampe_throttle += RAMPE_DECREMENT;
-        if (rampe_throttle <= 0)
-        {
-            is_in_flight = 0;
-            is_in_flight_mem = 0;
-            flags._.emergency_landing = 0;
-            flags._.engines_off = 1;
-            take_off_counter = 0;
-            throttle_control_mem = -1;
-            flags._.is_in_flight = 0;
-            flags._.auto_land = 0;
-            LED_BLUE = LED_OFF;
-            LED_ORANGE = LED_OFF;
-        }
-
-        throttle_control_pre = (int16_t)(__builtin_mulsu(throttle_control_mem-hoverthrottlemin, rampe_throttle)>>14)+hoverthrottlemin ;
-    }
-
-    rampe_throttle = limit_value(rampe_throttle, 0, RMAX);
-
-    if (z_filtered > max_hover_alt) // || flags._.low_battery)  
+    else
     {
-        //if max altitude is exceeded, reduce throttle
-        flags._.emergency_landing = 1;
+        if (is_alt_sensor_failure())
+        {
+            throttle_control_pre = hoverthrottleoffset;
+        }
+        else
+        {
+            if (current_flight_phase == F_AUTO_LAND)
+            {
+                if (throttle_control_mem == -1)
+                {
+                    throttle_control_mem = throttle_control_pre;
+                    rampe_throttle = RMAX;
+                }
+
+                rampe_throttle += RAMPE_DECREMENT;
+
+                if (rampe_throttle < 0)
+                {
+                    throttle_control_mem = -1;
+                    rampe_throttle = -1;
+                }
+
+                throttle_control_pre = (int16_t)(__builtin_mulsu(throttle_control_mem-hoverthrottlemin, rampe_throttle)>>14)+hoverthrottlemin ;
+            }
+            else
+            {
+                throttle_control_pre=throttle*COEF_MAX;
+                //***************************************************//
+
+                //apply coefficient to make PI gains independent of aircraft mass and maximum propeller thrust
+                int32_t tmp=__builtin_mulsu(throttle_control_pre, 2*aircraft_mass);
+                throttle_control_pre=(int16_t)((tmp/100)/max_thrust);
+
+                //add throttle offset
+                throttle_control_pre+=hoverthrottleoffset;
+            }
+            
+            //limit throttle value
+            throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
+        }
     }
-
-    if (is_alt_sensor_failure())
-    {
-        throttle_control_pre = hoverthrottleoffset;
-    }
-
-    //limit throttle value
-    throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
-
+    
     //set variables for SERIAL_UDB_EXTRA log
     hover_z=z_filtered;
     hover_vz=vz_filtered;

@@ -46,11 +46,10 @@ struct flag_bits {
 	uint16_t rtl_hold                   : 1;
 	uint16_t f13_print_req              : 1;
 	uint16_t update_autopilot_state_asap: 1;
-    uint16_t is_in_flight               : 1 ;
-    uint16_t auto_land                  : 1 ;
-    uint16_t low_battery                : 1 ;
-    uint16_t emergency_landing          : 1 ;
-    uint16_t engines_off                : 1 ;
+    uint16_t reliable_altitude_measurement : 1;
+    uint16_t low_battery                : 1;
+    uint16_t emergency_landing          : 1;
+    uint16_t engines_off                : 1;
 };
 
 union fbts_int { struct flag_bits _; int16_t WW; };
@@ -97,7 +96,6 @@ extern int16_t desiredSpeed; // Stored in 10ths of meters per second
 #define AH_FULL             3
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // servoMix.c
 void applyManoeuvres(void);
@@ -127,6 +125,7 @@ int32_t cam_yawServoLimit(int32_t pwm_pulse);
 
 int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_max);
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // AltitudeCntrl.c
 #define LED_RED_SONAR_CHECK                   1
@@ -148,6 +147,7 @@ extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
 
 extern int16_t hover_counter;
 extern int16_t z_filtered;
+extern int16_t rampe_throttle;
 extern int16_t hover_target_z;
 extern int16_t hover_z;
 extern int16_t hover_vz;
@@ -170,7 +170,6 @@ extern int16_t additional_int16_export6;
 extern int16_t additional_int16_export7;
 extern int16_t additional_int16_export8;
 extern int16_t additional_int16_export9;
-extern int32_t additional_int32_export1;
 
 int16_t IIR_Filter(int32_t*, int16_t, int8_t);
 int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max);
@@ -251,13 +250,13 @@ void flightplan_live_commit(void);
 ////////////////////////////////////////////////////////////////////////////////
 // behavior.c
 void init_behavior(void);
+void init_flight_phase(void);
 void setBehavior(int16_t newBehavior);
 void updateBehavior(void);
 void updateTriggerAction(void);
 boolean canStabilizeInverted(void);
 boolean canStabilizeHover(void);
-void update_throttle_activation_state(int16_t throttle);
-void enforce_manual_hover_throttle(void);
+void updateFlightPhase(void);
 
 struct behavior_flag_bits {
 	uint16_t takeoff        : 1;    // disable altitude interpolation for faster climbout
@@ -287,9 +286,14 @@ struct behavior_flag_bits {
 #define F_ALTITUDE_GOAL      512
 #define F_CROSS_TRACK       1024
 
+#define F_MANUAL_TAKE_OFF      0
+#define F_IS_IN_FLIGHT         1
+#define F_AUTO_LAND            2
+
 union bfbts_word { struct behavior_flag_bits _; int16_t W; };
 
 extern int16_t current_orientation;
+extern int16_t current_flight_phase;
 extern union bfbts_word desired_behavior;
 
 #define TRIGGER_TYPE_NONE      0

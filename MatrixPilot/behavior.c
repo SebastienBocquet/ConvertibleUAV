@@ -24,17 +24,19 @@
 #include "airspeed_options.h"
 
 int16_t current_orientation;
+int16_t current_flight_phase;
 union bfbts_word desired_behavior;
 int16_t cyclesUntilStartTriggerAction = 0;
 int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
-boolean is_manual_hover_throttle = 1;
-int16_t throttle_activation = 0;
-boolean throttle_deactivation = 0;
 
 void triggerActionSetValue(boolean newValue);
 
+void init_flight_phase(void)
+{
+    current_flight_phase = F_MANUAL_TAKE_OFF;
+}
 
 void init_behavior(void)
 {
@@ -202,75 +204,63 @@ void triggerActionSetValue(boolean newValue)
 	currentTriggerActionValue = newValue;
 }
 
-void update_throttle_activation_state(int16_t throttle)
-{
-    if ( (throttle_activation == 0) && (throttle > HOVER_THROTTLE_MIN*(2.0*SERVORANGE)) )
-    {   
-        throttle_activation = 1;
-    }
-
-    if ( (throttle <= HOVER_THROTTLE_MIN*(2.0*SERVORANGE)) && (throttle_activation == 1) )
-    {
-        throttle_deactivation = 1;
-    }
-    
-    if ( (throttle_activation >= 1) && (throttle_deactivation) )
-    {
-        if ( throttle > HOVER_THROTTLE_MIN*(2.0*SERVORANGE) )
-        { 
-            throttle_activation = 2;
-        }
-    }
-    
-    if (flags._.engines_off)
-    {
-        throttle_activation = 0;
-        throttle_deactivation = 0;
-    }
-}
-
-void enforce_manual_hover_throttle(void)
+void updateFlightPhase()
 {   
-    if (current_orientation == F_HOVER)
+#ifdef TestGains
+#ifdef TestAltitude
+    flags._.engines_off = 1;
+#endif
+    current_flight_phase = F_IS_IN_FLIGHT;
+    return;
+#endif
+    
+    if ((z_filtered > (int16_t)(HOVER_FAILSAFE_ALTITUDE)) || flags._.low_battery)
     {
-        int16_t throttle;
-        if (udb_flags._.radio_on)
-			throttle = udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
-		else
-			throttle = udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL];
-        
-        update_throttle_activation_state(udb_servo_pulsesat(throttle) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]));
-                    
-        if ( udb_flags._.radio_on == 1 )
+        //if max altitude is exceeded, reduce throttle
+#ifndef DisableEmergencyLanding
+        flags._.emergency_landing = 1;
+        LED_ORANGE = LED_ON;
+#endif
+    }
+    
+    if (current_flight_phase == F_MANUAL_TAKE_OFF)
+    {
+        if (flags._.reliable_altitude_measurement)
         {
-            if (!flags._.is_in_flight) 
-            {
-                is_manual_hover_throttle = true;
-            }
-            else
-            {
-                if (throttle_activation == 0)
-                {
-                    is_manual_hover_throttle = true;
-                }
-                else if (throttle_activation == 1)
-                {
-                    is_manual_hover_throttle = false;
-                }
-                else
-                {
-                    is_manual_hover_throttle = true;
-                }
-            }
+            current_flight_phase = F_IS_IN_FLIGHT;
+            LED_BLUE = LED_ON;
         }
         else
         {
-            is_manual_hover_throttle = false;
+            current_flight_phase = F_MANUAL_TAKE_OFF;
+            LED_BLUE = LED_OFF;
+        }
+    }
+    else if (current_flight_phase == F_IS_IN_FLIGHT)
+    {
+        if (canStabilizeHover() && !flags._.reliable_altitude_measurement)
+        {
+            current_flight_phase = F_AUTO_LAND;
+            LED_BLUE = LED_OFF;
+            LED_ORANGE = LED_ON;
+        }
+        else
+        {
+            current_flight_phase = F_IS_IN_FLIGHT;
+            LED_BLUE = LED_ON;
         }
     }
     else
     {
-        is_manual_hover_throttle = true;
+        if (rampe_throttle < 0)
+        {
+            current_flight_phase = F_MANUAL_TAKE_OFF;
+            LED_ORANGE = LED_OFF;
+        }
+        else
+        {
+            current_flight_phase = F_AUTO_LAND;
+            LED_ORANGE = LED_ON;
+        }
     }
-   
 }

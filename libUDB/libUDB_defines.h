@@ -214,7 +214,7 @@ struct udb_flag_bits {
 #define MAX_VOLTAGE             518 // 51.8 Volts max for the sensor from SparkFun (in tenths of Volts)
 #define VOLTAGE_SENSOR_OFFSET   0   // Add 0.0 Volts to whatever value we sense
 #define LOW_VOLTAGE             108 // 11.2 Volts considered as low voltage for a 3S battery
-#define NB_LOW_VOLTAGE_SECONDS 3  //if battery voltage is low during this number of seconds, then the emergency landing is activated
+#define NB_LOW_VOLTAGE_SECONDS  3  //if battery voltage is low during this number of seconds, then the emergency landing is activated
 
 extern int16_t magMessage;
 extern int16_t vref_adj;

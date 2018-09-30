@@ -40,7 +40,6 @@ int16_t additional_int16_export6 = 0;
 int16_t additional_int16_export7 = 0;
 int16_t additional_int16_export8 = 0;
 int16_t additional_int16_export9 = 0;
-int32_t additional_int32_export1 = 0;
 
 int16_t voltage = 0;
 int16_t current = 0;
@@ -471,12 +470,9 @@ extern int16_t segmentIndex;
     
 void serial_output_8hz(void)
 {
-    static int16_t telemetry_counter = 8;
-	static int toggle = 0;
     
     if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_TELEMETRY) == 0)
 	{
-        static int16_t pwIn_save[NUM_INPUTS + 1];
         static int16_t pwOut_save[NUM_OUTPUTS + 1];
 
         serial_output(
@@ -539,9 +535,8 @@ void serial_output_8hz(void)
 //            serial_output("rerr:%i;perr:%i;yerr:%i;",
 //                roll_error, pitch_error, yaw_error);
 
-            serial_output("inf:%i;eml:%i;lowb:%i;autl:%i;engo:%i;", 
-                    flags._.is_in_flight, flags._.emergency_landing, flags._.low_battery, 
-                    flags._.auto_land, flags._.engines_off);
+            serial_output("cfp:%i;ram:%i;eml:%i;lowb:%i;engo:%i;", 
+                current_flight_phase, flags._.reliable_altitude_measurement, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
                 
             serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
                 additional_int16_export1, additional_int16_export2, additional_int16_export3, 
@@ -874,10 +869,6 @@ void serial_output_8hz(void)
 
 				serial_output("rerr%i:perr%i:yerr%i:",
 					roll_error, pitch_error, yaw_error);
-
-				serial_output("inf%i:eml%i:lowb%i:autl%i:engo%i:", 
-                        flags._.is_in_flight, flags._.emergency_landing, flags._.low_battery, 
-                        flags._.auto_land, flags._.engines_off);
                 
                 serial_output("rco%i:pco%i:", roll_hover_corr, pitch_hover_corr);
 

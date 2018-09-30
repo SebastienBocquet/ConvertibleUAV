@@ -96,8 +96,8 @@ void dcm_servo_callback_prepare_outputs(void)
 	
 			updateBehavior();
             
-            enforce_manual_hover_throttle();
-                    
+            updateFlightPhase();
+    
 			wind_gain = wind_gain_adjustment ();
 	
 	        //Manage sonar orientation via servo (unused))

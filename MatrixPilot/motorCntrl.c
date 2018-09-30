@@ -129,10 +129,6 @@ void motorCntrl(void)
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
 	int16_t target_orientation_transposed[9] ;
 	int16_t orientation_error_matrix[9] ;
-    
-#ifdef TestAltitude
-    flags._.engines_off = 1;
-#endif
 	
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
 	for (temp = 0; temp <= NUM_INPUTS; temp++)
@@ -151,7 +147,7 @@ void motorCntrl(void)
 	}
 	else
 	{
-		if (flags._.is_in_flight)
+		if (flags._.reliable_altitude_measurement)
 		{
 			rampe_yaw += RAMPE_INCREMENT_YAW;
  		}
@@ -251,7 +247,7 @@ void motorCntrl(void)
 	
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		if ( (flags._.is_in_flight) && (current_orientation == F_HOVER) )
+		if ( (flags._.reliable_altitude_measurement) && (current_orientation == F_HOVER) )
 		{
 			roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), roll_error ))>>5) ;
 			if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
@@ -409,9 +405,9 @@ void motorCntrl(void)
             }
             else
             {
-                if(canStabilizeHover())
+                if(canStabilizeHover() || flags._.emergency_landing)
                 {      
-                    if (is_manual_hover_throttle) 
+                    if (current_flight_phase == F_MANUAL_TAKE_OFF) 
                     {
                         motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
                     }

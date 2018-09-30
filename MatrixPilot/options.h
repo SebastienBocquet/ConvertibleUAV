@@ -421,6 +421,7 @@
 // to match your Receiver's RSSI format.  Note that some receivers use a higher voltage to 
 // represent a lower signal strength, so you may need to set MIN higher than MAX.
 
+#define USE_LOW_VOLTAGE_FAILSAFE
 #define ANALOG_CURRENT_INPUT_CHANNEL        2
 #define ANALOG_VOLTAGE_INPUT_CHANNEL        1
 #define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
@@ -598,6 +599,7 @@
 #define USEABLE_LIDAR_DISTANCE             3275 //3275 // Reliable lidar measurement distance (centimeters) for your specific landing area. 
                                                 //Here it could go up to 4000cm, but we restrict to 3276cm because of the maximum pwm pulse duration 
                                                 //stored in an unsigned int 16bits (see comments in lidarAltitude.c)
+#define HOVER_FAILSAFE_ALTITUDE            10000//in cm : alitutde above which throttle is set to HOVER_THROTTLE_OFFSET
 #define OUT_OF_RANGE_DISTANCE              -99  // Distance in centimeters that denotes "out of range" for your Sonar device.
 #define HOVER_TARGET_HEIGHT_MIN            80   // (cm) Do not set below 80cm
 #define HOVER_TARGET_HEIGHT_MAX            200  // (cm)
@@ -836,8 +838,9 @@
 // The following can be used to do a ground check of stabilization without a GPS.
 // If you define TestGains, stabilization functions
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
-//#define TestGains                        // uncomment this line if you want to test your gains without using GPS
-//#define TestAltitude
+#define TestGains                        // uncomment this line if you want to test your gains without using GPS
+#define TestAltitude
+#define DisableEmergencyLanding
 
 // Set this to 1 to calculate and print out free stack space
 #define RECORD_FREE_STACK_SPACE             0
