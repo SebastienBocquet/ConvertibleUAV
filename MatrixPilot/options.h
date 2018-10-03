@@ -599,7 +599,7 @@
 #define USEABLE_LIDAR_DISTANCE             3275 //3275 // Reliable lidar measurement distance (centimeters) for your specific landing area. 
                                                 //Here it could go up to 4000cm, but we restrict to 3276cm because of the maximum pwm pulse duration 
                                                 //stored in an unsigned int 16bits (see comments in lidarAltitude.c)
-#define HOVER_FAILSAFE_ALTITUDE            10000//in cm : alitutde above which throttle is set to HOVER_THROTTLE_OFFSET
+#define HOVER_FAILSAFE_ALTITUDE            2500 //in cm : alitutde above which throttle is set to HOVER_THROTTLE_OFFSET
 #define OUT_OF_RANGE_DISTANCE              -99  // Distance in centimeters that denotes "out of range" for your Sonar device.
 #define HOVER_TARGET_HEIGHT_MIN            80   // (cm) Do not set below 80cm
 #define HOVER_TARGET_HEIGHT_MAX            200  // (cm)
