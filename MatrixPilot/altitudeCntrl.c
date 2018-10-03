@@ -176,8 +176,8 @@ float invdeltafilterheight;
 float invdeltafiltervz;
 
 //failsafe
-boolean alt_sensor_failure = true;
-int16_t is_in_alt_sensor_failure = 0;
+boolean no_altitude_measurement = true;
+int16_t no_altitude_measurement_counter = 0;
 int16_t z_target_mem = -1;
 
 #if (SPEED_CONTROL == 1)  // speed control loop
@@ -372,31 +372,31 @@ void determine_is_not_close_to_ground(int16_t throttle, int16_t z)
     }
 }
 
-boolean is_alt_sensor_failure(void)
+boolean has_no_altitude_measurement(void)
 {
     if (flags._.is_not_close_to_ground)
     {
-	    if (alt_sensor_failure)
+	    if (no_altitude_measurement)
 		{
-			is_in_alt_sensor_failure += 1;
+			no_altitude_measurement_counter += 1;
 		}
         else
         {
-            is_in_alt_sensor_failure -= 1;
+            no_altitude_measurement_counter -= 1;
         }
 	}
     else
     {
-        is_in_alt_sensor_failure = 0;
+        no_altitude_measurement_counter = 0;
     }
     
-    if (is_in_alt_sensor_failure < 0);
+    if (no_altitude_measurement_counter < 0);
     {
-        is_in_alt_sensor_failure = 0;
+        no_altitude_measurement_counter = 0;
     }
     
     //si cas de panne dure plus d'une seconde, on declenche la manoeuvre failsafe
-	if (is_in_alt_sensor_failure > (1 * HEARTBEAT_HZ)) 
+	if (no_altitude_measurement_counter > (1 * HEARTBEAT_HZ)) 
     {
         return true;
     }
@@ -630,7 +630,7 @@ void hoverAltitudeCntrl(void)
     int16_t throttle;
     int16_t throttle_control_pre;
     
-	alt_sensor_failure=true;
+	no_altitude_measurement=true;
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
     throttle_control_pre = 0;
@@ -648,7 +648,7 @@ void hoverAltitudeCntrl(void)
         vz_filtered_flt=0.;
         accz_filtered_flt=0.;
  		previous_z32=(int32_t)(hovertargetheightmin)*100;
-		is_in_alt_sensor_failure = 0;
+		no_altitude_measurement_counter = 0;
 		rampe_throttle = 0;
         z_target_mem = -1;
     }
@@ -674,8 +674,8 @@ void hoverAltitudeCntrl(void)
         z=(int16_t)(get_barometer_altitude());
         invdeltafilterheight=invdeltafilterbaro;
 		invdeltafiltervz=4.;
-        //if you do not trust barometer altitude for altitude control, set alt_sensor_failure to true, otherwise set to false
-        alt_sensor_failure=false;
+        //if you do not trust barometer altitude for altitude control, set no_altitude_measurement to true, otherwise set to false
+        no_altitude_measurement=false;
         setFailureSonarDist(z);
     }
 #endif
@@ -690,7 +690,7 @@ void hoverAltitudeCntrl(void)
         z=sonar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
         invdeltafiltervz=4.;
-		alt_sensor_failure=false;
+		no_altitude_measurement=false;
         setFailureLidarDist(z);
 	}
 #endif
@@ -705,7 +705,7 @@ void hoverAltitudeCntrl(void)
         z=lidar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
         invdeltafiltervz=4.;
-		alt_sensor_failure=false;
+		no_altitude_measurement=false;
 	}
 #endif
     
@@ -768,7 +768,7 @@ void hoverAltitudeCntrl(void)
     vz_filtered = 0;
     accz_filtered = 0;
 #else
-    if (!alt_sensor_failure)
+    if (!no_altitude_measurement)
     {
         vz = (__builtin_mulsu(IMUvelocityz._.W1, RMAX - VZ_CORR_16) 
                     + __builtin_mulsu(compute_vz_alt_sensor(z), VZ_CORR_16))>>14;
@@ -805,7 +805,7 @@ void hoverAltitudeCntrl(void)
     }
     else
     {
-        if (is_alt_sensor_failure())
+        if (has_no_altitude_measurement())
         {
             throttle_control_pre = hoverthrottleoffset;
         }
