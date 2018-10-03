@@ -393,31 +393,51 @@ void motorCntrl(void)
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        if (flags._.engines_off)
+        if (!(current_orientation == F_HOVER))
         {
-            motor_A = motor_B = motor_C = motor_D = 0;
+            motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
         }
         else
         {
-            if (!(current_orientation == F_HOVER))
-            {
-                motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+            if(canStabilizeHover() || flags._.emergency_landing)
+            {      
+                if (current_flight_phase == F_MANUAL_TAKE_OFF) 
+                {
+                    motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+                }
+                else
+                {
+                    int16_t hover_altitude_throttle = REVERSE_IF_NEEDED(THROTTLE_HOVER_CHANNEL_REVERSED, throttle_hover_control) \
+                        - accel_feedback \
+                        + udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
+                    motor_A = motor_B = motor_C = motor_D = (int16_t)(__builtin_mulsu(hover_altitude_throttle, rampe_yaw)>>14) + (int16_t)(__builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], RMAX-rampe_yaw)>>14); 
+                }
+                //apply roll, pitch, yaw stabilization
+#if (MOTOR_A_POSITION == 1)
+                //	Mix in the yaw, pitch, and roll signals int16_to the motors
+                motor_A += +yaw_quad_control - pitch_body_frame_control ;
+                motor_B += -yaw_quad_control - roll_body_frame_control ;
+                motor_C += +yaw_quad_control + pitch_body_frame_control ;
+                motor_D += -yaw_quad_control + roll_body_frame_control ;
+#elif (MOTOR_A_POSITION == 3)
+                //	Mix in the yaw, pitch, and roll signals int16_to the motors
+                motor_A += +yaw_quad_control + pitch_body_frame_control ;
+                motor_B += -yaw_quad_control - roll_body_frame_control ;
+                motor_C += +yaw_quad_control - pitch_body_frame_control ;
+                motor_D += -yaw_quad_control + roll_body_frame_control ;
+#endif
+                //limit max throttle of each engine
+                motor_A = limit_value(motor_A, throttlemin, throttlemax);
+                motor_B = limit_value(motor_B, throttlemin, throttlemax);
+                motor_C = limit_value(motor_C, throttlemin, throttlemax);
+                motor_D = limit_value(motor_D, throttlemin, throttlemax);
             }
             else
             {
-                if(canStabilizeHover() || flags._.emergency_landing)
-                {      
-                    if (current_flight_phase == F_MANUAL_TAKE_OFF) 
-                    {
-                        motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
-                    }
-                    else
-                    {
-                        int16_t hover_altitude_throttle = REVERSE_IF_NEEDED(THROTTLE_HOVER_CHANNEL_REVERSED, throttle_hover_control) \
-                            - accel_feedback \
-                            + udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
-                        motor_A = motor_B = motor_C = motor_D = (int16_t)(__builtin_mulsu(hover_altitude_throttle, rampe_yaw)>>14) + (int16_t)(__builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], RMAX-rampe_yaw)>>14); 
-                    }
+                motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_INPUT_CHANNEL];
+
+                if((udb_servo_pulsesat(pwManual[THROTTLE_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_INPUT_CHANNEL])) > HOVER_THROTTLE_MIN*(2.0*SERVORANGE))
+                {
                     //apply roll, pitch, yaw stabilization
 #if (MOTOR_A_POSITION == 1)
                     //	Mix in the yaw, pitch, and roll signals int16_to the motors
@@ -438,39 +458,17 @@ void motorCntrl(void)
                     motor_C = limit_value(motor_C, throttlemin, throttlemax);
                     motor_D = limit_value(motor_D, throttlemin, throttlemax);
                 }
-                else
-                {
-                    motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_INPUT_CHANNEL];
-                    
-                    if((udb_servo_pulsesat(pwManual[THROTTLE_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_INPUT_CHANNEL])) > HOVER_THROTTLE_MIN*(2.0*SERVORANGE))
-                    {
-                        //apply roll, pitch, yaw stabilization
-#if (MOTOR_A_POSITION == 1)
-                        //	Mix in the yaw, pitch, and roll signals int16_to the motors
-                        motor_A += +yaw_quad_control - pitch_body_frame_control ;
-                        motor_B += -yaw_quad_control - roll_body_frame_control ;
-                        motor_C += +yaw_quad_control + pitch_body_frame_control ;
-                        motor_D += -yaw_quad_control + roll_body_frame_control ;
-#elif (MOTOR_A_POSITION == 3)
-                        //	Mix in the yaw, pitch, and roll signals int16_to the motors
-                        motor_A += +yaw_quad_control + pitch_body_frame_control ;
-                        motor_B += -yaw_quad_control - roll_body_frame_control ;
-                        motor_C += +yaw_quad_control - pitch_body_frame_control ;
-                        motor_D += -yaw_quad_control + roll_body_frame_control ;
-#endif
-                        //limit max throttle of each engine
-                        motor_A = limit_value(motor_A, throttlemin, throttlemax);
-                        motor_B = limit_value(motor_B, throttlemin, throttlemax);
-                        motor_C = limit_value(motor_C, throttlemin, throttlemax);
-                        motor_D = limit_value(motor_D, throttlemin, throttlemax);
-                    }
-                }   
-            }
+            }   
         }
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //		Send the signals out to the motors
+        if (flags._.engines_off)
+        {
+            motor_A = motor_B = motor_C = motor_D = 0;
+        }
+
 		udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		
 		udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_B ) ;
 		udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_C ) ;

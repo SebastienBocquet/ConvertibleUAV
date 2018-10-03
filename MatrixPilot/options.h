@@ -839,7 +839,7 @@
 // If you define TestGains, stabilization functions
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
 #define TestGains                        // uncomment this line if you want to test your gains without using GPS
-#define TestAltitude
+//#define TestAltitude
 #define TestDisableEmergencyLanding
 
 // Set this to 1 to calculate and print out free stack space

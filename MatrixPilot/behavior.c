@@ -207,9 +207,9 @@ void triggerActionSetValue(boolean newValue)
 void updateFlightPhase()
 {   
 #ifdef TestGains
-#ifdef TestAltitude
     flags._.engines_off = 1;
 #endif
+#ifdef TestAltitude
     current_flight_phase = F_IS_IN_FLIGHT;
     return;
 #endif
