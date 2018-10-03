@@ -46,7 +46,7 @@ struct flag_bits {
 	uint16_t rtl_hold                   : 1;
 	uint16_t f13_print_req              : 1;
 	uint16_t update_autopilot_state_asap: 1;
-    uint16_t reliable_altitude_measurement : 1;
+    uint16_t is_not_close_to_ground : 1;
     uint16_t low_battery                : 1;
     uint16_t emergency_landing          : 1;
     uint16_t engines_off                : 1;

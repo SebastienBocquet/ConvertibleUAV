@@ -50,7 +50,7 @@ union longww throttleFiltered = { 0 };
 #define RAMPE_TIME_LANDING 3
 #define RAMPE_DECREMENT -RMAX / (HEARTBEAT_HZ * RAMPE_TIME_LANDING)
 
-#define RELIABLE_ALT_MEAS_DETECT_TIME 2 //is seconds
+#define NOT_CLOSE_TO_GROUND_DETECT_TIME 2 //is seconds
 #define ALT_SENSOR_UNCERTAINTY 15 //in cm
 
 int16_t aircraft_mass       = AIRCRAFT_MASS;
@@ -157,7 +157,7 @@ int32_t error_integral_accz=0;
 int32_t previous_z32;
 int16_t rampe_throttle;
 int16_t throttle_control_mem = -1;
-int16_t reliable_altitude_measurement_counter = 0;
+int16_t is_not_close_to_ground_counter = 0;
 
 int16_t hover_target_z=0;
 int16_t hover_z=0;
@@ -338,15 +338,15 @@ void set_throttle_hover_control(int16_t throttle)
 	}
 }
 
-void determine_reliable_altitude_measurement(int16_t throttle, int16_t z)
+void determine_is_not_close_to_ground(int16_t throttle, int16_t z)
 {
-    if (!flags._.reliable_altitude_measurement)
+    if (!flags._.is_not_close_to_ground)
     {
         if (throttle > hoverthrottlemin)
         {
             if (z > (HOVER_TARGET_HEIGHT_MIN + ALT_SENSOR_UNCERTAINTY))
             {
-                reliable_altitude_measurement_counter += 1;
+                is_not_close_to_ground_counter += 1;
             }
         }
     }
@@ -354,27 +354,27 @@ void determine_reliable_altitude_measurement(int16_t throttle, int16_t z)
     {
         if (z <= (HOVER_TARGET_HEIGHT_MIN + ALT_SENSOR_UNCERTAINTY))
         {
-           reliable_altitude_measurement_counter -= 1;
+           is_not_close_to_ground_counter -= 1;
         }
     }
     
-    if (reliable_altitude_measurement_counter >= (RELIABLE_ALT_MEAS_DETECT_TIME * HEARTBEAT_HZ))
+    if (is_not_close_to_ground_counter >= (NOT_CLOSE_TO_GROUND_DETECT_TIME * HEARTBEAT_HZ))
     {
-        flags._.reliable_altitude_measurement = 1;
-        reliable_altitude_measurement_counter = (RELIABLE_ALT_MEAS_DETECT_TIME * HEARTBEAT_HZ);
+        flags._.is_not_close_to_ground = 1;
+        is_not_close_to_ground_counter = (NOT_CLOSE_TO_GROUND_DETECT_TIME * HEARTBEAT_HZ);
         LED_GREEN = LED_ON;
     }
-    if (reliable_altitude_measurement_counter < 0)
+    if (is_not_close_to_ground_counter < 0)
     {
-        flags._.reliable_altitude_measurement = 0;
-        reliable_altitude_measurement_counter = 0;
+        flags._.is_not_close_to_ground = 0;
+        is_not_close_to_ground_counter = 0;
         LED_GREEN = LED_OFF;
     }
 }
 
 boolean is_alt_sensor_failure(void)
 {
-    if (flags._.reliable_altitude_measurement)
+    if (flags._.is_not_close_to_ground)
     {
 	    if (alt_sensor_failure)
 		{
@@ -756,7 +756,7 @@ void hoverAltitudeCntrl(void)
     target_z_filtered = exponential_filter(z_target, &target_z_filtered_flt, invdeltafiltertargetz);
     z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
 
-    determine_reliable_altitude_measurement(
+    determine_is_not_close_to_ground(
             udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
             z_filtered);
     
@@ -781,7 +781,7 @@ void hoverAltitudeCntrl(void)
     //PI controller on height to ground z
     error_z=z_filtered-target_z_filtered;
     target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
-                                    (int16_t)(HEARTBEAT_HZ), limitintegralz, flags._.reliable_altitude_measurement);
+                                    (int16_t)(HEARTBEAT_HZ), limitintegralz, flags._.is_not_close_to_ground);
     target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
     //***************************************************//
 
@@ -789,7 +789,7 @@ void hoverAltitudeCntrl(void)
     //PI controller on vertical velocity
     error_vz=vz_filtered-target_vz_bis;
     target_accz=compute_pi_block(vz_filtered, target_vz_bis, hoverthrottlevzkp, hoverthrottlevzki, &error_integral_vz, 
-                                  (int16_t)(HEARTBEAT_HZ), limitintegralvz, flags._.reliable_altitude_measurement);
+                                  (int16_t)(HEARTBEAT_HZ), limitintegralvz, flags._.is_not_close_to_ground);
     target_accz_bis=limit_value(target_accz*COEF_MAX, -limittargetaccz, limittargetaccz);
     //***************************************************//
 
@@ -797,7 +797,7 @@ void hoverAltitudeCntrl(void)
     //PI controller on vertical acceleration
     error_accz=accz_filtered-target_accz_bis;
     throttle=compute_pi_block(accz_filtered, target_accz_bis, hoverthrottleacczkp, hoverthrottleacczki, &error_integral_accz, 
-                               (int16_t)(HEARTBEAT_HZ), limitintegralaccz, flags._.reliable_altitude_measurement);
+                               (int16_t)(HEARTBEAT_HZ), limitintegralaccz, flags._.is_not_close_to_ground);
     
     if (current_flight_phase == F_MANUAL_TAKE_OFF)
     {

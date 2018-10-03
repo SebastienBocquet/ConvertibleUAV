@@ -65,7 +65,7 @@ void init_states(void)
 	gps_data_age = GPS_DATA_MAX_AGE+1;
 	dcm_flags._.dead_reckon_enable = 0;
 	flags._.update_autopilot_state_asap = 0;
-    flags._.reliable_altitude_measurement = 0;
+    flags._.is_not_close_to_ground = 0;
     flags._.low_battery = 0;
     flags._.emergency_landing = 0;
     flags._.engines_off = 0;
@@ -233,7 +233,7 @@ static void ent_returnS(void)
 #endif
 	waggle = 0;
 	LED_RED = LED_ON;
-#ifndef DisableEmergencyLanding
+#ifndef TestDisableEmergencyLanding
     flags._.emergency_landing = 1;
 #endif
 	stateS = &returnS;

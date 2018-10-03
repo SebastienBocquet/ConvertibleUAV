@@ -217,7 +217,7 @@ void updateFlightPhase()
     if ((z_filtered > (int16_t)(HOVER_FAILSAFE_ALTITUDE)) || flags._.low_battery)
     {
         //if max altitude is exceeded, reduce throttle
-#ifndef DisableEmergencyLanding
+#ifndef TestDisableEmergencyLanding
         flags._.emergency_landing = 1;
         LED_ORANGE = LED_ON;
 #endif
@@ -225,7 +225,7 @@ void updateFlightPhase()
     
     if (current_flight_phase == F_MANUAL_TAKE_OFF)
     {
-        if (flags._.reliable_altitude_measurement)
+        if (flags._.is_not_close_to_ground)
         {
             current_flight_phase = F_IS_IN_FLIGHT;
             LED_BLUE = LED_ON;
@@ -238,7 +238,7 @@ void updateFlightPhase()
     }
     else if (current_flight_phase == F_IS_IN_FLIGHT)
     {
-        if (canStabilizeHover() && !flags._.reliable_altitude_measurement)
+        if (canStabilizeHover() && !flags._.is_not_close_to_ground)
         {
             current_flight_phase = F_AUTO_LAND;
             LED_BLUE = LED_OFF;
