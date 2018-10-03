@@ -611,15 +611,15 @@
 #define HOVER_INV_DELTA_FILTER_SONAR       10.  //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_BARO        1.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
-#define HOVER_ZKP                          9.   //5.58 //in 1/cm, should be between 0 and 10
+#define HOVER_ZKP                          9.99 //in 1/cm, should be between 0 and 10
 #define HOVER_ZKI                          0.   //in 1/(cm.s) dimensionless, should be between 0 and 10
 #define LIMIT_INTEGRAL_Z                   80000
 #define HOVER_LIMIT_TARGETVZ               20   //cutoff value for vertial velocity in cm/s
-#define HOVER_VZKP                         4.8  // in 1/(cm/s), should be between 0 and 10
+#define HOVER_VZKP                         6.   // in 1/(cm/s), should be between 0 and 10
 #define HOVER_VZKI                         2.   // in 1/cm, should be between 0 and 10
 #define LIMIT_INTEGRAL_VZ                  40000
 #define HOVER_LIMIT_TARGETACCZ             2500 //cutoff value for vertial acceleration in cm/s2
-#define HOVER_ACCZKP                       0.6  // in 1/(cm/s2), should be between 0 and 10
+#define HOVER_ACCZKP                       0.75  // in 1/(cm/s2), should be between 0 and 10
 #define HOVER_ACCZKI                       0.   // in 1/(cm/s), should be between 0 and 10
 #define LIMIT_INTEGRAL_ACCZ                80000
 
