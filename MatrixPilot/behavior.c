@@ -210,6 +210,7 @@ void updateFlightPhase()
     flags._.engines_off = 1;
 #endif
 #ifdef TestAltitude
+    flags._.engines_off = 1;
     current_flight_phase = F_IS_IN_FLIGHT;
     return;
 #endif

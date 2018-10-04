@@ -81,7 +81,7 @@ void rollCntrl(void)
 {
 #ifdef TestGains
     if (!flight_mode_switch_waypoints()) flags._.GPS_steering = 0; // turn off navigation
-	flags._.pitch_feedback = 1;
+	//flags._.pitch_feedback = 1;
 #endif
 
 	if (canStabilizeHover() && current_orientation == F_HOVER)

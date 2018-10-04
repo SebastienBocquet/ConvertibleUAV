@@ -84,6 +84,9 @@ void rxMagnetometer(magnetometer_callback_funcptr callback)  // service the magn
 	magnetometer_callback = callback;
 
 	I2messages++;
+#ifdef TestGains
+    magMessage = 7;
+#endif
 #if (LED_RED_MAG_CHECK == 1)
 	if (magMessage == 7)
 	{

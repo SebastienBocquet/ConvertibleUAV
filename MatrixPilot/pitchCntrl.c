@@ -103,10 +103,12 @@ void pitchCntrl(void)
     if (flight_mode_switch_waypoints())
     {
         flags._.GPS_steering = 1; // turn navigation on
+        //flags._.pitch_feedback = 1;
     }
     else
     {
 	    flags._.GPS_steering = 0; // turn navigation off
+        //flags._.pitch_feedback = 1;
     }
 #endif
 

@@ -91,10 +91,10 @@ void udb_background_callback_periodic(void)
 		if (gps_data_age < GPS_DATA_MAX_AGE) gps_data_age++;
 		dcm_flags._.nav_capable = (gps_data_age < GPS_DATA_MAX_AGE);
 #ifdef TestGains
-    if (flight_mode_switch_waypoints())
-    {
+    //if (flight_mode_switch_waypoints())
+    //{
         dcm_flags._.nav_capable = 1;
-    }
+    //}
 #endif
 #endif
 		// Execute the activities for the current state.
