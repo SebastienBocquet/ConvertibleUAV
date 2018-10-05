@@ -543,11 +543,12 @@ void serial_output_8hz(void)
             //hover_target_vz=target_vz_bis;
             //hover_target_accz=target_accz_bis;
             //hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
+    
 //            serial_output("rerr:%i;perr:%i;yerr:%i;",
 //                roll_error, pitch_error, yaw_error);
 
-            serial_output("cfp:%i;ncg:%i;eml:%i;lowb:%i;engo:%i;", 
-                current_flight_phase, flags._.is_not_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
+            serial_output("cfp:%i;ncg:%i;eml:%i;lowb:%i;engo:%i;",
+                current_flight_phase, -flags._.is_not_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
                 
             serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
                 additional_int16_export1, additional_int16_export2, additional_int16_export3, 
