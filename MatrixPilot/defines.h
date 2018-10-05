@@ -152,7 +152,7 @@ extern int16_t rampe_throttle;
 extern int16_t z_filtered;
 extern int16_t vz_filtered;
 extern int16_t accz_filtered;
-extern int16_t target_z_filtered;
+extern int16_t z_target_filtered;
 extern int16_t error_z;
 extern int32_t error_integral_z;
 extern int16_t error_vz;

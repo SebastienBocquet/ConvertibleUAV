@@ -145,8 +145,8 @@ float z_filtered_flt=0.;
 int16_t z_filtered=0;
 float z_filtered32_flt=0.;
 int32_t z_filtered32=0;
-float target_z_filtered_flt=0.;
-int16_t target_z_filtered=0;
+float z_target_filtered_flt=0.;
+int16_t z_target_filtered=0;
 float target_vz_filtered_flt=0.;
 int16_t target_vz_filtered=0;
 float vz_filtered_flt=0.;
@@ -251,7 +251,7 @@ void reset_altitude_control(void)
     error_integral_accz=0;
     z_filtered_flt=(float)hovertargetheightmin;
     z_filtered32_flt=(float)hovertargetheightmin;
-    target_z_filtered_flt=(float)hovertargetheightmin;
+    z_target_filtered_flt=(float)hovertargetheightmin;
     target_vz_filtered_flt=0.;
     vz_filtered_flt=0.;
     accz_filtered_flt=0.;
@@ -415,7 +415,7 @@ boolean has_no_altitude_measurement(void)
 
 int16_t emergency_landing()
 {
-    if (z_target_mem == -1) z_target_mem = target_z_filtered;
+    if (z_target_mem == -1) z_target_mem = z_target_filtered;
     
     if (udb_heartbeat_counter % (HEARTBEAT_HZ/10) == 0)
     {
@@ -731,7 +731,7 @@ void hoverAltitudeCntrl(void)
     z = IMUlocationz._.W1*100+50;
 #endif
 
-    target_z_filtered = exponential_filter(z_target, &target_z_filtered_flt, invdeltafiltertargetz);
+    z_target_filtered = exponential_filter(z_target, &z_target_filtered_flt, invdeltafiltertargetz);
     z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
 
     determine_is_not_close_to_ground(
@@ -757,8 +757,8 @@ void hoverAltitudeCntrl(void)
 
     //***************************************************//
     //PI controller on height to ground z
-    error_z=z_filtered-target_z_filtered;
-    target_vz=compute_pi_block(z_filtered, target_z_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
+    error_z=z_filtered-z_target_filtered;
+    target_vz=compute_pi_block(z_filtered, z_target_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralz, flags._.is_not_close_to_ground);
     target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
     //***************************************************//
