@@ -148,18 +148,19 @@ extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
 extern int16_t hover_counter;
 extern int16_t z_filtered;
 extern int16_t rampe_throttle;
-extern int16_t hover_target_z;
-extern int16_t hover_z;
-extern int16_t hover_vz;
-extern int16_t hover_accz;
-extern int16_t hover_error_z;
-extern int16_t hover_error_integral_z;
-extern int16_t hover_error_vz;
-extern int16_t hover_error_integral_vz;
+
+extern int16_t z_filtered;
+extern int16_t vz_filtered;
+extern int16_t accz_filtered;
+extern int16_t target_z_filtered;
+extern int16_t error_z;
+extern int32_t error_integral_z;
+extern int16_t error_vz;
+extern int32_t error_integral_vz;
 extern int16_t hover_error_accz;
-extern int16_t hover_target_vz;
-extern int16_t hover_target_accz;
-extern int16_t hover_error_integral_accz;
+extern int16_t target_vz_bis;
+extern int16_t target_accz_bis;
+extern int32_t error_integral_accz;
 
 extern int16_t additional_int16_export1;
 extern int16_t additional_int16_export2;

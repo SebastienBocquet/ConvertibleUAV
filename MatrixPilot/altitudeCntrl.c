@@ -136,6 +136,11 @@ const int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
 #endif
 #endif
 
+int16_t error_z;
+int16_t error_vz;
+int16_t error_accz;
+int16_t target_vz_bis;
+int16_t target_accz_bis;
 int16_t hover_counter=0;
 int16_t take_off_counter = 0;
 float z_filtered_flt=0.;
@@ -158,19 +163,6 @@ int32_t previous_z32;
 int16_t rampe_throttle;
 int16_t throttle_control_mem = -1;
 int16_t is_not_close_to_ground_counter = 0;
-
-int16_t hover_target_z=0;
-int16_t hover_z=0;
-int16_t hover_vz=0;
-int16_t hover_accz=0;
-int16_t hover_error_z=0;
-int16_t hover_error_integral_z;
-int16_t hover_error_vz=0;
-int16_t hover_error_integral_vz;
-int16_t hover_error_accz=0;
-int16_t hover_error_integral_accz;
-int16_t hover_target_vz=0;
-int16_t hover_target_accz=0;
 
 float invdeltafilterheight;
 float invdeltafiltervz;
@@ -618,15 +610,10 @@ void hoverAltitudeCntrl(void)
     int16_t z;
     int16_t z_target;
     int16_t vz_target;
-    int16_t error_z;
     int16_t target_vz;
-    int16_t target_vz_bis;
     int16_t vz;
-    int16_t error_vz;
     int16_t accz;
     int16_t target_accz;
-    int16_t target_accz_bis;
-    int16_t error_accz;
     int16_t throttle;
     int16_t throttle_control_pre;
     
@@ -846,19 +833,6 @@ void hoverAltitudeCntrl(void)
             throttle_control_pre=limit_value(throttle_control_pre, hoverthrottlemin, hoverthrottlemax);
         }
     }
-    
-    //set variables for SERIAL_UDB_EXTRA log
-    hover_z=z_filtered;
-    hover_vz=vz_filtered;
-    hover_accz=accz_filtered;
-    hover_target_z=target_z_filtered;
-    hover_error_z=error_z;
-    hover_error_integral_z=(int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ));
-    hover_error_vz=error_vz;
-    hover_error_integral_vz=(int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ));
-    hover_target_vz=target_vz_bis;
-    hover_target_accz=target_accz_bis;
-    hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
 
     //throttleFiltered.WW += (((int32_t)(throttleIn - throttleFiltered._.W1)) << THROTTLEFILTSHIFT);
 

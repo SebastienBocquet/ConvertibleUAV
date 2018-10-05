@@ -529,9 +529,20 @@ void serial_output_8hz(void)
                     IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1);
 
             serial_output("accz:%i;tgz:%i;tgvz:%i;inz:%i;invz:%i;ezi:%i;", 
-                accelEarth[2], hover_target_z, hover_target_vz, 
-                hover_z, hover_vz, hover_error_integral_z);
+                accelEarth[2], target_z_filtered, target_vz_bis, 
+                z_filtered, vz_filtered, (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)));
             
+            //hover_z=z_filtered;
+            //hover_vz=vz_filtered;
+            //hover_accz=accz_filtered;
+            //hover_target_z=target_z_filtered;
+            //hover_error_z=error_z;
+            //hover_error_integral_z=(int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ));
+            //hover_error_vz=error_integral_z;
+            //hover_error_integral_vz=(int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ));
+            //hover_target_vz=target_vz_bis;
+            //hover_target_accz=target_accz_bis;
+            //hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
 //            serial_output("rerr:%i;perr:%i;yerr:%i;",
 //                roll_error, pitch_error, yaw_error);
 
