@@ -141,8 +141,6 @@ int16_t error_vz;
 int16_t error_accz;
 int16_t target_vz_bis;
 int16_t target_accz_bis;
-int16_t hover_counter=0;
-int16_t take_off_counter = 0;
 float z_filtered_flt=0.;
 int16_t z_filtered=0;
 float z_filtered32_flt=0.;
@@ -246,6 +244,23 @@ int16_t desiredSpeed = (DESIRED_SPEED*10);
 
 #endif //(SPEED_CONTROL == 1)  // speed control loop
 
+void reset_altitude_control(void)
+{
+    error_integral_z=0;
+    error_integral_vz=0;
+    error_integral_accz=0;
+    z_filtered_flt=(float)hovertargetheightmin;
+    z_filtered32_flt=(float)hovertargetheightmin;
+    target_z_filtered_flt=(float)hovertargetheightmin;
+    target_vz_filtered_flt=0.;
+    vz_filtered_flt=0.;
+    accz_filtered_flt=0.;
+    previous_z32=(int32_t)(hovertargetheightmin)*100;
+    no_altitude_measurement_counter = 0;
+    rampe_throttle = 0;
+    z_target_mem = -1;
+}
+
 void altitudeCntrl(void)
 {
 #if ( USE_SONAR == 1 )
@@ -258,7 +273,6 @@ void altitudeCntrl(void)
 	else
 	{
 		normalAltitudeCntrl();
-        hover_counter = 0;
 	}
 }
 
@@ -621,29 +635,6 @@ void hoverAltitudeCntrl(void)
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
     throttle_control_pre = 0;
-
-    //initialize filtered and integral quantities
-    if (hover_counter==0)
-    {
-        error_integral_z=0;
-        error_integral_vz=0;
-        error_integral_accz=0;
-        z_filtered_flt=(float)hovertargetheightmin;
-        z_filtered32_flt=(float)hovertargetheightmin;
-        target_z_filtered_flt=(float)hovertargetheightmin;
-        target_vz_filtered_flt=0.;
-        vz_filtered_flt=0.;
-        accz_filtered_flt=0.;
- 		previous_z32=(int32_t)(hovertargetheightmin)*100;
-		no_altitude_measurement_counter = 0;
-		rampe_throttle = 0;
-        z_target_mem = -1;
-    }
-
-    if (hover_counter < RMAX)
-    {
-        hover_counter+=1;
-    }
             
     //determine height to ground (in cm) according to available sensor and validity
 

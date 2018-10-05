@@ -245,6 +245,12 @@ void updateFlightPhase()
             LED_BLUE = LED_OFF;
             LED_ORANGE = LED_ON;
         }
+        else if (!flags._.is_not_close_to_ground)
+        {
+            current_flight_phase = F_MANUAL_TAKE_OFF;
+            LED_BLUE = LED_OFF;
+            reset_altitude_control();
+        }
         else
         {
             current_flight_phase = F_IS_IN_FLIGHT;
@@ -257,6 +263,7 @@ void updateFlightPhase()
         {
             current_flight_phase = F_MANUAL_TAKE_OFF;
             LED_ORANGE = LED_OFF;
+            reset_altitude_control();
         }
         else
         {

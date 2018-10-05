@@ -166,6 +166,7 @@ static void ent_manualS(void)
 	flags._.altitude_hold_pitch = 0;
 	waggle = 0;
 	LED_RED = LED_OFF;
+    reset_altitude_control();
 	stateS = &manualS;
 }
 

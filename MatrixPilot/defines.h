@@ -128,6 +128,8 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 
 ////////////////////////////////////////////////////////////////////////////////
 // AltitudeCntrl.c
+void reset_altitude_control(void);
+
 #define LED_RED_SONAR_CHECK                   1
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2
@@ -140,12 +142,10 @@ extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
 #if (SILSIM == 1)
 	extern long barometer_altitude;
 	extern int16_t nb_sample_wait;
-    extern int16_t hover_counter;
 	extern int16_t z_target;
 	extern int16_t vz_target;
 #endif
 
-extern int16_t hover_counter;
 extern int16_t z_filtered;
 extern int16_t rampe_throttle;
 
