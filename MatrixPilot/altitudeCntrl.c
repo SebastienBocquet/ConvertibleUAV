@@ -619,31 +619,23 @@ int16_t compute_vz_alt_sensor(int16_t z)
     return (int16_t)(vz_alt_sensor32/100);
 }
 
-void hoverAltitudeCntrl(void)
+void updateAltitudeMeasurement(void)
 {
     int16_t z;
-    int16_t z_target;
-    int16_t vz_target;
-    int16_t target_vz;
     int16_t vz;
     int16_t accz;
-    int16_t target_accz;
-    int16_t throttle;
-    int16_t throttle_control_pre;
-    
-	no_altitude_measurement=true;
-    pitchAltitudeAdjust = 0;
-    desiredHeight = 0;
-    throttle_control_pre = 0;
-            
-    //determine height to ground (in cm) according to available sensor and validity
-
-    //by default use IMU altitude and velocity
-    z=100*IMUlocationz._.W1+50;
+    no_altitude_measurement=true;
     invdeltafilterheight=(float)(HEARTBEAT_HZ);
     invdeltafiltervz=(float)(HEARTBEAT_HZ);
+    
+    //by default use IMU altitude and velocity
+    z=100*IMUlocationz._.W1+50;
     vz=IMUvelocityz._.W1;
-
+    //z acceleration is provided by accelerometers
+    accz=accelEarth[2];
+    
+    //determine height to ground (in cm) according to available sensor and validity
+    
     //if barometer is used, use its measurement
 #if ( BAROMETER_ALTITUDE == 1 )
     if (udb_flags._.baro_valid)
@@ -686,9 +678,45 @@ void hoverAltitudeCntrl(void)
 		no_altitude_measurement=false;
 	}
 #endif
+      
+#if (HILSIM == 1 && SILSIM == 0)
+    //in HILSIM mode, replace z from sonar or barometer by GPS altitude (GPSlocation.z is in meters)
+    z = IMUlocationz._.W1*100+50;
+#endif
     
-    //z acceleration is provided by accelerometers
-    accz=accelEarth[2];
+    z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
+    
+#ifdef TestAltitude
+    vz_filtered = 0;
+    accz_filtered = 0;
+#else
+    if (!no_altitude_measurement)
+    {
+        //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
+        //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
+        //VZ_CORR=1 means only altitude sensor derivative is considered
+        vz = (__builtin_mulsu(IMUvelocityz._.W1, RMAX - VZ_CORR_16) 
+                    + __builtin_mulsu(compute_vz_alt_sensor(z), VZ_CORR_16))>>14;
+    }
+    vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz);
+    accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel);
+#endif
+    
+}
+
+void hoverAltitudeCntrl(void)
+{
+    int16_t z_target;
+    int16_t vz_target;
+    int16_t target_vz;
+    int16_t target_accz;
+    int16_t throttle;
+    int16_t throttle_control_pre;
+    
+	no_altitude_measurement=true;
+    pitchAltitudeAdjust = 0;
+    desiredHeight = 0;
+    throttle_control_pre = 0;
 
     //compute target altitude and smooth with exponential filtering
 
@@ -725,36 +753,15 @@ void hoverAltitudeCntrl(void)
     }
 
     if (flags._.emergency_landing) z_target = emergency_landing();
-    
-#if (HILSIM == 1 && SILSIM == 0)
-//in HILSIM mode, replace z from sonar or barometer by GPS altitude (GPSlocation.z is in meters)
-    z = IMUlocationz._.W1*100+50;
-#endif
 
     z_target_filtered = exponential_filter(z_target, &z_target_filtered_flt, invdeltafiltertargetz);
-    z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
+
+    updateAltitudeMeasurement();
 
     determine_is_not_close_to_ground(
-            udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
-            z_filtered);
-    
-    //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
-    //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
-    //VZ_CORR=1 means only altitude sensor derivative is considered
-
-#ifdef TestAltitude
-    vz_filtered = 0;
-    accz_filtered = 0;
-#else
-    if (!no_altitude_measurement)
-    {
-        vz = (__builtin_mulsu(IMUvelocityz._.W1, RMAX - VZ_CORR_16) 
-                    + __builtin_mulsu(compute_vz_alt_sensor(z), VZ_CORR_16))>>14;
-    }
-    vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz);
-    accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel);
-#endif
-
+        udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
+        z_filtered);
+        
     //***************************************************//
     //PI controller on height to ground z
     error_z=z_filtered-z_target_filtered;

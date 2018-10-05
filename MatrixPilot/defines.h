@@ -129,6 +129,7 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 ////////////////////////////////////////////////////////////////////////////////
 // AltitudeCntrl.c
 void reset_altitude_control(void);
+void updateAltitudeMeasurement(void);
 
 #define LED_RED_SONAR_CHECK                   1
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
