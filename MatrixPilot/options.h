@@ -595,7 +595,7 @@
 #define HOVER_THROTTLE_MAX                 0.8
 #define SONAR_MINIMUM_DISTANCE             60   // Normally, should be minimum possible sonar distance measurement (4 inch)
 #define USEABLE_SONAR_DISTANCE             235  //235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
-#define LIDAR_MINIMUM_DISTANCE             25   // should be minimum possible lidar distance measurement
+#define LIDAR_MINIMUM_DISTANCE             5    // should be minimum possible lidar distance measurement
 #define USEABLE_LIDAR_DISTANCE             3275 //3275 // Reliable lidar measurement distance (centimeters) for your specific landing area. 
                                                 //Here it could go up to 4000cm, but we restrict to 3276cm because of the maximum pwm pulse duration 
                                                 //stored in an unsigned int 16bits (see comments in lidarAltitude.c)

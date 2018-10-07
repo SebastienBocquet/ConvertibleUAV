@@ -645,7 +645,7 @@ void updateAltitudeMeasurement(void)
     
     //if barometer is used, use its measurement
 #if ( BAROMETER_ALTITUDE == 1 )
-    if (udb_flags._.baro_valid)
+    if (udb_flags._.baro_valid && flags._.is_not_close_to_ground)
     {
         estBaroAltitude();
         z=(int16_t)(get_barometer_altitude());
@@ -662,7 +662,7 @@ void updateAltitudeMeasurement(void)
 
     calculate_sonar_height_above_ground();
 
-	if (udb_flags._.sonar_height_valid)
+	if (udb_flags._.sonar_height_valid && flags._.is_not_close_to_ground)
 	{
         z=sonar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
