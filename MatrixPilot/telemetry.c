@@ -548,7 +548,7 @@ void serial_output_8hz(void)
 //                roll_error, pitch_error, yaw_error);
 
             serial_output("cfp:%i;ncg:%i;eml:%i;lowb:%i;engo:%i;",
-                current_flight_phase, -flags._.is_not_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
+                current_flight_phase, -flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
                 
             serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
                 additional_int16_export1, additional_int16_export2, additional_int16_export3, 

@@ -147,7 +147,7 @@ void motorCntrl(void)
 	}
 	else
 	{
-		if (flags._.is_not_close_to_ground)
+		if (!flags._.is_close_to_ground)
 		{
 			rampe_yaw += RAMPE_INCREMENT_YAW;
  		}
@@ -247,7 +247,7 @@ void motorCntrl(void)
 	
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		if ( (flags._.is_not_close_to_ground) && (current_orientation == F_HOVER) )
+		if ( (!flags._.is_close_to_ground) && (current_orientation == F_HOVER) )
 		{
 			roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), roll_error ))>>5) ;
 			if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
