@@ -264,12 +264,18 @@ void reset_altitude_control(void)
 
 void altitudeCntrl(void)
 {
-#if ( USE_SONAR == 1 )
-    	calculate_sonar_height_above_ground();
-#endif
-	if (current_orientation == F_HOVER && canStabilizeHover())
-	{
-		hoverAltitudeCntrl();
+	if (current_orientation == F_HOVER)
+    {
+        updateAltitudeMeasurement();
+
+        determine_is_not_close_to_ground(
+            udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
+            z_filtered);
+        
+        if (canStabilizeHover())
+        {
+            hoverAltitudeCntrl();
+        }
 	}
 	else
 	{
@@ -756,12 +762,6 @@ void hoverAltitudeCntrl(void)
     if (flags._.emergency_landing) z_target = emergency_landing();
 
     z_target_filtered = exponential_filter(z_target, &z_target_filtered_flt, invdeltafiltertargetz);
-
-    updateAltitudeMeasurement();
-
-    determine_is_not_close_to_ground(
-        udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
-        z_filtered);
         
     //***************************************************//
     //PI controller on height to ground z
