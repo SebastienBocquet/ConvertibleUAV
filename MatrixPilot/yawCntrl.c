@@ -67,7 +67,7 @@ void yawCntrl(void)
 	//flags._.pitch_feedback = 1; // turn on stabilization
 #endif
 
-	if (canStabilizeHover() && current_orientation == F_HOVER)
+	if (current_orientation == F_HOVER)
 	{
 		hoverYawCntrl();
 	}

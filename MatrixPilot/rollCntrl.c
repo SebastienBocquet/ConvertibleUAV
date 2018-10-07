@@ -84,7 +84,7 @@ void rollCntrl(void)
 	//flags._.pitch_feedback = 1;
 #endif
 
-	if (canStabilizeHover() && current_orientation == F_HOVER)
+	if (current_orientation == F_HOVER)
 	{
 		hoverRollCntrl();
 	}

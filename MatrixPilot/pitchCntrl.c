@@ -112,7 +112,7 @@ void pitchCntrl(void)
     }
 #endif
 
-	if (canStabilizeHover() && desired_behavior._.hover)
+	if (current_orientation == F_HOVER || desired_behavior._.hover)
 	{
 		hoverPitchCntrl();
 	}
