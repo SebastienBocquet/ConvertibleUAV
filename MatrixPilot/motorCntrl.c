@@ -96,6 +96,12 @@ uint16_t yaw_ki;
 uint16_t yaw_kp;
 uint16_t yaw_rate_kp;
 
+int16_t throttle1 = 0;
+int16_t throttle2 = 0;
+int16_t throttle3 = 0;
+int16_t throttle4 = 0;
+int16_t mean_throttle = 0;
+
 void motorCntrl(void)
 {
 	int16_t temp ;
@@ -391,6 +397,12 @@ void motorCntrl(void)
 
 #endif
 
+#ifdef TestGains
+        yaw_quad_control = 0;
+        roll_quad_error_integral.WW  = 0;
+        pitch_quad_error_integral.WW  = 0;
+        yaw_quad_error_integral.WW  = 0;
+#endif
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         if (!(current_orientation == F_HOVER))
@@ -463,6 +475,12 @@ void motorCntrl(void)
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        throttle1 = motor_A;
+        throttle2 = motor_B;
+        throttle3 = motor_C;
+        throttle4 = motor_D;
+        mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
+        
 //		Send the signals out to the motors
         if (flags._.engines_off)
         {

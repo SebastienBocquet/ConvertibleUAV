@@ -516,10 +516,10 @@ void serial_output_8hz(void)
                 pwOut_save[i] = udb_pwOut[i];
 //				for (i= 1; i <= NUM_INPUTS; i++)
 //					serial_output("p%ii%i:",i,pwIn_save[i]);
-            for (i=1; i <= NUM_OUTPUTS; i++)
+            for (i=4; i <= NUM_OUTPUTS; i++)
                 serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("pmo:%i;", throttle_hover_control);
+            serial_output("th1:%i;th2:%i;th3:%i;th4:%i;mth:%i;", throttle1, throttle2, throttle3, throttle4, mean_throttle);
 
             serial_output("pmo:%i;imx:%i;imy:%i;imz:%i;"
                 "tx:%i;ty:%i;tz:%i;",throttle_hover_control, 
@@ -548,7 +548,7 @@ void serial_output_8hz(void)
 //                roll_error, pitch_error, yaw_error);
 
             serial_output("cfp:%i;ncg:%i;eml:%i;lowb:%i;engo:%i;",
-                current_flight_phase, -flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
+                1000+1000*current_flight_phase, -flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
                 
             serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
                 additional_int16_export1, additional_int16_export2, additional_int16_export3, 
