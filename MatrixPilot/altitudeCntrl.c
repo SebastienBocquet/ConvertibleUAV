@@ -264,6 +264,11 @@ void reset_altitude_control(void)
 
 void determine_is_close_to_ground(int16_t throttle, int16_t z)
 {
+#ifdef TestAltitude
+    flags._.is_close_to_ground = 0;
+    return;
+#endif
+    
     if (flags._.is_close_to_ground)
     {
         if (throttle > hoverthrottlemin)
