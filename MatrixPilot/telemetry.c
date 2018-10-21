@@ -481,7 +481,7 @@ void serial_output_8hz(void)
 //                      "d:%i;e:%i;f:%i;"
 //                      "g:%i;h:%i;i:%i;"
 //                      "om0:%i;om1:%i;om2:%i;"
-                      "aqv:%i;aqc:%i;aqu:%i;"
+                      "vo%i;cu%i;au%i;"
 //                      "cpu:%u;"
 //                      "ma:%i;mb:%i;mc:%i;"
                       ,
@@ -519,17 +519,18 @@ void serial_output_8hz(void)
             for (i=4; i <= NUM_OUTPUTS; i++)
                 serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("th1:%i;th2:%i;th3:%i;th4:%i;mth:%i;", throttle1, throttle2, throttle3, throttle4, mean_throttle);
-
-            serial_output("pmo:%i;imx:%i;imy:%i;imz:%i;"
-                "tx:%i;ty:%i;tz:%i;",throttle_hover_control, 
+            serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1, throttle2, throttle3, throttle4);
+            serial_output("mt%i;th%i;", mean_throttle, throttle_hover_control);
+            serial_output("ix%i;iy%i;iz%i;", 
                     (int16_t)(100*IMUlocationx._.W1), 
                     (int16_t)(100*IMUlocationy._.W1), 
-                    (int16_t)(100*IMUlocationz._.W1),
+                    (int16_t)(100*IMUlocationz._.W1));
+            
+            serial_output("vx%i;vy%i;vz%i;",
                     IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1);
 
-            serial_output("accz:%i;tgz:%i;tgvz:%i;inz:%i;invz:%i;ezi:%i;", 
-                accelEarth[2], z_target_filtered, target_vz_bis, 
+            serial_output("az%i;tz%i;tv%i;", accelEarth[2], z_target_filtered, target_vz_bis);    
+            serial_output("iz%i;iv%i;ei%i;", 
                 z_filtered, vz_filtered, (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)));
             
             //hover_z=z_filtered;
@@ -539,6 +540,7 @@ void serial_output_8hz(void)
             //hover_error_z=error_z;
             //hover_error_integral_z=(int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ));
             //hover_error_vz=error_integral_z;
+            
             //hover_error_integral_vz=(int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ));
             //hover_target_vz=target_vz_bis;
             //hover_target_accz=target_accz_bis;
@@ -547,22 +549,23 @@ void serial_output_8hz(void)
 //            serial_output("rerr:%i;perr:%i;yerr:%i;",
 //                roll_error, pitch_error, yaw_error);
 
-            serial_output("cfp:%i;ncg:%i;eml:%i;lowb:%i;engo:%i;",
-                1000+1000*current_flight_phase, -flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery, flags._.engines_off);
+            serial_output("cp%i;cg%i;em%i;",
+                1000+1000*current_flight_phase, -flags._.is_close_to_ground, flags._.emergency_landing);
+            serial_output("lb%i;eo%i;", flags._.low_battery, flags._.engines_off);
                 
-            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
-                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
-                additional_int16_export4,additional_int16_export5,additional_int16_export6,
-                additional_int16_export7, additional_int16_export8);
+//            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
+//                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
+//                additional_int16_export4,additional_int16_export5,additional_int16_export6,
+//                additional_int16_export7, additional_int16_export8);
 
 #if ( USE_LIDAR	== 1 )
-            serial_output("lidh:%i;", lidar_distance) ;
+            serial_output("ld%i;", lidar_distance) ;
 #endif
 #if ( USE_SONAR	== 1 )
-            serial_output("sonh:%i;", sonar_distance) ;
+            serial_output("sd%i;", sonar_distance) ;
 #endif
 #if ( BAROMETER_ALTITUDE == 1)
-            serial_output("alt:%li;",
+            serial_output("al%li;",
                 get_barometer_altitude());
 #endif       
         serial_output("end;\r\n");

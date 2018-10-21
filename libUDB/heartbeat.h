@@ -33,7 +33,7 @@
 // frequency of writing in udb_extra output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
 #define HEARTBEAT_UDB_EXTRA 4
 #define HEARTBEAT_UDB_LIGHT 4
-#define HEARTBEAT_UDB_TELEMETRY 2
+#define HEARTBEAT_UDB_TELEMETRY 4
 
 // Read-only value increments with each heartbeat
 extern uint16_t udb_heartbeat_counter;
