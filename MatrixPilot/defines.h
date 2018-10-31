@@ -297,6 +297,7 @@ struct behavior_flag_bits {
 #define F_MANUAL_TAKE_OFF      0
 #define F_IS_IN_FLIGHT         1
 #define F_AUTO_LAND            2
+#define F_ENGINE_OFF           3
 
 union bfbts_word { struct behavior_flag_bits _; int16_t W; };
 

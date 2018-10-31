@@ -474,6 +474,7 @@ void serial_output_8hz(void)
     if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_TELEMETRY) == 0)
 	{
         static int16_t pwOut_save[NUM_OUTPUTS + 1];
+        int16_t throttle_offet = 2242;
 
         serial_output(
 //                     "F2;T:%li;"
@@ -519,8 +520,8 @@ void serial_output_8hz(void)
             for (i=4; i <= NUM_OUTPUTS; i++)
                 serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1, throttle2, throttle3, throttle4);
-            serial_output("mt%i;th%i;", mean_throttle, throttle_hover_control);
+            serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1-throttle_offet, throttle2-throttle_offet, throttle3-throttle_offet, throttle4-throttle_offet);
+            serial_output("mt%i;th%i;", mean_throttle-throttle_offet, throttle_hover_control);
             serial_output("ix%i;iy%i;iz%i;", 
                     (int16_t)(100*IMUlocationx._.W1), 
                     (int16_t)(100*IMUlocationy._.W1), 
@@ -549,10 +550,9 @@ void serial_output_8hz(void)
 //            serial_output("rerr:%i;perr:%i;yerr:%i;",
 //                roll_error, pitch_error, yaw_error);
 
-            serial_output("cp%i;cg%i;em%i;",
-                1000+1000*current_flight_phase, 100*flags._.is_close_to_ground, flags._.emergency_landing);
-            serial_output("lb%i;eo%i;", flags._.low_battery, flags._.engines_off);
-                
+            serial_output("cp%i;cg%i;em%i;lb%i;",
+                100*current_flight_phase, 100*flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery);
+
 //            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
 //                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
 //                additional_int16_export4,additional_int16_export5,additional_int16_export6,

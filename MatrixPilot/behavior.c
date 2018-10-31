@@ -206,6 +206,9 @@ void triggerActionSetValue(boolean newValue)
 
 void updateFlightPhase()
 {   
+    
+    int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
+    
 #ifdef TestGains
     flags._.engines_off = 1;
 #endif
@@ -239,8 +242,6 @@ void updateFlightPhase()
     }
     else if (current_flight_phase == F_IS_IN_FLIGHT)
     {
-        int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
-        
         if (canStabilizeHover() && flags._.is_close_to_ground)
         {
             current_flight_phase = F_AUTO_LAND;
@@ -259,11 +260,11 @@ void updateFlightPhase()
             LED_BLUE = LED_ON;
         }
     }
-    else
+    else if (current_flight_phase == F_AUTO_LAND)
     {
         if (canStabilizeHover() && rampe_throttle < 0)
         {
-            current_flight_phase = F_MANUAL_TAKE_OFF;
+            current_flight_phase = F_ENGINE_OFF;
             LED_ORANGE = LED_OFF;
             reset_altitude_control();
         }
@@ -276,6 +277,19 @@ void updateFlightPhase()
         {
             current_flight_phase = F_AUTO_LAND;
             LED_ORANGE = LED_ON;
+        }
+    }
+    else
+    {        
+        if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)))
+        {
+            current_flight_phase = F_MANUAL_TAKE_OFF;
+            flags._.engines_off = 0;
+        }
+        else
+        {
+            current_flight_phase = F_ENGINE_OFF;
+            flags._.engines_off = 1;
         }
     }
 }
