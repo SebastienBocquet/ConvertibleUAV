@@ -552,7 +552,7 @@ void serial_output_8hz(void)
 
             serial_output("cp%i;cg%i;em%i;lb%i;",
                 100*current_flight_phase, 100*flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery);
-
+                    
 //            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
 //                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
 //                additional_int16_export4,additional_int16_export5,additional_int16_export6,
@@ -565,7 +565,7 @@ void serial_output_8hz(void)
             serial_output("sd%i;", sonar_distance) ;
 #endif
 #if ( BAROMETER_ALTITUDE == 1)
-            serial_output("al%li;",
+            serial_output("ba%li;",
                 get_barometer_altitude());
 #endif       
         serial_output("end;\r\n");

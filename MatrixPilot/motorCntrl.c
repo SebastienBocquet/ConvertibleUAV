@@ -25,8 +25,8 @@
 #define MANUAL_DEADBAND 200 // amount of throttle before fly-by-wire controls engage
 #define MAXIMUM_ERROR_INTEGRAL ((int32_t) 32768000 )
 #define YAW_DEADBAND 5 // prevent Tx pulse variation from causing yaw drift
-#define RAMPE_TIME_YAW 3
-#define RAMPE_INCREMENT_YAW 16384 / (HEARTBEAT_HZ * RAMPE_TIME_YAW);
+#define TIME_MANUAL_TO_AUTO 3
+#define INCREMENT_MANUAL_TO_AUTO RMAX / (HEARTBEAT_HZ * TIME_MANUAL_TO_AUTO)
 
 extern int16_t theta[3] ;
 extern void matrix_normalize ( int16_t[] ) ;
@@ -75,7 +75,8 @@ int16_t pitch_rate_error_previous = 0 ;
 float roll_rate_error_delta_filt_flt = 0.;
 float pitch_rate_error_delta_filt_flt = 0.;
 
-int16_t manual_to_auto_mix = 0;
+int16_t manual_to_auto_ramp = 0;
+int16_t yaw_control_ramp = 0;
 
 union longww roll_quad_error_integral = { 0 } ;
 union longww pitch_quad_error_integral = { 0 } ;
@@ -155,13 +156,14 @@ void motorCntrl(void)
 	{
 		if (current_flight_phase == F_MANUAL_TAKE_OFF)
         {
-            manual_to_auto_mix = 0;
+            manual_to_auto_ramp = 0;
+            yaw_control_ramp = 0;
         }
         else
 		{
-			manual_to_auto_mix += RAMPE_INCREMENT_YAW;
+			apply_ramp(&manual_to_auto_ramp, INCREMENT_MANUAL_TO_AUTO, 0, RMAX);
+            apply_ramp(&yaw_control_ramp, INCREMENT_MANUAL_TO_AUTO, 0, RMAX);
  		}
-		if (manual_to_auto_mix > RMAX) manual_to_auto_mix = RMAX;
 
 		//insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in quad mode
 		commanded_roll =  ( pwManual[AILERON_INPUT_CHANNEL] 
@@ -382,7 +384,7 @@ void motorCntrl(void)
 		yaw_quad_control = -long_accum._.W1 ;
         
         //enable yaw control smoothly only when the plane is in flight
-        yaw_quad_control = (int16_t)(__builtin_mulsu(yaw_quad_control, manual_to_auto_mix)>>14);
+        yaw_quad_control = (int16_t)(__builtin_mulsu(yaw_quad_control, yaw_control_ramp)>>14);
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -425,7 +427,8 @@ void motorCntrl(void)
                     int16_t hover_altitude_throttle = REVERSE_IF_NEEDED(THROTTLE_HOVER_CHANNEL_REVERSED, throttle_hover_control) \
                         - accel_feedback \
                         + udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL] ;
-                    motor_A = motor_B = motor_C = motor_D = (int16_t)(__builtin_mulsu(hover_altitude_throttle, manual_to_auto_mix)>>14) + (int16_t)(__builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], RMAX-manual_to_auto_mix)>>14); 
+                    motor_A = motor_B = motor_C = motor_D = (int16_t)(__builtin_mulsu(hover_altitude_throttle, manual_to_auto_ramp)>>14) 
+                                                            + (int16_t)(__builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], RMAX-manual_to_auto_ramp)>>14);
                 }
                 //apply roll, pitch, yaw stabilization
 #if (MOTOR_A_POSITION == 1)

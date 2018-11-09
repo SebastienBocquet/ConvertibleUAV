@@ -31,6 +31,14 @@ int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
 
+//int16_t manual_to_auto_climb = RMAX;
+
+void apply_ramp(int16_t *climb, int16_t increment, int16_t min_value, int16_t max_value)
+{
+    *climb += increment;
+    *climb = limit_value(*climb, min_value, max_value);
+}
+
 void triggerActionSetValue(boolean newValue);
 
 void init_flight_phase(void)
@@ -206,7 +214,6 @@ void triggerActionSetValue(boolean newValue)
 
 void updateFlightPhase()
 {   
-    
     int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
     
 #ifdef TestGains
@@ -262,7 +269,7 @@ void updateFlightPhase()
     }
     else if (current_flight_phase == F_AUTO_LAND)
     {
-        if (canStabilizeHover() && rampe_throttle < 0)
+        if (canStabilizeHover() && auto_landing_ramp < 0)
         {
             current_flight_phase = F_ENGINE_OFF;
             LED_ORANGE = LED_OFF;

@@ -158,7 +158,7 @@ int32_t error_integral_z=0;
 int32_t error_integral_vz=0;
 int32_t error_integral_accz=0;
 int32_t previous_z32;
-int16_t rampe_throttle = RMAX;
+int16_t auto_landing_ramp = RMAX;
 int16_t throttle_control_mem = 0;
 int16_t is_not_close_to_ground_counter = 0;
 
@@ -257,7 +257,7 @@ void reset_altitude_control(void)
     accz_filtered_flt=0.;
     previous_z32=(int32_t)(hovertargetheightmin)*100;
     no_altitude_measurement_counter = 0;
-    rampe_throttle = RMAX;
+    auto_landing_ramp = RMAX;
     throttle_control_mem = 0;
     z_target_mem = -1;
 }
@@ -804,8 +804,8 @@ void hoverAltitudeCntrl(void)
         {
             if (current_flight_phase == F_AUTO_LAND)
             {
-                rampe_throttle += RAMPE_DECREMENT;
-                throttle_control_pre = (int16_t)(__builtin_mulsu(throttle_control_mem-hoverthrottlemin, rampe_throttle)>>14)+hoverthrottlemin ;
+                apply_ramp(&auto_landing_ramp, RAMPE_DECREMENT, 0, RMAX);
+                throttle_control_pre = (int16_t)(__builtin_mulsu(throttle_control_mem-hoverthrottlemin, auto_landing_ramp)>>14)+hoverthrottlemin ;
             }
             else
             {

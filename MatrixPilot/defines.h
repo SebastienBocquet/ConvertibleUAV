@@ -57,6 +57,9 @@ extern union fbts_int flags;
 
 
 ////////////////////////////////////////////////////////////////////////////////
+#define NUM_WAGGLES   4     // waggle 4 times during the end of the standby pause (this number must be less than STANDBY_PAUSE)
+#define WAGGLE_SIZE   300
+
 // servoPrepare.c
 void init_servoPrepare(void);
 
@@ -148,7 +151,8 @@ extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
 #endif
 
 extern int16_t z_filtered;
-extern int16_t rampe_throttle;
+extern int16_t auto_landing_ramp;
+extern int16_t manual_to_auto_climb;
 
 extern int16_t z_filtered;
 extern int16_t vz_filtered;
@@ -223,6 +227,8 @@ extern int16_t yaw_error;
 extern int16_t roll_intgrl;
 extern int16_t pitch_intgrl;
 extern int16_t yaw_intgrl;
+
+void apply_ramp(int16_t*, int16_t, int16_t, int16_t);
 
 ////////////////////////////////////////////////////////////////////////////////
 // energy management
