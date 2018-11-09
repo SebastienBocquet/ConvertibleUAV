@@ -65,7 +65,6 @@ void init_states(void)
 	flags._.update_autopilot_state_asap = 0;
     flags._.is_close_to_ground = 1;
     flags._.low_battery = 0;
-    flags._.emergency_landing = 0;
     flags._.engines_off = 0;
 	stateS = &startS;
 }
@@ -207,7 +206,6 @@ static void ent_waypointS(void)
 	waggle = 0;
 	LED_RED = LED_OFF;
 	stateS = &waypointS;
-    flags._.emergency_landing = 0;
 }
 
 //	Come home state, entered when the radio signal is lost, and gps is locked.
@@ -232,9 +230,6 @@ static void ent_returnS(void)
 #endif
 	waggle = 0;
 	LED_RED = LED_ON;
-#ifndef TestDisableEmergencyLanding
-    flags._.emergency_landing = 1;
-#endif
 	stateS = &returnS;
 }
 

@@ -425,20 +425,6 @@ boolean has_no_altitude_measurement(void)
     
 }
 
-int16_t emergency_landing()
-{
-    if (z_target_mem == -1) z_target_mem = z_target_filtered;
-    
-    if (udb_heartbeat_counter % (HEARTBEAT_HZ/10) == 0)
-    {
-        z_target_mem -= (int16_t)(EMERGENCY_VZ/10);
-    }
-    
-    z_target_mem = limit_value(z_target_mem, hovertargetheightmin, hovertargetheightmax);
-    
-    return z_target_mem;
-}
-
 void setTargetAltitude(int16_t targetAlt)
 {
 	desiredHeight = targetAlt;
@@ -763,8 +749,6 @@ void hoverAltitudeCntrl(void)
 #endif
 #endif // end MANUAL_TARGET_HEIGHT
     }
-
-    if (flags._.emergency_landing) z_target = emergency_landing();
 
     z_target_filtered = exponential_filter(z_target, &z_target_filtered_flt, invdeltafiltertargetz);
         

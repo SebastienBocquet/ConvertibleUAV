@@ -228,10 +228,6 @@ void updateFlightPhase()
     if ((z_filtered > (int16_t)(HOVER_FAILSAFE_ALTITUDE)) || flags._.low_battery)
     {
         //if max altitude is exceeded, reduce throttle
-#ifndef TestDisableEmergencyLanding
-        flags._.emergency_landing = 1;
-        LED_ORANGE = LED_ON;
-#endif
     }
     
     if (current_flight_phase == F_MANUAL_TAKE_OFF)

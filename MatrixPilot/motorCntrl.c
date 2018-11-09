@@ -416,7 +416,7 @@ void motorCntrl(void)
         }
         else
         {
-            if(canStabilizeHover() || flags._.emergency_landing)
+            if(canStabilizeHover())
             {      
                 if (current_flight_phase == F_MANUAL_TAKE_OFF) 
                 {

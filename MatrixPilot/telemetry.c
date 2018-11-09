@@ -551,7 +551,7 @@ void serial_output_8hz(void)
 //                roll_error, pitch_error, yaw_error);
 
             serial_output("cp%i;cg%i;em%i;lb%i;",
-                100*current_flight_phase, 100*flags._.is_close_to_ground, flags._.emergency_landing, flags._.low_battery);
+                100*current_flight_phase, 100*flags._.is_close_to_ground, flags._.low_battery);
                     
 //            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
 //                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
