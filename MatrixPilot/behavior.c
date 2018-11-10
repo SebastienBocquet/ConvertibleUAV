@@ -216,9 +216,6 @@ void updateFlightPhase()
 {   
     int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
     
-#ifdef TestGains
-    flags._.engines_off = 1;
-#endif
 #ifdef TestAltitude
     flags._.engines_off = 1;
     current_flight_phase = F_IS_IN_FLIGHT;
@@ -265,7 +262,7 @@ void updateFlightPhase()
     }
     else if (current_flight_phase == F_AUTO_LAND)
     {
-        if (canStabilizeHover() && auto_landing_ramp < 0)
+        if (canStabilizeHover() && auto_landing_ramp <= 0)
         {
             current_flight_phase = F_ENGINE_OFF;
             LED_ORANGE = LED_OFF;
