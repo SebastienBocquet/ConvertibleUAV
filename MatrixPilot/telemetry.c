@@ -481,23 +481,23 @@ void serial_output_8hz(void)
 //                      "a:%i;b:%i;c:%i;"
 //                      "d:%i;e:%i;f:%i;"
 //                      "g:%i;h:%i;i:%i;"
-//                      "om0:%i;om1:%i;om2:%i;"
+                      "o2%i;"
                       "vo%i;cu%i;au%i;"
 //                      "cpu:%u;"
-//                      "ma:%i;mb:%i;mc:%i;"
+                      "ma%i;mb%i;mc%i;"
                       ,
 //            tow.WW,
 //            rmat[0], rmat[1], rmat[2],
 //            rmat[3], rmat[4], rmat[5],
 //            rmat[6], rmat[7], rmat[8],
-//            omegagyro[0], omegagyro[1], omegagyro[2],
-            voltage, current, mAh_used);
+            omegagyro[2],
+            voltage, current, mAh_used,
 //            (uint16_t)udb_cpu_load(),
-//    #if (MAG_YAW_DRIFT == 1)
-//            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
-//    #else
-//            (int16_t)0, (int16_t)0, (int16_t)0
-//    #endif // MAG_YAW_DRIFT
+#if (MAG_YAW_DRIFT == 1)
+            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]);
+#else
+            (int16_t)0, (int16_t)0, (int16_t)0
+#endif // MAG_YAW_DRIFT
         
             // Approximate time passing between each telemetry line, even though
             // we may not have new GPS time data each time through.
@@ -547,11 +547,11 @@ void serial_output_8hz(void)
             //hover_target_accz=target_accz_bis;
             //hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
     
-//            serial_output("rerr:%i;perr:%i;yerr:%i;",
-//                roll_error, pitch_error, yaw_error);
+            serial_output("ye%i;yc%i;mf%i;mi%i;",
+                yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
 
             serial_output("cp%i;cg%i;lb%i;al%i;",
-                100*current_flight_phase, 100*flags._.is_close_to_ground, flags._.low_battery, auto_landing_ramp);
+                100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery, auto_landing_ramp);
                     
 //            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
 //                additional_int16_export1, additional_int16_export2, additional_int16_export3, 

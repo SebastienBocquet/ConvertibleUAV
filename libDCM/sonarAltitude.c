@@ -9,7 +9,7 @@
 #include "sonarAltitude.h"
 
 #if ( USE_SONAR == 1 )
-
+        
 // USEABLE_SONAR_DISTANCE may well vary with type of ground cover (e.g. long grass may be less).
 // Pete Hollands ran the code with #define SERIAL_OUTPUT SERIAL_UDB_SONAR while flying low
 // over his landing area, which was a freshly cut straw field. Post flight, he anlaysed the CSV telemetry into a spreadsheet graph,

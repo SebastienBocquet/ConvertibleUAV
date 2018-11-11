@@ -87,16 +87,22 @@ void rxMagnetometer(magnetometer_callback_funcptr callback)  // service the magn
 #ifdef TestGains
     magMessage = 7;
 #endif
-#if (LED_RED_MAG_CHECK == 1)
+    
 	if (magMessage == 7)
 	{
+        flags._.mag_failure = 0;
+#if (LED_RED_MAG_CHECK == 1)
 		LED_RED = LED_OFF;
+#endif
 	}
 	else
 	{
+        flags._.mag_failure = 1;
+#if (LED_RED_MAG_CHECK == 1)
 		LED_RED = LED_ON;
-	}
 #endif
+	}
+
 
 	if (I2C_Normal() == false)  // if I2C is not ok
 	{
@@ -180,14 +186,19 @@ static void I2C_callback(boolean I2CtrxOK)
 				{
 					magnetometer_callback();
 				}
+                
+                flags._.invalid_mag_reading = 0;
 			}
 			else
 			{
-				magMessage = 0;         // invalid reading, reset the magnetometer
+				magMessage = 0;         // invalid reading, reset the magnetometer  
+                flags._.invalid_mag_reading = 1;
 			}
 		}
 		else if (magMessage == 5)       // Calibration data
 		{
+            flags._.invalid_mag_reading = 1;
+            
 			for (vectorIndex = 0; vectorIndex < 3; vectorIndex++)
 			{
 				rawMagCalib[vectorIndex] = magFieldRaw[vectorIndex];
@@ -202,6 +213,10 @@ static void I2C_callback(boolean I2CtrxOK)
 				}
 			}
 		}
+        else
+        {
+            flags._.invalid_mag_reading = 1;
+        }
 	}
 }
 

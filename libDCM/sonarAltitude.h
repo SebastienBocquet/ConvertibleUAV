@@ -31,4 +31,6 @@
 void calculate_sonar_height_above_ground(void);
 void setFailureSonarDist(int16_t);
 
+#define LED_RED_SONAR_CHECK    0
+
 #endif // SONARALTITUDE_H

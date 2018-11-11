@@ -49,6 +49,8 @@ struct flag_bits {
     uint16_t is_close_to_ground         : 1;
     uint16_t low_battery                : 1;
     uint16_t engines_off                : 1;
+    uint16_t mag_failure                : 1;
+    uint16_t invalid_mag_reading        : 1;
 };
 
 union fbts_int { struct flag_bits _; int16_t WW; };
@@ -133,12 +135,10 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 void reset_altitude_control(void);
 void updateAltitudeMeasurement(void);
 
-#define LED_RED_SONAR_CHECK                   1
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2
 extern int16_t sonar_height_to_ground ;		// calculated distance to ground in cm
 
-#define LED_ORANGE_LIDAR_CHECK                   1
 extern int16_t lidar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
 
@@ -222,6 +222,7 @@ void motorCntrl( void ) ;
 extern int16_t roll_error;
 extern int16_t pitch_error;
 extern int16_t yaw_error;
+extern int16_t yaw_quad_control;
 
 extern int16_t roll_intgrl;
 extern int16_t pitch_intgrl;

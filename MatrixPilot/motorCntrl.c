@@ -199,37 +199,36 @@ void motorCntrl(void)
 
 //		Compute orientation errors
 
-		if (canStabilizeHover() && current_orientation == F_HOVER)
+//		Compute the orientation of the virtual quad (which is used only for yaw control)
+//		Set the earth vertical to match in both frames (since we are interested only in yaw)
+
+        target_orientation[6] = rmat[6] ;
+        target_orientation[7] = rmat[7] ;
+        target_orientation[8] = rmat[8] ;
+
+//		renormalize to align other two axes int16_to the the plane perpendicular to the vertical
+        matrix_normalize( target_orientation ) ;
+
+//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
+        yaw_step = commanded_yaw * yaw_command_gain ;
+        VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
+        VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
+        MatrixRotate( target_orientation , yaw_vector ) ;
+
+//		Compute the misalignment between target and actual
+        MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
+        MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
+
+//		Compute orientation errors
+        yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+        
+        if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
 		{
 			matrix_accum.x = rmat[4] ;
  			matrix_accum.y = -rmat[1] ;
  			earth_yaw = rect_to_polar(&matrix_accum)<<8 ; 
-			yaw_error = -earth_yaw + yaw_control;
-		}
-		else
-		{
-	//		Compute the orientation of the virtual quad (which is used only for yaw control)
-	//		Set the earth vertical to match in both frames (since we are interested only in yaw)
-	
-			target_orientation[6] = rmat[6] ;
-			target_orientation[7] = rmat[7] ;
-			target_orientation[8] = rmat[8] ;
-	
-	//		renormalize to align other two axes int16_to the the plane perpendicular to the vertical
-			matrix_normalize( target_orientation ) ;
-			
-	//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
-			yaw_step = commanded_yaw * yaw_command_gain ;
-			VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
-			VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
-			MatrixRotate( target_orientation , yaw_vector ) ;
-	
-	//		Compute the misalignment between target and actual
-			MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
-			MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
-	
-	//		Compute orientation errors
-			yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+            //enable yaw control smoothly only when the plane is in flight
+            yaw_error += (int16_t)(__builtin_mulsu(-earth_yaw + yaw_control, yaw_control_ramp)>>14);
 		}
 
 		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
@@ -382,9 +381,6 @@ void motorCntrl(void)
 		//      compute PID on omega_error
 		long_accum.WW = __builtin_mulus ( yaw_rate_kp , yaw_rate_error ) << 2 ;
 		yaw_quad_control = -long_accum._.W1 ;
-        
-        //enable yaw control smoothly only when the plane is in flight
-        yaw_quad_control = (int16_t)(__builtin_mulsu(yaw_quad_control, yaw_control_ramp)>>14);
 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -408,6 +404,7 @@ void motorCntrl(void)
         pitch_quad_error_integral.WW  = 0;
         yaw_quad_error_integral.WW  = 0;
 #endif
+                
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         if (flags._.engines_off)
