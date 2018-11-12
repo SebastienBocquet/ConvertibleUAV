@@ -526,12 +526,11 @@ void serial_output_8hz(void)
                     (int16_t)(100*IMUlocationx._.W1), 
                     (int16_t)(100*IMUlocationy._.W1), 
                     (int16_t)(100*IMUlocationz._.W1));
-            
             serial_output("vx%i;vy%i;vz%i;",
                     IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1);
 
             serial_output("az%i;tz%i;tv%i;", accelEarth[2], z_target_filtered, target_vz_bis);    
-            serial_output("iz%i;iv%i;ei%i;", 
+            serial_output("zf%i;vf%i;ei%i;", 
                 z_filtered, vz_filtered, (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)));
             
             //hover_z=z_filtered;

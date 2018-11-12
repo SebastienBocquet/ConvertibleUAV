@@ -33,7 +33,7 @@ union longww throttleFiltered = { 0 };
 
 #define THROTTLEFILTSHIFT   12
 
-#define COEF_MAX            10  //maximum value of pid coef
+#define COEF_MAX            20  //maximum value of pid coef
 #define COEF_SCALING        (RMAX/COEF_MAX)
 
 #define MAXTHROTTLE         (2.0*SERVORANGE*ALT_HOLD_THROTTLE_MAX)

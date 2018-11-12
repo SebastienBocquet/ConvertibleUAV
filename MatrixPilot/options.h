@@ -590,9 +590,8 @@
 												// and target vz is set to 0.5*(hovertargetvzmin+hovertargetvzmax)
 #define AIRCRAFT_MASS                      1250 //in g
 #define MAX_THRUST                         40   //maximul thrust in N 
-#define HOVER_THROTTLE_OFFSET              0.55
 #define HOVER_THROTTLE_MIN                 0.2
-#define HOVER_THROTTLE_MAX                 0.8
+#define HOVER_THROTTLE_MAX                 0.95
 #define SONAR_MINIMUM_DISTANCE             60   // Normally, should be minimum possible sonar distance measurement (4 inch)
 #define USEABLE_SONAR_DISTANCE             235  //235 // Reliable Sonar measurement distance (centimeters) for your specific landing area.
 #define LIDAR_MINIMUM_DISTANCE             10    // should be minimum possible lidar distance measurement
@@ -611,15 +610,15 @@
 #define HOVER_INV_DELTA_FILTER_SONAR       10.  //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_BARO        1.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
 #define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
-#define HOVER_ZKP                          9.99 //in 1/cm, should be between 0 and 10
+#define HOVER_ZKP                          12.6 //in 1/cm, should be between 0 and 10
 #define HOVER_ZKI                          0.   //in 1/(cm.s) dimensionless, should be between 0 and 10
 #define LIMIT_INTEGRAL_Z                   80000
-#define HOVER_LIMIT_TARGETVZ               20   //cutoff value for vertial velocity in cm/s
-#define HOVER_VZKP                         6.   // in 1/(cm/s), should be between 0 and 10
+#define HOVER_LIMIT_TARGETVZ               40   //cutoff value for vertial velocity in cm/s
+#define HOVER_VZKP                         6.7   // in 1/(cm/s), should be between 0 and 10
 #define HOVER_VZKI                         2.   // in 1/cm, should be between 0 and 10
 #define LIMIT_INTEGRAL_VZ                  40000
 #define HOVER_LIMIT_TARGETACCZ             2500 //cutoff value for vertial acceleration in cm/s2
-#define HOVER_ACCZKP                       0.75  // in 1/(cm/s2), should be between 0 and 10
+#define HOVER_ACCZKP                       0.84  // in 1/(cm/s2), should be between 0 and 10
 #define HOVER_ACCZKI                       0.   // in 1/(cm/s), should be between 0 and 10
 #define LIMIT_INTEGRAL_ACCZ                80000
 
@@ -838,8 +837,8 @@
 // The following can be used to do a ground check of stabilization without a GPS.
 // If you define TestGains, stabilization functions
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
-//#define TestGains                        // uncomment this line if you want to test your gains without using GPS
-//#define TestAltitude
+#define TestGains                        // uncomment this line if you want to test your gains without using GPS
+#define TestAltitude
 
 // Set this to 1 to calculate and print out free stack space
 #define RECORD_FREE_STACK_SPACE             0
