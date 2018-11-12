@@ -50,14 +50,21 @@
 	int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
 #else
     uint16_t hoverrollToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
-    uint16_t hoverrollToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
     uint16_t hoverrollToWPvkp = (uint16_t)(HOVER_PITCHTOWPVKP*RMAX);
 	const int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
     const int32_t limitintegralrollVToWP = (int32_t)(LIMIT_INTEGRAL_VPITCHTOWP);
+#ifdef TestGPSPositioning
+    uint16_t hoverrollToWPki = 0;
+    const int16_t limittargetrollV = RMAX;
+#else
+    uint16_t hoverrollToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
     const int16_t limittargetrollV = (int16_t)(HOVER_LIMIT_TARGETVPITCH);
+#endif
 #endif
 
 int16_t hovering_roll_order;
+int16_t target_roll = 0;
+int16_t roll_v_target = 0;
 int32_t roll_error_integral = 0;
 int32_t roll_v_error_integral = 0;
 int16_t roll_hover_corr = 0;
@@ -148,9 +155,6 @@ void normalRollCntrl(void)
 
 void hoverRollCntrl(void)
 {
-    
-    //union longww rollAccum;
-    int16_t target_roll = 0;
     int16_t max_tilt_sine = sine((int8_t)(MAX_TILT*.7111));
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
@@ -178,13 +182,11 @@ void hoverRollCntrl(void)
         uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
 	                                   IMUvelocityy._.W1 - estimatedWind[1]);
         
-        additional_int16_export7 = horizontal_air_speed;
-        
         //DEBUG
         horizontal_air_speed = 0;
         
 		//PI controller on roll angle
-		int16_t roll_v_target = compute_pi_block(rmat[6], -target_roll, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
+		roll_v_target = compute_pi_block(rmat[6], -target_roll, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
                                     (int16_t)(SERVO_HZ), limitintegralrollToWP, control_position_hold);
         
         additional_int16_export6 = rmat[6];

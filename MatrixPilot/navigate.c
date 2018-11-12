@@ -462,7 +462,7 @@ boolean isInControlPositionHold(int16_t tofinish_line_factor10)
 }
 
 void compute_hovering_dir(void)
-{
+{    
     int16_t pitch_roll_orders[2];
     int8_t local_heading;
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
@@ -481,31 +481,22 @@ void compute_hovering_dir(void)
 	// in the rect_to_polar16 function
 	matrix_accum.x = pitch_roll_orders[0] ;
 	matrix_accum.y = pitch_roll_orders[1] ;
-    
-    //heading_to_wp is the angle relative to the east (ie to the x axis)
-	//heading_to_wp = -rect_to_polar16(&matrix_accum);
-    
-	//additional_int16_export1 = heading_to_wp;
-	//additional_int16_export2 = earth_yaw;
 
 	local_heading = (int8_t)((-earth_yaw)>>8);
     rotate_2D_vector_by_angle (pitch_roll_orders , local_heading);
 
     hovering_pitch_order = pitch_roll_orders[0];
     hovering_roll_order = pitch_roll_orders[1];
-
-    //additional_int16_export3 = hovering_pitch_order;
-	//additional_int16_export4 = hovering_roll_order;
     
     hovering_pitch_order = limit_value(hovering_pitch_order, -RMAX, RMAX); 
     hovering_roll_order = limit_value(hovering_roll_order, -RMAX, RMAX);
     
-    //DEBUG
-    //tofinish_line_factor10 = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(60)));
-    additional_int16_export1 = (int16_t)(10*tofinish_line_factor10);
+#ifdef TestGPSPositioning
+    control_position_hold = true;
+    return;
+#endif
     
     control_position_hold = isInControlPositionHold(tofinish_line_factor10);
-    
 }
 
 int16_t compute_target_pitch(int16_t hovering_order, int16_t tofinish_line_factor10, int16_t max_tilt_sine)

@@ -63,11 +63,16 @@
 	const uint16_t rudderElevMixGain = (uint16_t)(RMAX*RUDDER_ELEV_MIX);
 	const uint16_t rollElevMixGain = (uint16_t)(RMAX*ROLL_ELEV_MIX);
     uint16_t hoverpitchToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
-    uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
     uint16_t hoverpitchToWPvkp = (uint16_t)(HOVER_PITCHTOWPVKP*RMAX);
 	const int32_t limitintegralpitchToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
     const int32_t limitintegralpitchVToWP = (int32_t)(LIMIT_INTEGRAL_VPITCHTOWP);
+#ifdef TestGPSPositioning
+    uint16_t hoverpitchToWPki = 0;
+    const int16_t limittargetpitchV = RMAX;
+#else
+    uint16_t hoverpitchToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
     const int16_t limittargetpitchV = (int16_t)(HOVER_LIMIT_TARGETVPITCH);
+#endif
 #endif
 
 int16_t pitchrate;
@@ -75,6 +80,8 @@ int16_t navElevMix;
 int16_t elevInput;
 
 int16_t hovering_pitch_order;
+int16_t target_pitch = 0;
+int16_t pitch_v_target = 0;
 int32_t pitch_error_integral = 0;
 int32_t pitch_v_error_integral = 0;
 int16_t pitch_hover_corr = 0;
@@ -199,16 +206,11 @@ void normalPitchCntrl(void)
 
 void hoverPitchCntrl(void)
 {
-	//union longww pitchAccum;
-    int16_t target_pitch = 0;
     int16_t max_tilt_sine = sine((int8_t)(MAX_TILT*.7111));
 
     if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
         //error along y axis between aircraft position and goal (origin point here) in cm
-        
-        //Useless a priori
-        //determine_navigation_deflection('y');
         
         if (control_position_hold)
         {
@@ -226,11 +228,12 @@ void hoverPitchCntrl(void)
         uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
 	                                   IMUvelocityy._.W1 - estimatedWind[1]);
         
-        //DEBUG
+#ifdef TestGPSPositioning
         horizontal_air_speed = 0;
+#endif
         
 		//PI controller on pitch angle
-		int16_t pitch_v_target = compute_pi_block(-rmat[7], -target_pitch, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
+		pitch_v_target = compute_pi_block(-rmat[7], -target_pitch, hoverpitchToWPkp, hoverpitchToWPki, &pitch_error_integral, 
                                     (int16_t)(SERVO_HZ), limitintegralpitchToWP, control_position_hold);
         
         //additional_int16_export3 = -rmat[7];

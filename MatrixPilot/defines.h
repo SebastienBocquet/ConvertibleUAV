@@ -200,9 +200,13 @@ int16_t compute_target_pitch(int16_t, int16_t, int16_t);
 extern boolean control_position_hold;
 
 void compute_hovering_dir(void);
+extern int16_t earth_yaw;
 extern int16_t hovering_pitch_order;
 extern int16_t hovering_roll_order;
-extern int16_t plane_to_north;
+extern int16_t target_pitch;
+extern int16_t pitch_v_target;
+extern int16_t target_roll;
+extern int16_t roll_v_target;
 extern int16_t roll_hover_corr;
 extern int16_t pitch_hover_corr;
 

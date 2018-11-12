@@ -469,8 +469,7 @@ extern int16_t waypointIndex;
 extern int16_t segmentIndex;
     
 void serial_output_8hz(void)
-{
-    
+{   
     if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_TELEMETRY) == 0)
 	{
         static int16_t pwOut_save[NUM_OUTPUTS + 1];
@@ -510,15 +509,15 @@ void serial_output_8hz(void)
 //#endif
 
             // Save  pwIn and PwOut buffers for printing next time around
-            int16_t i;
+//            int16_t i;
 //				for (i=0; i <= NUM_INPUTS; i++)
 //					pwIn_save[i] = udb_pwIn[i];
-            for (i=0; i < NUM_OUTPUTS; i++)
-                pwOut_save[i] = udb_pwOut[i];
+//            for (i=0; i < NUM_OUTPUTS; i++)
+//                pwOut_save[i] = udb_pwOut[i];
 //				for (i= 1; i <= NUM_INPUTS; i++)
 //					serial_output("p%ii%i:",i,pwIn_save[i]);
-            for (i=4; i <= NUM_OUTPUTS; i++)
-                serial_output("p%io:%i;",i,pwOut_save[i]);
+//            for (i=4; i <= NUM_OUTPUTS; i++)
+//                serial_output("p%io:%i;",i,pwOut_save[i]);
 
             serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1-throttle_offet, throttle2-throttle_offet, throttle3-throttle_offet, throttle4-throttle_offet);
             serial_output("mt%i;th%i;", mean_throttle-throttle_offet, throttle_hover_control);
@@ -540,7 +539,6 @@ void serial_output_8hz(void)
             //hover_error_z=error_z;
             //hover_error_integral_z=(int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ));
             //hover_error_vz=error_integral_z;
-            
             //hover_error_integral_vz=(int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ));
             //hover_target_vz=target_vz_bis;
             //hover_target_accz=target_accz_bis;
@@ -548,9 +546,21 @@ void serial_output_8hz(void)
     
             serial_output("ye%i;yc%i;mf%i;mi%i;",
                 yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
-
-            serial_output("cp%i;cg%i;lb%i;al%i;",
-                100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery, auto_landing_ramp);
+            
+            //GPS X-Y positioning : navigation
+            serial_output("ey%i;tf%i;ph%i;",
+                earth_yaw, tofinish_line_factor10, 100*(int16_t)(control_position_hold));
+            
+            //GPS X-Y positioning : pitch control
+            serial_output("hp%i;tp%i;pa%i;pv%i;pc%i;",
+                hovering_pitch_order, target_pitch, -rmat[7], pitch_v_target, pitch_hover_corr);
+            
+            //GPS X-Y positioning : roll control
+            serial_output("hr%i;tr%i;ra%i;rv%i;rc%i;",
+                hovering_roll_order, target_roll, rmat[6], roll_v_target, roll_hover_corr);
+            
+            serial_output("cp%i;cg%i;lb%i;",
+                100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery);
                     
 //            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
 //                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
