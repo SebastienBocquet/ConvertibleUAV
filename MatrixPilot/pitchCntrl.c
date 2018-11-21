@@ -211,7 +211,10 @@ void hoverPitchCntrl(void)
     if (flags._.pitch_feedback && flags._.GPS_steering)
 	{
         //error along y axis between aircraft position and goal (origin point here) in cm
-        
+#ifdef TestGPSPositioning
+        hovering_pitch_order = RMAX;
+        tofinish_line_factor10 = 30;
+#endif
         if (control_position_hold)
         {
             target_pitch = compute_target_pitch(hovering_pitch_order, tofinish_line_factor10, max_tilt_sine);

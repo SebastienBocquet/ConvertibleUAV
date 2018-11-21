@@ -541,10 +541,10 @@
 #define ROLL_ELEV_MIX                        0.
 #define ELEVATOR_BOOST                       1.
 
-#define HOVER_PITCHTOWPKP                    0.045
+#define HOVER_PITCHTOWPKP                    0.1
 #define HOVER_PITCHTOWPKI                    0.
 #define LIMIT_INTEGRAL_PITCHTOWP             80000.
-#define HOVER_PITCHTOWPVKP                   0.4
+#define HOVER_PITCHTOWPVKP                   0.5
 #define LIMIT_INTEGRAL_VPITCHTOWP            80000.
 
 #define HOVER_LIMIT_TARGETVPITCH             300         //in cm/s
