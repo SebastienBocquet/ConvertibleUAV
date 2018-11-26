@@ -22,6 +22,7 @@
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
 #include "airspeed_options.h"
+#include "../libUDB/buzzer.h"
 
 int16_t current_orientation;
 int16_t current_flight_phase;
@@ -30,6 +31,7 @@ int16_t cyclesUntilStartTriggerAction = 0;
 int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
+boolean buzz = true;
 
 //int16_t manual_to_auto_climb = RMAX;
 
@@ -63,7 +65,7 @@ void setBehavior(int16_t newBehavior)
 {
 	desired_behavior.W = newBehavior;
 
-	if (desired_behavior.W & F_TRIGGER)
+	if (desired_behavior.W & F_TRIGGER || buzz)
 	{
 		if (cyclesUntilStartTriggerAction == 0)
 		{
@@ -166,7 +168,7 @@ void updateTriggerAction(void)
 	{
 		cyclesUntilStopTriggerAction--;
 	}
-	if (cyclesUntilStartTriggerAction == 1 && (desired_behavior.W & F_TRIGGER))
+	if (cyclesUntilStartTriggerAction == 1 && (desired_behavior.W & F_TRIGGER || buzz))
 	{
 		if (TRIGGER_ACTION == TRIGGER_PULSE_HIGH || TRIGGER_ACTION == TRIGGER_PULSE_LOW)
 		{
@@ -198,6 +200,8 @@ void updateTriggerAction(void)
 
 void triggerActionSetValue(boolean newValue)
 {
+    additional_int16_export1 = (int16_t)(newValue);
+    
 	if (TRIGGER_TYPE == TRIGGER_TYPE_SERVO)
 	{
 		udb_pwOut[TRIGGER_OUTPUT_CHANNEL] = (newValue) ? TRIGGER_SERVO_HIGH : TRIGGER_SERVO_LOW;

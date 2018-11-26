@@ -314,6 +314,7 @@ union bfbts_word { struct behavior_flag_bits _; int16_t W; };
 extern int16_t current_orientation;
 extern int16_t current_flight_phase;
 extern union bfbts_word desired_behavior;
+extern boolean buzz;
 
 #define TRIGGER_TYPE_NONE      0
 #define TRIGGER_TYPE_SERVO     1

@@ -562,10 +562,8 @@ void serial_output_8hz(void)
             serial_output("cp%i;cg%i;lb%i;",
                 100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery);
                     
-//            serial_output("add1:%i;add2:%i;add3:%i;add4:%i;add5:%i;add6:%i;add7:%i;add8:%i;",
-//                additional_int16_export1, additional_int16_export2, additional_int16_export3, 
-//                additional_int16_export4,additional_int16_export5,additional_int16_export6,
-//                additional_int16_export7, additional_int16_export8);
+            serial_output("a1%i;",
+                additional_int16_export1);
 
 #if ( USE_LIDAR	== 1 )
             serial_output("ld%i;", lidar_distance) ;

@@ -458,12 +458,12 @@
 
 // Note, durations in milliseconds are rounded down to the nearest 25ms.
 
-#define TRIGGER_TYPE                        TRIGGER_TYPE_NONE
-#define TRIGGER_ACTION                      TRIGGER_PULSE_LOW
+#define TRIGGER_TYPE                        TRIGGER_TYPE_DIGITAL
+#define TRIGGER_ACTION                      TRIGGER_REPEATING
 #define TRIGGER_SERVO_LOW                   2000
 #define TRIGGER_SERVO_HIGH                  4000
 #define TRIGGER_PULSE_DURATION              500
-#define TRIGGER_REPEAT_PERIOD               0
+#define TRIGGER_REPEAT_PERIOD               1000
 
 
 ////////////////////////////////////////////////////////////////////////////////
