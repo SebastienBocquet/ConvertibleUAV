@@ -22,7 +22,6 @@
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
 #include "airspeed_options.h"
-#include "../libUDB/buzzer.h"
 
 int16_t current_orientation;
 int16_t current_flight_phase;
@@ -31,7 +30,6 @@ int16_t cyclesUntilStartTriggerAction = 0;
 int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
-boolean buzz = true;
 
 //int16_t manual_to_auto_climb = RMAX;
 
@@ -65,7 +63,7 @@ void setBehavior(int16_t newBehavior)
 {
 	desired_behavior.W = newBehavior;
 
-	if (desired_behavior.W & F_TRIGGER || buzz)
+	if (desired_behavior.W & F_TRIGGER)
 	{
 		if (cyclesUntilStartTriggerAction == 0)
 		{
@@ -90,7 +88,7 @@ boolean canStabilizeHover(void)
 }
 
 void updateBehavior(void)
-{
+{          
 	//in cm/s
 	uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
 	                                   IMUvelocityy._.W1 - estimatedWind[1]);
@@ -168,7 +166,7 @@ void updateTriggerAction(void)
 	{
 		cyclesUntilStopTriggerAction--;
 	}
-	if (cyclesUntilStartTriggerAction == 1 && (desired_behavior.W & F_TRIGGER || buzz))
+	if (cyclesUntilStartTriggerAction == 1 && (desired_behavior.W & F_TRIGGER))
 	{
 		if (TRIGGER_ACTION == TRIGGER_PULSE_HIGH || TRIGGER_ACTION == TRIGGER_PULSE_LOW)
 		{
@@ -208,16 +206,16 @@ void triggerActionSetValue(boolean newValue)
 	}
 	else if (TRIGGER_TYPE == TRIGGER_TYPE_DIGITAL)
 	{
-		if (NUM_OUTPUTS < 6)
-		{
-			udb_set_action_state(newValue);
-		}
+		udb_set_action_state(newValue);
 	}
 	currentTriggerActionValue = newValue;
 }
 
 void updateFlightPhase()
 {   
+        
+    setBehavior(F_TRIGGER);
+    
     int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
     
 #ifdef TestAltitude

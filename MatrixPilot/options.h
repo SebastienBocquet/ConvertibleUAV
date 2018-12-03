@@ -253,7 +253,7 @@
 //   6 also enables E4 as the 6th output channel
 //   NOTE: If USE_PPM_INPUT is enabled above, up to 9 outputs are available.)
 // For UDB4 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
-#define NUM_OUTPUTS                         8
+#define NUM_OUTPUTS                         10
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
@@ -266,10 +266,10 @@
 // connect THROTTLE_OUTPUT_CHANNEL to one of the built-in Outputs (1, 2, or 3) to make
 // sure your board gets power.
 //
-#define THROTTLE_OUTPUT_CHANNEL             CHANNEL_5
+#define THROTTLE_OUTPUT_CHANNEL             CHANNEL_UNUSED
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
-#define RUDDER_OUTPUT_CHANNEL               CHANNEL_UNUSED
+#define RUDDER_OUTPUT_CHANNEL               CHANNEL_5
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_8
 #define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_UNUSED
 #define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
@@ -462,8 +462,8 @@
 #define TRIGGER_ACTION                      TRIGGER_REPEATING
 #define TRIGGER_SERVO_LOW                   2000
 #define TRIGGER_SERVO_HIGH                  4000
-#define TRIGGER_PULSE_DURATION              500
-#define TRIGGER_REPEAT_PERIOD               1000
+#define TRIGGER_PULSE_DURATION              125
+#define TRIGGER_REPEAT_PERIOD               250
 
 
 ////////////////////////////////////////////////////////////////////////////////
