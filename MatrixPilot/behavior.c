@@ -30,6 +30,8 @@ int16_t cyclesUntilStartTriggerAction = 0;
 int16_t cyclesUntilStopTriggerAction = 0;
 boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
+int16_t pulse_duration = TRIGGER_PULSE_DURATION;
+int16_t pulse_period = TRIGGER_REPEAT_PERIOD;
 
 //int16_t manual_to_auto_climb = RMAX;
 
@@ -57,6 +59,12 @@ void init_behavior(void)
 	{
 		triggerActionSetValue(TRIGGER_ACTION != TRIGGER_PULSE_HIGH);
 	}
+}
+
+void setTriggerParams(int16_t pulse_duration, int16_t pulse_period)
+{
+    pulse_duration = pulse_duration;
+    pulse_period = pulse_period;
 }
 
 void setBehavior(int16_t newBehavior)
@@ -172,7 +180,7 @@ void updateTriggerAction(void)
 		{
 			triggerActionSetValue(TRIGGER_ACTION == TRIGGER_PULSE_HIGH);
 
-			cyclesUntilStopTriggerAction = TRIGGER_PULSE_DURATION / (int32_t)(1000/(HEARTBEAT_HZ/SERVO_HZ));
+			cyclesUntilStopTriggerAction = pulse_duration / (int32_t)(1000/(SERVO_HZ));
 			cyclesUntilStartTriggerAction = 0;
 		}
 		else if (TRIGGER_ACTION == TRIGGER_TOGGLE)
@@ -186,8 +194,8 @@ void updateTriggerAction(void)
 		{
 			triggerActionSetValue(TRIGGER_ACTION == TRIGGER_PULSE_HIGH);
 
-			cyclesUntilStopTriggerAction = TRIGGER_PULSE_DURATION / (int32_t)(1000/(HEARTBEAT_HZ/SERVO_HZ));
-			cyclesUntilStartTriggerAction = TRIGGER_REPEAT_PERIOD / (int32_t)(1000/(HEARTBEAT_HZ/SERVO_HZ));
+			cyclesUntilStopTriggerAction = pulse_duration / (int32_t)(1000/(SERVO_HZ));
+			cyclesUntilStartTriggerAction = pulse_period / (int32_t)(1000/(SERVO_HZ));
 		}
 	}
 	else if (cyclesUntilStartTriggerAction > 0)
