@@ -172,7 +172,7 @@ void updateTriggerAction(void)
 		{
 			triggerActionSetValue(TRIGGER_ACTION == TRIGGER_PULSE_HIGH);
 
-			cyclesUntilStopTriggerAction = TRIGGER_PULSE_DURATION / (int32_t)(1000/HEARTBEAT_HZ);
+			cyclesUntilStopTriggerAction = TRIGGER_PULSE_DURATION / (int32_t)(1000/(HEARTBEAT_HZ/SERVO_HZ));
 			cyclesUntilStartTriggerAction = 0;
 		}
 		else if (TRIGGER_ACTION == TRIGGER_TOGGLE)
@@ -186,8 +186,8 @@ void updateTriggerAction(void)
 		{
 			triggerActionSetValue(TRIGGER_ACTION == TRIGGER_PULSE_HIGH);
 
-			cyclesUntilStopTriggerAction = TRIGGER_PULSE_DURATION / (int32_t)(1000/HEARTBEAT_HZ);
-			cyclesUntilStartTriggerAction = TRIGGER_REPEAT_PERIOD / (int32_t)(1000/HEARTBEAT_HZ);
+			cyclesUntilStopTriggerAction = TRIGGER_PULSE_DURATION / (int32_t)(1000/(HEARTBEAT_HZ/SERVO_HZ));
+			cyclesUntilStartTriggerAction = TRIGGER_REPEAT_PERIOD / (int32_t)(1000/(HEARTBEAT_HZ/SERVO_HZ));
 		}
 	}
 	else if (cyclesUntilStartTriggerAction > 0)

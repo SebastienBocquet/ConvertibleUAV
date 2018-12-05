@@ -462,8 +462,8 @@
 #define TRIGGER_ACTION                      TRIGGER_REPEATING
 #define TRIGGER_SERVO_LOW                   2000
 #define TRIGGER_SERVO_HIGH                  4000
-#define TRIGGER_PULSE_DURATION              125
-#define TRIGGER_REPEAT_PERIOD               250
+#define TRIGGER_PULSE_DURATION              1000
+#define TRIGGER_REPEAT_PERIOD               2000
 
 
 ////////////////////////////////////////////////////////////////////////////////
