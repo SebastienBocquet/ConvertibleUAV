@@ -32,6 +32,8 @@ boolean currentTriggerActionValue = 0;
 int16_t minimum_airspeed = MINIMUM_AIRSPEED * 100;
 int16_t pulse_duration = TRIGGER_PULSE_DURATION;
 int16_t pulse_period = TRIGGER_REPEAT_PERIOD;
+int16_t trigger_counts = 0;
+int16_t trigger_duration = 0;
 
 //int16_t manual_to_auto_climb = RMAX;
 
@@ -65,6 +67,29 @@ void setTriggerParams(int16_t pulse_duration, int16_t pulse_period)
 {
     pulse_duration = pulse_duration;
     pulse_period = pulse_period;
+}
+
+void activateTrigger()
+{
+    if (TRIGGER_TYPE != TRIGGER_TYPE_NONE)
+    {
+        if (trigger_duration > 0)
+        {
+            trigger_counts = trigger_duration / (int32_t)(1000/(SERVO_HZ));
+        }
+    }
+    
+    if(trigger_counts > 0)
+    {
+        setBehavior(F_TRIGGER);
+        trigger_counts--;
+        trigger_duration = 0;
+    }
+    else
+    {
+        setBehavior(F_NORMAL);
+        triggerActionSetValue(0);
+    }
 }
 
 void setBehavior(int16_t newBehavior)
@@ -165,6 +190,8 @@ void updateBehavior(void)
 // This function is called every 25ms
 void updateTriggerAction(void)
 {
+    activateTrigger();
+            
 	if (cyclesUntilStopTriggerAction == 1)
 	{
 		triggerActionSetValue(TRIGGER_ACTION != TRIGGER_PULSE_HIGH);
@@ -220,16 +247,13 @@ void triggerActionSetValue(boolean newValue)
 }
 
 void updateFlightPhase()
-{   
-        
-    setBehavior(F_TRIGGER);
-    
+{           
     int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
     
 #ifdef TestAltitude
     flags._.engines_off = 1;
-    current_flight_phase = F_IS_IN_FLIGHT;
-    return;
+    flags._.is_close_to_ground = 0;
+    //current_flight_phase = F_IS_IN_FLIGHT;
 #endif
     
     if ((z_filtered > (int16_t)(HOVER_FAILSAFE_ALTITUDE)) || flags._.low_battery)
@@ -243,6 +267,7 @@ void updateFlightPhase()
         {
             current_flight_phase = F_IS_IN_FLIGHT;
             LED_BLUE = LED_ON;
+            trigger_duration = 6000;
         }
         else
         {

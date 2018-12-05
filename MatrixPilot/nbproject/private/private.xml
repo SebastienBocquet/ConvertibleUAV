@@ -7,13 +7,14 @@
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/defines.h</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/motorCntrl.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/libUDB.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/buzzer.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/behavior.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/pitchCntrl.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/altitudeCntrl.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/buzzer.h</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/heartbeat.h</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/servoPrepare.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/navigate.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/telemetry.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/servoOut.c</file>
         </group>
     </open-files>
 </project-private>
