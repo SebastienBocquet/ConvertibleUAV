@@ -464,7 +464,12 @@
 #define TRIGGER_SERVO_HIGH                  4000
 #define TRIGGER_PULSE_DURATION              500
 #define TRIGGER_REPEAT_PERIOD               1000
-
+#define SENSOR_FAILURE_PULSE_DURATION       2000
+#define SENSOR_FAILURE_PULSE_PERIOD         4000
+#define FLIGHT_PHASE_PULSE_DURATION         500
+#define FLIGHT_PHASE_PULSE_PERIOD           1000
+#define LOW_BATTERY_PULSE_DURATION          800
+#define LOW_BATTERY_PULSE_PERIOD            1000
 
 ////////////////////////////////////////////////////////////////////////////////
 // Control gains.

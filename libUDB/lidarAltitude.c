@@ -87,9 +87,11 @@ void calculate_lidar_height_above_ground(void)
 #if (LED_ORANGE_SONAR_CHECK == 1)
 			LED_ORANGE = LED_ON;
 #endif
+            setTriggerParams(SENSOR_FAILURE_PULSE_PERIOD, SENSOR_FAILURE_PULSE_DURATION);
+            activateTrigger(SENSOR_FAILURE_PULSE_PERIOD);
 		}
 	}
-        
+            
     return;
 }
 #endif

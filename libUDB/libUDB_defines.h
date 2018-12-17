@@ -169,7 +169,6 @@ struct udb_flag_bits {
     uint16_t lidar_height_valid	     : 1 ;
 	uint16_t baro_valid              : 1 ;
     uint16_t flap_updated	         : 1 ;
-	uint16_t sonar_print_telemetry   : 1 ;
 };
 
 

@@ -25,7 +25,6 @@
 typedef void (*barometer_callback_funcptr)(long pressure, int temperature, char status);
 
 void rxBarometer(barometer_callback_funcptr);  // service the barometer
-boolean is_barometer_valid(void);
 
 #define LED_RED_BARO_CHECK                   0
 

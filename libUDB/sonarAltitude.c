@@ -91,7 +91,6 @@ void calculate_sonar_height_above_ground(void)
 			}
 		}
 		udb_flags._.sonar_updated = 0 ;
-		udb_flags._.sonar_print_telemetry = 1 ;
 	}
 	else
 	{

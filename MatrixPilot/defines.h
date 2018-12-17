@@ -275,6 +275,8 @@ void updateTriggerAction(void);
 boolean canStabilizeInverted(void);
 boolean canStabilizeHover(void);
 void updateFlightPhase(void);
+void setTriggerParams(int16_t, int16_t);
+void activateTrigger(int16_t);
 
 struct behavior_flag_bits {
 	uint16_t takeoff        : 1;    // disable altitude interpolation for faster climbout

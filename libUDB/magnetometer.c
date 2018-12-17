@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "defines.h" 
+#include "defines.h"
 #include "libUDB_internal.h"
 #include "I2C.h"
 #include "magnetometer.h"
@@ -101,6 +101,8 @@ void rxMagnetometer(magnetometer_callback_funcptr callback)  // service the magn
 #if (LED_RED_MAG_CHECK == 1)
 		LED_RED = LED_ON;
 #endif
+        setTriggerParams(SENSOR_FAILURE_PULSE_PERIOD, SENSOR_FAILURE_PULSE_DURATION);
+        activateTrigger(SENSOR_FAILURE_PULSE_PERIOD);
 	}
 
 

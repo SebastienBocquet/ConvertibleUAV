@@ -22,6 +22,7 @@
 #include "libUDB_internal.h"
 #include "I2C.h"
 #include "barometer.h"
+#include "defines.h"
 
 #if (BAROMETER_ALTITUDE == 1)
 
@@ -301,6 +302,8 @@ void ReadBarTemp_callback(boolean I2CtrxOK)
 	{
 		// the operation failed - we should probably do something about it...
         udb_flags._.baro_valid = 0;
+        setTriggerParams(SENSOR_FAILURE_PULSE_PERIOD, SENSOR_FAILURE_PULSE_DURATION);
+        activateTrigger(SENSOR_FAILURE_PULSE_PERIOD);
 #if (LED_RED_BARO_CHECK == 1)
 		LED_RED = LED_ON;
 #endif
@@ -330,6 +333,8 @@ void ReadBarPres_callback(boolean I2CtrxOK)
 	{
 		// the operation failed - we should probably do something about it...
         udb_flags._.baro_valid = 0;
+        setTriggerParams(SENSOR_FAILURE_PULSE_PERIOD, SENSOR_FAILURE_PULSE_DURATION);
+        activateTrigger(SENSOR_FAILURE_PULSE_PERIOD);
 		LED_RED = LED_ON;
 	}
 }

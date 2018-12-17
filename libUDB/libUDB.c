@@ -304,6 +304,8 @@ void detect_low_battery(void)
     if (low_battery > (NB_LOW_VOLTAGE_SECONDS*HEARTBEAT_HZ))
     {
         flags._.low_battery = 1;
+        setTriggerParams(LOW_BATTERY_PULSE_PERIOD, LOW_BATTERY_PULSE_DURATION);
+        activateTrigger(LOW_BATTERY_PULSE_PERIOD);
     }
 #endif
 }
