@@ -563,7 +563,7 @@ void serial_output_8hz(void)
                 100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery);
                     
             serial_output("a1%i;",
-                additional_int16_export1);
+                100*additional_int16_export1);
 
 #if ( USE_LIDAR	== 1 )
             serial_output("ld%i;", lidar_distance) ;

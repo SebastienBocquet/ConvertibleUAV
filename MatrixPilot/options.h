@@ -462,8 +462,8 @@
 #define TRIGGER_ACTION                      TRIGGER_REPEATING
 #define TRIGGER_SERVO_LOW                   2000
 #define TRIGGER_SERVO_HIGH                  4000
-#define TRIGGER_PULSE_DURATION              1000
-#define TRIGGER_REPEAT_PERIOD               2000
+#define TRIGGER_PULSE_DURATION              500
+#define TRIGGER_REPEAT_PERIOD               1000
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -838,7 +838,7 @@
 // If you define TestGains, stabilization functions
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
 #define TestGains                        // uncomment this line if you want to test your gains without using GPS
-#define TestAltitude
+//#define TestAltitude
 #define TestGPSPositioning
 
 // Set this to 1 to calculate and print out free stack space

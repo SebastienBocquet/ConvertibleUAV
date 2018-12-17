@@ -69,7 +69,12 @@ void setTriggerParams(int16_t pulse_duration, int16_t pulse_period)
     pulse_period = pulse_period;
 }
 
-void activateTrigger()
+void activateTrigger(int16_t duration)
+{
+    trigger_duration = duration;
+}
+
+void computeTriggerActivation()
 {
     if (TRIGGER_TYPE != TRIGGER_TYPE_NONE)
     {
@@ -190,7 +195,7 @@ void updateBehavior(void)
 // This function is called every 25ms
 void updateTriggerAction(void)
 {
-    activateTrigger();
+    computeTriggerActivation();
             
 	if (cyclesUntilStopTriggerAction == 1)
 	{
@@ -253,7 +258,6 @@ void updateFlightPhase()
 #ifdef TestAltitude
     flags._.engines_off = 1;
     flags._.is_close_to_ground = 0;
-    //current_flight_phase = F_IS_IN_FLIGHT;
 #endif
     
     if ((z_filtered > (int16_t)(HOVER_FAILSAFE_ALTITUDE)) || flags._.low_battery)
@@ -267,7 +271,7 @@ void updateFlightPhase()
         {
             current_flight_phase = F_IS_IN_FLIGHT;
             LED_BLUE = LED_ON;
-            trigger_duration = 6000;
+            activateTrigger(2000);
         }
         else
         {
@@ -282,11 +286,13 @@ void updateFlightPhase()
             current_flight_phase = F_AUTO_LAND;
             LED_BLUE = LED_OFF;
             LED_ORANGE = LED_ON;
+            activateTrigger(3000);
         }
         else if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)) && flags._.is_close_to_ground)
         {
             current_flight_phase = F_MANUAL_TAKE_OFF;
             LED_BLUE = LED_OFF;
+            activateTrigger(1000);
             reset_altitude_control();
         }
         else
@@ -301,12 +307,14 @@ void updateFlightPhase()
         {
             current_flight_phase = F_ENGINE_OFF;
             LED_ORANGE = LED_OFF;
+            activateTrigger(4000);
             reset_altitude_control();
         }
         else if (!canStabilizeHover())
         {
             current_flight_phase = F_IS_IN_FLIGHT;
             LED_BLUE = LED_ON;
+            activateTrigger(2000);
         }
         else
         {
@@ -319,6 +327,7 @@ void updateFlightPhase()
         if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)))
         {
             current_flight_phase = F_MANUAL_TAKE_OFF;
+            activateTrigger(1000);
             flags._.engines_off = 0;
         }
         else
