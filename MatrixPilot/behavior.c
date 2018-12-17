@@ -35,7 +35,6 @@ int16_t pulse_period = TRIGGER_REPEAT_PERIOD;
 int16_t trigger_counts = 0;
 int16_t trigger_duration = 0;
 
-//int16_t manual_to_auto_climb = RMAX;
 
 void apply_ramp(int16_t *climb, int16_t increment, int16_t min_value, int16_t max_value)
 {
@@ -56,11 +55,6 @@ void init_behavior(void)
 	desired_behavior.W = current_orientation;
 
 	setBehavior(current_orientation);
-
-//	if (TRIGGER_TYPE != TRIGGER_TYPE_NONE)
-//	{
-//		triggerActionSetValue(TRIGGER_ACTION != TRIGGER_PULSE_HIGH);
-//	}
 }
 
 void setTriggerParams(int16_t pulse_duration, int16_t pulse_period)

@@ -20,7 +20,7 @@
 
 
 #include "libDCM.h"
-#include "../libUDB/barometer.h"
+#include "barometer.h"
 #include "barometerAltitude.h"
 #include <stdio.h>
 #include <stdlib.h>

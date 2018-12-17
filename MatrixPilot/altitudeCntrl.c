@@ -21,9 +21,9 @@
 
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
-#include "../libDCM/lidarAltitude.h"
-#include "../libDCM/sonarAltitude.h"
-#include "../libDCM/barometerAltitude.h"
+#include "../libUDB/lidarAltitude.h"
+#include "../libUDB/sonarAltitude.h"
+#include "../libUDB/barometerAltitude.h"
 #include "../libUDB/barometer.h"
 #include "../libDCM/libDCM_internal.h"
 

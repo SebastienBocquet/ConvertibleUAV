@@ -28,7 +28,7 @@
 #include "../libUDB/libUDB_internal.h" // Needed for access to RCON
 #endif
 #include "../libDCM/libDCM_internal.h" // Needed for access to internal DCM values
-#include "../libDCM/barometerAltitude.h"
+#include "../libUDB/barometerAltitude.h"
 #include <string.h>
 
 int16_t additional_int16_export1 = 0;
@@ -473,7 +473,7 @@ void serial_output_8hz(void)
     if (udb_heartbeat_counter % (HEARTBEAT_HZ/HEARTBEAT_UDB_TELEMETRY) == 0)
 	{
         static int16_t pwOut_save[NUM_OUTPUTS + 1];
-        int16_t throttle_offet = 2242;
+        int16_t throttle_offset = 2242;
 
         serial_output(
 //                     "F2;T:%li;"
@@ -519,8 +519,8 @@ void serial_output_8hz(void)
 //            for (i=4; i <= NUM_OUTPUTS; i++)
 //                serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1-throttle_offet, throttle2-throttle_offet, throttle3-throttle_offet, throttle4-throttle_offet);
-            serial_output("mt%i;th%i;", mean_throttle-throttle_offet, throttle_hover_control);
+            serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1-throttle_offset, throttle2-throttle_offset, throttle3-throttle_offset, throttle4-throttle_offset);
+            serial_output("mt%i;th%i;", mean_throttle-throttle_offset, throttle_hover_control);
             serial_output("ix%i;iy%i;iz%i;", 
                     (int16_t)(100*IMUlocationx._.W1), 
                     (int16_t)(100*IMUlocationy._.W1), 

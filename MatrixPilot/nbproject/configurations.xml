@@ -9,9 +9,6 @@
         <itemPath>../libDCM/libDCM_defines.h</itemPath>
         <itemPath>../libDCM/libDCM_internal.h</itemPath>
         <itemPath>../libDCM/rmat.h</itemPath>
-        <itemPath>../libDCM/barometerAltitude.h</itemPath>
-        <itemPath>../libDCM/sonarAltitude.h</itemPath>
-        <itemPath>../libDCM/lidarAltitude.h</itemPath>
       </logicalFolder>
       <logicalFolder name="libUDB" displayName="libUDB" projectFiles="true">
         <itemPath>../libUDB/magnetometerOptions.h</itemPath>
@@ -35,6 +32,9 @@
         <itemPath>../libUDB/magnetometer.h</itemPath>
         <itemPath>../libUDB/oscillator.h</itemPath>
         <itemPath>../libUDB/uart.h</itemPath>
+        <itemPath>../libUDB/sonarAltitude.h</itemPath>
+        <itemPath>../libUDB/lidarAltitude.h</itemPath>
+        <itemPath>../libUDB/barometerAltitude.h</itemPath>
       </logicalFolder>
       <logicalFolder name="libVectorMatrix"
                      displayName="libVectorMatrix"
@@ -199,9 +199,6 @@
         <itemPath>../libDCM/libDCM.c</itemPath>
         <itemPath>../libDCM/deadReckoning.c</itemPath>
         <itemPath>../libDCM/gpsParseMTEK.c</itemPath>
-        <itemPath>../libDCM/barometerAltitude.c</itemPath>
-        <itemPath>../libDCM/sonarAltitude.c</itemPath>
-        <itemPath>../libDCM/lidarAltitude.c</itemPath>
       </logicalFolder>
       <logicalFolder name="libUDB" displayName="libUDB" projectFiles="true">
         <itemPath>../libUDB/background.c</itemPath>
@@ -227,6 +224,9 @@
         <itemPath>../libUDB/read.c</itemPath>
         <itemPath>../libUDB/uart.c</itemPath>
         <itemPath>../libUDB/write.c</itemPath>
+        <itemPath>../libUDB/sonarAltitude.c</itemPath>
+        <itemPath>../libUDB/lidarAltitude.c</itemPath>
+        <itemPath>../libUDB/barometerAltitude.c</itemPath>
       </logicalFolder>
       <logicalFolder name="libVectorMatrix"
                      displayName="libVectorMatrix"
@@ -333,18 +333,6 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
-      <item path="../libDCM/barometerAltitude.h" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
       <C30>
         <property key="code-model" value="large-code"/>
         <property key="const-model" value="default"/>
