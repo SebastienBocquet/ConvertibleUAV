@@ -57,10 +57,10 @@ void init_behavior(void)
 
 	setBehavior(current_orientation);
 
-	if (TRIGGER_TYPE != TRIGGER_TYPE_NONE)
-	{
-		triggerActionSetValue(TRIGGER_ACTION != TRIGGER_PULSE_HIGH);
-	}
+//	if (TRIGGER_TYPE != TRIGGER_TYPE_NONE)
+//	{
+//		triggerActionSetValue(TRIGGER_ACTION != TRIGGER_PULSE_HIGH);
+//	}
 }
 
 void setTriggerParams(int16_t pulse_duration, int16_t pulse_period)
@@ -271,6 +271,7 @@ void updateFlightPhase()
         {
             current_flight_phase = F_IS_IN_FLIGHT;
             LED_BLUE = LED_ON;
+            setTriggerParams(1000, 500);
             activateTrigger(2000);
         }
         else
@@ -286,12 +287,14 @@ void updateFlightPhase()
             current_flight_phase = F_AUTO_LAND;
             LED_BLUE = LED_OFF;
             LED_ORANGE = LED_ON;
+            setTriggerParams(1000, 500);
             activateTrigger(3000);
         }
         else if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)) && flags._.is_close_to_ground)
         {
             current_flight_phase = F_MANUAL_TAKE_OFF;
             LED_BLUE = LED_OFF;
+            setTriggerParams(1000, 500);
             activateTrigger(1000);
             reset_altitude_control();
         }
@@ -307,6 +310,7 @@ void updateFlightPhase()
         {
             current_flight_phase = F_ENGINE_OFF;
             LED_ORANGE = LED_OFF;
+            setTriggerParams(1000, 500);
             activateTrigger(4000);
             reset_altitude_control();
         }
@@ -314,6 +318,7 @@ void updateFlightPhase()
         {
             current_flight_phase = F_IS_IN_FLIGHT;
             LED_BLUE = LED_ON;
+            setTriggerParams(1000, 500);
             activateTrigger(2000);
         }
         else
@@ -327,6 +332,7 @@ void updateFlightPhase()
         if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)))
         {
             current_flight_phase = F_MANUAL_TAKE_OFF;
+            setTriggerParams(1000, 500);
             activateTrigger(1000);
             flags._.engines_off = 0;
         }
