@@ -12,7 +12,7 @@
 #include "dsp.h"
 
 // Fake ASM calls
-#if 1
+#ifdef UnitTests
 #define __builtin_mulss(x,y) ((( int32_t)(x))*( int32_t)(y))
 #define __builtin_mulus(x,y) (((uint32_t)(x))*( int32_t)(y))
 #define __builtin_mulsu(x,y) ((( int32_t)(x))*(uint32_t)(y))
@@ -45,13 +45,14 @@ int16_t  __builtin_divsd(int32_t num,  int16_t den);
 //int __builtin_divsd(const long num, const int den);
 #endif
 
+#ifdef UnitTests
 // LEDs
 extern uint8_t leds[4];
 #define LED_RED         leds[0]
 #define LED_GREEN       leds[1]
 #define LED_ORANGE      leds[2]
 #define LED_BLUE        leds[3]
-
+#endif
 
 // There are no hardware toggle switches on the UDB4, so use values of 0
 #define HW_SWITCH_1     0

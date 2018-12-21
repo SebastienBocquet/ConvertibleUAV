@@ -845,6 +845,7 @@
 #define TestGains                        // uncomment this line if you want to test your gains without using GPS
 //#define TestAltitude
 #define TestGPSPositioning
+#define UnitTests
 
 // Set this to 1 to calculate and print out free stack space
 #define RECORD_FREE_STACK_SPACE             0
