@@ -22,7 +22,6 @@
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
 #include "../libSTM/libSTM.h"
-#include "../libUDB/libUDB.h"
 
 #define MANUAL_DEADBAND 200 // amount of throttle before fly-by-wire controls engage
 #define MAXIMUM_ERROR_INTEGRAL ((int32_t) 32768000 )
