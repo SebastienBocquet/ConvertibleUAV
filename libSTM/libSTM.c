@@ -12,12 +12,12 @@
 #include <string.h>
 
 #include "../libUDB/libUDB.h"
-#include "../libUDB/ADchannel.h"
+//#include "../libUDB/ADchannel.h"
 #include "../libUDB/heartbeat.h"
 #include "../libUDB/magnetometer.h"
 #include "magnetometerOptions.h"
 #include "../libUDB/events.h"
-#include "../libUDB/osd.h"
+//#include "../libUDB/osd.h"
 #include "../libUDB/mpu6000.h"
 
 #include "../libUDB/uart.h"
