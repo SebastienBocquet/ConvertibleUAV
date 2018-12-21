@@ -21,6 +21,7 @@
 
 #include "libDCM_internal.h"
 #include "../libUDB/heartbeat.h"
+#include "../libSTM/libSTM.h"
 
 //  math libraray
 

@@ -20,7 +20,7 @@
 
 
 //#include "options.h"
-#include "defines.h"
+#include "../MatrixPilot/defines.h"
 #include "oscillator.h"
 #include "uart.h"
 

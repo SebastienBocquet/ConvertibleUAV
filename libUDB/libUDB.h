@@ -26,11 +26,11 @@
 #define _ADDED_C_LIB 1 // Needed to get vsnprintf()
 #include <stdio.h>
 
-#include "options.h"
+#include "../MatrixPilot/options.h"
 #if (SILSIM == 1)
 #include "SIL-udb.h"
 #else
-#include <dsp.h>
+#include <../libSTM/dsp.h>
 #endif
 
 #include "fixDeps.h"
