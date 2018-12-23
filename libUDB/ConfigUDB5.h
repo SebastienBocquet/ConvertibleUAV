@@ -61,12 +61,10 @@
 #define MAX_OUTPUTS         8
 
 // LED pins
-#ifndef UnitTests
 #define LED_BLUE            LATEbits.LATE4
 #define LED_ORANGE          LATEbits.LATE3
 #define LED_GREEN           LATEbits.LATE2
 #define LED_RED             LATEbits.LATE1
-#endif
 
 // SPI SS pin definitions
 #define SPI1_SS             _LATB2

@@ -26,9 +26,9 @@
 #define _ADDED_C_LIB 1 // Needed to get vsnprintf()
 #include <stdio.h>
 
-#include "../MatrixPilot/options.h"
+#include "options.h"
 #if (SILSIM == 1)
-#include "../Tools/MatrixPilot-SIL/SIL-udb.h"
+#include "SIL-udb.h"
 #else
 #include <../libSTM/dsp.h>
 #endif

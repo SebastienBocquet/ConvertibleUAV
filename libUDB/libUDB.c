@@ -24,7 +24,7 @@
 #include "interrupt.h"
 #include "events.h"
 #include "../libUDB/heartbeat.h"
-#include "../MatrixPilot/defines.h"
+#include "defines.h"
 
 #if (USE_TELELOG == 1)
 #include "telemetry_log.h"
