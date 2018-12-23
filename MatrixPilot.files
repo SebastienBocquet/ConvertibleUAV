@@ -354,4 +354,3 @@ libUDB/uart.c
 libUDB/uart.h
 libUDB/write.c
 tests/main_test1.cpp
-tests/main_test2.cpp

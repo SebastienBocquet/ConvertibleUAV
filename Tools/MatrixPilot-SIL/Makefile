@@ -1,6 +1,6 @@
-CC       = gcc  -v
+CC       = g++ -v
 CFLAGS   = -pipe -Wall -W -O0
-INCPATH  = -Iinclude -I. -I../HILSIM_XPlane -I../../libUDB -I../../libDCM -I../../MatrixPilot
+INCPATH  = -Iinclude -I. -I../HILSIM_XPlane -I../../libUDB -I../../libDCM -I../../MatrixPilot -I../../googletest/googletest/include
 LFLAGS   = -W
 LIBS     = -lm
 RM_FILE  = rm -f

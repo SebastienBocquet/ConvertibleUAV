@@ -23,9 +23,11 @@
 
 #include "../libDCM/libDCM.h"
 
+#if (SILSIM == 1)
+#include <cmath>
+#endif
 
 #define BYTECIR_TO_DEGREE 92160 // (360.0/256 * 2^16)
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // states.c

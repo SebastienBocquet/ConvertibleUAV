@@ -24,6 +24,9 @@
 #include "barometerAltitude.h"
 #include <stdio.h>
 #include <stdlib.h>
+#if (SILSIM == 1)
+#include <cmath>
+#endif
 
 // moved out of options.h for now
 #define LAUNCH_ALTITUDE                     0

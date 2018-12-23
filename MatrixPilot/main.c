@@ -22,7 +22,7 @@
 #include "../libUDB/heartbeat.h"
 
 const int max_tilt = (int) (MAX_TILT*.7111) ;  // maximum tilt in byte cicular
-int commanded_tilt_gain ;
+int commanded_tilt_gain;
 
 #if (USE_TELELOG == 1)
 #include "telemetry_log.h"
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 #else
 int main(void)
 {
-	commanded_tilt_gain = sine ( max_tilt ) / 1000 ;
+    commanded_tilt_gain = sine ( max_tilt ) / 1000 ;
 	mcu_init();
 #endif
 #if (USE_TELELOG == 1)
