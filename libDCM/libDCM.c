@@ -98,6 +98,9 @@ void udb_callback_read_sensors(void)
 
 void do_I2C_stuff(int16_t toggle)
 {
+#if (SILSIM == 1)
+    return;
+#endif
 //	if (toggle) {
 #if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
 	// This is a simple counter to do stuff at MAGNETOMETER_HZ

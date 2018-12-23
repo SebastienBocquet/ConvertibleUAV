@@ -10,6 +10,7 @@
 #define _LIBSTM_H_
 
 #include "dsp.h"
+#include "options.h"
 
 // Fake ASM calls
 #ifdef UnitTests

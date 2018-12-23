@@ -28,7 +28,7 @@
 
 #include "../MatrixPilot/options.h"
 #if (SILSIM == 1)
-#include "SIL-udb.h"
+#include "../Tools/MatrixPilot-SIL/SIL-udb.h"
 #else
 #include <../libSTM/dsp.h>
 #endif

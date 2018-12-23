@@ -8,15 +8,18 @@
 
 #include "UDBSocket.h"
 
-#ifdef WIN32
+//#ifdef WIN32
 #define snprintf _snprintf
-#else
-#include <Windows.h> // don't include if building with Visual Studio
-#define _strdup strdup
-#endif
+//#else
+//#include <Windows.h> // don't include if building with Visual Studio
+//#define _strdup strdup
+//#endif
 
-#include <conio.h>
-#include <winsock2.h>
+//#include <conio.h>
+#include <curses.h>
+#ifdef _WIN32
+#include <Winsock2.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

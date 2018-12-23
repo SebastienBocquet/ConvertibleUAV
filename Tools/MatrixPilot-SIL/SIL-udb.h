@@ -10,7 +10,7 @@
 #define MatrixPilot_SIL_dsp_compat_h
 
 #include "SIL-dsp.h"
-#include "UDBSocket.h"
+#include "../HILSIM_XPlane/UDBSocket.h"
 
 
 // Fake ASM calls

@@ -41,7 +41,7 @@ float sea_level_pressure;
 
 inline int get_barometer_temperature(void)   { return barometer_temperature; }
 inline long get_barometer_pressure(void)     { return barometer_pressure; }
-inline long get_barometer_altitude(void)     { return barometer_altitude; }
+inline long get_barometer_altitude(void)     { return barometer_altitude;}
 inline long get_barometer_agl_altitude(void) { return barometer_agl_altitude; }
 
 void altimeter_calibrate(void)

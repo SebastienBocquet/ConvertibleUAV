@@ -639,7 +639,9 @@ void updateAltitudeMeasurement(void)
     if (udb_flags._.baro_valid && !flags._.is_close_to_ground)
     {
         estBaroAltitude();
+#if (SILSIM != 1)
         z=(int16_t)(get_barometer_altitude());
+#endif
         invdeltafilterheight=invdeltafilterbaro;
 		invdeltafiltervz=4.;
         //if you do not trust barometer altitude for altitude control, set no_altitude_measurement to true, otherwise set to false

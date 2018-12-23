@@ -24,7 +24,7 @@
 #include "interrupt.h"
 #include "events.h"
 #include "../libUDB/heartbeat.h"
-#include "defines.h"
+#include "../MatrixPilot/defines.h"
 
 #if (USE_TELELOG == 1)
 #include "telemetry_log.h"
@@ -149,7 +149,7 @@ void udb_init(void)
 	MPU6000_init16();
 #endif
 
-	SRbits.IPL = 0;	// turn on all interrupt priorities
+    //SRbits.IPL = 0;	// turn on all interrupt priorities
 }
 
 void udb_run(void)
@@ -173,7 +173,7 @@ void udb_run(void)
 		Idle();
 #else
 		// pause cpu counting timer while not in an ISR
-		indicate_loading_main;
+        //indicate_loading_main;
 #endif
 		// TODO: is the LPRC disabled?
 	}
