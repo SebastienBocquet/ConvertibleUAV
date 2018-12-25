@@ -23,3 +23,4 @@ Tools/MAVLink/mavlink/missionlib
 Tools/MAVLink/mavlink/missionlib/testing
 Tools/MAVLink/mavlink/pymavlink/generator/C/include_v1.0
 Tools/MAVLink/mavlink/pymavlink/generator/C/test/windows
+tests

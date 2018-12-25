@@ -354,3 +354,4 @@ libUDB/uart.c
 libUDB/uart.h
 libUDB/write.c
 tests/main_test1.cpp
+tests/test_motorCntrl.c

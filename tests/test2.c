@@ -3,7 +3,10 @@
 #include <stdio.h>
 
 TEST(MotorControlTest,test1){
-motorCntrl();
+  dcm_flags._.calib_finished = 1;
+  rmat[4] = 50;
+  motorCntrl();
+  ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 0);
 };
 
 const int max_tilt = (int) (MAX_TILT*.7111) ;
@@ -13,9 +16,6 @@ char **mp_argv;
 
 int main(int argc,char**argv)
 {
-  mp_argc = argc;
-  mp_argv = argv;
-
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

@@ -1,8 +1,8 @@
-CC       = gcc -v
-CFLAGS   = -pipe -Wall -W -O0 -xc++ -Wno-narrowing
+CC       = g++ -v
+CFLAGS   = -g -pipe -Wall -W -O0 -Wno-narrowing
 INCPATH  = -Iinclude -I/usr/include -I. -I../Tools/HILSIM_XPlane -I../Tools/MatrixPilot-SIL -I../libUDB -I../libDCM -I../MatrixPilot -I../../googletest/googletest/include
 LFLAGS   = -W
-LIBS     = -lm -lgtest -lpthread -lstdc++ -shared-libgcc
+LIBS     = -lm -lgtest -lpthread
 RM_FILE  = rm -f
 
 OBJECTS_DIR = ./
@@ -48,7 +48,7 @@ MPSIL_OBJECTS = \
 ../MatrixPilot/euler_angles.o \
 ../MatrixPilot/flightplan-logo.o \
 ../MatrixPilot/flightplan-waypoints.o \
-./test2.o \
+./test_motorCntrl.o \
 ../MatrixPilot/MAVLink.o \
 ../MatrixPilot/mode_switch.o \
 ../MatrixPilot/mp_osd.o \
