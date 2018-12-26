@@ -2,8 +2,6 @@
 #include "defines.h"
 #include <stdio.h>
 
-#undef TestGains
-
 namespace 
 {
     // The fixture for testing class Foo.
@@ -47,8 +45,7 @@ namespace
         // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    // Tests that the Foo::Bar() method does Abc.
-    TEST_F(MotorCntrlTest, MotorCntrlDoesInit)
+    TEST_F(MotorCntrlTest, MotorCntrlComputesCorrectProportionalGain)
     {
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 2000);
@@ -63,6 +60,9 @@ char **mp_argv;
 
 int main(int argc, char **argv) 
 {
+#ifdef TestGains
+    printf("toto");
+#endif
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
