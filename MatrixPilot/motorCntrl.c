@@ -393,8 +393,8 @@ void motorCntrl(void)
 
 #ifdef CONFIG_X
 
-		pitch_body_frame_control = 3*(( pitch_quad_control - roll_quad_control )/4) ;
-		roll_body_frame_control = 3*(( pitch_quad_control + roll_quad_control )/4) ;
+        pitch_body_frame_control = 3*(( pitch_quad_control - roll_quad_control )/4) ;
+        roll_body_frame_control = 3*(( pitch_quad_control + roll_quad_control )/4) ;
 
 #endif
 

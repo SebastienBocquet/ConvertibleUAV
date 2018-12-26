@@ -496,7 +496,6 @@
 #define TILT_KI 0.25
 #define TILT_KP 0.5
 #define TILT_ERROR_INTEGRAL_LIMIT 2000
-#define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
@@ -505,13 +504,13 @@
 
 //Tilt PID control gains on roll and pitch rate
 #define TILT_RATE_KP 0.22
+#define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
 #define YAW_RATE_KP 0.20
 
-//variable gains controlled from Tx
-#define MANUAL_HEADING      0
-//#define VARIABLE_GAINS
+//heading controlled by Tx
+#define MANUAL_HEADING 0
 
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
@@ -532,7 +531,7 @@
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       1.
 
-#define FLAP_OFFSET                         0.   
+#define FLAP_OFFSET                         0.
             
 // Elevator/Pitch Control Gains
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125

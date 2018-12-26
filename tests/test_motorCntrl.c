@@ -45,10 +45,13 @@ namespace
         // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(MotorCntrlTest, MotorCntrlComputesCorrectProportionalGain)
+    TEST_F(MotorCntrlTest, ComputesCorrectProportionalGain)
     {
         motorCntrl();
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 2000);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3081);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3081);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2919);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2919);
     }
 
 }  // namespace
@@ -60,9 +63,6 @@ char **mp_argv;
 
 int main(int argc, char **argv) 
 {
-#ifdef TestGains
-    printf("toto");
-#endif
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
