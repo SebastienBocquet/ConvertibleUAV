@@ -566,14 +566,14 @@ void serial_output_8hz(void)
                 100*additional_int16_export1);
 
 #if ( USE_LIDAR	== 1 )
-            serial_output("ld%i;", lidar_distance) ;
+            serial_output("ld%i;lv%i;", lidar_distance, 1-udb_flags._.lidar_height_valid) ;
 #endif
 #if ( USE_SONAR	== 1 )
             serial_output("sd%i;", sonar_distance) ;
 #endif
 #if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)
-            serial_output("ba%li;",
-                get_barometer_altitude());
+            serial_output("ba%li;bv%i;",
+                get_barometer_altitude(), 1-udb_flags._.baro_valid);
 #endif       
         serial_output("end;\r\n");
     }
