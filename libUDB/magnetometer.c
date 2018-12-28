@@ -84,18 +84,8 @@ void rxMagnetometer(magnetometer_callback_funcptr callback)  // service the magn
 	magnetometer_callback = callback;
 
 	I2messages++;
-#ifdef TestGains
-    magMessage = 7;
-#endif
     
-	if (magMessage == 7)
-	{
-        flags._.mag_failure = 0;
-#if (LED_RED_MAG_CHECK == 1)
-		LED_RED = LED_OFF;
-#endif
-	}
-	else
+	if (magMessage != 7)
 	{
         flags._.mag_failure = 1;
 #if (LED_RED_MAG_CHECK == 1)
@@ -163,6 +153,11 @@ static void I2C_callback(boolean I2CtrxOK)
 	int16_t vectorIndex;
 	if (I2CtrxOK == true)
 	{
+        flags._.mag_failure = 0;
+#if (LED_RED_MAG_CHECK == 1)
+		LED_RED = LED_OFF;
+#endif
+        
 		magFieldRaw[0] = (magreg[0]<<8)+magreg[1]; 
 		magFieldRaw[1] = (magreg[2]<<8)+magreg[3]; 
 		magFieldRaw[2] = (magreg[4]<<8)+magreg[5];
@@ -220,6 +215,15 @@ static void I2C_callback(boolean I2CtrxOK)
             flags._.invalid_mag_reading = 1;
         }
 	}
+    else
+    {
+        flags._.mag_failure = 1;
+#if (LED_RED_MAG_CHECK == 1)
+		LED_RED = LED_ON;
+#endif
+        setTriggerParams(SENSOR_FAILURE_PULSE_PERIOD, SENSOR_FAILURE_PULSE_DURATION);
+        activateTrigger(SENSOR_FAILURE_PULSE_PERIOD);
+    }
 }
 
 void HILSIM_MagData(void)
