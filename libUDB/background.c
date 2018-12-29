@@ -241,7 +241,10 @@ void __attribute__((__interrupt__,__no_auto_psv__)) _T6Interrupt(void)
 #endif // VREF
 
 	calculate_analog_sensor_values();
-    detect_low_battery();
+    if ((udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ)) == 0)
+	{
+        detect_low_battery();
+    }
 	udb_callback_read_sensors();
 	udb_flags._.a2d_read = 1; // signal the A/D to start the next summation
 
