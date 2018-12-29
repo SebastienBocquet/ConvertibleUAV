@@ -56,7 +56,8 @@
 
 
 union udb_fbts_byte udb_flags;
-int16_t low_battery = 0;
+int16_t low_voltage = 0;
+int16_t exceeded_mAh = 0;
 
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
 union longww battery_current;
@@ -276,32 +277,30 @@ void detect_low_battery(void)
 #if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
     if (voltage < LOW_VOLTAGE)
     {
-        low_battery ++;
+        low_voltage ++;
     }
     else
     {
-        low_battery --;
+        low_voltage --;
     }
 #endif
     
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
     if (mAh_used > MAX_USEABLE_MAH)
     {
-        low_battery ++;
+        exceeded_mAh ++;
     }
     else
     {
-        low_battery --;
+        exceeded_mAh --;
     }
 #endif
     
-    if (low_battery < 0)
-    {
-        low_battery = 0;
-    }
+    low_voltage = limit_value(low_voltage, 0, RMAX);
+    exceeded_mAh = limit_value(exceeded_mAh, 0, RMAX);
 
 #if defined(USE_LOW_VOLTAGE_FAILSAFE) && !(defined(TestGains) || defined(TestAltitude))
-    if (low_battery > (NB_LOW_VOLTAGE_SECONDS*HEARTBEAT_HZ))
+    if ( (low_voltage > (NB_LOW_VOLTAGE_SECONDS*SERVO_HZ)) || (exceeded_mAh > (NB_LOW_VOLTAGE_SECONDS*SERVO_HZ)) )
     {
         flags._.low_battery = 1;
         setTriggerParams(LOW_BATTERY_PULSE_PERIOD, LOW_BATTERY_PULSE_DURATION);
