@@ -84,7 +84,6 @@ union longlongLL { int64_t LL; struct LL _; struct wwww __; };
 #if (SILSIM == 1)
 #undef HILSIM
 #define HILSIM 1
-#include "override_flags.h"
 #endif
 
 #if (HILSIM == 1)

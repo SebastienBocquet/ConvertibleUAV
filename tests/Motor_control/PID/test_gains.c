@@ -5,7 +5,7 @@
 namespace 
 {
     // The fixture for testing class Foo.
-    class MotorCntrlTest : public ::testing::Test
+    class MotorCntrlPID : public ::testing::Test
     {
       protected:
 
@@ -45,7 +45,7 @@ namespace
         // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(MotorCntrlTest, ComputesCorrectProportionalGain)
+    TEST_F(MotorCntrlPID, ComputesCorrectGains)
     {
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3081);
@@ -55,14 +55,3 @@ namespace
     }
 
 }  // namespace
-
-const int max_tilt = (int) (MAX_TILT*.7111) ;
-int commanded_tilt_gain;
-int mp_argc;
-char **mp_argv;
-
-int main(int argc, char **argv) 
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
