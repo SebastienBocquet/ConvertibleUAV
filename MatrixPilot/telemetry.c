@@ -532,18 +532,6 @@ void serial_output_8hz(void)
             serial_output("zf%i;vf%i;ei%i;", 
                 z_filtered, vz_filtered, (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)));
             
-            //hover_z=z_filtered;
-            //hover_vz=vz_filtered;
-            //hover_accz=accz_filtered;
-            //hover_target_z=z_target_filtered;
-            //hover_error_z=error_z;
-            //hover_error_integral_z=(int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ));
-            //hover_error_vz=error_integral_z;
-            //hover_error_integral_vz=(int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ));
-            //hover_target_vz=target_vz_bis;
-            //hover_target_accz=target_accz_bis;
-            //hover_error_integral_accz=(int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ));
-    
             serial_output("ye%i;yc%i;mf%i;mi%i;",
                 yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
             

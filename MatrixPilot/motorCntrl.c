@@ -222,6 +222,7 @@ void motorCntrl(void)
 //		Compute orientation errors
         yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
         
+        
         if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
 		{
 			matrix_accum.x = rmat[4] ;
