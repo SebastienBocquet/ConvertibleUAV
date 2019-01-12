@@ -559,6 +559,7 @@ void serial_output_8hz(void)
 #if ( USE_SONAR	== 1 )
             serial_output("sd%i;", sonar_distance) ;
 #endif
+<<<<<<< HEAD
 #if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)
             serial_output("ba%li;bv%i;",
                 get_barometer_altitude(), 1-udb_flags._.baro_valid);
