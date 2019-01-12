@@ -1,4 +1,4 @@
-// This file is part of MatrixPilot.
+// This file is part of the MatrixPilotQuad firmware.
 //
 //    http://code.google.com/p/gentlenav/
 //
@@ -18,19 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#ifndef FLIGHT_MODE_SWITCH_H
-#define FLIGHT_MODE_SWITCH_H
-
+#include "../libDCM/libDCM_internal.h"
 #include "defines.h"
+#include "../libUDB/heartbeat.h"
 
+void motorCntrl(void)
+{
+  int16_t motor_A = 0;
 
-int16_t flight_mode_switch_manual(void);
-int16_t flight_mode_switch_stabilize(void);
-int16_t flight_mode_switch_waypoints(void);
-
-void flight_mode_switch_2pos_poll(void); // this is called at 40 hertz and scans the two postion switch option.
-void flight_mode_switch_check_set(void); // this is called at 2 hertz and changes the flight mode if req.
-
-
-#endif // FLIGHT_MODE_SWITCH_H
+	udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		
+}

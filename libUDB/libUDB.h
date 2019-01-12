@@ -30,7 +30,7 @@
 #if (SILSIM == 1)
 #include "SIL-udb.h"
 #else
-#include <dsp.h>
+#include <../libSTM/dsp.h>
 #endif
 
 #include "fixDeps.h"

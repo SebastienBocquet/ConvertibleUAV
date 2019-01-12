@@ -23,9 +23,11 @@
 
 #include "../libDCM/libDCM.h"
 
+#if (SILSIM == 1)
+#include <cmath>
+#endif
 
 #define BYTECIR_TO_DEGREE 92160 // (360.0/256 * 2^16)
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // states.c
@@ -233,6 +235,9 @@ extern int16_t pitch_intgrl;
 extern int16_t yaw_intgrl;
 
 void apply_ramp(int16_t*, int16_t, int16_t, int16_t);
+
+extern int16_t manual_to_auto_ramp;
+extern int16_t yaw_control_ramp;
 
 ////////////////////////////////////////////////////////////////////////////////
 // energy management

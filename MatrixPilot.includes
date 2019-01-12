@@ -1,0 +1,26 @@
+libDCM
+libFlashFS
+libSTM
+libUDB
+MatrixPilot
+MatrixPilot/example-options-files
+MatrixPilot/example-options-files/SILSIM-SBACH342
+MAVLink/include
+MAVLink/include/common
+MAVLink/include/matrixpilot
+Microchip/Include
+Microchip/Include/MDD File System
+Microchip/Include/USB
+Microchip/USB
+RollPitchYaw
+Tools/FlashOSD
+Tools/HILSIM_XPlane
+Tools/HILSIM_XPlane/include
+Tools/LedTest
+Tools/LedTest/LedTest-auav3
+Tools/MatrixPilot-SIL
+Tools/MAVLink/mavlink/missionlib
+Tools/MAVLink/mavlink/missionlib/testing
+Tools/MAVLink/mavlink/pymavlink/generator/C/include_v1.0
+Tools/MAVLink/mavlink/pymavlink/generator/C/test/windows
+tests

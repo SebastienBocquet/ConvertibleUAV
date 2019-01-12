@@ -10,9 +10,10 @@
 #define _LIBSTM_H_
 
 #include "dsp.h"
+#include "options.h"
 
 // Fake ASM calls
-#if 0
+#ifdef 0
 #define __builtin_mulss(x,y) ((( int32_t)(x))*( int32_t)(y))
 #define __builtin_mulus(x,y) (((uint32_t)(x))*( int32_t)(y))
 #define __builtin_mulsu(x,y) ((( int32_t)(x))*(uint32_t)(y))
@@ -51,7 +52,6 @@ int16_t  __builtin_divsd(int32_t num,  int16_t den);
 //#define LED_GREEN       leds[1]
 //#define LED_ORANGE      leds[2]
 //#define LED_BLUE        leds[3]
-
 
 // There are no hardware toggle switches on the UDB4, so use values of 0
 #define HW_SWITCH_1     0

@@ -28,6 +28,10 @@ void setFailureLidarDist(int16_t distance)
 
 void calculate_lidar_height_above_ground(void)
 {
+#if (SILSIM == 1)
+    return;
+#endif
+
     lidar_distance = OUT_OF_RANGE_DISTANCE;
 
     if ( udb_flags._.lidar_updated == 1 ) 

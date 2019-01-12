@@ -503,7 +503,7 @@ void serial_output_8hz(void)
             //when using 4Hz output
             //if (tow.WW > 0) tow.WW += 250; 
 //#ifdef TestGains
-//            tow.WW += (int16_t)(1000/HEARTBEAT_UDB_LIGHT);
+//            tow.WW += (int16_t)(1000/HEARTBEAT_UDB_TELEMETRY);
 //#else
 //            if (tow.WW > 0) tow.WW += (int16_t)(1000/HEARTBEAT_UDB_TELEMETRY);
 //#endif
@@ -571,7 +571,7 @@ void serial_output_8hz(void)
 #if ( USE_SONAR	== 1 )
             serial_output("sd%i;", sonar_distance) ;
 #endif
-#if ( BAROMETER_ALTITUDE == 1)
+#if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)
             serial_output("ba%li;",
                 get_barometer_altitude());
 #endif       

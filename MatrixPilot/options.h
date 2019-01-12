@@ -496,7 +496,6 @@
 #define TILT_KI 0.25
 #define TILT_KP 0.5
 #define TILT_ERROR_INTEGRAL_LIMIT 2000
-#define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
@@ -505,13 +504,13 @@
 
 //Tilt PID control gains on roll and pitch rate
 #define TILT_RATE_KP 0.22
+#define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
 #define YAW_RATE_KP 0.20
 
-//variable gains controlled from Tx
-#define MANUAL_HEADING      0
-//#define VARIABLE_GAINS
+//heading controlled by Tx
+#define MANUAL_HEADING 0
 
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
@@ -532,7 +531,7 @@
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       1.
 
-#define FLAP_OFFSET                         0.   
+#define FLAP_OFFSET                         0.
             
 // Elevator/Pitch Control Gains
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125
@@ -774,7 +773,7 @@
 // Below are settings to configure the simulated UDB UARTs.
 // The SERIAL_RC_INPUT settings allow optionally talking over a serial port to a UDB
 // passing RC inputs through to the simulated UDB.
-#define SILSIM                              0
+#define SILSIM                              1
 #define SILSIM_GPS_RUN_AS_SERVER            0
 #define SILSIM_GPS_PORT                     14551       // default port to connect to XPlane HILSIM plugin
 #define SILSIM_GPS_HOST                     "127.0.0.1"
@@ -844,7 +843,7 @@
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
 #define TestGains                        // uncomment this line if you want to test your gains without using GPS
 //#define TestAltitude
-#define TestGPSPositioning
+//#define TestGPSPositioning
 
 // Set this to 1 to calculate and print out free stack space
 #define RECORD_FREE_STACK_SPACE             0
