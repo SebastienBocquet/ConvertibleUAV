@@ -17,6 +17,14 @@ namespace
             // Code here will be called immediately after the constructor (right
             // before each test).
             printf("Entering set up\n");
+
+            //Set-up corresponds to standard quadricopter motor control:
+            //UAV is in hover flight mode,
+            //manual control mode,
+            //far from ground (so integral gains are activated),
+            //throttle is above the minimum value such that motor control is activated
+            //Only roll axis is tested (TODO: we could test each axis within this fixture)
+
             dcm_flags._.calib_finished = 1;
             manual_to_auto_ramp = RMAX;
             yaw_control_ramp = RMAX;
@@ -48,10 +56,10 @@ namespace
     TEST_F(MotorCntrlPID, ComputesCorrectGains)
     {
         motorCntrl();
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3081);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3081);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2919);
-        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2919);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
     }
 
 }  // namespace
