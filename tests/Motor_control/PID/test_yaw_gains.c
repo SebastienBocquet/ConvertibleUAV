@@ -36,6 +36,7 @@ namespace
             yaw_control = 0;
             roll_control = 0;
             pitch_control = 0;
+            udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
             flags._.engines_off = 0;
             current_flight_phase = F_MANUAL_TAKE_OFF;
             throttle_hover_control = 0;
@@ -54,14 +55,13 @@ namespace
         // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(MotorCntrlPID, ComputesCorrectPitchGains)
+    TEST_F(MotorCntrlPID, ComputesCorrectYawGains)
     {
-        rmat[7] = -1000;
         motorCntrl();
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2733);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3267);
-        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000);
     }
 
 }  // namespace
