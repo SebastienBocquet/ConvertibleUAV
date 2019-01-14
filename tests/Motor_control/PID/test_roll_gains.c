@@ -18,10 +18,10 @@ namespace
             // before each test).
             printf("Entering set up\n");
 
-            //Set-up corresponds to standard quadricopter motor control:
+            //Set-up corresponds to quadricopter motor control in the following conditions:
             //UAV is in hover flight mode,
             //manual control mode,
-            //far from ground (so integral gains are activated),
+            //near ground (so integral gains are deactivated),
             //throttle is above the minimum value such that motor control is activated
             //Only roll axis is tested (TODO: we could test each axis within this fixture)
 
@@ -41,7 +41,6 @@ namespace
             throttle_hover_control = 0;
             udb_flags._.radio_on = 1;
             udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2000 + 1000;
-            rmat[6] = 1000;
         }
 
         virtual void TearDown() 
@@ -49,12 +48,15 @@ namespace
           // Code here will be called immediately after each test (right
           // before the destructor).
           printf("Entering tear down\n");
+          rmat[6] = 0;
+          rmat[7] = 0;
         }
         // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(MotorCntrlPID, ComputesCorrectGains)
+    TEST_F(MotorCntrlPID, ComputesCorrectRollGains)
     {
+        rmat[6] = 1000;
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
