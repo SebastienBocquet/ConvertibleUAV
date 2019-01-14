@@ -86,7 +86,6 @@ union longww yaw_quad_error_integral = { 0 } ;
 //union longww yaw_rate_quad_error_integral = { 0 } ;
 
 int16_t target_orientation[9] = { RMAX , 0 , 0 , 0 , RMAX , 0 , 0 , 0 , RMAX } ;
-
 const int16_t yaw_command_gain = ((long) MAX_YAW_RATE )*(0.03) ;
 
 uint16_t tilt_ki;
@@ -131,6 +130,40 @@ void reset_integral_terms()
     yaw_quad_error_integral.WW  = 0;
 }
 
+int16_t compute_yaw_error()
+{
+    int16_t yaw_error;
+    int16_t target_orientation_transposed[9] ;
+    int16_t orientation_error_matrix[9] ;
+    int16_t yaw_step ;
+    int16_t yaw_vector[3] ;
+
+    //Compute the orientation of the virtual quad (which is used only for yaw control)
+    //Set the earth vertical to match in both frames (since we are interested only in yaw)
+
+    target_orientation[6] = rmat[6] ;
+    target_orientation[7] = rmat[7] ;
+    target_orientation[8] = rmat[8] ;
+
+    //renormalize to align other two axes int16_to the the plane perpendicular to the vertical
+    matrix_normalize( target_orientation ) ;
+
+    //Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
+    yaw_step = commanded_yaw * yaw_command_gain ;
+    VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
+    VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
+    MatrixRotate( target_orientation , yaw_vector ) ;
+
+    //Compute the misalignment between target and actual
+    MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
+    MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
+
+    //Compute orientation errors
+    yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+
+    return yaw_error;
+}
+
 void motorCntrl(void)
 {
 	int16_t temp ;
@@ -159,11 +192,7 @@ void motorCntrl(void)
 	union longww long_accum ;
 //	union longww accum ; // debugging temporary
 
-	int16_t yaw_step ;
-	int16_t yaw_vector[3] ;
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
-	int16_t target_orientation_transposed[9] ;
-	int16_t orientation_error_matrix[9] ;
 	
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
 	for (temp = 0; temp <= NUM_INPUTS; temp++)
@@ -226,30 +255,8 @@ void motorCntrl(void)
 		commanded_roll_body_frame = commanded_roll ;
 
 //		Compute orientation errors
+        yaw_error = compute_yaw_error();
 
-//		Compute the orientation of the virtual quad (which is used only for yaw control)
-//		Set the earth vertical to match in both frames (since we are interested only in yaw)
-
-        target_orientation[6] = rmat[6] ;
-        target_orientation[7] = rmat[7] ;
-        target_orientation[8] = rmat[8] ;
-
-//		renormalize to align other two axes int16_to the the plane perpendicular to the vertical
-        matrix_normalize( target_orientation ) ;
-
-//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
-        yaw_step = commanded_yaw * yaw_command_gain ;
-        VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
-        VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
-        MatrixRotate( target_orientation , yaw_vector ) ;
-
-//		Compute the misalignment between target and actual
-        MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
-        MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
-
-//		Compute orientation errors
-        yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
-        
         if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
 		{
 			matrix_accum.x = rmat[4] ;

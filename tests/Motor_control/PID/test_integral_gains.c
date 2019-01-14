@@ -45,6 +45,7 @@ namespace
             yaw_control = 0;
             roll_control = 0;
             pitch_control = 0;
+            udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
             flags._.engines_off = 0;
             current_flight_phase = F_MANUAL_TAKE_OFF;
             throttle_hover_control = 0;
