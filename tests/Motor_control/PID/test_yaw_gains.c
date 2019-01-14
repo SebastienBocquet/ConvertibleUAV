@@ -49,8 +49,6 @@ namespace
           // Code here will be called immediately after each test (right
           // before the destructor).
           printf("Entering tear down\n");
-          rmat[6] = 0;
-          rmat[7] = 0;
         }
         // Objects declared here can be used by all tests in the test case for Foo.
     };
@@ -58,10 +56,10 @@ namespace
     TEST_F(MotorCntrlPID, ComputesCorrectYawGains)
     {
         motorCntrl();
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000);
-        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2956);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3044);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2956);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3044);
     }
 
 }  // namespace
