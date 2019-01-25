@@ -49,6 +49,7 @@ MPSIL_OBJECTS = \
 ../MatrixPilot/flightplan-logo.o \
 ../MatrixPilot/flightplan-waypoints.o \
 ./Motor_control/PID/test_gains.o \
+./Motor_control/PID/test_integral_gains.o \
 ./test_main.o \
 ../MatrixPilot/MAVLink.o \
 ../MatrixPilot/mode_switch.o \
