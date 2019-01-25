@@ -161,6 +161,12 @@ int16_t compute_yaw_error()
     //Compute orientation errors
     yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
 
+    if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
+    {
+        //enable yaw control smoothly only when the plane is in flight
+        yaw_error += (int16_t)(__builtin_mulsu(yaw_control, yaw_control_ramp)>>14);
+    }
+
     return yaw_error;
 }
 
@@ -256,12 +262,6 @@ void motorCntrl(void)
 
 //		Compute orientation errors
         yaw_error = compute_yaw_error();
-
-        if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
-		{
-            //enable yaw control smoothly only when the plane is in flight
-            yaw_error += (int16_t)(__builtin_mulsu(yaw_control, yaw_control_ramp)>>14);
-		}
 
 		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
 		pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
