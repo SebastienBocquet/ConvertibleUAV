@@ -259,11 +259,8 @@ void motorCntrl(void)
 
         if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
 		{
-			matrix_accum.x = rmat[4] ;
- 			matrix_accum.y = -rmat[1] ;
- 			earth_yaw = rect_to_polar(&matrix_accum)<<8 ; 
             //enable yaw control smoothly only when the plane is in flight
-            yaw_error += (int16_t)(__builtin_mulsu(-earth_yaw + yaw_control, yaw_control_ramp)>>14);
+            yaw_error += (int16_t)(__builtin_mulsu(yaw_control, yaw_control_ramp)>>14);
 		}
 
 		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
