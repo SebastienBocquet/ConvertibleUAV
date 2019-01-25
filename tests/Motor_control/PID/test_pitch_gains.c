@@ -25,6 +25,9 @@ namespace
             //throttle is above the minimum value such that motor control is activated
             //Only roll axis is tested (TODO: we could test each axis within this fixture)
 
+            rmat[6] = 0;
+            rmat[7] = 0;
+            rmat[8] = RMAX;
             dcm_flags._.calib_finished = 1;
             manual_to_auto_ramp = RMAX;
             yaw_control_ramp = RMAX;
@@ -48,14 +51,15 @@ namespace
           // Code here will be called immediately after each test (right
           // before the destructor).
           printf("Entering tear down\n");
-          rmat[6] = 0;
           rmat[7] = 0;
+          reset_derivative_terms();
         }
         // Objects declared here can be used by all tests in the test case for Foo.
     };
 
     TEST_F(MotorCntrlPID, ComputesCorrectPitchGains)
     {
+        rmat[6] = 0;
         rmat[7] = -1000;
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2733);

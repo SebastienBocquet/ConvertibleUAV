@@ -25,6 +25,9 @@ namespace
             //throttle is above the minimum value such that motor control is activated
             //Only roll axis is tested (TODO: we could test each axis within this fixture)
 
+            rmat[6] = 0;
+            rmat[7] = 0;
+            rmat[8] = RMAX;
             dcm_flags._.calib_finished = 1;
             manual_to_auto_ramp = RMAX;
             yaw_control_ramp = RMAX;
@@ -36,7 +39,6 @@ namespace
             yaw_control = 0;
             roll_control = 0;
             pitch_control = 0;
-            udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
             flags._.engines_off = 0;
             current_flight_phase = F_MANUAL_TAKE_OFF;
             throttle_hover_control = 0;
@@ -55,11 +57,13 @@ namespace
 
     TEST_F(MotorCntrlPID, ComputesCorrectYawGains)
     {
+        udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2956);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3044);
         ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2956);
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3044);
+        reset_derivative_terms();
     }
 
 }  // namespace

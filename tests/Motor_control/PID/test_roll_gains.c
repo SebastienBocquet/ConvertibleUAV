@@ -25,6 +25,9 @@ namespace
             //throttle is above the minimum value such that motor control is activated
             //Only roll axis is tested (TODO: we could test each axis within this fixture)
 
+            rmat[6] = 0;
+            rmat[7] = 0;
+            rmat[8] = 0;
             dcm_flags._.calib_finished = 1;
             manual_to_auto_ramp = RMAX;
             yaw_control_ramp = RMAX;
@@ -41,6 +44,7 @@ namespace
             throttle_hover_control = 0;
             udb_flags._.radio_on = 1;
             udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2000 + 1000;
+            udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
         }
 
         virtual void TearDown() 
@@ -48,8 +52,7 @@ namespace
           // Code here will be called immediately after each test (right
           // before the destructor).
           printf("Entering tear down\n");
-          rmat[6] = 0;
-          rmat[7] = 0;
+          reset_derivative_terms();
         }
         // Objects declared here can be used by all tests in the test case for Foo.
     };
@@ -57,11 +60,37 @@ namespace
     TEST_F(MotorCntrlPID, ComputesCorrectRollGains)
     {
         rmat[6] = 1000;
+        rmat[7] = 0;
+        rmat[8] = 0; //ensures zero yaw correction
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
         ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2733);
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectPitchGains)
+    {
+        rmat[6] = 0;
+        rmat[7] = -1000;
+        rmat[8] = 0;  //ensures zero yaw correction
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectYawGains)
+    {
+        rmat[6] = 0;
+        rmat[7] = 0;
+        rmat[8] = RMAX; //enables yaw correction
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2956);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3044);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2956);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3044);
     }
 
 }  // namespace
