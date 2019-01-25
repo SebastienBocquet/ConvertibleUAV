@@ -25,9 +25,15 @@ namespace
             //throttle is above the minimum value such that motor control is activated
             //Only roll axis is tested (TODO: we could test each axis within this fixture)
 
+            rmat[0] = RMAX;
+            rmat[1] = 0;
+            rmat[2] = 0;
+            rmat[3] = 0;
+            rmat[4] = RMAX;
+            rmat[5] = 0;
             rmat[6] = 0;
             rmat[7] = 0;
-            rmat[8] = 0;
+            rmat[8] = RMAX;
             dcm_flags._.calib_finished = 1;
             manual_to_auto_ramp = RMAX;
             yaw_control_ramp = RMAX;
@@ -44,7 +50,6 @@ namespace
             throttle_hover_control = 0;
             udb_flags._.radio_on = 1;
             udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2000 + 1000;
-            udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
         }
 
         virtual void TearDown() 
@@ -53,6 +58,11 @@ namespace
           // before the destructor).
           printf("Entering tear down\n");
           reset_derivative_terms();
+          reset_target_orientation();
+          rmat[6] = 0;
+          rmat[7] = 0;
+          rmat[8] = RMAX;
+          udb_pwIn[RUDDER_INPUT_CHANNEL] = 0;
         }
         // Objects declared here can be used by all tests in the test case for Foo.
     };
@@ -60,8 +70,6 @@ namespace
     TEST_F(MotorCntrlPID, ComputesCorrectRollGains)
     {
         rmat[6] = 1000;
-        rmat[7] = 0;
-        rmat[8] = 0; //ensures zero yaw correction
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
@@ -71,9 +79,7 @@ namespace
 
     TEST_F(MotorCntrlPID, ComputesCorrectPitchGains)
     {
-        rmat[6] = 0;
         rmat[7] = -1000;
-        rmat[8] = 0;  //ensures zero yaw correction
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2733);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
@@ -83,9 +89,37 @@ namespace
 
     TEST_F(MotorCntrlPID, ComputesCorrectYawGains)
     {
-        rmat[6] = 0;
-        rmat[7] = 0;
-        rmat[8] = RMAX; //enables yaw correction
+        udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2956);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3044);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2956);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3044);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectRollGains2)
+    {
+        rmat[6] = 1000;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectPitchGains2)
+    {
+        rmat[7] = -1000;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectYawGains2)
+    {
+        udb_pwIn[RUDDER_INPUT_CHANNEL] = 1000;
         motorCntrl();
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2956);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3044);

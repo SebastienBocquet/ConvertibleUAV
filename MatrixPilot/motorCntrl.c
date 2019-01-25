@@ -103,6 +103,19 @@ int16_t throttle3 = 0;
 int16_t throttle4 = 0;
 int16_t mean_throttle = 0;
 
+void reset_target_orientation()
+{
+    target_orientation[0] = RMAX;
+    target_orientation[1] = 0;
+    target_orientation[2] = 0;
+    target_orientation[3] = 0;
+    target_orientation[4] = RMAX;
+    target_orientation[5] = 0;
+    target_orientation[6] = 0;
+    target_orientation[7] = 0;
+    target_orientation[8] = RMAX;
+}
+
 void reset_derivative_terms()
 {
     roll_rate_error_previous = 0;
@@ -236,7 +249,6 @@ void motorCntrl(void)
 
 //		Compute orientation errors
         yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
-        
         
         if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
 		{

@@ -413,6 +413,7 @@ libUDB/uart.c
 libUDB/uart.h
 libUDB/write.c
 tests/Motor_control/PID/test_gains.c
+tests/Motor_control/PID/test_integral_gains.c
 tests/Motor_control/PID/test_roll_gains.c
 tests/Motor_control/PID/test_yaw_gains.c
 tests/main_test1.cpp
