@@ -230,9 +230,11 @@ void motorCntrl(void)
 
 		//insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in quad mode
 		commanded_roll =  ( pwManual[AILERON_INPUT_CHANNEL] 
-						- udb_pwTrim[AILERON_INPUT_CHANNEL])*commanded_tilt_gain ;
+                        - udb_pwTrim[AILERON_INPUT_CHANNEL]
+                        + REVERSE_IF_NEEDED(AILERON_CHANNEL_REVERSED, roll_control) )*commanded_tilt_gain ;
 		commanded_pitch = ( pwManual[ELEVATOR_INPUT_CHANNEL] 
-						- udb_pwTrim[ELEVATOR_INPUT_CHANNEL] )*commanded_tilt_gain  ;
+                        - udb_pwTrim[ELEVATOR_INPUT_CHANNEL]
+                        + REVERSE_IF_NEEDED(ELEVATOR_CHANNEL_REVERSED, pitch_control) )*commanded_tilt_gain  ;
 		commanded_yaw = ( pwManual[RUDDER_INPUT_CHANNEL] 
 						- udb_pwTrim[RUDDER_INPUT_CHANNEL] )  ;
 
@@ -263,8 +265,8 @@ void motorCntrl(void)
 //		Compute orientation errors
         yaw_error = compute_yaw_error();
 
-		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
-		pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
+        roll_error = rmat[6] - (-commanded_roll_body_frame) ;
+        pitch_error = -rmat[7] - (-commanded_pitch_body_frame) ;
 
 //		Compute the signals that are common to all 4 motors
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*ACCEL_K ) , accelEarth[2] ) ;
