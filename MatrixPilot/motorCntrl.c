@@ -170,6 +170,35 @@ int16_t compute_yaw_error()
     return yaw_error;
 }
 
+void rescale_tilt_order(int16_t *commanded_tilt_body_frame)
+{
+    int16_t commanded_tilt[3] ;
+
+    //		adjust roll and pitch commands to prevent combined tilt from exceeding 90 degrees
+    commanded_tilt[0] = commanded_roll ;
+    commanded_tilt[1] = commanded_pitch ;
+    commanded_tilt[2] = RMAX ;
+    vector3_normalize( commanded_tilt , commanded_tilt ) ;
+    commanded_roll = commanded_tilt[0] ;
+    commanded_pitch = commanded_tilt[1] ;
+
+    commanded_tilt_body_frame[0] = commanded_pitch ;
+    commanded_tilt_body_frame[1] = commanded_roll ;
+}
+
+void update_integrated_error(int32_t *error_integral, int16_t error, int16_t ki)
+{
+    *error_integral += ((__builtin_mulus ( (uint16_t) (32.0*ki/40.), error ))>>5) ;
+    if ( *error_integral > MAXIMUM_ERROR_INTEGRAL )
+    {
+        *error_integral = MAXIMUM_ERROR_INTEGRAL ;
+    }
+    if ( *error_integral < - MAXIMUM_ERROR_INTEGRAL )
+    {
+        *error_integral =  - MAXIMUM_ERROR_INTEGRAL ;
+    }
+}
+
 void motorCntrl(void)
 {
 	int16_t temp ;
@@ -179,10 +208,9 @@ void motorCntrl(void)
 	int16_t motor_C ;
 	int16_t motor_D ;
 
+    int16_t commanded_tilt_body_frame[2];
 	int16_t commanded_roll_body_frame ;
 	int16_t commanded_pitch_body_frame ;
-
-	int16_t commanded_tilt[3] ;
 
 	int16_t roll_rate;
 	int16_t pitch_rate;
@@ -251,16 +279,9 @@ void motorCntrl(void)
 			commanded_yaw = 0 ;
 		}
 
-//		adjust roll and pitch commands to prevent combined tilt from exceeding 90 degrees
-		commanded_tilt[0] = commanded_roll ;
-		commanded_tilt[1] = commanded_pitch ;
-		commanded_tilt[2] = RMAX ;
-		vector3_normalize( commanded_tilt , commanded_tilt ) ;
-		commanded_roll = commanded_tilt[0] ;
-		commanded_pitch = commanded_tilt[1] ;
-
-		commanded_pitch_body_frame = commanded_pitch ;
-		commanded_roll_body_frame = commanded_roll ;
+        rescale_tilt_order(commanded_tilt_body_frame);
+        commanded_pitch_body_frame = commanded_tilt_body_frame[0] ;
+        commanded_roll_body_frame = commanded_tilt_body_frame[1] ;
 
 //		Compute orientation errors
         yaw_error = compute_yaw_error();
@@ -294,35 +315,9 @@ void motorCntrl(void)
 
 		if ( (!flags._.is_close_to_ground) && (current_orientation == F_HOVER) )
 		{
-			roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), roll_error ))>>5) ;
-			if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-			{
-				roll_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-			}
-			if ( roll_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-			{
-				roll_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-			}
-	
-			pitch_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), pitch_error ))>>5) ;
-			if ( pitch_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-			{
-				pitch_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-			}
-			if ( pitch_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-			{
-				pitch_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-			}
-	
-			yaw_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*yaw_ki/40.), yaw_error ))>>5) ;
-			if ( yaw_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-			{
-				yaw_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-			}
-			if ( yaw_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-			{
-				yaw_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-			}
+            update_integrated_error(&roll_quad_error_integral.WW, roll_error, tilt_ki);
+            update_integrated_error(&pitch_quad_error_integral.WW, pitch_error, tilt_ki);
+            update_integrated_error(&yaw_quad_error_integral.WW, yaw_error, yaw_ki);
 		}
 		else
 		{
