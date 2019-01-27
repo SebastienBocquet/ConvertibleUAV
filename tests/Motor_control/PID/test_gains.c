@@ -149,4 +149,24 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
     }
 
+    TEST_F(MotorCntrlPID, ComputesCorrectAutomaticRoll)
+    {
+        roll_control = 166;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectAutomaticPitch)
+    {
+        pitch_control = 166;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3267);
+    }
+
 }  // namespace
