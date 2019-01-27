@@ -63,6 +63,8 @@ namespace
           rmat[7] = 0;
           rmat[8] = RMAX;
           udb_pwIn[RUDDER_INPUT_CHANNEL] = 0;
+          udb_pwIn[AILERON_INPUT_CHANNEL] = 0;
+          udb_pwIn[ELEVATOR_INPUT_CHANNEL] = 0;
         }
         // Objects declared here can be used by all tests in the test case for Foo.
     };
@@ -125,6 +127,26 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3044);
         ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2956);
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3044);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectCommandedRoll)
+    {
+        udb_pwIn[AILERON_INPUT_CHANNEL] = 166;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
+    }
+
+    TEST_F(MotorCntrlPID, ComputesCorrectCommandedPitch)
+    {
+        udb_pwIn[ELEVATOR_INPUT_CHANNEL] = 166;
+        motorCntrl();
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 2733);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3267);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 2733);
     }
 
 }  // namespace

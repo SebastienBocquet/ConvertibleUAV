@@ -8,6 +8,7 @@ char **mp_argv;
 
 int main(int argc, char **argv) 
 {
+    commanded_tilt_gain = sine ( max_tilt ) / 1000 ;
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
