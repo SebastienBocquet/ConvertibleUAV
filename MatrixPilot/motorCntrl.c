@@ -199,7 +199,8 @@ void update_integrated_error(int32_t *error_integral, int16_t error, uint16_t ki
     }
 }
 
-int16_t compute_pid(int16_t error, int16_t error_integral, int16_t *previous_error, float *error_delta_filt_flt, uint16_t kp, uint16_t kd)
+int16_t compute_pid(int16_t error, int16_t error_integral, int16_t *previous_error, float *error_delta_filt_flt,
+                    uint16_t kp, uint16_t kd, int16_t error_integral_threshold)
 {
     union longww long_accum ;
     int16_t output = 0;
@@ -209,7 +210,7 @@ int16_t compute_pid(int16_t error, int16_t error_integral, int16_t *previous_err
     output = -long_accum._.W1 ;
 
     //integral term
-    roll_intgrl = limit_value(error_integral, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+    roll_intgrl = limit_value(error_integral, -error_integral_threshold, error_integral_threshold);
     output -= roll_intgrl;
 
     //derivative term
@@ -355,44 +356,38 @@ void motorCntrl(void)
 
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         //Compute the PID control on roll angle
-        desired_roll = compute_pid(roll_error, (roll_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0);
+        desired_roll = compute_pid(roll_error, (roll_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
 
         //compute error between angle_rate and first PID output
         roll_rate = -omegaAccum[1];
         roll_rate_error = roll_rate - desired_roll;
         //Compute the PID control on roll rate
-        roll_quad_control = compute_pid(roll_rate_error, 0, &roll_rate_error_previous, &roll_rate_error_delta_filt_flt, tilt_rate_kp, tilt_rate_kd);
+        roll_quad_control = compute_pid(roll_rate_error, 0, &roll_rate_error_previous, &roll_rate_error_delta_filt_flt,
+                                        tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         //Compute the PID control on roll angle
-        desired_pitch = compute_pid(pitch_error, (pitch_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0);
+        desired_pitch = compute_pid(pitch_error, (pitch_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
 
         //compute error between angle_rate and first PID output
         pitch_rate = -omegagyro[0];
         pitch_rate_error = pitch_rate - desired_pitch;
         //Compute the PID control on roll rate
-        pitch_quad_control = compute_pid(pitch_rate_error, 0, &pitch_rate_error_previous, &pitch_rate_error_delta_filt_flt, tilt_rate_kp, tilt_rate_kd);
+        pitch_quad_control = compute_pid(pitch_rate_error, 0, &pitch_rate_error_previous, &pitch_rate_error_delta_filt_flt,
+                                         tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		long_accum.WW = __builtin_mulus ( yaw_kp , yaw_error ) << 2  ;
-		desired_yaw = -long_accum._.W1 ;
-
-		yaw_intgrl = limit_value(yaw_quad_error_integral._.W1 << 2, -16384, 16384);
-
-		desired_yaw -= yaw_intgrl ;
+        //Compute the PID control on yaw angle
+        desired_yaw = compute_pid(yaw_error, (yaw_quad_error_integral._.W1 << 2), 0, 0, yaw_kp, 0, 16384);
 
         //compute error between angle_rate and first PID output
         //use minus omegagyro to be coherent with yaw_error
 		yaw_rate = -omegagyro[2];
 		yaw_rate_error = yaw_rate - desired_yaw;
-
-		//      compute PID on omega_error
-		long_accum.WW = __builtin_mulus ( yaw_rate_kp , yaw_rate_error ) << 2 ;
-		yaw_quad_control = -long_accum._.W1 ;
-
+        //compute PID on yaw rate
+        yaw_quad_control = compute_pid(yaw_rate_error, 0, 0, 0, yaw_rate_kp, 0, 16384);
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #ifdef CONFIG_PLUS
