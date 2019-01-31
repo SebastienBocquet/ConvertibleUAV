@@ -186,7 +186,7 @@ void rescale_tilt_order(int16_t *commanded_tilt_body_frame)
     commanded_tilt_body_frame[1] = commanded_roll ;
 }
 
-void update_integrated_error(int32_t *error_integral, int16_t error, int16_t ki)
+void update_integrated_error(int32_t *error_integral, int16_t error, uint16_t ki)
 {
     *error_integral += ((__builtin_mulus ( (uint16_t) (32.0*ki/40.), error ))>>5) ;
     if ( *error_integral > MAXIMUM_ERROR_INTEGRAL )
@@ -197,6 +197,32 @@ void update_integrated_error(int32_t *error_integral, int16_t error, int16_t ki)
     {
         *error_integral =  - MAXIMUM_ERROR_INTEGRAL ;
     }
+}
+
+int16_t compute_pid(int16_t error, int16_t error_integral, int16_t *previous_error, float *error_delta_filt_flt, uint16_t kp, uint16_t kd)
+{
+    union longww long_accum ;
+    int16_t output = 0;
+
+    //proportional term
+    long_accum.WW = __builtin_mulus ( kp , error ) << 2  ;
+    output = -long_accum._.W1 ;
+
+    //integral term
+    roll_intgrl = limit_value(error_integral, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+    output -= roll_intgrl;
+
+    //derivative term
+    if (kd > 0)
+    {
+        int16_t error_delta = error - *previous_error;
+        *previous_error = error ;
+        int16_t error_delta_filt = exponential_filter(error_delta, error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
+        long_accum.WW = __builtin_mulus ( kd , error_delta_filt ) << 2 ;
+        output -= long_accum._.W1 ;
+    }
+
+    return output;
 }
 
 void motorCntrl(void)
@@ -327,36 +353,14 @@ void motorCntrl(void)
 		}
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 //		Compute the PID signals on roll_error
+        desired_roll = compute_pid(roll_error, (roll_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0);
 
-		long_accum.WW = __builtin_mulus ( tilt_kp , roll_error ) << 2  ;
-		desired_roll = -long_accum._.W1 ;
-
-		roll_intgrl = limit_value(roll_quad_error_integral._.W1 << 2, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT)); 
-
-		desired_roll -= roll_intgrl;
-
-//		compute error between angle_rate and first PID output
-		roll_rate = -omegaAccum[1];
-		roll_rate_error = roll_rate - desired_roll;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		roll_rate_error_delta = roll_rate_error - roll_rate_error_previous;
-		roll_rate_error_previous = roll_rate_error ;
-		roll_rate_error_delta_filt = exponential_filter(roll_rate_error_delta, &roll_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//      compute PID on omega_error
-		long_accum.WW = __builtin_mulus ( tilt_rate_kp , roll_rate_error ) << 2 ;
-		roll_quad_control = -long_accum._.W1 ;
-		long_accum.WW = __builtin_mulus ( tilt_rate_kd , roll_rate_error_delta_filt ) << 2 ;
-		roll_quad_control -= long_accum._.W1 ;
-
+        //		compute error between angle_rate and first PID output
+        roll_rate = -omegaAccum[1];
+        roll_rate_error = roll_rate - desired_roll;
+        roll_quad_control = compute_pid(roll_rate_error, 0, &roll_rate_error_previous, &roll_rate_error_delta_filt_flt, tilt_rate_kp, tilt_rate_kd);
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
