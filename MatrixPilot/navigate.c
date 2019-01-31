@@ -485,7 +485,7 @@ void compute_hovering_dir(void)
 	local_heading = (int8_t)((-earth_yaw)>>8);
     rotate_2D_vector_by_angle (pitch_roll_orders , local_heading);
 
-    hovering_pitch_order = pitch_roll_orders[0];
+    hovering_pitch_order = -pitch_roll_orders[0];
     hovering_roll_order = pitch_roll_orders[1];
     
     hovering_pitch_order = limit_value(hovering_pitch_order, -RMAX, RMAX); 

@@ -86,7 +86,6 @@ union longww yaw_quad_error_integral = { 0 } ;
 //union longww yaw_rate_quad_error_integral = { 0 } ;
 
 int16_t target_orientation[9] = { RMAX , 0 , 0 , 0 , RMAX , 0 , 0 , 0 , RMAX } ;
-
 const int16_t yaw_command_gain = ((long) MAX_YAW_RATE )*(0.03) ;
 
 uint16_t tilt_ki;
@@ -103,6 +102,130 @@ int16_t throttle3 = 0;
 int16_t throttle4 = 0;
 int16_t mean_throttle = 0;
 
+void reset_target_orientation()
+{
+    target_orientation[0] = RMAX;
+    target_orientation[1] = 0;
+    target_orientation[2] = 0;
+    target_orientation[3] = 0;
+    target_orientation[4] = RMAX;
+    target_orientation[5] = 0;
+    target_orientation[6] = 0;
+    target_orientation[7] = 0;
+    target_orientation[8] = RMAX;
+}
+
+void reset_derivative_terms()
+{
+    roll_rate_error_previous = 0;
+    roll_rate_error_delta_filt_flt = 0;
+    pitch_rate_error_previous = 0;
+    pitch_rate_error_delta_filt_flt = 0;
+}
+
+void reset_integral_terms()
+{
+    roll_quad_error_integral.WW  = 0;
+    pitch_quad_error_integral.WW  = 0;
+    yaw_quad_error_integral.WW  = 0;
+}
+
+int16_t compute_yaw_error()
+{
+    int16_t yaw_error;
+    int16_t target_orientation_transposed[9] ;
+    int16_t orientation_error_matrix[9] ;
+    int16_t yaw_step ;
+    int16_t yaw_vector[3] ;
+
+    //Compute the orientation of the virtual quad (which is used only for yaw control)
+    //Set the earth vertical to match in both frames (since we are interested only in yaw)
+
+    target_orientation[6] = rmat[6] ;
+    target_orientation[7] = rmat[7] ;
+    target_orientation[8] = rmat[8] ;
+
+    //renormalize to align other two axes int16_to the the plane perpendicular to the vertical
+    matrix_normalize( target_orientation ) ;
+
+    //Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
+    yaw_step = commanded_yaw * yaw_command_gain ;
+    VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
+    VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
+    MatrixRotate( target_orientation , yaw_vector ) ;
+
+    //Compute the misalignment between target and actual
+    MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
+    MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
+
+    //Compute orientation errors
+    yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+
+    if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
+    {
+        //enable yaw control smoothly only when the plane is in flight
+        yaw_error += (int16_t)(__builtin_mulsu(yaw_control, yaw_control_ramp)>>14);
+    }
+
+    return yaw_error;
+}
+
+void rescale_tilt_order(int16_t *commanded_tilt_body_frame)
+{
+    int16_t commanded_tilt[3] ;
+
+    //		adjust roll and pitch commands to prevent combined tilt from exceeding 90 degrees
+    commanded_tilt[0] = commanded_roll ;
+    commanded_tilt[1] = commanded_pitch ;
+    commanded_tilt[2] = RMAX ;
+    vector3_normalize( commanded_tilt , commanded_tilt ) ;
+    commanded_roll = commanded_tilt[0] ;
+    commanded_pitch = commanded_tilt[1] ;
+
+    commanded_tilt_body_frame[0] = commanded_pitch ;
+    commanded_tilt_body_frame[1] = commanded_roll ;
+}
+
+void update_integrated_error(int32_t *error_integral, int16_t error, uint16_t ki)
+{
+    *error_integral += ((__builtin_mulus ( (uint16_t) (32.0*ki/40.), error ))>>5) ;
+    if ( *error_integral > MAXIMUM_ERROR_INTEGRAL )
+    {
+        *error_integral = MAXIMUM_ERROR_INTEGRAL ;
+    }
+    if ( *error_integral < - MAXIMUM_ERROR_INTEGRAL )
+    {
+        *error_integral =  - MAXIMUM_ERROR_INTEGRAL ;
+    }
+}
+
+int16_t compute_pid(int16_t error, int16_t error_integral, int16_t *previous_error, float *error_delta_filt_flt,
+                    uint16_t kp, uint16_t kd, int16_t error_integral_threshold)
+{
+    union longww long_accum ;
+    int16_t output = 0;
+
+    //proportional term
+    long_accum.WW = __builtin_mulus ( kp , error ) << 2  ;
+    output = -long_accum._.W1 ;
+
+    //integral term
+    roll_intgrl = limit_value(error_integral, -error_integral_threshold, error_integral_threshold);
+    output -= roll_intgrl;
+
+    //derivative term
+    if (kd > 0)
+    {
+        int16_t error_delta = error - *previous_error;
+        *previous_error = error ;
+        int16_t error_delta_filt = exponential_filter(error_delta, error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
+        long_accum.WW = __builtin_mulus ( kd , error_delta_filt ) << 2 ;
+        output -= long_accum._.W1 ;
+    }
+
+    return output;
+}
+
 void motorCntrl(void)
 {
 	int16_t temp ;
@@ -112,10 +235,9 @@ void motorCntrl(void)
 	int16_t motor_C ;
 	int16_t motor_D ;
 
+    int16_t commanded_tilt_body_frame[2];
 	int16_t commanded_roll_body_frame ;
 	int16_t commanded_pitch_body_frame ;
-
-	int16_t commanded_tilt[3] ;
 
 	int16_t roll_rate;
 	int16_t pitch_rate;
@@ -131,11 +253,7 @@ void motorCntrl(void)
 	union longww long_accum ;
 //	union longww accum ; // debugging temporary
 
-	int16_t yaw_step ;
-	int16_t yaw_vector[3] ;
 	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
-	int16_t target_orientation_transposed[9] ;
-	int16_t orientation_error_matrix[9] ;
 	
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
 	for (temp = 0; temp <= NUM_INPUTS; temp++)
@@ -167,9 +285,11 @@ void motorCntrl(void)
 
 		//insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in quad mode
 		commanded_roll =  ( pwManual[AILERON_INPUT_CHANNEL] 
-						- udb_pwTrim[AILERON_INPUT_CHANNEL])*commanded_tilt_gain ;
+                        - udb_pwTrim[AILERON_INPUT_CHANNEL]
+                        + REVERSE_IF_NEEDED(AILERON_CHANNEL_REVERSED, roll_control) )*commanded_tilt_gain ;
 		commanded_pitch = ( pwManual[ELEVATOR_INPUT_CHANNEL] 
-						- udb_pwTrim[ELEVATOR_INPUT_CHANNEL] )*commanded_tilt_gain  ;
+                        - udb_pwTrim[ELEVATOR_INPUT_CHANNEL]
+                        + REVERSE_IF_NEEDED(ELEVATOR_CHANNEL_REVERSED, pitch_control) )*commanded_tilt_gain  ;
 		commanded_yaw = ( pwManual[RUDDER_INPUT_CHANNEL] 
 						- udb_pwTrim[RUDDER_INPUT_CHANNEL] )  ;
 
@@ -186,54 +306,15 @@ void motorCntrl(void)
 			commanded_yaw = 0 ;
 		}
 
-//		adjust roll and pitch commands to prevent combined tilt from exceeding 90 degrees
-		commanded_tilt[0] = commanded_roll ;
-		commanded_tilt[1] = commanded_pitch ;
-		commanded_tilt[2] = RMAX ;
-		vector3_normalize( commanded_tilt , commanded_tilt ) ;
-		commanded_roll = commanded_tilt[0] ;
-		commanded_pitch = commanded_tilt[1] ;
-
-		commanded_pitch_body_frame = commanded_pitch ;
-		commanded_roll_body_frame = commanded_roll ;
+        rescale_tilt_order(commanded_tilt_body_frame);
+        commanded_pitch_body_frame = commanded_tilt_body_frame[0] ;
+        commanded_roll_body_frame = commanded_tilt_body_frame[1] ;
 
 //		Compute orientation errors
+        yaw_error = compute_yaw_error();
 
-//		Compute the orientation of the virtual quad (which is used only for yaw control)
-//		Set the earth vertical to match in both frames (since we are interested only in yaw)
-
-        target_orientation[6] = rmat[6] ;
-        target_orientation[7] = rmat[7] ;
-        target_orientation[8] = rmat[8] ;
-
-//		renormalize to align other two axes int16_to the the plane perpendicular to the vertical
-        matrix_normalize( target_orientation ) ;
-
-//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
-        yaw_step = commanded_yaw * yaw_command_gain ;
-        VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
-        VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
-        MatrixRotate( target_orientation , yaw_vector ) ;
-
-//		Compute the misalignment between target and actual
-        MatrixTranspose( 3 , 3 , target_orientation_transposed , target_orientation )	;
-        MatrixMultiply ( 3 , 3 , 3 , orientation_error_matrix , target_orientation_transposed , rmat ) ;
-
-//		Compute orientation errors
-        yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
-        
-        
-        if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
-		{
-			matrix_accum.x = rmat[4] ;
- 			matrix_accum.y = -rmat[1] ;
- 			earth_yaw = rect_to_polar(&matrix_accum)<<8 ; 
-            //enable yaw control smoothly only when the plane is in flight
-            yaw_error += (int16_t)(__builtin_mulsu(-earth_yaw + yaw_control, yaw_control_ramp)>>14);
-		}
-
-		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
-		pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
+        roll_error = rmat[6] - (-commanded_roll_body_frame) ;
+        pitch_error = -rmat[7] - (-commanded_pitch_body_frame) ;
 
 //		Compute the signals that are common to all 4 motors
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*ACCEL_K ) , accelEarth[2] ) ;
@@ -261,35 +342,9 @@ void motorCntrl(void)
 
 		if ( (!flags._.is_close_to_ground) && (current_orientation == F_HOVER) )
 		{
-			roll_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), roll_error ))>>5) ;
-			if ( roll_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-			{
-				roll_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-			}
-			if ( roll_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-			{
-				roll_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-			}
-	
-			pitch_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*tilt_ki/40.), pitch_error ))>>5) ;
-			if ( pitch_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-			{
-				pitch_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-			}
-			if ( pitch_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-			{
-				pitch_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-			}
-	
-			yaw_quad_error_integral.WW += ((__builtin_mulus ( (uint16_t) (32.0*yaw_ki/40.), yaw_error ))>>5) ;
-			if ( yaw_quad_error_integral.WW > MAXIMUM_ERROR_INTEGRAL )
-			{
-				yaw_quad_error_integral.WW = MAXIMUM_ERROR_INTEGRAL ;
-			}
-			if ( yaw_quad_error_integral.WW < - MAXIMUM_ERROR_INTEGRAL )
-			{
-				yaw_quad_error_integral.WW =  - MAXIMUM_ERROR_INTEGRAL ;
-			}
+            update_integrated_error(&roll_quad_error_integral.WW, roll_error, tilt_ki);
+            update_integrated_error(&pitch_quad_error_integral.WW, pitch_error, tilt_ki);
+            update_integrated_error(&yaw_quad_error_integral.WW, yaw_error, yaw_ki);
 		}
 		else
 		{
@@ -297,93 +352,43 @@ void motorCntrl(void)
 			pitch_quad_error_integral.WW  = 0;
 			yaw_quad_error_integral.WW  = 0;
 		}
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //Compute the PID control on roll angle
+        desired_roll = compute_pid(roll_error, (roll_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
 
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //compute error between angle_rate and first PID output
+        roll_rate = -omegaAccum[1];
+        roll_rate_error = roll_rate - desired_roll;
+        //Compute the PID control on roll rate
+        roll_quad_control = compute_pid(roll_rate_error, 0, &roll_rate_error_previous, &roll_rate_error_delta_filt_flt,
+                                        tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//		Compute the PID signals on roll_error
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //Compute the PID control on roll angle
+        desired_pitch = compute_pid(pitch_error, (pitch_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
 
-		long_accum.WW = __builtin_mulus ( tilt_kp , roll_error ) << 2  ;
-		desired_roll = -long_accum._.W1 ;
+        //compute error between angle_rate and first PID output
+        pitch_rate = -omegagyro[0];
+        pitch_rate_error = pitch_rate - desired_pitch;
+        //Compute the PID control on roll rate
+        pitch_quad_control = compute_pid(pitch_rate_error, 0, &pitch_rate_error_previous, &pitch_rate_error_delta_filt_flt,
+                                         tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		roll_intgrl = limit_value(roll_quad_error_integral._.W1 << 2, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT)); 
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //Compute the PID control on yaw angle
+        desired_yaw = compute_pid(yaw_error, (yaw_quad_error_integral._.W1 << 2), 0, 0, yaw_kp, 0, 16384);
 
-		desired_roll -= roll_intgrl;
-
-//		compute error between angle_rate and first PID output
-		roll_rate = -omegaAccum[1];
-		roll_rate_error = roll_rate - desired_roll;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		roll_rate_error_delta = roll_rate_error - roll_rate_error_previous;
-		roll_rate_error_previous = roll_rate_error ;
-		roll_rate_error_delta_filt = exponential_filter(roll_rate_error_delta, &roll_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//      compute PID on omega_error
-		long_accum.WW = __builtin_mulus ( tilt_rate_kp , roll_rate_error ) << 2 ;
-		roll_quad_control = -long_accum._.W1 ;
-		long_accum.WW = __builtin_mulus ( tilt_rate_kd , roll_rate_error_delta_filt ) << 2 ;
-		roll_quad_control -= long_accum._.W1 ;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//		Compute the PID signals on pitch_error
-//		pitch_error is -rmat7, with rmat7 the pitch angle
-		long_accum.WW = __builtin_mulus ( tilt_kp , pitch_error ) << 2  ;
-		desired_pitch = -long_accum._.W1 ;
-
-		pitch_intgrl = limit_value(pitch_quad_error_integral._.W1 << 2, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
-
-		desired_pitch -= pitch_intgrl;
-        
-		pitch_rate = -omegagyro[0];
-		//exponential_filter(pitch_rate, &pitch_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));		
-		pitch_rate_error = pitch_rate - desired_pitch;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		pitch_rate_error_delta = pitch_rate_error - pitch_rate_error_previous ;
-		pitch_rate_error_previous = pitch_rate_error ;
-		pitch_rate_error_delta_filt = exponential_filter(pitch_rate_error_delta, &pitch_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//      compute PID on omega_error
-		long_accum.WW = __builtin_mulus ( tilt_rate_kp , pitch_rate_error ) << 2 ;
-		pitch_quad_control = -long_accum._.W1 ;
-		long_accum.WW = __builtin_mulus ( tilt_rate_kd , pitch_rate_error_delta_filt ) << 2 ;
-		pitch_quad_control -= long_accum._.W1 ;
-
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		long_accum.WW = __builtin_mulus ( yaw_kp , yaw_error ) << 2  ;
-		desired_yaw = -long_accum._.W1 ;
-
-		yaw_intgrl = limit_value(yaw_quad_error_integral._.W1 << 2, -16384, 16384);
-
-		desired_yaw -= yaw_intgrl ;
-
-//		compute error between angle_rate and first PID output
-//		use minus omegagyro to be coherent with yaw_error
+        //compute error between angle_rate and first PID output
+        //use minus omegagyro to be coherent with yaw_error
 		yaw_rate = -omegagyro[2];
 		yaw_rate_error = yaw_rate - desired_yaw;
-
-		//      compute PID on omega_error
-		long_accum.WW = __builtin_mulus ( yaw_rate_kp , yaw_rate_error ) << 2 ;
-		yaw_quad_control = -long_accum._.W1 ;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //compute PID on yaw rate
+        yaw_quad_control = compute_pid(yaw_rate_error, 0, 0, 0, yaw_rate_kp, 0, 16384);
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #ifdef CONFIG_PLUS
 

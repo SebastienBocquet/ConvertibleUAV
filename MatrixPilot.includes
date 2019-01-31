@@ -24,3 +24,6 @@ Tools/MAVLink/mavlink/missionlib/testing
 Tools/MAVLink/mavlink/pymavlink/generator/C/include_v1.0
 Tools/MAVLink/mavlink/pymavlink/generator/C/test/windows
 tests
+Tools/MAVLink/mavlink/pymavlink/generator/C/test/posix
+Tools/MAVLink/mavlink/examples/linux
+tests/Motor_control/PID

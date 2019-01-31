@@ -224,6 +224,9 @@ extern int8_t desired_dir;
 ////////////////////////////////////////////////////////////////////////////////
 // Quadcopter
 void motorCntrl( void ) ;
+void reset_derivative_terms();
+void reset_integral_terms();
+void reset_target_orientation();
 
 extern int16_t roll_error;
 extern int16_t pitch_error;
