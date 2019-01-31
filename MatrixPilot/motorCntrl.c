@@ -364,41 +364,18 @@ void motorCntrl(void)
         roll_quad_control = compute_pid(roll_rate_error, 0, &roll_rate_error_previous, &roll_rate_error_delta_filt_flt, tilt_rate_kp, tilt_rate_kd);
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //Compute the PID control on roll angle
+        desired_pitch = compute_pid(pitch_error, (pitch_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0);
 
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //compute error between angle_rate and first PID output
+        pitch_rate = -omegagyro[0];
+        pitch_rate_error = pitch_rate - desired_pitch;
+        //Compute the PID control on roll rate
+        pitch_quad_control = compute_pid(pitch_rate_error, 0, &pitch_rate_error_previous, &pitch_rate_error_delta_filt_flt, tilt_rate_kp, tilt_rate_kd);
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//		Compute the PID signals on pitch_error
-//		pitch_error is -rmat7, with rmat7 the pitch angle
-		long_accum.WW = __builtin_mulus ( tilt_kp , pitch_error ) << 2  ;
-		desired_pitch = -long_accum._.W1 ;
-
-		pitch_intgrl = limit_value(pitch_quad_error_integral._.W1 << 2, -(int16_t)(TILT_ERROR_INTEGRAL_LIMIT), (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
-
-		desired_pitch -= pitch_intgrl;
-        
-		pitch_rate = -omegagyro[0];
-		//exponential_filter(pitch_rate, &pitch_rate_filtered_flt, (float)(80), (int16_t)(HEARTBEAT_HZ));		
-		pitch_rate_error = pitch_rate - desired_pitch;
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-		pitch_rate_error_delta = pitch_rate_error - pitch_rate_error_previous ;
-		pitch_rate_error_previous = pitch_rate_error ;
-		pitch_rate_error_delta_filt = exponential_filter(pitch_rate_error_delta, &pitch_rate_error_delta_filt_flt, (float)(TILT_RATE_DELTA_FILTER));
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//      compute PID on omega_error
-		long_accum.WW = __builtin_mulus ( tilt_rate_kp , pitch_rate_error ) << 2 ;
-		pitch_quad_control = -long_accum._.W1 ;
-		long_accum.WW = __builtin_mulus ( tilt_rate_kd , pitch_rate_error_delta_filt ) << 2 ;
-		pitch_quad_control -= long_accum._.W1 ;
-
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		long_accum.WW = __builtin_mulus ( yaw_kp , yaw_error ) << 2  ;
 		desired_yaw = -long_accum._.W1 ;
@@ -407,8 +384,8 @@ void motorCntrl(void)
 
 		desired_yaw -= yaw_intgrl ;
 
-//		compute error between angle_rate and first PID output
-//		use minus omegagyro to be coherent with yaw_error
+        //compute error between angle_rate and first PID output
+        //use minus omegagyro to be coherent with yaw_error
 		yaw_rate = -omegagyro[2];
 		yaw_rate_error = yaw_rate - desired_yaw;
 
@@ -416,7 +393,7 @@ void motorCntrl(void)
 		long_accum.WW = __builtin_mulus ( yaw_rate_kp , yaw_rate_error ) << 2 ;
 		yaw_quad_control = -long_accum._.W1 ;
 
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #ifdef CONFIG_PLUS
 
