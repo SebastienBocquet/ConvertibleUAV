@@ -167,6 +167,8 @@ int16_t compute_yaw_error()
         yaw_error += (int16_t)(__builtin_mulsu(yaw_control, yaw_control_ramp)>>14);
     }
 
+    additional_int16_export1 = yaw_error;
+        
     return yaw_error;
 }
 
