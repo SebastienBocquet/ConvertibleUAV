@@ -21,7 +21,7 @@ namespace
             //Set-up corresponds to quadricopter motor control in the following conditions:
             //UAV is in hover flight mode,
             //manual control mode,
-            //near ground (so integral gains are deactivated),
+            //far from ground (so integral gains are activated),
             //throttle is above the minimum value such that motor control is activated
             //Only roll axis is tested (TODO: we could test each axis within this fixture)
 

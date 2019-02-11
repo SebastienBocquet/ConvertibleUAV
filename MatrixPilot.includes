@@ -27,3 +27,4 @@ tests
 Tools/MAVLink/mavlink/pymavlink/generator/C/test/posix
 Tools/MAVLink/mavlink/examples/linux
 tests/Motor_control/PID
+tests/Motor_control/Yaw
