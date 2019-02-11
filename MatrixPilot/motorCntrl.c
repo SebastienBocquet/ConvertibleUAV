@@ -249,14 +249,8 @@ void motorCntrl(void)
 	int16_t pitch_rate_error;
 	int16_t yaw_rate_error;
 
-	int16_t roll_rate_error_delta = 0;
-	int16_t pitch_rate_error_delta = 0;
-
 	union longww long_accum ;
-//	union longww accum ; // debugging temporary
 
-	struct relative2D matrix_accum  = { 0, 0 };     // Temporary variable to keep intermediate results of functions.
-	
 	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
 	for (temp = 0; temp <= NUM_INPUTS; temp++)
 		if (udb_flags._.radio_on)
