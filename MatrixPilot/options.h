@@ -458,7 +458,7 @@
 
 // Note, durations in milliseconds are rounded down to the nearest 25ms.
 
-#define TRIGGER_TYPE                        TRIGGER_TYPE_NONE
+#define TRIGGER_TYPE                        TRIGGER_TYPE_DIGITAL
 #define TRIGGER_ACTION                      TRIGGER_REPEATING
 #define TRIGGER_SERVO_LOW                   2000
 #define TRIGGER_SERVO_HIGH                  4000
@@ -841,7 +841,7 @@
 // The following can be used to do a ground check of stabilization without a GPS.
 // If you define TestGains, stabilization functions
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
-#define TestGains                        // uncomment this line if you want to test your gains without using GPS
+//#define TestGains                        // uncomment this line if you want to test your gains without using GPS
 //#define TestAltitude
 //#define TestGPSPositioning
 
