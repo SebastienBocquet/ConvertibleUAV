@@ -45,6 +45,7 @@ struct dcm_flag_bits {
 	uint16_t nmea_passthrough       : 1; // only used by ublox
 	uint16_t init_finished          : 1;
 	uint16_t calib_finished         : 1;
+	uint16_t yaw_init_finished      : 1;    
 };
 
 

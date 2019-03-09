@@ -32,6 +32,9 @@ int16_t toggle = 1;
 
 // Calibrate for 10 seconds before moving servos
 #define CALIB_COUNT  (HEARTBEAT_HZ*10)    // 10 seconds
+// Initialize yaw heading in target_orientation matrix
+#define YAW_INIT_COUNT  (HEARTBEAT_HZ*11)    // 11 seconds
+
 #define GPS_COUNT    (HEARTBEAT_HZ*25)   // 25 seconds
 
 #if (HILSIM == 1)
@@ -77,6 +80,12 @@ void dcm_run_init_step(void)
 		// Finish calibration
 		dcm_flags._.calib_finished = 1;
 		dcm_calibrate();
+	}
+    
+    if (udb_heartbeat_counter == YAW_INIT_COUNT)
+	{
+		// Finish yaw heading initialization
+		dcm_flags._.yaw_init_finished = 1;
 	}
 
 	if (udb_heartbeat_counter <= GPS_COUNT)

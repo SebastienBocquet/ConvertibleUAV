@@ -266,7 +266,16 @@ void motorCntrl(void)
 		udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = 0 ;
 		udb_pwOut[MOTOR_D_OUTPUT_CHANNEL] = 0 ;
 	}
-	else
+	else if (!dcm_flags._.yaw_init_finished)
+    {
+        target_orientation[0] = rmat[0] ;
+        target_orientation[1] = rmat[1] ;
+        target_orientation[2] = rmat[2] ;
+        target_orientation[3] = rmat[3] ;
+        target_orientation[4] = rmat[4] ;
+        target_orientation[5] = rmat[5] ;
+    }
+    else
 	{
 		if (current_flight_phase == F_MANUAL_TAKE_OFF)
         {
