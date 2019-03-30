@@ -636,9 +636,11 @@ void updateAltitudeMeasurement(void)
     
     //if barometer is used, use its measurement
 #if ( BAROMETER_ALTITUDE == 1 )
+    
+    estBaroAltitude();
+    
     if (udb_flags._.baro_valid && !flags._.is_close_to_ground)
     {
-        estBaroAltitude();
 #if (SILSIM != 1)
         z=(int16_t)(get_barometer_altitude());
 #endif
