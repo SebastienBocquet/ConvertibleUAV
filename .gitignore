@@ -40,3 +40,5 @@
 *.mcw
 
 *.html
+
+libUDB/fixDeps.h
