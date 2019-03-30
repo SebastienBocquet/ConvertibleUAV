@@ -368,19 +368,19 @@ void motorCntrl(void)
         roll_rate_error = roll_rate - desired_roll;
         //Compute the PID control on roll rate
         roll_quad_control = compute_pid(roll_rate_error, 0, &roll_rate_error_previous, &roll_rate_error_delta_filt_flt,
-                                        tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+                                        tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        //Compute the PID control on roll angle
+        //Compute the PID control on pitch angle
         desired_pitch = compute_pid(pitch_error, (pitch_quad_error_integral._.W1 << 2), 0, 0, tilt_kp, 0, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
 
         //compute error between angle_rate and first PID output
         pitch_rate = -omegagyro[0];
         pitch_rate_error = pitch_rate - desired_pitch;
-        //Compute the PID control on roll rate
+        //Compute the PID control on pitch rate
         pitch_quad_control = compute_pid(pitch_rate_error, 0, &pitch_rate_error_previous, &pitch_rate_error_delta_filt_flt,
-                                         tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_ERROR_INTEGRAL_LIMIT));
+                                         tilt_rate_kp, tilt_rate_kd, (int16_t)(TILT_RATE_ERROR_INTEGRAL_LIMIT));
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
