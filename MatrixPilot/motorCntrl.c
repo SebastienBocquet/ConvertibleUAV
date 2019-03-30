@@ -185,6 +185,8 @@ void motorCntrl(void)
 		{
 			commanded_yaw = 0 ;
 		}
+        
+        additional_int16_export1 = commanded_yaw;
 
 //		adjust roll and pitch commands to prevent combined tilt from exceeding 90 degrees
 		commanded_tilt[0] = commanded_roll ;

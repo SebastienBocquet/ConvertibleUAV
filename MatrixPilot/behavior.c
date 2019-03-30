@@ -233,8 +233,6 @@ void updateTriggerAction(void)
 
 void triggerActionSetValue(boolean newValue)
 {
-    additional_int16_export1 = (int16_t)(newValue);
-    
 	if (TRIGGER_TYPE == TRIGGER_TYPE_SERVO)
 	{
 		udb_pwOut[TRIGGER_OUTPUT_CHANNEL] = (newValue) ? TRIGGER_SERVO_HIGH : TRIGGER_SERVO_LOW;

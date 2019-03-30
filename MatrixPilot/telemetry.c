@@ -550,8 +550,7 @@ void serial_output_8hz(void)
             serial_output("cp%i;cg%i;lb%i;",
                 100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery);
                     
-            serial_output("a1%i;",
-                100*additional_int16_export1);
+            serial_output("a1%i;", additional_int16_export1);
 
 #if ( USE_LIDAR	== 1 )
             serial_output("ld%i;lv%i;", lidar_distance, 1-udb_flags._.lidar_height_valid) ;
@@ -559,7 +558,7 @@ void serial_output_8hz(void)
 #if ( USE_SONAR	== 1 )
             serial_output("sd%i;", sonar_distance) ;
 #endif
-<<<<<<< HEAD
+
 #if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)
             serial_output("ba%li;bv%i;",
                 get_barometer_altitude(), 1-udb_flags._.baro_valid);
