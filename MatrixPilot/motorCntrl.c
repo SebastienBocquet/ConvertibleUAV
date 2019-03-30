@@ -166,8 +166,6 @@ int16_t compute_yaw_error()
         //enable yaw control smoothly only when the plane is in flight
         yaw_error += (int16_t)(__builtin_mulsu(yaw_control, yaw_control_ramp)>>14);
     }
-
-    additional_int16_export1 = yaw_error;
         
     return yaw_error;
 }
@@ -310,6 +308,8 @@ void motorCntrl(void)
 		{
 			commanded_yaw = 0 ;
 		}
+        
+        additional_int16_export1 = commanded_yaw;
 
         rescale_tilt_order(commanded_tilt_body_frame);
         commanded_pitch_body_frame = commanded_tilt_body_frame[0] ;
