@@ -3,18 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/telemetry.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/motorCntrl.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/altitudeCntrl.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/behavior.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/options.h</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/defines.h</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/lidarAltitude.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/motorCntrl.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/libUDB.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/magnetometer.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/barometerAltitude.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/behavior.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/barometer.h</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/altitudeCntrl.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libDCM/libDCM.c</file>
             <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/barometer.c</file>
-            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/MatrixPilot/telemetry.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/libUDB.c</file>
+            <file>file:/C:/Users/Seb/Documents/Drone/ConvertibleUAV/libUDB/libUDB.h</file>
         </group>
     </open-files>
 </project-private>
