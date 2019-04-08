@@ -76,7 +76,6 @@ float roll_rate_error_delta_filt_flt = 0.;
 float pitch_rate_error_delta_filt_flt = 0.;
 
 int16_t manual_to_auto_ramp = 0;
-int16_t yaw_control_ramp = 0;
 
 union longww roll_quad_error_integral = { 0 } ;
 union longww pitch_quad_error_integral = { 0 } ;
@@ -166,12 +165,10 @@ void motorCntrl(void)
 		if (current_flight_phase == F_MANUAL_TAKE_OFF)
         {
             manual_to_auto_ramp = 0;
-            yaw_control_ramp = 0;
         }
         else
 		{
 			apply_ramp(&manual_to_auto_ramp, INCREMENT_MANUAL_TO_AUTO, 0, RMAX);
-            apply_ramp(&yaw_control_ramp, INCREMENT_MANUAL_TO_AUTO, 0, RMAX);
  		}
 
 		//insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in quad mode
@@ -233,16 +230,6 @@ void motorCntrl(void)
 //		Compute orientation errors
         yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
         
-        
-        if (canStabilizeHover() && current_orientation == F_HOVER && flags._.mag_failure == 0 && flags._.invalid_mag_reading == 0)
-		{
-			matrix_accum.x = rmat[4] ;
- 			matrix_accum.y = -rmat[1] ;
- 			earth_yaw = rect_to_polar(&matrix_accum)<<8 ; 
-            //enable yaw control smoothly only when the plane is in flight
-            yaw_error += (int16_t)(__builtin_mulsu(-earth_yaw + yaw_control, yaw_control_ramp)>>14);
-		}
-
 		roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
 		pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
 

@@ -237,7 +237,6 @@ extern int16_t yaw_intgrl;
 void apply_ramp(int16_t*, int16_t, int16_t, int16_t);
 
 extern int16_t manual_to_auto_ramp;
-extern int16_t yaw_control_ramp;
 
 ////////////////////////////////////////////////////////////////////////////////
 // energy management
