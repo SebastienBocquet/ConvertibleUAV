@@ -458,7 +458,7 @@
 
 // Note, durations in milliseconds are rounded down to the nearest 25ms.
 
-#define TRIGGER_TYPE                        TRIGGER_TYPE_DIGITAL
+#define TRIGGER_TYPE                        TRIGGER_TYPE_NONE
 #define TRIGGER_ACTION                      TRIGGER_REPEATING
 #define TRIGGER_SERVO_LOW                   2000
 #define TRIGGER_SERVO_HIGH                  4000
@@ -618,11 +618,11 @@
 #define HOVER_ZKI                          0.   //in 1/(cm.s) dimensionless, should be between 0 and 10
 #define LIMIT_INTEGRAL_Z                   80000
 #define HOVER_LIMIT_TARGETVZ               40   //cutoff value for vertial velocity in cm/s
-#define HOVER_VZKP                         6.7   // in 1/(cm/s), should be between 0 and 10
+#define HOVER_VZKP                         6.   // in 1/(cm/s), should be between 0 and 10
 #define HOVER_VZKI                         2.   // in 1/cm, should be between 0 and 10
 #define LIMIT_INTEGRAL_VZ                  40000
 #define HOVER_LIMIT_TARGETACCZ             2500 //cutoff value for vertial acceleration in cm/s2
-#define HOVER_ACCZKP                       0.84  // in 1/(cm/s2), should be between 0 and 10
+#define HOVER_ACCZKP                       0.75  // in 1/(cm/s2), should be between 0 and 10
 #define HOVER_ACCZKI                       0.   // in 1/(cm/s), should be between 0 and 10
 #define LIMIT_INTEGRAL_ACCZ                80000
 
