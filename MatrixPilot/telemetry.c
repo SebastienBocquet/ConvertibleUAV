@@ -475,29 +475,29 @@ void serial_output_8hz(void)
         static int16_t pwOut_save[NUM_OUTPUTS + 1];
         int16_t throttle_offset = 2242;
 
-        serial_output(
+//        serial_output(
 //                     "F2;T:%li;"
 //                      "a:%i;b:%i;c:%i;"
 //                      "d:%i;e:%i;f:%i;"
 //                      "g:%i;h:%i;i:%i;"
-                      "o2%i;"
-                      "vo%i;cu%i;au%i;"
+//                      "o2%i;"
+//                      "vo%i;cu%i;au%i;"
 //                      "cpu:%u;"
-                      "ma%i;mb%i;mc%i;"
-                      ,
+//                      "ma%i;mb%i;mc%i;"
+//                      ,
 //            tow.WW,
 //            rmat[0], rmat[1], rmat[2],
 //            rmat[3], rmat[4], rmat[5],
 //            rmat[6], rmat[7], rmat[8],
-            omegagyro[2],
-            voltage, current, mAh_used,
+//            omegagyro[2],
+//            voltage, current, mAh_used,
 //            (uint16_t)udb_cpu_load(),
 #if (MAG_YAW_DRIFT == 1)
-            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]);
+//            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2],
 #else
-            (int16_t)0, (int16_t)0, (int16_t)0
+            (int16_t)0, (int16_t)0, (int16_t)0,
 #endif // MAG_YAW_DRIFT
-        
+            //);
             // Approximate time passing between each telemetry line, even though
             // we may not have new GPS time data each time through.
             //when using 4Hz output
@@ -521,47 +521,50 @@ void serial_output_8hz(void)
 
             serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1-throttle_offset, throttle2-throttle_offset, throttle3-throttle_offset, throttle4-throttle_offset);
             serial_output("mt%i;th%i;", mean_throttle-throttle_offset, throttle_hover_control);
-            serial_output("ix%i;iy%i;iz%i;", 
-                    (int16_t)(100*IMUlocationx._.W1), 
-                    (int16_t)(100*IMUlocationy._.W1), 
-                    (int16_t)(100*IMUlocationz._.W1));
-            serial_output("vx%i;vy%i;vz%i;",
-                    IMUvelocityx._.W1, IMUvelocityy._.W1, IMUvelocityz._.W1);
+//            serial_output("ix%i;iy%i;iz%i;", 
+//                    (int16_t)(100*IMUlocationx._.W1), 
+//                    (int16_t)(100*IMUlocationy._.W1), 
+//                    (int16_t)(100*IMUlocationz._.W1));
+            serial_output("vz%i;", IMUvelocityz._.W1);
 
-            serial_output("az%i;tz%i;tv%i;", accelEarth[2], z_target_filtered, target_vz_bis);    
-            serial_output("zf%i;vf%i;ei%i;", 
-                z_filtered, vz_filtered, (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)));
-            
-            serial_output("ye%i;yc%i;mf%i;mi%i;",
-                yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
-            
-            //GPS X-Y positioning : navigation
-            serial_output("ey%i;tf%i;ph%i;",
-                earth_yaw, tofinish_line_factor10, 100*(int16_t)(control_position_hold));
-            
-            //GPS X-Y positioning : pitch control
-            serial_output("hp%i;tp%i;pa%i;pv%i;pc%i;",
-                hovering_pitch_order, target_pitch, -rmat[7], pitch_v_target, pitch_hover_corr);
-            
-            //GPS X-Y positioning : roll control
-            serial_output("hr%i;tr%i;ra%i;rv%i;rc%i;",
-                hovering_roll_order, target_roll, rmat[6], roll_v_target, roll_hover_corr);
-            
-            serial_output("cp%i;cg%i;lb%i;",
-                100*current_flight_phase, 100*flags._.is_close_to_ground, 100*flags._.low_battery);
-                    
-            serial_output("a1%i;", additional_int16_export1);
-
+            serial_output("az%i;tz%i;tv%i;av%i;", accelEarth[2], z_target_filtered, target_vz_bis, target_accz_bis);    
+            serial_output("zf%i;vf%i;af%i;zi%i;vi%i;ai%i;", 
+                z_filtered, vz_filtered, accz_filtered, 
+                    (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)),
+                    (int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ)),
+                    (int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ))
+                    );
+//            
+//            serial_output("ye%i;yc%i;mf%i;mi%i;",
+//                yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
+//            
+//            //GPS X-Y positioning : navigation
+//            serial_output("ey%i;tf%i;ph%i;",
+//                earth_yaw, tofinish_line_factor10, 100*(int16_t)(control_position_hold));
+//            
+//            //GPS X-Y positioning : pitch control
+//            serial_output("hp%i;tp%i;pa%i;pv%i;pc%i;",
+//                hovering_pitch_order, target_pitch, -rmat[7], pitch_v_target, pitch_hover_corr);
+//            
+//            //GPS X-Y positioning : roll control
+//            serial_output("hr%i;tr%i;ra%i;rv%i;rc%i;",
+//                hovering_roll_order, target_roll, rmat[6], roll_v_target, roll_hover_corr);
+//            
+            serial_output("cp%i;cg%i;",
+                          100*current_flight_phase, 100*flags._.is_close_to_ground);
+//                    
+//            serial_output("a1%i;", additional_int16_export1);
+//
 #if ( USE_LIDAR	== 1 )
-            serial_output("ld%i;lv%i;", lidar_distance, 1-udb_flags._.lidar_height_valid) ;
+            serial_output("ld%i;lv%i;", lidar_distance) ;
 #endif
 #if ( USE_SONAR	== 1 )
             serial_output("sd%i;", sonar_distance) ;
 #endif
 
-#if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)
+#if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)            
             serial_output("ba%li;bv%i;",
-                get_barometer_altitude(), 1-udb_flags._.baro_valid);
+                get_barometer_altitude());
 #endif       
         serial_output("end;\r\n");
     }
