@@ -605,26 +605,27 @@
 #define HOVER_FAILSAFE_ALTITUDE            190 //in cm : altitude above which throttle is set to HOVER_THROTTLE_OFFSET
 #define OUT_OF_RANGE_DISTANCE              -99  // Distance in centimeters that denotes "out of range" for your Sonar device.
 #define HOVER_TARGET_HEIGHT_MIN            80   // (cm) Do not set below 80cm
-#define HOVER_TARGET_HEIGHT_MAX            200  // (cm)
+#define HOVER_TARGET_HEIGHT_MAX            140  // (cm)
 #define HOVER_TARGET_VZ_MIN                -20  // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated
 #define HOVER_TARGET_VZ_MAX                20   // (cm/s)
 #define EMERGENCY_VZ                       100
 #define VZ_CORR                            1    //0 means vz = imu_vz, 1 means vz is the derivative of sensor or barometer altitude
-#define HOVER_INV_DELTA_FILTER_TARGETZ     80.
-#define HOVER_INV_DELTA_FILTER_SONAR       10.  //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
-#define HOVER_INV_DELTA_FILTER_BARO        1.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
-#define HOVER_INV_DELTA_FILTER_ACCEL       5.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
-#define HOVER_ZKP                          12.6 //in 1/cm, should be between 0 and 10
+#define HOVER_INV_DELTA_FILTER_TARGETZ     160.
+#define HOVER_INV_DELTA_FILTER_LIDAR       40.  //inverse of deltaT of exponential filter on lidar distance (=HEARTBEAT_HZ means no filtering)
+#define HOVER_INV_DELTA_FILTER_SONAR       20.  //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
+#define HOVER_INV_DELTA_FILTER_BARO        2.   //inverse of deltaT of exponential filter on sonar_distance (=HEARTBEAT_HZ means no filtering)
+#define HOVER_INV_DELTA_FILTER_ACCEL       10.   //inverse of deltaT of exponential filter on vertical acceleration (=HEARTBEAT_HZ means no filtering)
+#define HOVER_ZKP                          1.  //in 1/cm, should be between 0 and 10
 #define HOVER_ZKI                          0.   //in 1/(cm.s) dimensionless, should be between 0 and 10
-#define LIMIT_INTEGRAL_Z                   80000
-#define HOVER_LIMIT_TARGETVZ               40   //cutoff value for vertial velocity in cm/s
+#define LIMIT_INTEGRAL_Z                   1000000000
+#define HOVER_LIMIT_TARGETVZ               16000   //cutoff value for vertial velocity in cm/s
 #define HOVER_VZKP                         6.   // in 1/(cm/s), should be between 0 and 10
-#define HOVER_VZKI                         2.   // in 1/cm, should be between 0 and 10
-#define LIMIT_INTEGRAL_VZ                  40000
-#define HOVER_LIMIT_TARGETACCZ             2500 //cutoff value for vertial acceleration in cm/s2
+#define HOVER_VZKI                         0.   // in 1/cm, should be between 0 and 10
+#define LIMIT_INTEGRAL_VZ                  1000000000
+#define HOVER_LIMIT_TARGETACCZ             16000 //cutoff value for vertial acceleration in cm/s2
 #define HOVER_ACCZKP                       0.75  // in 1/(cm/s2), should be between 0 and 10
-#define HOVER_ACCZKI                       0.   // in 1/(cm/s), should be between 0 and 10
-#define LIMIT_INTEGRAL_ACCZ                80000
+#define HOVER_ACCZKI                       1.5   // in 1/(cm/s), should be between 0 and 10
+#define LIMIT_INTEGRAL_ACCZ                1000000000
 
 #define MAX_HOVERING_RADIUS                60   //max distance in dcm from origin where the aircraft is allowed to hover in GPS navigation mode
 #define HOVER_ANGLE_TOWARDS_WP             MAX_TILT
@@ -841,7 +842,7 @@
 // The following can be used to do a ground check of stabilization without a GPS.
 // If you define TestGains, stabilization functions
 // will be enabled, even without GPS or Tx turned on. (Tx is optional)
-//#define TestGains                        // uncomment this line if you want to test your gains without using GPS
+#define TestGains                        // uncomment this line if you want to test your gains without using GPS
 //#define TestAltitude
 //#define TestGPSPositioning
 
