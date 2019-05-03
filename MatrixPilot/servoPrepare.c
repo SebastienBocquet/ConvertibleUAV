@@ -108,10 +108,10 @@ void dcm_servo_callback_prepare_outputs(void)
             yawCntrl();
 		}
 
-		if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)
-		{
-			altitudeCntrl();
-		}
+        //if (udb_heartbeat_counter % (HEARTBEAT_HZ/80) == 0)
+		//{
+            altitudeCntrl();
+        //}
 
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
 		{
