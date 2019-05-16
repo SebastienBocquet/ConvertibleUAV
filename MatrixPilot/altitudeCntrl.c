@@ -717,9 +717,6 @@ void hoverAltitudeCntrl(void)
     int16_t throttle;
     int16_t throttle_control_pre;
     
-    uint16_t zkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
-    uint16_t vzkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
-    
 	no_altitude_measurement=true;
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
@@ -752,10 +749,9 @@ void hoverAltitudeCntrl(void)
 
 #ifdef VARIABLE_GAINS
         //While adjusting PID gains, maintain constant altitude
-        z_target = hovertargetheightmin;  
+        z_target = hovertargetheightmin;
 #else
-        z_target = hovertargetheightmax;
-        //z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
+        z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
 #endif
 #endif // end MANUAL_TARGET_HEIGHT
     }
@@ -765,7 +761,7 @@ void hoverAltitudeCntrl(void)
     //***************************************************//
     //PI controller on height to ground z
     error_z=z_filtered-z_target_filtered;
-    target_vz=compute_pi_block(z_filtered, z_target_filtered, zkp, hoverthrottlezki, &error_integral_z, 
+    target_vz=compute_pi_block(z_filtered, z_target_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralz, !flags._.is_close_to_ground);
     target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
     //***************************************************//
@@ -773,7 +769,7 @@ void hoverAltitudeCntrl(void)
     //***************************************************//
     //PI controller on vertical velocity
     error_vz=vz_filtered-target_vz_bis;
-    target_accz=compute_pi_block(vz_filtered, target_vz_bis, vzkp, hoverthrottlevzki, &error_integral_vz, 
+    target_accz=compute_pi_block(vz_filtered, target_vz_bis, hoverthrottlevzkp, hoverthrottlevzki, &error_integral_vz, 
                                   (int16_t)(HEARTBEAT_HZ), limitintegralvz, !flags._.is_close_to_ground);
     target_accz_bis=limit_value(target_accz*COEF_MAX, -limittargetaccz, limittargetaccz);
     //***************************************************//

@@ -605,7 +605,7 @@
 #define HOVER_FAILSAFE_ALTITUDE            190 //in cm : altitude above which throttle is set to HOVER_THROTTLE_OFFSET
 #define OUT_OF_RANGE_DISTANCE              -99  // Distance in centimeters that denotes "out of range" for your Sonar device.
 #define HOVER_TARGET_HEIGHT_MIN            80   // (cm) Do not set below 80cm
-#define HOVER_TARGET_HEIGHT_MAX            140  // (cm)
+#define HOVER_TARGET_HEIGHT_MAX            170  // (cm)
 #define HOVER_TARGET_VZ_MIN                -20  // (cm/s)  //defines the target vertical velocity range when manual control of target vz is activated
 #define HOVER_TARGET_VZ_MAX                20   // (cm/s)
 #define EMERGENCY_VZ                       100
