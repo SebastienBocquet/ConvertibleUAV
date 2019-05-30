@@ -745,11 +745,7 @@ void hoverAltitudeCntrl(void)
     }
     else
     {
-        //stabilized mode
-
-#if (MANUAL_TARGET_HEIGHT == 1)
         z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
-#endif // end MANUAL_TARGET_HEIGHT
     }
 
     z_target_filtered = exponential_filter(z_target, &z_target_filtered_flt, invdeltafiltertargetz);

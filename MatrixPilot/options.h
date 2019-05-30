@@ -588,10 +588,7 @@
 
 //////////altitude control/////////////
 
-#define TRANSITION_ALTITUDE               50    //altitude in m at which hovering <=> airplane transition occurs                 
-#define MANUAL_TARGET_HEIGHT               1    //in stabilized mode, manually prescribes a target height and target vz using INPUT_CHANNEL_FLAP and INPUT_CHANNEL_CAMERA
-                                                //otherwise target height is set to 0.5*(hovertargetheightmin+hovertargetheightmax)
-												// and target vz is set to 0.5*(hovertargetvzmin+hovertargetvzmax)
+#define TRANSITION_ALTITUDE                50    //altitude in m at which hovering <=> airplane transition occurs                 
 #define AIRCRAFT_MASS                      1250 //in g
 #define MAX_THRUST                         40   //maximul thrust in N 
 #define HOVER_THROTTLE_MIN                 0.2
