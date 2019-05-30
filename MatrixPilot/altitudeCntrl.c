@@ -123,19 +123,11 @@ const uint16_t hoverthrottlevzkp = (uint16_t)(HOVER_VZKP*COEF_SCALING);
 const int32_t limitintegralvz = (int32_t)(LIMIT_INTEGRAL_VZ);
 const uint16_t hoverthrottleacczkp = (uint16_t)(HOVER_ACCZKP*COEF_SCALING);
 const int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
-#ifdef TestAltitude
-    const uint16_t hoverthrottlezki = 0;
-    const uint16_t hoverthrottlevzki = 0;
-    const uint16_t hoverthrottleacczki = 0;
-    const int16_t limittargetvz = RMAX;
-    const int16_t limittargetaccz = RMAX;
-#else
-    const uint16_t hoverthrottlezki = (uint16_t)(HOVER_ZKI*COEF_SCALING);
-    const uint16_t hoverthrottlevzki = (uint16_t)(HOVER_VZKI*COEF_SCALING);
-    const uint16_t hoverthrottleacczki = (uint16_t)(HOVER_ACCZKI*COEF_SCALING);
-    const int16_t limittargetvz = (int16_t)(HOVER_LIMIT_TARGETVZ);
-    const int16_t limittargetaccz = (int16_t)(HOVER_LIMIT_TARGETACCZ);
-#endif
+const uint16_t hoverthrottlezki = (uint16_t)(HOVER_ZKI*COEF_SCALING);
+const uint16_t hoverthrottlevzki = (uint16_t)(HOVER_VZKI*COEF_SCALING);
+const uint16_t hoverthrottleacczki = (uint16_t)(HOVER_ACCZKI*COEF_SCALING);
+const int16_t limittargetvz = (int16_t)(HOVER_LIMIT_TARGETVZ);
+const int16_t limittargetaccz = (int16_t)(HOVER_LIMIT_TARGETACCZ);
 #endif
 
 int16_t error_z;
@@ -267,11 +259,6 @@ void reset_altitude_control(void)
 
 void determine_is_close_to_ground(int16_t throttle, int16_t z)
 {
-#ifdef TestAltitude
-    flags._.is_close_to_ground = 0;
-    return;
-#endif
-    
     if (flags._.is_close_to_ground)
     {
         if (throttle > hoverthrottlemin)
@@ -691,10 +678,6 @@ void updateAltitudeMeasurement(void)
     
     z_filtered = exponential_filter(z, &z_filtered_flt, invdeltafilterheight);
     
-#ifdef TestAltitude
-    vz_filtered = 0;
-    accz_filtered = 0;
-#else
     if (!no_altitude_measurement)
     {
         //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
@@ -706,7 +689,6 @@ void updateAltitudeMeasurement(void)
     }
     vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz);
     accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel);
-#endif
     
 }
 
