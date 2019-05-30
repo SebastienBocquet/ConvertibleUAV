@@ -33,7 +33,7 @@ union longww throttleFiltered = { 0 };
 
 #define THROTTLEFILTSHIFT   12
 
-#define COEF_MAX            20  //maximum value of pid coef
+#define COEF_MAX            10  //maximum value of pid coef
 #define COEF_SCALING        (RMAX/COEF_MAX)
 
 #define MAXTHROTTLE         (2.0*SERVORANGE*ALT_HOLD_THROTTLE_MAX)
@@ -83,6 +83,7 @@ int16_t hoverthrottlemax = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MAX));
 int16_t hoverthrottlemin = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN));
 int16_t hoverthrottleoffset = (int16_t)((2.0*SERVORANGE*(AIRCRAFT_MASS/100))/MAX_THRUST);
 float invdeltafiltertargetz = (float)(HOVER_INV_DELTA_FILTER_TARGETZ);
+float invdeltafilterlidar = (float)(HOVER_INV_DELTA_FILTER_LIDAR);
 float invdeltafiltersonar = (float)(HOVER_INV_DELTA_FILTER_SONAR);
 float invdeltafilterbaro = (float)(HOVER_INV_DELTA_FILTER_BARO);
 float invdeltafilteraccel = (float)(HOVER_INV_DELTA_FILTER_ACCEL);
@@ -106,7 +107,8 @@ int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
 #else
 const int16_t hoverthrottlemax = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MAX));
 const int16_t hoverthrottlemin = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN));
-const int16_t hoverthrottleoffset = (int16_t)((2.0*SERVORANGE*(AIRCRAFT_MASS/100))/MAX_THRUST);
+const int16_t hoverthrottleoffset = (int16_t)(900); //(2.0*SERVORANGE*(AIRCRAFT_MASS/100))/MAX_THRUST);
+const float invdeltafilterlidar = (float)(HOVER_INV_DELTA_FILTER_LIDAR);
 const float invdeltafiltersonar = (float)(HOVER_INV_DELTA_FILTER_SONAR);
 const float invdeltafiltertargetz = (float)(HOVER_INV_DELTA_FILTER_TARGETZ);
 const float invdeltafilterbaro = (float)(HOVER_INV_DELTA_FILTER_BARO);
@@ -164,6 +166,7 @@ int16_t is_not_close_to_ground_counter = 0;
 
 float invdeltafilterheight;
 float invdeltafiltervz;
+float vz_imu_flt=0.;
 
 //failsafe
 boolean no_altitude_measurement = true;
@@ -645,7 +648,7 @@ void updateAltitudeMeasurement(void)
         z=(int16_t)(get_barometer_altitude());
 #endif
         invdeltafilterheight=invdeltafilterbaro;
-		invdeltafiltervz=4.;
+		invdeltafiltervz=8.;
         //if you do not trust barometer altitude for altitude control, set no_altitude_measurement to true, otherwise set to false
         no_altitude_measurement=false;
         setFailureSonarDist(z);
@@ -661,7 +664,7 @@ void updateAltitudeMeasurement(void)
 	{
         z=sonar_height_to_ground;
         invdeltafilterheight=invdeltafiltersonar;
-        invdeltafiltervz=4.;
+        invdeltafiltervz=8.;
 		no_altitude_measurement=false;
         setFailureLidarDist(z);
 	}
@@ -675,8 +678,8 @@ void updateAltitudeMeasurement(void)
 	if (udb_flags._.lidar_height_valid)
 	{
         z=lidar_height_to_ground;
-        invdeltafilterheight=invdeltafiltersonar;
-        invdeltafiltervz=4.;
+        invdeltafilterheight=invdeltafilterlidar;
+        invdeltafiltervz=40.;
 		no_altitude_measurement=false;
 	}
 #endif
@@ -697,8 +700,9 @@ void updateAltitudeMeasurement(void)
         //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
         //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
         //VZ_CORR=1 means only altitude sensor derivative is considered
-        vz = (__builtin_mulsu(IMUvelocityz._.W1, RMAX - VZ_CORR_16) 
-                    + __builtin_mulsu(compute_vz_alt_sensor(z), VZ_CORR_16))>>14;
+        int16_t vz_avg = exponential_filter(IMUvelocityz._.W1, &vz_imu_flt, 1);
+        vz = (__builtin_mulsu(IMUvelocityz._.W1 - vz_avg, RMAX - VZ_CORR_16)
+                    + __builtin_mulsu(compute_vz_alt_sensor(z_filtered), VZ_CORR_16))>>14;
     }
     vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz);
     accz_filtered = exponential_filter(accz, &accz_filtered_flt, invdeltafilteraccel);
@@ -747,7 +751,7 @@ void hoverAltitudeCntrl(void)
 
 #ifdef VARIABLE_GAINS
         //While adjusting PID gains, maintain constant altitude
-        z_target = hovertargetheightmin;  
+        z_target = hovertargetheightmin;
 #else
         z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
 #endif
@@ -777,6 +781,7 @@ void hoverAltitudeCntrl(void)
     error_accz=accz_filtered-target_accz_bis;
     throttle=compute_pi_block(accz_filtered, target_accz_bis, hoverthrottleacczkp, hoverthrottleacczki, &error_integral_accz, 
                                (int16_t)(HEARTBEAT_HZ), limitintegralaccz, !flags._.is_close_to_ground);
+    throttle = throttle*COEF_MAX;
     
     if (current_flight_phase == F_MANUAL_TAKE_OFF)
     {
@@ -797,12 +802,12 @@ void hoverAltitudeCntrl(void)
             }
             else
             {
-                throttle_control_pre=throttle*COEF_MAX;
+                throttle_control_pre=throttle;
                 //***************************************************//
 
                 //apply coefficient to make PI gains independent of aircraft mass and maximum propeller thrust
-                int32_t tmp=__builtin_mulsu(throttle_control_pre, 2*aircraft_mass);
-                throttle_control_pre=(int16_t)((tmp/100)/max_thrust);
+                //int32_t tmp=__builtin_mulsu(throttle_control_pre, 2*aircraft_mass);
+                //throttle_control_pre=(int16_t)((tmp/100)/max_thrust);
 
                 //add throttle offset
                 throttle_control_pre+=hoverthrottleoffset;

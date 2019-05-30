@@ -191,8 +191,6 @@ void motorCntrl(void)
 		{
 			commanded_yaw = 0 ;
 		}
-        
-        additional_int16_export1 = commanded_yaw;
 
 //		adjust roll and pitch commands to prevent combined tilt from exceeding 90 degrees
 		commanded_tilt[0] = commanded_roll ;
@@ -398,7 +396,6 @@ void motorCntrl(void)
 #endif
 
 #ifdef TestGains
-        yaw_quad_control = 0;
         roll_quad_error_integral.WW  = 0;
         pitch_quad_error_integral.WW  = 0;
         yaw_quad_error_integral.WW  = 0;
@@ -491,7 +488,7 @@ void motorCntrl(void)
         mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
         
 #ifdef TestGains
-        motor_A = motor_B = motor_C = motor_D = 0;
+        //motor_A = motor_B = motor_C = motor_D = 0;
 #endif
     
 		udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		
