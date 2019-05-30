@@ -136,6 +136,7 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 // AltitudeCntrl.c
 void reset_altitude_control(void);
 void updateAltitudeMeasurement(void);
+void update_measurement_failure(void);
 
 extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
 extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2

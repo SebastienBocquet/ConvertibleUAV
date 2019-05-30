@@ -179,7 +179,7 @@
 #define NORADIO                             0
 
 //Use of ultrasonic sonar for accurate height over ground measurement within a few meters over ground (typically for hovering)
-#define USE_SONAR                           1
+#define USE_SONAR                           0
 #define USE_SONAR_ON_PWM_INPUT_7			0
 
 //Use of a lidar for accurate height over ground measurement
@@ -187,7 +187,7 @@
 #define USE_LIDAR_ON_PWM_INPUT_8			1
 
 //Use of barometer for altitude measurement
-#define BAROMETER_ALTITUDE                  1
+#define BAROMETER_ALTITUDE                  0
 #define USE_BARO_BMP085                     1
 #define USE_BARO_MS5611                     0
 
