@@ -52,6 +52,7 @@ union longww throttleFiltered = { 0 };
 
 #define NOT_CLOSE_TO_GROUND_DETECT_TIME 2 //is seconds
 #define ALT_SENSOR_UNCERTAINTY 15 //in cm
+#define FAILURE_DETECTION_TIME HEARTBEAT_HZ
 
 int16_t aircraft_mass       = AIRCRAFT_MASS;
 int16_t max_thrust          = MAX_THRUST;
@@ -162,7 +163,7 @@ float vz_imu_flt=0.;
 
 //failsafe
 boolean no_altitude_measurement = true;
-int16_t no_altitude_measurement_counter = 0;
+int16_t altitude_measurement_failures = 0;
 int16_t z_target_mem = -1;
 
 #if (SPEED_CONTROL == 1)  // speed control loop
@@ -251,7 +252,7 @@ void reset_altitude_control(void)
     vz_filtered_flt=0.;
     accz_filtered_flt=0.;
     previous_z32=(int32_t)(hovertargetheightmin)*100;
-    no_altitude_measurement_counter = 0;
+    altitude_measurement_failures = 0;
     auto_landing_ramp = RMAX;
     throttle_control_mem = 0;
     z_target_mem = -1;
@@ -291,15 +292,40 @@ void determine_is_close_to_ground(int16_t throttle, int16_t z)
     }
 }
 
+void update_measurement_failure(void)
+{
+    additional_int16_export1 = altitude_measurement_failures;
+
+    if (!(flags._.is_close_to_ground))
+    {
+        if (no_altitude_measurement)
+        {
+            altitude_measurement_failures += 1;
+        }
+        else
+        {
+            altitude_measurement_failures -= 1;
+        }
+    }
+    else
+    {
+        altitude_measurement_failures = 0;
+    }
+    
+    altitude_measurement_failures = limit_value(altitude_measurement_failures, 0, FAILURE_DETECTION_TIME);
+}
+
 void altitudeCntrl(void)
 {
 	if (current_orientation == F_HOVER)
     {
         updateAltitudeMeasurement();
-
+        
         determine_is_close_to_ground(
             udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
             z_filtered);
+        
+        update_measurement_failure();
         
         if (canStabilizeHover())
         {
@@ -378,41 +404,6 @@ void set_throttle_hover_control(int16_t throttle)
 	{
 	    throttle_hover_control = 0;
 	}
-}
-
-boolean has_no_altitude_measurement(void)
-{
-    if (!flags._.is_close_to_ground)
-    {
-	    if (no_altitude_measurement)
-		{
-			no_altitude_measurement_counter += 1;
-		}
-        else
-        {
-            no_altitude_measurement_counter -= 1;
-        }
-	}
-    else
-    {
-        no_altitude_measurement_counter = 0;
-    }
-    
-    if (no_altitude_measurement_counter < 0);
-    {
-        no_altitude_measurement_counter = 0;
-    }
-    
-    //si cas de panne dure plus d'une seconde, on declenche la manoeuvre failsafe
-	if (no_altitude_measurement_counter > (1 * HEARTBEAT_HZ)) 
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-    
 }
 
 void setTargetAltitude(int16_t targetAlt)
@@ -701,7 +692,6 @@ void hoverAltitudeCntrl(void)
     int16_t throttle;
     int16_t throttle_control_pre;
     
-	no_altitude_measurement=true;
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
     throttle_control_pre = 0;
@@ -741,7 +731,7 @@ void hoverAltitudeCntrl(void)
     }
     else
     {
-        if (has_no_altitude_measurement())
+        if (altitude_measurement_failures >= ((int16_t)(FAILURE_DETECTION_TIME)))
         {
             throttle_control_pre = hoverthrottleoffset;
         }
