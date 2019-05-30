@@ -725,28 +725,8 @@ void hoverAltitudeCntrl(void)
     throttle_control_pre = 0;
 
     //compute target altitude and smooth with exponential filtering
-
-    z_target = 0;
     vz_target = 0;
-
-    if (flags._.GPS_steering)
-    {
-        //GPS mode
-        z_target = goal.fromHeight + (((goal.height - goal.fromHeight) * (int32_t)progress_to_goal)>>12) ;
-
-        if ((goal.height - goal.fromHeight) > 0)
-        { 
-            vz_target = hovertargetvzmax;
-        }
-        else
-        {
-            vz_target = hovertargetvzmin;
-        }
-    }
-    else
-    {
-        z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
-    }
+    z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);      
 
     z_target_filtered = exponential_filter(z_target, &z_target_filtered_flt, invdeltafiltertargetz);
         
