@@ -52,6 +52,7 @@ union longww throttleFiltered = { 0 };
 
 #define NOT_CLOSE_TO_GROUND_DETECT_TIME 2 //is seconds
 #define ALT_SENSOR_UNCERTAINTY 15 //in cm
+#define FAILURE_DETECTION_TIME HEARTBEAT_HZ
 
 int16_t aircraft_mass       = AIRCRAFT_MASS;
 int16_t max_thrust          = MAX_THRUST;
@@ -311,10 +312,7 @@ void update_measurement_failure(void)
         altitude_measurement_failures = 0;
     }
     
-    if (altitude_measurement_failures < 0)
-    {
-        altitude_measurement_failures = 0;
-    }
+    altitude_measurement_failures = limit_value(altitude_measurement_failures, 0, FAILURE_DETECTION_TIME);
 }
 
 void altitudeCntrl(void)
@@ -733,7 +731,7 @@ void hoverAltitudeCntrl(void)
     }
     else
     {
-        if (altitude_measurement_failures > (1 * HEARTBEAT_HZ))
+        if (altitude_measurement_failures >= ((int16_t)(FAILURE_DETECTION_TIME)))
         {
             throttle_control_pre = hoverthrottleoffset;
         }

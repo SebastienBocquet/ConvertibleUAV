@@ -559,7 +559,7 @@ void serial_output_8hz(void)
             serial_output("ld%i;lv%i;", lidar_distance, 100*udb_flags._.lidar_height_valid) ;
 #endif
 #if ( USE_SONAR	== 1 )
-            serial_output("sd%i;", sonar_distance) ;
+            serial_output("sd%i;sv%i;", sonar_distance, 100*udb_flags._.sonar_height_valid) ;
 #endif
 
 #if ( BAROMETER_ALTITUDE == 1 && SILSIM != 1)            
