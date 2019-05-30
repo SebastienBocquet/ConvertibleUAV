@@ -248,11 +248,6 @@ void updateFlightPhase()
 {           
     int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
     
-#ifdef TestAltitude
-    flags._.engines_off = 1;
-    flags._.is_close_to_ground = 0;
-#endif
-    
     if (current_flight_phase == F_MANUAL_TAKE_OFF)
     {
         if (!flags._.is_close_to_ground)

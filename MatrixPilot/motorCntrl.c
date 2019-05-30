@@ -235,15 +235,10 @@ void motorCntrl(void)
 		long_accum.WW = __builtin_mulus ( (uint16_t) (RMAX*ACCEL_K ) , accelEarth[2] ) ;
 		accel_feedback = long_accum._.W1 ;
 	
-	#ifdef VARIABLE_GAINS
-		tilt_ki = (uint16_t)(RMAX*TILT_KI);
-		tilt_kp = (uint16_t)(RMAX*TILT_KP);
-		tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
-		tilt_rate_kd = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, (int16_t)(0.5*RMAX)));
-		yaw_ki = (uint16_t)(RMAX*YAW_KI);
-		yaw_kp = (uint16_t)(RMAX*YAW_KP);
-		yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
-	#else
+	
+		//tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
+		//tilt_rate_kd = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, (int16_t)(0.5*RMAX)));
+		
 		tilt_ki = (uint16_t)(RMAX*TILT_KI);
 		tilt_kp = (uint16_t)(RMAX*TILT_KP);
 		tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
@@ -251,7 +246,6 @@ void motorCntrl(void)
 		yaw_ki = (uint16_t)(RMAX*YAW_KI);
 		yaw_kp = (uint16_t)(RMAX*YAW_KP);
 		yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
-	#endif
 	
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
