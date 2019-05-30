@@ -719,9 +719,6 @@ void hoverAltitudeCntrl(void)
     int16_t throttle;
     int16_t throttle_control_pre;
     
-//    uint16_t zkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
-//    uint16_t vzkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
-            
 	no_altitude_measurement=true;
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
@@ -754,9 +751,8 @@ void hoverAltitudeCntrl(void)
 
 #ifdef VARIABLE_GAINS
         //While adjusting PID gains, maintain constant altitude
-        z_target = hovertargetheightmin;  
+        z_target = hovertargetheightmin;
 #else
-        //z_target = hovertargetheightmax;  
         z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
 #endif
 #endif // end MANUAL_TARGET_HEIGHT
