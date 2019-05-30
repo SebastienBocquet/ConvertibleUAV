@@ -748,13 +748,7 @@ void hoverAltitudeCntrl(void)
         //stabilized mode
 
 #if (MANUAL_TARGET_HEIGHT == 1)
-
-#ifdef VARIABLE_GAINS
-        //While adjusting PID gains, maintain constant altitude
-        z_target = hovertargetheightmin;
-#else
         z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
-#endif
 #endif // end MANUAL_TARGET_HEIGHT
     }
 
