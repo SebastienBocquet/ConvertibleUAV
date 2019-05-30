@@ -552,9 +552,9 @@ void serial_output_8hz(void)
 //            
             serial_output("cp%i;cg%i;",
                           100*current_flight_phase, 100*flags._.is_close_to_ground);
-//                    
-//            serial_output("a1%i;", additional_int16_export1);
-//
+                    
+            serial_output("a1%i;", additional_int16_export1);
+
 #if ( USE_LIDAR	== 1 )
             serial_output("ld%i;lv%i;", lidar_distance) ;
 #endif

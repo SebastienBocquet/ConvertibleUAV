@@ -107,7 +107,7 @@ int32_t limitintegralaccz = (int32_t)(LIMIT_INTEGRAL_ACCZ);
 #else
 const int16_t hoverthrottlemax = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MAX));
 const int16_t hoverthrottlemin = (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN));
-const int16_t hoverthrottleoffset = (int16_t)(1100); //(2.0*SERVORANGE*(AIRCRAFT_MASS/100))/MAX_THRUST);
+const int16_t hoverthrottleoffset = (int16_t)(900); //(2.0*SERVORANGE*(AIRCRAFT_MASS/100))/MAX_THRUST);
 const float invdeltafilterlidar = (float)(HOVER_INV_DELTA_FILTER_LIDAR);
 const float invdeltafiltersonar = (float)(HOVER_INV_DELTA_FILTER_SONAR);
 const float invdeltafiltertargetz = (float)(HOVER_INV_DELTA_FILTER_TARGETZ);
@@ -166,6 +166,7 @@ int16_t is_not_close_to_ground_counter = 0;
 
 float invdeltafilterheight;
 float invdeltafiltervz;
+float vz_imu_flt=0.;
 
 //failsafe
 boolean no_altitude_measurement = true;
@@ -699,7 +700,8 @@ void updateAltitudeMeasurement(void)
         //if sonar or barometer is valid, compute vz as the derivative in time of filtered z,
         //the VZ_CORR parameter allows to mix the altitude sensor derivative with the IMU vz
         //VZ_CORR=1 means only altitude sensor derivative is considered
-        vz = (__builtin_mulsu(IMUvelocityz._.W1, RMAX - VZ_CORR_16) 
+        int16_t vz_avg = exponential_filter(IMUvelocityz._.W1, &vz_imu_flt, 1);
+        vz = (__builtin_mulsu(IMUvelocityz._.W1 - vz_avg, RMAX - VZ_CORR_16)
                     + __builtin_mulsu(compute_vz_alt_sensor(z_filtered), VZ_CORR_16))>>14;
     }
     vz_filtered = exponential_filter(vz, &vz_filtered_flt, invdeltafiltervz);
@@ -717,9 +719,9 @@ void hoverAltitudeCntrl(void)
     int16_t throttle;
     int16_t throttle_control_pre;
     
-    uint16_t zkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
-    uint16_t vzkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
-    
+//    uint16_t zkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, RMAX));
+//    uint16_t vzkp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, RMAX));
+            
 	no_altitude_measurement=true;
     pitchAltitudeAdjust = 0;
     desiredHeight = 0;
@@ -754,8 +756,8 @@ void hoverAltitudeCntrl(void)
         //While adjusting PID gains, maintain constant altitude
         z_target = hovertargetheightmin;  
 #else
-        z_target = hovertargetheightmax;
-        //z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
+        //z_target = hovertargetheightmax;  
+        z_target = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], hovertargetheightmin, hovertargetheightmax);  
 #endif
 #endif // end MANUAL_TARGET_HEIGHT
     }
@@ -765,7 +767,7 @@ void hoverAltitudeCntrl(void)
     //***************************************************//
     //PI controller on height to ground z
     error_z=z_filtered-z_target_filtered;
-    target_vz=compute_pi_block(z_filtered, z_target_filtered, zkp, hoverthrottlezki, &error_integral_z, 
+    target_vz=compute_pi_block(z_filtered, z_target_filtered, hoverthrottlezkp, hoverthrottlezki, &error_integral_z, 
                                     (int16_t)(HEARTBEAT_HZ), limitintegralz, !flags._.is_close_to_ground);
     target_vz_bis=limit_value(target_vz*COEF_MAX, -limittargetvz, limittargetvz);
     //***************************************************//
@@ -773,7 +775,7 @@ void hoverAltitudeCntrl(void)
     //***************************************************//
     //PI controller on vertical velocity
     error_vz=vz_filtered-target_vz_bis;
-    target_accz=compute_pi_block(vz_filtered, target_vz_bis, vzkp, hoverthrottlevzki, &error_integral_vz, 
+    target_accz=compute_pi_block(vz_filtered, target_vz_bis, hoverthrottlevzkp, hoverthrottlevzki, &error_integral_vz, 
                                   (int16_t)(HEARTBEAT_HZ), limitintegralvz, !flags._.is_close_to_ground);
     target_accz_bis=limit_value(target_accz*COEF_MAX, -limittargetaccz, limittargetaccz);
     //***************************************************//
