@@ -153,6 +153,7 @@
                                                //in waypoint mode, throttle is controlled to navigate through the waypoints
 #define TOGOAL_FILTER                       40. //navigation in hovering mode: filtering of the distance to goal (=HEARTBEAT_HZ means no filtering, 1=max filtering)
 // Note: As of MatrixPilot 3.0, Dead Reckoning and Wind Estimation are automatically enabled.
+#define MOTOR_TRANSITION_PITCH              50 // transition to normal flight is triggered if motor angle relative to vertical axis is MOTOR_TRANSITION_PITCH * 90°
 
 // Camera Stabilization
 // Set this value to 1, for camera to be stabilized using camera options further below.
@@ -270,9 +271,9 @@
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
 #define RUDDER_OUTPUT_CHANNEL               CHANNEL_5
-#define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_8
-#define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_UNUSED
-#define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
+#define MOTOR_PITCH_OUTPUT_CHANNEL          CHANNEL_8
+#define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
+#define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
 #define CAMERA_YAW_OUTPUT_CHANNEL           CHANNEL_UNUSED
 #define TRIGGER_OUTPUT_CHANNEL              CHANNEL_UNUSED
 #define PASSTHROUGH_A_OUTPUT_CHANNEL        CHANNEL_UNUSED
@@ -587,8 +588,7 @@
 //                            value is proportionally scaled down.
 
 //////////altitude control/////////////
-
-#define TRANSITION_ALTITUDE                50    //altitude in m at which hovering <=> airplane transition occurs                 
+              
 #define AIRCRAFT_MASS                      1250 //in g
 #define MAX_THRUST                         40   //maximul thrust in N 
 #define HOVER_THROTTLE_MIN                 0.2
