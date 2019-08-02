@@ -68,9 +68,7 @@ void init_servoPrepare(void) // initialize the PWM
 							i == MOTOR_D_OUTPUT_CHANNEL) ? 0 : 3000);
 #endif
 
-	cameraInit();
     sonarInit();
-    cameraServoMix();
 	
 #if (NORADIO == 1)
 	udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] = udb_pwTrim[MODE_SWITCH_INPUT_CHANNEL] = 4000;
@@ -101,8 +99,8 @@ void dcm_servo_callback_prepare_outputs(void)
 			wind_gain = wind_gain_adjustment ();
 	
 	        //Manage sonar orientation via servo (unused))
-            //sonarCntrl();
-	        //sonarServoMix();
+            sonarCntrl();
+	        sonarServoMix();
 	
             rollCntrl();
             yawCntrl();
@@ -123,10 +121,6 @@ void dcm_servo_callback_prepare_outputs(void)
 
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
 		{
-#if (USE_CAMERA_STABILIZATION == 1)
-			cameraCntrl();
-#endif
-			cameraServoMix();
 			updateTriggerAction();
 		}
 	}

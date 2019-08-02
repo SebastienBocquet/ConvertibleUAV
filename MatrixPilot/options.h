@@ -271,8 +271,9 @@
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
 #define RUDDER_OUTPUT_CHANNEL               CHANNEL_5
-#define MOTOR_PITCH_OUTPUT_CHANNEL          CHANNEL_8
+#define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_8
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
+#define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
 #define CAMERA_YAW_OUTPUT_CHANNEL           CHANNEL_UNUSED
 #define TRIGGER_OUTPUT_CHANNEL              CHANNEL_UNUSED
@@ -634,16 +635,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Sonar pitch stabilization 
-#define SONAR_TAN_PITCH_IN_STABILIZED_MODE    32767   // 1443 is 5 degrees of pitch. Example: 15 degrees is 4389
-
 // All number should be integers
-#define SONAR_PITCH_SERVO_THROW               120 //110      // Camera lens rotation at maximum PWM change (2000 to 4000), in degrees.          
-#define SONAR_PITCH_SERVO_MAX                 90     // Max pitch up that plane can tilt and keep camera level, in degrees.  
-#define SONAR_PITCH_SERVO_MIN                 -30       // Max pitch down that plane can tilt and keep camera level, in degrees. 
-#define SONAR_PITCH_OFFSET_CENTRED            35     // Offset in degrees of servo that results in a level camera.           
-                                                    // Example: 30 would mean that a centered pitch servo points the camera
-                                                    // 30 degrees down from horizontal when looking to the front of the plane.
-#define SONAR_PITCH_OFFSET                    60
+#define SONAR_PITCH_SERVO_RANGE               90   // servo angular range in degrees at max pwm
+#define SONAR_PITCH_SERVO_THROW               90   // servo angular range in degrees at max pwm
+#define SONAR_PITCH_SERVO_MAX                 0    // maximum servo angle in degrees 
+#define SONAR_PITCH_SERVO_MIN                 -60     // minimum servo angle in degrees 
+#define SONAR_PITCH_OFFSET_CENTRED            0     // offset angle in degrees, corresponding to servo angle at zero pwm           
 
 ////////////////////////////////////////////////////////////////////////////////
 // Camera Stabilization and Targeting

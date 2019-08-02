@@ -221,11 +221,11 @@ void servoMix(void)
 
 void sonarServoMix(void)
 {
-	int32_t temp;
+	int16_t temp;
 
     temp = REVERSE_IF_NEEDED(SONAR_PITCH_CHANNEL_REVERSED, 
 		sonar_pitch_servo_pwm_delta);
-	temp = cam_pitchServoLimit(temp);
+	temp = sonar_pitchServoLimit(temp);
 	udb_pwOut[SONAR_PITCH_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp + 3000);
 }
 

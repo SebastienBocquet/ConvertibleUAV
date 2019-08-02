@@ -125,7 +125,7 @@ extern uint16_t udb_pwm_lidar ;				// Raw pwm units from lidar device
 extern int16_t sonar_pitch_servo_pwm_delta; 
 extern int16_t cam_pitch_servo_pwm_delta;  
 extern int16_t cam_yaw_servo_pwm_delta;
-int32_t sonar_pitchServoLimit(int32_t pwm_pulse);
+int16_t sonar_pitchServoLimit(int16_t pwm_pulse);
 int32_t cam_pitchServoLimit(int32_t pwm_pulse);
 int32_t cam_yawServoLimit(int32_t pwm_pulse);
 
