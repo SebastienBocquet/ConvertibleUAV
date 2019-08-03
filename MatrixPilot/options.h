@@ -271,7 +271,7 @@
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
 #define RUDDER_OUTPUT_CHANNEL               CHANNEL_5
-#define SONAR_PITCH_OUTPUT_CHANNEL          CHANNEL_8
+#define MOTOR_PITCH_OUTPUT_CHANNEL          CHANNEL_8
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
 #define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
@@ -299,7 +299,7 @@
 #define AILERON_SECONDARY_CHANNEL_REVERSED  0
 #define THROTTLE_CHANNEL_REVERSED           0
 #define THROTTLE_HOVER_CHANNEL_REVERSED     0
-#define SONAR_PITCH_CHANNEL_REVERSED        0
+#define MOTOR_PITCH_CHANNEL_REVERSED        0
 #define CAMERA_PITCH_CHANNEL_REVERSED       0
 #define CAMERA_YAW_CHANNEL_REVERSED         0
 
@@ -634,13 +634,14 @@
 //#define INITIALIZE_VERTICAL
 
 ////////////////////////////////////////////////////////////////////////////////
-// Sonar pitch stabilization 
+// Motor pitch control
+#define USE_MOTOR_PITCH_CONTROL               1
 // All number should be integers
-#define SONAR_PITCH_SERVO_RANGE               90   // servo angular range in degrees at max pwm
-#define SONAR_PITCH_SERVO_THROW               90   // servo angular range in degrees at max pwm
-#define SONAR_PITCH_SERVO_MAX                 0    // maximum servo angle in degrees 
-#define SONAR_PITCH_SERVO_MIN                 -60     // minimum servo angle in degrees 
-#define SONAR_PITCH_OFFSET_CENTRED            0     // offset angle in degrees, corresponding to servo angle at zero pwm           
+#define MOTOR_PITCH_SERVO_RANGE               90   // servo angular range in degrees at max pwm
+#define MOTOR_PITCH_SERVO_THROW               120   // desired servo angular range in degrees at max pwm
+#define MOTOR_PITCH_SERVO_MAX                 60    // maximum servo angle in degrees 
+#define MOTOR_PITCH_SERVO_MIN                 -60     // minimum servo angle in degrees 
+#define MOTOR_PITCH_OFFSET_CENTRED            0     // offset angle in degrees, corresponding to servo angle at zero pwm           
 
 ////////////////////////////////////////////////////////////////////////////////
 // Camera Stabilization and Targeting
