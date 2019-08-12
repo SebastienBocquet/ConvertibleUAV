@@ -1,7 +1,7 @@
 Design
 ######
 
-Chosen solution
+Specifications
 ***************
 
 Airframe
@@ -16,14 +16,14 @@ The aerodynamics is pre-designed with PredimRC (Insert PredimRC link)
 Hardware
 ========
 
-The embedded hardware is based on the Open Source UavDevBoard project (UDB5 board)
-It is based on a PIC16 processor architecture.
+The embedded hardware is based on the Open Source `MatrixPilot  <https://github.com/MatrixPilot/MatrixPilot/wiki>`_ project.
+It is based on the UDB5 board, which uses a PIC16 processor architecture.
 
 
 Software
 ========
 
-The software is based on the MatrixPilot Open Source project version ??. This software is capable of flying automatically a conventional aircraft. Pitch, yaw and roll axis are controlled by PI controllers. An energy balance allows to control the altitude using the pitch and motor power. A GPS receiver allows waypoint navigation.
+The software is based on the MatrixPilot Open Source project version 4. This software is capable of flying automatically a conventional aircraft. Pitch, yaw and roll axis are controlled by PI controllers. An energy balance allows to control the altitude using the pitch and motor power. A GPS receiver allows waypoint navigation.
 Two flight modes are implemented:
   - normal flight (conventional horizontal flight)
   - hovering flight (to fly an aerobatic aircraft capable of torque roll manoeuvre)
@@ -54,7 +54,6 @@ In the MatrixPilot software, two flight modes are possible:
   - normal 
   - hovering
 
-Hovering is only allowed if the parameter HOVERING_STABILIZED_MODE is set to 1.
 The condition defining the switch between these two phases is modified. It is defined as follows:
   - normal -> hovering : the motor tilt angle is greater than a given threshold (TRANSITION_MOTOR_TILT)
   - hovering -> normal : the motor tilt angle is lower than a given threshold (TRANSITION_MOTOR_TILT)
@@ -88,17 +87,20 @@ The PID controllers are constructed as shown in the following diagram:
 
    PID controller
 
-So in principle, six gains, two limit values for the integral term and two frequency cut-offs for the low pass filter (a total of ten parameters) need to be set for each axis.
+So in principle, six gains, two limiting values for the integral term and two frequency cut-offs for the low pass filter (a total of ten parameters) need to be set for each axis.
 However, the number of free parameters is reduced thanks to the following choices:
+
   - for the roll and pitch axis:
+
     * the Kd gain of the PID controller on the angle is set to zero
     * the Ki gain of the PID controller on the angular velocity is set to zero
     * the limit for the integral term thus reduces to one parameter operating on the PID controler on the angle
     * only one cut-off frequency is necessary for the PID controller operating on the angular velocity
+
     So we end up with six parameters for pitch and six parameters for roll.
+
   - for the yaw axis, only the proportional terms Kp are used, leading to only two parameters to set
 
-It is necessary to switch to deactivate the integral terms and the yaw control during take-off and just after the normal to hovering flight mode. Indeed, we do not want to accumulate
-errors in the integral terms during these phases. In addition, yaw control would add some instability during these particular phases.
-As a result, a switch on the RC transmitter should deactivte the integral terms and reset then to zero.
+It is necessary to deactivate the integral terms and the yaw control during take-off and just after the normal to hovering flight mode. Indeed, we do not want to accumulate errors in the integral terms during these phases. In addition, yaw control would add some instability during these particular phases.
+As a result, a switch on the RC transmitter should deactivate the integral terms and reset them to zero.
 Also, a potentiometer on the RC transmitter should control the level of yaw control (Kp terms), from zero to full control.
