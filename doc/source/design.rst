@@ -34,6 +34,7 @@ To ensure the flight of the quadplane, several functionalities need to be added:
   - control of the motor tilting
   - control of quadplane attitude during hovering
 
+In the following, we assume that pwm inputs and outputs range between 2000 to 4000.
 
 Increase of heartbeat rate
 --------------------------
@@ -104,3 +105,30 @@ However, the number of free parameters is reduced thanks to the following choice
 It is necessary to deactivate the integral terms and the yaw control during take-off and just after the normal to hovering flight mode. Indeed, we do not want to accumulate errors in the integral terms during these phases. In addition, yaw control would add some instability during these particular phases.
 As a result, a switch on the RC transmitter should deactivate the integral terms and reset them to zero.
 Also, a potentiometer on the RC transmitter should control the level of yaw control (Kp terms), from zero to full control.
+
+Once the roll\_quad\_control, pitch\_quad\_control and yaw\_quad\_control are computed, the final pwm outputs sent to each motor's ESC are computed as follows.
+
+First pitch and roll control in the quadplane body frame are computed:
+
+  - :math:`pitch\_body\_frame\_control = 3*((pitch\_quad\_control - roll\_quad\_control)/4)`
+  - :math:`roll\_body\_frame\_control = 3*((pitch\_quad\_control + roll\_quad\_control)/4)`
+
+Then, for the following X motor configuration:
+
+.. csv-table:: Motor configuration
+   :header: "", "", ""
+   :widths: 10, 10, 10
+
+   "C", , "B"
+   , X,
+   "D", , "A"
+
+Considering that the throttle stick controls the variable pwm\_manual\_input, pwm outputs are:
+
+  - 2000 if pwm\_manual\_input - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
+  - if pwm\_manual\_input - 3000 >= MIN_THROTTLE:
+
+    * :math:`motor\_A += pwm\_manual\_input + yaw\_quad\_control - pitch\_body\_frame\_control`
+    * :math:`motor\_B += pwm\_manual\_input - yaw\_quad\_control - roll\_body\_frame\_control`
+    * :math:`motor\_C += pwm\_manual\_input + yaw\_quad\_control + pitch\_body\_frame\_control`
+    * :math:`motor\_D += pwm\_manual\_input - yaw\_quad\_control + roll\_body\_frame\_control`
