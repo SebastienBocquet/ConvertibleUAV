@@ -18,8 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <cmath>
-
 #include "defines.h"
 #include "../libDCM/libDCM_internal.h"
 
@@ -218,7 +216,11 @@ void run_flightplan(void)
 	
 	if (desired_behavior._.altitude)
 	{
+#if (SILSIM == 1)
 		if (std::abs(IMUheight - goal.height) < ((int16_t) HEIGHT_MARGIN))
+#else
+        if (abs(IMUheight - goal.height) < ((int16_t) HEIGHT_MARGIN))
+#endif
 			next_waypoint();
 	}
 	else

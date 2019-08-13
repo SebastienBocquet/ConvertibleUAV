@@ -211,7 +211,11 @@ void compute_bearing_to_goal(void)
 	//	Determine if the crosstrack error is within saturation limit.
 	//	If so, then multiply by 64 to pick up an extra 6 bits of resolution.
 
+#if (SILSIM == 1)
 		if (std::abs(crosstrack) < ((uint16_t)(CROSS_TRACK_MARGIN)))
+#else
+        if (abs(crosstrack) < ((uint16_t)(CROSS_TRACK_MARGIN)))
+#endif
 		{
 			crossVector[1].WW <<= 6;
 			cross_rotate[1] = crossVector[1]._.W1;
