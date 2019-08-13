@@ -232,36 +232,18 @@ void flight_mode_switch_check_set(void)
 				break;
 		}	
 #else  	// Three Mode Switch
-		//	Select manual, automatic, or come home, based on pulse width of the switch input channel as defined in options.h.
+		//Manual mode only
 
-		tmp = udb_pwIn[MODE_SWITCH_INPUT_CHANNEL];
-
-		if (udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] > MODE_SWITCH_THRESHOLD_HIGH)
-		{
-			flags._.man_req = 0;
-			flags._.auto_req = 0;
-			flags._.home_req = 1;
-		}
-		else if (udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] > MODE_SWITCH_THRESHOLD_LOW)
-		{
-			flags._.man_req = 0;
-			flags._.auto_req = 1;
-			flags._.home_req = 0;
-		}
-		else
-		{
-			#if (FLY_BY_DATALINK_ENABLED == 1)
+#if (FLY_BY_DATALINK_ENABLED == 1)
 			// when using fbdl, we are *always* in stabilized mode
 			flags._.man_req = 0;
 			flags._.auto_req = 1;
 			flags._.home_req = 0;
-			
-			#else
+#else
 			flags._.man_req = 1;
 			flags._.auto_req = 0;
 			flags._.home_req = 0;
-			#endif
-		}	
+#endif	
 #endif // MODE_SWITCH_TWO_POSITION
 		// With Failsafe Hold enabled: After losing RC signal, and then regaining it, you must manually
 		// change the mode switch position in order to exit RTL mode.
