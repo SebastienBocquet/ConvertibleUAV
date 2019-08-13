@@ -162,15 +162,6 @@ void motorCntrl(void)
     }
     else
 	{
-		if (current_flight_phase == F_MANUAL_TAKE_OFF)
-        {
-            manual_to_auto_ramp = 0;
-        }
-        else
-		{
-			apply_ramp(&manual_to_auto_ramp, INCREMENT_MANUAL_TO_AUTO, 0, RMAX);
- 		}
-
 		//insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in quad mode
 		commanded_roll =  ( pwManual[AILERON_INPUT_CHANNEL] 
 						- udb_pwTrim[AILERON_INPUT_CHANNEL])*commanded_tilt_gain ;
