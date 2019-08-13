@@ -275,7 +275,7 @@ void flight_mode_switch_check_set(void)
 	}
 }
 
-void integral_pid_switch_check_set(void)
+void integral_pid_term_switch_check_set(void)
 {
 	if (udb_flags._.radio_on)
 	{

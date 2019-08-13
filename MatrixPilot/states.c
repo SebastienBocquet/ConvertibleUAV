@@ -82,6 +82,7 @@ void udb_background_callback_periodic(void)
 		counter = 0;
 		// Determine whether a flight mode switch is commanded.
 		flight_mode_switch_check_set();
+        integral_pid_term_switch_check_set();
 		// Update the nav capable flag. If the GPS has a lock, gps_data_age will be small.
 		// For now, nav_capable will always be 0 when the Airframe type is AIRFRAME_HELI.
 #if (AIRFRAME_TYPE != AIRFRAME_HELI)
@@ -100,6 +101,7 @@ void udb_background_callback_periodic(void)
 	else if (flags._.update_autopilot_state_asap == 1)
 	{
 		flight_mode_switch_check_set();
+        integral_pid_term_switch_check_set();
 		(*stateS)();
 	}
 	flags._.update_autopilot_state_asap = 0;
