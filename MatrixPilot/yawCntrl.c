@@ -141,13 +141,5 @@ void normalYawCntrl(void)
 
 void hoverYawCntrl(void)
 {
-#if (MANUAL_HEADING == 1)
-	plane_to_north = compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], -128, 127)<<8;
-#else
-	plane_to_north = 0;
-#endif
-
-	//additional_int16_export5 = plane_to_north;
-
-	yaw_control = plane_to_north;
+	yaw_control = 0;
 }

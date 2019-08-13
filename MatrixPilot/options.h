@@ -511,9 +511,6 @@
 #define TILT_RATE_DELTA_FILTER 160.
 #define YAW_RATE_KP 0.20
 
-//heading controlled by Tx
-#define MANUAL_HEADING 0
-
 // Vertical damping 
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires shorter pulses, then flip the sign to minus
 #define ACCEL_K 0.
