@@ -319,14 +319,6 @@ void altitudeCntrl(void)
 {
 	if (current_orientation == F_HOVER)
     {
-        updateAltitudeMeasurement();
-        
-        determine_is_close_to_ground(
-            udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]),
-            z_filtered);
-        
-        update_measurement_failure();
-        
         if (canStabilizeHover())
         {
             hoverAltitudeCntrl();
