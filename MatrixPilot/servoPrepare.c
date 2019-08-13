@@ -93,8 +93,6 @@ void dcm_servo_callback_prepare_outputs(void)
 #endif // ALTITUDE_GAINS_VARIABLE
 	
 			updateBehavior();
-            
-            updateFlightPhase();
     
 			wind_gain = wind_gain_adjustment ();
 	
