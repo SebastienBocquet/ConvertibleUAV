@@ -292,3 +292,31 @@ void flight_mode_switch_check_set(void)
 		flags._.home_req = 1;
 	}
 }
+
+void integral_pid_switch_check_set(void)
+{
+	if (udb_flags._.radio_on)
+	{
+        // Three Mode Switch
+		//	Select manual, automatic, or come home, based on pulse width of the switch input channel as defined in options.h.
+
+		tmp = udb_pwIn[MODE_SWITCH_INPUT_CHANNEL];
+
+		if (udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] > MODE_SWITCH_THRESHOLD_HIGH)
+		{
+			flags._.integral_pid_term = 1;
+		}
+		else if (udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] > MODE_SWITCH_THRESHOLD_LOW)
+		{
+			flags._.integral_pid_term = 1;
+		}
+		else
+		{
+			flags._.integral_pid_term = 0;
+		}	
+	}
+	else
+	{
+        flags._.integral_pid_term = 1;
+	}
+}

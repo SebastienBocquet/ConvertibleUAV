@@ -53,6 +53,7 @@ struct flag_bits {
     uint16_t engines_off                : 1;
     uint16_t mag_failure                : 1;
     uint16_t invalid_mag_reading        : 1;
+    uint16_t integral_pid_term          : 1;
 };
 
 union fbts_int { struct flag_bits _; int16_t WW; };
