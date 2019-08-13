@@ -122,13 +122,19 @@ boolean canStabilizeHover(void)
 
 void updateBehavior(void)
 {          
-	//in cm/s
-	uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
-	                                   IMUvelocityy._.W1 - estimatedWind[1]);
+    int32_t temp;
+    int16_t pwManual[NUM_INPUTS+1];
 
-	int16_t current_altitude = IMUlocationz._.W1;
-	int16_t transition_altitude = TRANSITION_ALTITUDE;
-    boolean isHovering = HOVERING_STABILIZED_MODE && (horizontal_air_speed <= minimum_airspeed || current_altitude <= transition_altitude);
+	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
+	for (temp = 0; temp <= NUM_INPUTS; temp++)
+    {
+		if (udb_flags._.radio_on)
+			pwManual[temp] = udb_pwIn[temp];
+		else
+			pwManual[temp] = udb_pwTrim[temp];
+    }
+        
+    boolean isHovering = HOVERING_STABILIZED_MODE && ((pwManual[INPUT_CHANNEL_AUX1] - 2000) * MOTOR_TRANSITION_PITCH * 90 / 120 / 100);
 
 	if (current_orientation == F_INVERTED)
 	{

@@ -107,7 +107,7 @@ extern int16_t desiredSpeed; // Stored in 10ths of meters per second
 void applyManoeuvres(void);
 void servoMix(void);
 void cameraServoMix(void);
-void sonarServoMix(void);
+void motorPitchServoMix(void);
 
 // Choose the type of air frame by setting AIRFRAME_TYPE in options.h
 // See options.h for a description of each type
@@ -122,10 +122,10 @@ void sonarServoMix(void);
 
 extern uint16_t udb_pwm_sonar ;				// Raw pwm units from sonar device
 extern uint16_t udb_pwm_lidar ;				// Raw pwm units from lidar device
-extern int16_t sonar_pitch_servo_pwm_delta; 
+extern int16_t motor_pitch_servo_pwm_delta; 
 extern int16_t cam_pitch_servo_pwm_delta;  
 extern int16_t cam_yaw_servo_pwm_delta;
-int32_t sonar_pitchServoLimit(int32_t pwm_pulse);
+int16_t motorPitchServoLimit(int16_t pwm_pulse);
 int32_t cam_pitchServoLimit(int32_t pwm_pulse);
 int32_t cam_yawServoLimit(int32_t pwm_pulse);
 
