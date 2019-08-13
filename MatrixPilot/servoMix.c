@@ -25,10 +25,6 @@
 int16_t aileronbgain;
 int16_t elevatorbgain;
 int16_t rudderbgain;
-const float invdeltaservofilter = (float)(2 * SERVO_HZ);
-float roll_filtered_flt=0.;
-float pitch_filtered_flt=0.;
-float yaw_filtered_flt=0.;
 
 int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_max)
 {
@@ -99,17 +95,14 @@ void servoMix(void)
 #if (AIRFRAME_TYPE == AIRFRAME_STANDARD)
 
 		temp = pwManual[AILERON_INPUT_CHANNEL] + REVERSE_IF_NEEDED(AILERON_CHANNEL_REVERSED, roll_control + waggle);
-        temp = exponential_filter(temp, &roll_filtered_flt, invdeltaservofilter);
         udb_pwOut[AILERON_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp + REVERSE_IF_NEEDED(FLAP_CHANNEL_REVERSED, flap_control));
 		udb_pwOut[AILERON_SECONDARY_OUTPUT_CHANNEL] = 3000 +
 			REVERSE_IF_NEEDED(AILERON_SECONDARY_CHANNEL_REVERSED, udb_servo_pulsesat(temp-REVERSE_IF_NEEDED(FLAP_CHANNEL_REVERSED, flap_control)) - 3000);
 
 		temp = pwManual[ELEVATOR_INPUT_CHANNEL] + REVERSE_IF_NEEDED(ELEVATOR_CHANNEL_REVERSED, pitch_control);
-        temp = exponential_filter(temp, &pitch_filtered_flt, invdeltaservofilter);
 		udb_pwOut[ELEVATOR_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp);
 
 		temp = pwManual[RUDDER_INPUT_CHANNEL] + REVERSE_IF_NEEDED(RUDDER_CHANNEL_REVERSED, yaw_control - waggle);
-        temp = exponential_filter(temp, &yaw_filtered_flt, invdeltaservofilter);
 		udb_pwOut[RUDDER_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp);
 
 		if (pwManual[THROTTLE_INPUT_CHANNEL] == 0)
