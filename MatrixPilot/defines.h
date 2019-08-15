@@ -274,7 +274,6 @@ void flightplan_live_commit(void);
 ////////////////////////////////////////////////////////////////////////////////
 // behavior.c
 void init_behavior(void);
-void init_flight_phase(void);
 void setBehavior(int16_t newBehavior);
 void updateBehavior(void);
 void updateTriggerAction(void);

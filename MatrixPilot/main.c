@@ -66,7 +66,6 @@ int main(void)
 	init_servoPrepare();
 	init_states();
 	init_behavior();
-    init_flight_phase();
 	init_serial();
 
 	udb_run();
