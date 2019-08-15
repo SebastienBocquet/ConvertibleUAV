@@ -250,85 +250,85 @@ void triggerActionSetValue(boolean newValue)
 	currentTriggerActionValue = newValue;
 }
 
-void updateFlightPhase()
-{           
-    int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
-    
-    if (current_flight_phase == F_MANUAL_TAKE_OFF)
-    {
-        if (!flags._.is_close_to_ground)
-        {
-            current_flight_phase = F_IS_IN_FLIGHT;
-            LED_BLUE = LED_ON;
-            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
-            activateTrigger(2*FLIGHT_PHASE_PULSE_PERIOD);
-        }
-        else
-        {
-            current_flight_phase = F_MANUAL_TAKE_OFF;
-            LED_BLUE = LED_OFF;
-        }
-    }
-    else if (current_flight_phase == F_IS_IN_FLIGHT)
-    {
-        if (canStabilizeHover() && flags._.is_close_to_ground)
-        {
-            current_flight_phase = F_AUTO_LAND;
-            LED_BLUE = LED_OFF;
-            LED_ORANGE = LED_ON;
-            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
-            activateTrigger(3*FLIGHT_PHASE_PULSE_PERIOD);
-        }
-        else if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)) && flags._.is_close_to_ground)
-        {
-            current_flight_phase = F_MANUAL_TAKE_OFF;
-            LED_BLUE = LED_OFF;
-            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
-            activateTrigger(FLIGHT_PHASE_PULSE_PERIOD);
-            reset_altitude_control();
-        }
-        else
-        {
-            current_flight_phase = F_IS_IN_FLIGHT;
-            LED_BLUE = LED_ON;
-        }
-    }
-    else if (current_flight_phase == F_AUTO_LAND)
-    {
-        if (canStabilizeHover() && auto_landing_ramp <= 0)
-        {
-            current_flight_phase = F_ENGINE_OFF;
-            LED_ORANGE = LED_OFF;
-            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
-            activateTrigger(4*FLIGHT_PHASE_PULSE_PERIOD);
-            reset_altitude_control();
-        }
-        else if (!canStabilizeHover())
-        {
-            current_flight_phase = F_IS_IN_FLIGHT;
-            LED_BLUE = LED_ON;
-            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
-            activateTrigger(2*FLIGHT_PHASE_PULSE_PERIOD);
-        }
-        else
-        {
-            current_flight_phase = F_AUTO_LAND;
-            LED_ORANGE = LED_ON;
-        }
-    }
-    else
-    {        
-        if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)))
-        {
-            current_flight_phase = F_MANUAL_TAKE_OFF;
-            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
-            activateTrigger(FLIGHT_PHASE_PULSE_PERIOD);
-            flags._.engines_off = 0;
-        }
-        else
-        {
-            current_flight_phase = F_ENGINE_OFF;
-            flags._.engines_off = 1;
-        }
-    }
-}
+//void updateFlightPhase()
+//{           
+//    int16_t throttle = udb_servo_pulsesat(udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL]) - udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL]);
+//    
+//    if (current_flight_phase == F_MANUAL_TAKE_OFF)
+//    {
+//        if (!flags._.is_close_to_ground)
+//        {
+//            current_flight_phase = F_IS_IN_FLIGHT;
+//            LED_BLUE = LED_ON;
+//            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
+//            activateTrigger(2*FLIGHT_PHASE_PULSE_PERIOD);
+//        }
+//        else
+//        {
+//            current_flight_phase = F_MANUAL_TAKE_OFF;
+//            LED_BLUE = LED_OFF;
+//        }
+//    }
+//    else if (current_flight_phase == F_IS_IN_FLIGHT)
+//    {
+//        if (canStabilizeHover() && flags._.is_close_to_ground)
+//        {
+//            current_flight_phase = F_AUTO_LAND;
+//            LED_BLUE = LED_OFF;
+//            LED_ORANGE = LED_ON;
+//            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
+//            activateTrigger(3*FLIGHT_PHASE_PULSE_PERIOD);
+//        }
+//        else if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)) && flags._.is_close_to_ground)
+//        {
+//            current_flight_phase = F_MANUAL_TAKE_OFF;
+//            LED_BLUE = LED_OFF;
+//            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
+//            activateTrigger(FLIGHT_PHASE_PULSE_PERIOD);
+//            reset_altitude_control();
+//        }
+//        else
+//        {
+//            current_flight_phase = F_IS_IN_FLIGHT;
+//            LED_BLUE = LED_ON;
+//        }
+//    }
+//    else if (current_flight_phase == F_AUTO_LAND)
+//    {
+//        if (canStabilizeHover() && auto_landing_ramp <= 0)
+//        {
+//            current_flight_phase = F_ENGINE_OFF;
+//            LED_ORANGE = LED_OFF;
+//            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
+//            activateTrigger(4*FLIGHT_PHASE_PULSE_PERIOD);
+//            reset_altitude_control();
+//        }
+//        else if (!canStabilizeHover())
+//        {
+//            current_flight_phase = F_IS_IN_FLIGHT;
+//            LED_BLUE = LED_ON;
+//            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
+//            activateTrigger(2*FLIGHT_PHASE_PULSE_PERIOD);
+//        }
+//        else
+//        {
+//            current_flight_phase = F_AUTO_LAND;
+//            LED_ORANGE = LED_ON;
+//        }
+//    }
+//    else
+//    {        
+//        if (throttle < (int16_t)(2.0*SERVORANGE*(HOVER_THROTTLE_MIN)))
+//        {
+//            current_flight_phase = F_MANUAL_TAKE_OFF;
+//            setTriggerParams(FLIGHT_PHASE_PULSE_PERIOD, FLIGHT_PHASE_PULSE_DURATION);
+//            activateTrigger(FLIGHT_PHASE_PULSE_PERIOD);
+//            flags._.engines_off = 0;
+//        }
+//        else
+//        {
+//            current_flight_phase = F_ENGINE_OFF;
+//            flags._.engines_off = 1;
+//        }
+//    }
+//}
