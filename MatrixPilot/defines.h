@@ -89,10 +89,6 @@ extern int16_t pitch_control, roll_control, yaw_control, throttle_control, throt
 extern union longww throttleFiltered;
 extern int16_t pitchAltitudeAdjust;
 
-//extern int16_t current_manoeuvreValues[NUM_OUTPUTS];
-//struct manoeuvreDef {int16_t channel; int32_t start_time; int32_t end_time; int16_t value; };
-//void setManoeuvre(struct manoeuvreDef*, int32_t);
-
 #if (SPEED_CONTROL == 1)
 extern int16_t desiredSpeed; // Stored in 10ths of meters per second
 #endif
@@ -252,11 +248,7 @@ void init_flightplan(int16_t flightplanNum);
 boolean use_fixed_origin(void);
 struct absolute3D get_fixed_origin(void);
 int32_t get_fixed_altitude(void);
-//boolean is_target_alt(void);
 void run_flightplan(void);
-//void run_vertical_segments(void);
-//int16_t compute_target_alt(void);
-//int16_t compute_target_vz(void);
 
 void flightplan_live_begin(void);
 void flightplan_live_received_byte(uint8_t inbyte);
