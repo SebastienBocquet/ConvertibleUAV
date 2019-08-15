@@ -101,7 +101,6 @@ extern int16_t desiredSpeed; // Stored in 10ths of meters per second
 
 ////////////////////////////////////////////////////////////////////////////////
 // servoMix.c
-void applyManoeuvres(void);
 void servoMix(void);
 void cameraServoMix(void);
 void motorPitchServoMix(void);

@@ -34,24 +34,6 @@ int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_ma
 	return (int16_t)(tmp2/2000)+order_min;
 }
 
-//void applyManoeuvres(void)
-////update controls with current_manoeuvreValues. if manoeuvreValue = -RMAX, the manoeuvre is disabled.
-//{
-//    if (flags._.manoeuvre == 1)
-//    {
-//        if (current_manoeuvreValues[THROTTLE_OUTPUT_CHANNEL] > -RMAX) throttle_control = current_manoeuvreValues[THROTTLE_OUTPUT_CHANNEL];
-//        if (current_manoeuvreValues[ELEVATOR_OUTPUT_CHANNEL] > -RMAX) pitch_control = current_manoeuvreValues[ELEVATOR_OUTPUT_CHANNEL];
-//        if (current_manoeuvreValues[AILERON_OUTPUT_CHANNEL] > -RMAX) roll_control = current_manoeuvreValues[AILERON_OUTPUT_CHANNEL];
-//        if (current_manoeuvreValues[RUDDER_OUTPUT_CHANNEL] > -RMAX) yaw_control = current_manoeuvreValues[RUDDER_OUTPUT_CHANNEL];
-//    }
-//}
-
-//	Perform control based on the airframe type.
-//	Use the radio to determine the baseline pulse widths if the radio is on.
-//	Otherwise, use the trim pulse width measured during power up.
-//
-//	Mix computed roll and pitch controls into the output channels for the compiled airframe type.
-
 void servoMix(void)
 {
 	int32_t temp;
