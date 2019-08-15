@@ -420,14 +420,6 @@ void serial_output_8hz(void)
 //                    (int16_t)(100*IMUlocationy._.W1), 
 //                    (int16_t)(100*IMUlocationz._.W1));
             serial_output("vz%i;", IMUvelocityz._.W1);
-
-            serial_output("az%i;tz%i;tv%i;av%i;", accelEarth[2], z_target_filtered, target_vz_bis, target_accz_bis);    
-            serial_output("zf%i;vf%i;af%i;zi%i;vi%i;ai%i;", 
-                z_filtered, vz_filtered, accz_filtered, 
-                    (int16_t)(error_integral_z/(int16_t)(HEARTBEAT_HZ)),
-                    (int16_t)(error_integral_vz/(int16_t)(HEARTBEAT_HZ)),
-                    (int16_t)(error_integral_accz/(int16_t)(HEARTBEAT_HZ))
-                    );
 //            
 //            serial_output("ye%i;yc%i;mf%i;mi%i;",
 //                yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
