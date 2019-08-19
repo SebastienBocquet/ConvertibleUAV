@@ -379,12 +379,6 @@ void motorCntrl(void)
         roll_body_frame_control = 3*(( pitch_quad_control + roll_quad_control )/4) ;
 
 #endif
-
-#ifdef TestGains
-        roll_quad_error_integral.WW  = 0;
-        pitch_quad_error_integral.WW  = 0;
-        yaw_quad_error_integral.WW  = 0;
-#endif
                 
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
