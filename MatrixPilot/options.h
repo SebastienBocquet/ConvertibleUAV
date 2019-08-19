@@ -529,8 +529,6 @@
 #define YAWKP_AILERON                       0.04  //may need to be increase in hovering
 #define YAWKD_AILERON                       0.
 #define AILERON_BOOST                       1.
-
-#define FLAP_OFFSET                         0.
             
 // Elevator/Pitch Control Gains
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125

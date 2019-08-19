@@ -126,9 +126,6 @@ void normalRollCntrl(void)
 
 	roll_control = (int32_t)rollAccum._.W1 - (int32_t)gyroRollFeedback._.W1 - (int32_t)gyroYawFeedback._.W1;
 	// Servo reversing is handled in servoMix.c
-
-    //flap control
-    //flap_control = (int16_t)(FLAP_OFFSET);
 }
 
 
