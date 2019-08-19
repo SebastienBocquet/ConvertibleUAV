@@ -44,31 +44,10 @@
 #if (USE_CONFIGFILE == 1)
 	uint16_t hoverrollkp;
 	uint16_t hoverrollkd;
-#elif ((SERIAL_OUTPUT_FORMAT == SERIAL_MAVLINK) || (GAINS_VARIABLE == 1))
-    uint16_t hoverrollToWPkp = (uint16_t)(HOVER_ROLLTOWPKP*RMAX);
-    uint16_t hoverrollToWPki = (uint16_t)(HOVER_ROLLTOWPKI*RMAX);
-	int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_ROLLTOWP);
-#else
-    uint16_t hoverrollToWPkp = (uint16_t)(HOVER_PITCHTOWPKP*RMAX);
-    uint16_t hoverrollToWPvkp = (uint16_t)(HOVER_PITCHTOWPVKP*RMAX);
-	const int32_t limitintegralrollToWP = (int32_t)(LIMIT_INTEGRAL_PITCHTOWP);
-    const int32_t limitintegralrollVToWP = (int32_t)(LIMIT_INTEGRAL_VPITCHTOWP);
-#ifdef TestGPSPositioning
-    uint16_t hoverrollToWPki = 0;
-    const int16_t limittargetrollV = RMAX;
-#else
-    uint16_t hoverrollToWPki = (uint16_t)(HOVER_PITCHTOWPKI*RMAX);
-    const int16_t limittargetrollV = (int16_t)(HOVER_LIMIT_TARGETVPITCH);
-#endif
 #endif
 
 int16_t hovering_roll_order;
-int16_t target_roll = 0;
-int16_t roll_v_target = 0;
-int32_t roll_error_integral = 0;
-int32_t roll_v_error_integral = 0;
-int16_t roll_hover_corr = 0;
-
+    
 void normalRollCntrl(void);
 void hoverRollCntrl(void);
 
@@ -155,55 +134,5 @@ void normalRollCntrl(void)
 
 void hoverRollCntrl(void)
 {
-    int16_t max_tilt_sine = sine((int8_t)(MAX_TILT*.7111));
-
-    if (flags._.pitch_feedback && flags._.GPS_steering)
-	{
-        compute_hovering_dir();
-        
-        //error along x axis between aircraft position and goal (origin point here) in cm
-
-        //Useless a priori
-        //determine_navigation_deflection('y');
-        
-        if (control_position_hold)
-        {
-            target_roll = compute_target_pitch(hovering_roll_order, tofinish_line_factor10, max_tilt_sine);
-        }
-        else
-        {
-            target_roll = 0;
-            roll_error_integral = 0;
-            roll_v_error_integral = 0;
-        }
-
-        additional_int16_export2 = target_roll;
-        
-        uint16_t horizontal_air_speed = vector2_mag(IMUvelocityx._.W1 - estimatedWind[0], 
-	                                   IMUvelocityy._.W1 - estimatedWind[1]);
-        
-        //DEBUG
-        horizontal_air_speed = 0;
-        
-		//PI controller on roll angle
-		roll_v_target = compute_pi_block(rmat[6], -target_roll, hoverrollToWPkp, hoverrollToWPki, &roll_error_integral, 
-                                    (int16_t)(SERVO_HZ), limitintegralrollToWP, control_position_hold);
-        
-        additional_int16_export6 = rmat[6];
-                
-        roll_v_target = limit_value(roll_v_target, -limittargetrollV, limittargetrollV);
-        
-        additional_int16_export4 = roll_v_target;
-        
-        roll_hover_corr = compute_pi_block(horizontal_air_speed, roll_v_target, hoverrollToWPvkp, 0, &roll_v_error_integral, 
-                                  (int16_t)(SERVO_HZ), limitintegralrollVToWP, control_position_hold);
-        
-        additional_int16_export5 = roll_hover_corr;
-	}
-	else
-	{
-		roll_hover_corr = 0;
-	}
-
-	roll_control = roll_hover_corr;
+	roll_control = 0.;
 }
