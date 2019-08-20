@@ -122,19 +122,7 @@ boolean canStabilizeHover(void)
 
 void updateBehavior(void)
 {          
-    int32_t temp;
-    int16_t pwManual[NUM_INPUTS+1];
-
-	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
-	for (temp = 0; temp <= NUM_INPUTS; temp++)
-    {
-		if (udb_flags._.radio_on)
-			pwManual[temp] = udb_pwIn[temp];
-		else
-			pwManual[temp] = udb_pwTrim[temp];
-    }
-        
-    boolean isHovering = HOVERING_STABILIZED_MODE && ((pwManual[INPUT_CHANNEL_AUX1] - 2000) * MOTOR_TRANSITION_PITCH * 90 / 120 / 100);
+    boolean isHovering = HOVERING_STABILIZED_MODE && motorsInHoveringPos();
 
 	if (current_orientation == F_INVERTED)
 	{

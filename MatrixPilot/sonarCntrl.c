@@ -66,3 +66,9 @@ void motorPitchCntrl(void)
     motor_pitch_servo_pwm_delta = servo_pwm + motor_pitch_offset_centred_pwm;		
 #endif
 }
+
+boolean motorsInHoveringPos()
+{
+    return (REVERSE_IF_NEEDED(MOTOR_PITCH_CHANNEL_REVERSED, 
+		motor_pitch_servo_pwm_delta) > motor_pitch_offset_centred_pwm);
+}
