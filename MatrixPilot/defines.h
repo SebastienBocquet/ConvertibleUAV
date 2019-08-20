@@ -121,12 +121,12 @@ extern uint16_t udb_pwm_lidar ;				// Raw pwm units from lidar device
 extern int16_t motor_pitch_servo_pwm_delta;
 extern int16_t cam_pitch_servo_pwm_delta;  
 extern int16_t cam_yaw_servo_pwm_delta;
-int16_t motorPitchServoLimit(int16_t pwm_pulse);
+int16_t motorPitchServoLimit(int16_t);
 boolean motorsInHoveringPos(void); 
-int32_t cam_pitchServoLimit(int32_t pwm_pulse);
-int32_t cam_yawServoLimit(int32_t pwm_pulse);
+int32_t cam_pitchServoLimit(int32_t);
+int32_t cam_yawServoLimit(int32_t);
 
-int16_t compute_pot_order(int16_t pot_order, int16_t order_min, int16_t order_max);
+int16_t compute_pot_order(int16_t, int16_t, int16_t);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ extern int16_t throttle4;
 extern int16_t mean_throttle;
 
 int16_t IIR_Filter(int32_t*, int16_t, int8_t);
-int16_t limit_value(int16_t value, int16_t limit_min, int16_t limit_max);
+int16_t limit_value(int16_t, int16_t, int16_t);
 int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*, int16_t, int32_t, boolean);
 int16_t exponential_filter(int16_t, float*, float);
 int32_t exponential_filter32(int32_t, float*, float);
