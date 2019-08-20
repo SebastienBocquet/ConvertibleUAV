@@ -122,6 +122,7 @@ extern int16_t motor_pitch_servo_pwm_delta;
 extern int16_t cam_pitch_servo_pwm_delta;  
 extern int16_t cam_yaw_servo_pwm_delta;
 int16_t motorPitchServoLimit(int16_t pwm_pulse);
+boolean motorsInHoveringPos(void); 
 int32_t cam_pitchServoLimit(int32_t pwm_pulse);
 int32_t cam_yawServoLimit(int32_t pwm_pulse);
 
