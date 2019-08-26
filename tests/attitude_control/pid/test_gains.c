@@ -18,20 +18,10 @@ namespace
             // before each test).
             printf("Entering set up\n");
             dcm_flags._.calib_finished = 1;
-            manual_to_auto_ramp = RMAX;
-            flags._.pitch_feedback = 0;
+            dcm_flags._.yaw_init_finished = 1;
             current_orientation = F_HOVER;
-            flags._.mag_failure = 0;
-            flags._.invalid_mag_reading = 0;
-            flags._.is_close_to_ground = 1;
-            yaw_control = 0;
-            roll_control = 0;
-            pitch_control = 0;
-            flags._.engines_off = 0;
-            current_flight_phase = F_MANUAL_TAKE_OFF;
             throttle_hover_control = 0;
             udb_flags._.radio_on = 1;
-            udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2000 + 1000;
             rmat[6] = 1000;
         }
 

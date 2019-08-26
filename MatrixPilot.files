@@ -121,6 +121,7 @@ MAVLink/include/mavlink_types.h
 MAVLink/include/protocol.h
 MatrixPilot/HardwareProfile.h
 MatrixPilot/MAVLink.c
+MatrixPilot/_motorCntrl_simplified.c
 MatrixPilot/airspeedCntrl.c
 MatrixPilot/airspeedCntrl.h
 MatrixPilot/airspeed_options.h
@@ -353,6 +354,6 @@ libUDB/traps.c
 libUDB/uart.c
 libUDB/uart.h
 libUDB/write.c
-tests/main_test1.cpp
-tests/override_flags.h
-tests/test_motorCntrl.c
+tests/attitude_control/pid/test_gains.c
+tests/test_main.c
+tests/test_template.c
