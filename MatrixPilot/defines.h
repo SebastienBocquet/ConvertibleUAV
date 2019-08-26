@@ -126,7 +126,7 @@ boolean motorsInHoveringPos(void);
 int32_t cam_pitchServoLimit(int32_t);
 int32_t cam_yawServoLimit(int32_t);
 
-int16_t compute_pot_order(int16_t, int16_t, int16_t);
+int16_t compute_proportional_order(int16_t, int16_t, int16_t, int16_t);
 
 
 ////////////////////////////////////////////////////////////////////////////////
