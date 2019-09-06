@@ -355,5 +355,6 @@ libUDB/uart.c
 libUDB/uart.h
 libUDB/write.c
 tests/attitude_control/pid/test_gains.c
+tests/control_mode/test_control_mode.c
 tests/test_main.c
 tests/test_template.c
