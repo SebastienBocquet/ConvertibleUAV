@@ -47,7 +47,6 @@ void motorPitchInit(void)
 
 void motorPitchCntrl(void)
 {
-#if (USE_MOTOR_PITCH_CONTROL == 1)
     int32_t temp;
     int16_t servo_pwm;
     int16_t pwManual[NUM_INPUTS+1];
@@ -64,7 +63,6 @@ void motorPitchCntrl(void)
     temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), MOTOR_PITCH_SERVO_THROW);
 	servo_pwm = (int16_t)(temp / MOTOR_PITCH_SERVO_RANGE) ;
     motor_pitch_servo_pwm_delta = servo_pwm + motor_pitch_offset_centred_pwm;		
-#endif
 }
 
 boolean motorsInHoveringPos()

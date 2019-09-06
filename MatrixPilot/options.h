@@ -630,7 +630,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Motor pitch control
-#define USE_MOTOR_PITCH_CONTROL               1
 // All number should be integers
 #define MOTOR_PITCH_SERVO_RANGE               90   // servo angular range in degrees at max pwm
 #define MOTOR_PITCH_SERVO_THROW               120   // desired servo angular range in degrees at max pwm
