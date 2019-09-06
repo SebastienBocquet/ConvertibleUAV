@@ -48,8 +48,6 @@ MPSIL_OBJECTS = \
 ./MatrixPilot/euler_angles.o \
 ./MatrixPilot/flightplan-logo.o \
 ./MatrixPilot/flightplan-waypoints.o \
-./tests/test_main.o \
-./tests/attitude_control/pid/test_gains.o \
 ./MatrixPilot/MAVLink.o \
 ./MatrixPilot/mode_switch.o \
 ./MatrixPilot/mp_osd.o \
@@ -64,7 +62,11 @@ MPSIL_OBJECTS = \
 ./MatrixPilot/telemetry.o \
 ./MatrixPilot/yawCntrl.o \
 ./MatrixPilot/sonarCntrl.o \
-./MatrixPilot/motorCntrl.o
+./MatrixPilot/motorCntrl.o \
+\
+./tests/test_main.o \
+./tests/attitude_control/pid/test_gains.o \
+./tests/control_mode/test_control_mode.o 
 
 MPCAT_TARGET   = silcat
 
