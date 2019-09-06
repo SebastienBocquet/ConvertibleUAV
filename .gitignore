@@ -29,6 +29,7 @@
 *.x86_64
 *.hex
 *.map
+build/
 
 # Debug files
 *.dSYM/
@@ -42,3 +43,7 @@
 *.html
 
 libUDB/fixDeps.h
+
+#qtcreator project
+MatrixPilot.files
+MatrixPilot.includes
