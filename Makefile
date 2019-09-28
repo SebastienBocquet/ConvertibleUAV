@@ -66,7 +66,8 @@ MPSIL_OBJECTS = \
 \
 ./tests/test_main.o \
 ./tests/attitude_control/pid/test_gains.o \
-./tests/control_mode/test_control_mode.o 
+./tests/control_mode/test_control_mode.o \
+./tests/attitude_control/test_tx_linear_control.o 
 
 MPCAT_TARGET   = silcat
 

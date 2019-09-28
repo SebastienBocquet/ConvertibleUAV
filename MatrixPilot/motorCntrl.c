@@ -144,7 +144,7 @@ void motorCntrl(void)
 			pwManual[temp] = udb_pwTrim[temp];
     
     int16_t yaw_control_weight_reverse = 0;
-    int16_t yaw_control_weight = compute_proportional_order(pwManual[INPUT_CHANNEL_AUX2], 0, RMAX, yaw_control_weight_reverse);
+    int16_t yaw_control_weight = compute_tx_linear_control(pwManual[INPUT_CHANNEL_AUX2], 0, RMAX, yaw_control_weight_reverse);
 	
 	if (!dcm_flags._.calib_finished)
 	{

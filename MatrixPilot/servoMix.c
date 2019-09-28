@@ -26,7 +26,7 @@ int16_t aileronbgain;
 int16_t elevatorbgain;
 int16_t rudderbgain;
 
-int16_t compute_proportional_order(int16_t pot_order, int16_t order_min, int16_t order_max, int16_t reverse)
+int16_t compute_tx_linear_control(int16_t pot_order, int16_t order_min, int16_t order_max, int16_t reverse)
 {
     int16_t pwm = pot_order - 3000;
     pwm = REVERSE_IF_NEEDED(reverse, pwm);

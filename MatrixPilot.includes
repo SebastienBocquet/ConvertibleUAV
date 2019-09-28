@@ -24,3 +24,4 @@ Tools/MAVLink/mavlink/missionlib/testing
 Tools/MAVLink/mavlink/pymavlink/generator/C/include_v1.0
 Tools/MAVLink/mavlink/pymavlink/generator/C/test/windows
 tests/control_mode
+tests/attitude_control
