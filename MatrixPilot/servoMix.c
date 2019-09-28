@@ -26,13 +26,15 @@ int16_t aileronbgain;
 int16_t elevatorbgain;
 int16_t rudderbgain;
 
-int16_t compute_tx_linear_control(int16_t pot_order, int16_t order_min, int16_t order_max, int16_t reverse)
+int16_t compute_tx_linear_control(int16_t tx_order, int16_t order_min, int16_t order_max, int16_t reverse)
 {
-    int16_t pwm = pot_order - 3000;
+    /* Scale Tx order to [order_min, order_max] range.
+    */
+    int16_t pwm = tx_order - 3000;
     pwm = REVERSE_IF_NEEDED(reverse, pwm);
-	pwm = limit_value(pwm, -1000, 1000) + 3000;
-	int32_t tmp2 = __builtin_mulss(order_max - order_min, pwm);
-	return (int16_t)(tmp2 / 2000) + order_min;
+    pwm = limit_value(pwm, -1000, 1000) + 1000;
+    int32_t tmp2 = __builtin_mulss(order_max - order_min, pwm);
+    return (int16_t)(tmp2 / 2000) + order_min;
 }
 
 void servoMix(void)
