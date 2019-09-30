@@ -209,7 +209,8 @@ void motorCntrl(void)
 	matrix_normalize( target_orientation ) ;
 
 	//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
-	yaw_step = commanded_yaw * yaw_command_gain ;
+	int16_t tx_weighted_gain = int_scale(yaw_control_weight, yaw_command_gain);
+	yaw_step = commanded_yaw * tx_weighted_gain ;
 	VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
 	VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
 	MatrixRotate( target_orientation , yaw_vector ) ;
