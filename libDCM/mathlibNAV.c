@@ -401,6 +401,12 @@ int32_t long_scale(int32_t arg1, int16_t arg2)
 	}
 }
 
+int16_t int_scale(int16_t arg1, int16_t arg2)
+{
+    // return arg1*arg2/RMAX
+    return __builtin_divsd(__builtin_mulss(arg1, arg2), RMAX);
+}
+
 //void matrix22_add(int32_t *result, int32_t input1[], int32_t input2[])
 //{
 //    result[0]=input1[0]+input2[0];

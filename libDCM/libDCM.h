@@ -92,6 +92,7 @@ uint16_t vector3_mag(int16_t, int16_t, int16_t);
 uint16_t vector2_normalize(int16_t result[], int16_t input[]);
 uint16_t vector3_normalize(int16_t result[], int16_t input[]);
 int32_t long_scale(int32_t arg1, int16_t arg2);
+int16_t int_scale(int16_t arg1, int16_t arg2);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vars
