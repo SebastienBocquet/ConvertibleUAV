@@ -102,6 +102,34 @@ int16_t throttle3 = 0;
 int16_t throttle4 = 0;
 int16_t mean_throttle = 0;
 
+void reset_target_orientation()
+{
+    target_orientation[0] = RMAX;
+    target_orientation[1] = 0;
+    target_orientation[2] = 0;
+    target_orientation[3] = 0;
+    target_orientation[4] = RMAX;
+    target_orientation[5] = 0;
+    target_orientation[6] = 0;
+    target_orientation[7] = 0;
+    target_orientation[8] = RMAX;
+}
+
+void reset_derivative_terms()
+{
+    roll_rate_error_previous = 0;
+    roll_rate_error_delta_filt_flt = 0;
+    pitch_rate_error_previous = 0;
+    pitch_rate_error_delta_filt_flt = 0;
+}
+
+void reset_integral_terms()
+{
+    roll_quad_error_integral.WW  = 0;
+    pitch_quad_error_integral.WW  = 0;
+    yaw_quad_error_integral.WW  = 0;
+}
+
 void motorCntrl(void)
 {
     int16_t temp ;
