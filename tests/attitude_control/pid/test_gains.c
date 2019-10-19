@@ -118,6 +118,32 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + expected_motor_control);
     }
 
+    TEST_F(MotorCntrlPID, tiltKiGains)
+    {
+        float output_pid_1;
+        float output_pid_2;
+        int expected_motor_control;
+        const uint16_t tilt_ki = (uint16_t)(RMAX*1.0);
+        const uint16_t tilt_kp = (uint16_t)(RMAX*0.0);
+        const uint16_t tilt_rate_kp = (uint16_t)(RMAX*1.0);
+        const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
+        const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
+        const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
+        const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
+
+        rmat[6] = 1000;
+        motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
+        // Simulate first PID controller
+        output_pid_1 = - 1.0 * rmat[6] * 0.0241;
+        // Simulate second PID controller
+        output_pid_2 = - 1.0 * output_pid_1;
+        // Scale motor order for an X configuration quadcopter
+        expected_motor_control = -(3./4) * output_pid_2;
+        printf("computed expected motor control %d \n", expected_motor_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 - expected_motor_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - expected_motor_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 + expected_motor_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + expected_motor_control);
     }
 
 
