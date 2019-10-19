@@ -33,6 +33,17 @@ int16_t cam_pitch_servo_pwm_delta = 0;  // Change in PWM pulse value from centre
 int16_t cam_yaw_servo_pwm_delta = 0;  // Change in PWM pulse value from centred value (3000) to send to camera yaw servo
 int16_t motor_pitch_servo_pwm_delta = 0;
 
+const uint16_t tilt_ki = (uint16_t)(RMAX*TILT_KI);
+const uint16_t tilt_kp = (uint16_t)(RMAX*TILT_KP);
+const uint16_t tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
+const uint16_t tilt_rate_kd = (uint16_t)(RMAX*TILT_RATE_KD);
+const uint16_t yaw_ki = (uint16_t)(RMAX*YAW_KI);
+const uint16_t yaw_kp = (uint16_t)(RMAX*YAW_KP);
+const uint16_t yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
+//tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
+//tilt_rate_kd = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, (int16_t)(0.5*RMAX)));
+
+
 void manualPassthrough(void);
 
 
@@ -108,7 +119,7 @@ void dcm_servo_callback_prepare_outputs(void)
 			servoMix();
 		}
 
-		motorCntrl() ;
+		motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
 		if (udb_heartbeat_counter % (HEARTBEAT_HZ/SERVO_HZ) == 0)
 		{

@@ -194,7 +194,7 @@ extern int8_t desired_dir;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Quadcopter
-void motorCntrl( void ) ;
+void motorCntrl( const uint16_t, const uint16_t,const uint16_t,const uint16_t,const uint16_t,const uint16_t, const uint16_t) ;
 void reset_target_orientation(void);
 void reset_derivative_terms(void);
 void reset_integral_terms(void);

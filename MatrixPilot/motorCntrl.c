@@ -88,14 +88,6 @@ int16_t target_orientation[9] = { RMAX , 0 , 0 , 0 , RMAX , 0 , 0 , 0 , RMAX } ;
 
 const int16_t yaw_command_gain = ((long) MAX_YAW_RATE )*(0.03) ;
 
-uint16_t tilt_ki;
-uint16_t tilt_kp;
-uint16_t tilt_rate_kp;
-uint16_t tilt_rate_kd;
-uint16_t yaw_ki;
-uint16_t yaw_kp;
-uint16_t yaw_rate_kp;
-
 int16_t throttle1 = 0;
 int16_t throttle2 = 0;
 int16_t throttle3 = 0;
@@ -130,7 +122,7 @@ void reset_integral_terms()
     yaw_quad_error_integral.WW  = 0;
 }
 
-void motorCntrl(void)
+void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t tilt_rate_kp, const uint16_t tilt_rate_kd, const uint16_t yaw_ki, const uint16_t yaw_kp, const uint16_t yaw_rate_kp)
 {
     int16_t temp ;
 
@@ -258,16 +250,6 @@ void motorCntrl(void)
 	accel_feedback = long_accum._.W1 ;
 
 
-	//tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0, (int16_t)(0.5*RMAX)));
-	//tilt_rate_kd = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0, (int16_t)(0.5*RMAX)));
-
-	tilt_ki = (uint16_t)(RMAX*TILT_KI);
-	tilt_kp = (uint16_t)(RMAX*TILT_KP);
-	tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
-	tilt_rate_kd = (uint16_t)(RMAX*TILT_RATE_KD);
-	yaw_ki = (uint16_t)(RMAX*YAW_KI);
-	yaw_kp = (uint16_t)(RMAX*YAW_KP);
-	yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
 
 	//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -458,6 +440,7 @@ void motorCntrl(void)
 	udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_C ) ;
 	udb_pwOut[MOTOR_D_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_D ) ;
     }
+    /* while(1){} */
 }
 
 #ifndef MOTOR_A_POSITION
