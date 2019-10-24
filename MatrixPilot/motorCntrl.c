@@ -229,8 +229,7 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 	matrix_normalize( target_orientation ) ;
 
 	//		Rotate the virtual quad around the earth vertical axis according to the commanded yaw rate
-	int16_t tx_weighted_gain = int_scale(yaw_control_weight, yaw_command_gain);
-	yaw_step = commanded_yaw * tx_weighted_gain ;
+	yaw_step = commanded_yaw * yaw_command_gain ;
 	VectorScale( 3 , yaw_vector , &target_orientation[6] , yaw_step ) ;
 	VectorAdd( 3, yaw_vector , yaw_vector , yaw_vector ) ; // doubles the vector
 	MatrixRotate( target_orientation , yaw_vector ) ;
@@ -241,6 +240,9 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 
 	//		Compute orientation errors
 	yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
+    // weight yaw error according to Tx order
+    yaw_error = int_scale(yaw_error, yaw_control_weight);
+    //yaw_error = yaw_control_weight;
 
 	roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
 	pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
