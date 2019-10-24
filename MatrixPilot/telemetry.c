@@ -420,10 +420,12 @@ void serial_output_8hz(void)
 //                    (int16_t)(100*IMUlocationy._.W1), 
 //                    (int16_t)(100*IMUlocationz._.W1));
             serial_output("vz%i;", IMUvelocityz._.W1);
-//            
-//            serial_output("ye%i;yc%i;mf%i;mi%i;",
-//                yaw_error, yaw_quad_control, 100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
-//            
+            
+            serial_output("ye%i;pe%i;re%i;",
+                yaw_error, pitch_error, roll_error);
+            
+//           serial_output("mf%i;mi%i;",
+//                100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
 //            //GPS X-Y positioning : navigation
 //            serial_output("ey%i;tf%i;ph%i;",
 //                earth_yaw, tofinish_line_factor10, 100*(int16_t)(control_position_hold));
