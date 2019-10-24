@@ -763,7 +763,7 @@
 // Below are settings to configure the simulated UDB UARTs.
 // The SERIAL_RC_INPUT settings allow optionally talking over a serial port to a UDB
 // passing RC inputs through to the simulated UDB.
-#define SILSIM                              1
+#define SILSIM                              0
 #define SILSIM_GPS_RUN_AS_SERVER            0
 #define SILSIM_GPS_PORT                     14551       // default port to connect to XPlane HILSIM plugin
 #define SILSIM_GPS_HOST                     "127.0.0.1"
