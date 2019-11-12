@@ -369,29 +369,21 @@ void serial_output_8hz(void)
         static int16_t pwOut_save[NUM_OUTPUTS + 1];
         int16_t throttle_offset = 2242;
 
-//        serial_output(
-//                     "F2;T:%li;"
-//                      "a:%i;b:%i;c:%i;"
-//                      "d:%i;e:%i;f:%i;"
-//                      "g:%i;h:%i;i:%i;"
-//                      "o2%i;"
-//                      "vo%i;cu%i;au%i;"
-//                      "cpu:%u;"
-//                      "ma%i;mb%i;mc%i;"
-//                      ,
-//            tow.WW,
-//            rmat[0], rmat[1], rmat[2],
-//            rmat[3], rmat[4], rmat[5],
-//            rmat[6], rmat[7], rmat[8],
-//            omegagyro[2],
-//            voltage, current, mAh_used,
-//            (uint16_t)udb_cpu_load(),
+        serial_output(
+                     "F2;T:%li;"
+                      "vo%i;cu%i;au%i;"
+                      "cpu:%u;"
+                      "ma%i;mb%i;mc%i;"
+                      ,
+            tow.WW,
+            voltage, current, mAh_used,
+            (uint16_t)udb_cpu_load(),
 #if (MAG_YAW_DRIFT == 1)
-//            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2],
+            magFieldEarth[0],magFieldEarth[1],magFieldEarth[2]
 #else
-            (int16_t)0, (int16_t)0, (int16_t)0,
+            (int16_t)0, (int16_t)0, (int16_t)0
 #endif // MAG_YAW_DRIFT
-            //);
+            );
             // Approximate time passing between each telemetry line, even though
             // we may not have new GPS time data each time through.
             //when using 4Hz output
@@ -423,6 +415,9 @@ void serial_output_8hz(void)
             
             serial_output("ye%i;pe%i;re%i;",
                 yaw_error, pitch_error, roll_error);
+            
+            serial_output("ri%i;pi%i;",
+                additional_int16_export1, additional_int16_export2);
             
 //           serial_output("mf%i;mi%i;",
 //                100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
