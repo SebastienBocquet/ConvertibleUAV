@@ -409,13 +409,13 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 	    {
 		//apply roll, pitch, yaw stabilization
 #if (MOTOR_A_POSITION == 1)
-		//	Mix in the yaw, pitch, and roll signals int16_to the motors
+		//	Mix in the yaw, pitch, and roll signals to the motors
 		motor_A += +yaw_quad_control - pitch_body_frame_control ;
 		motor_B += -yaw_quad_control - roll_body_frame_control ;
 		motor_C += +yaw_quad_control + pitch_body_frame_control ;
 		motor_D += -yaw_quad_control + roll_body_frame_control ;
 #elif (MOTOR_A_POSITION == 3)
-		//	Mix in the yaw, pitch, and roll signals int16_to the motors
+		//	Mix in the yaw, pitch, and roll signals to the motors
 		motor_A += +yaw_quad_control + pitch_body_frame_control ;
 		motor_B += -yaw_quad_control - roll_body_frame_control ;
 		motor_C += +yaw_quad_control - pitch_body_frame_control ;
