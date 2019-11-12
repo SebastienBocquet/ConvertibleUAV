@@ -94,7 +94,7 @@ int16_t throttle3 = 0;
 int16_t throttle4 = 0;
 int16_t mean_throttle = 0;
 
-void reset_target_orientation()
+void reset_target_orientation(void)
 {
     target_orientation[0] = RMAX;
     target_orientation[1] = 0;
@@ -107,7 +107,7 @@ void reset_target_orientation()
     target_orientation[8] = RMAX;
 }
 
-void reset_derivative_terms()
+void reset_derivative_terms(void)
 {
     roll_rate_error_previous = 0;
     roll_rate_error_delta_filt_flt = 0;
@@ -115,7 +115,7 @@ void reset_derivative_terms()
     pitch_rate_error_delta_filt_flt = 0;
 }
 
-void reset_integral_terms()
+void reset_integral_terms(void)
 {
     roll_quad_error_integral.WW  = 0;
     pitch_quad_error_integral.WW  = 0;
