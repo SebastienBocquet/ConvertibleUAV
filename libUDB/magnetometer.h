@@ -22,6 +22,8 @@
 #ifndef MAGNETOMETER_H
 #define MAGNETOMETER_H
 
+// magnetometer callback frequency in Hz
+#define MAGNETOMETER_HZ 2
 
 extern int16_t udb_magFieldBody[];  // magnetic field in the body frame of reference 
 extern int16_t udb_magOffset[];     // magnetic offset in the body frame of reference
