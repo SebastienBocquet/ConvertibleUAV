@@ -110,7 +110,6 @@ void do_I2C_stuff(int16_t toggle)
 #if (SILSIM == 1)
     return;
 #endif
-//	if (toggle) {
 #if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
 	// This is a simple counter to do stuff at MAGNETOMETER_HZ
 	if (udb_heartbeat_counter % (HEARTBEAT_HZ/2) == 0)
@@ -118,9 +117,8 @@ void do_I2C_stuff(int16_t toggle)
 		rxMagnetometer(udb_magnetometer_callback);
 	}
 #endif
-//	} 
-//    else
-//    {
+// make sure there is no clash between the different callbacks at a same.
+// one solution is to use a toggle if there are only two sensors.
 // This is a simple counter to do stuff at BAROMETER_HZ
 #if (BAROMETER_ALTITUDE == 1)
 	if (udb_heartbeat_counter % (HEARTBEAT_HZ/25) == 0)
@@ -128,7 +126,6 @@ void do_I2C_stuff(int16_t toggle)
 		rxBarometer(udb_barometer_callback);
 	}
 #endif
-//	}
 }
 
 // Called at HEARTBEAT_HZ
