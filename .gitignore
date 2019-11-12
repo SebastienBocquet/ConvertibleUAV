@@ -1,3 +1,5 @@
+MatrixPilot/nbproject/private/private.xml
+
 # Object files
 *.o
 *.o.d
@@ -29,7 +31,19 @@
 *.x86_64
 *.hex
 *.map
+
+# build
+libUDB/fixDeps.h
 build/
+MatrixPilot/MatrixPilot-udb5.X/
+MatrixPilot/nbproject/
+MatrixPilot-udb5.X/
+MatrixPilot/Makefile
+MatrixPilot/dist
+MatrixPilot/log
+
+# test
+googletest-master/
 
 # Debug files
 *.dSYM/
@@ -41,8 +55,6 @@ build/
 *.mcw
 
 *.html
-
-libUDB/fixDeps.h
 
 #qtcreator project
 MatrixPilot.files
