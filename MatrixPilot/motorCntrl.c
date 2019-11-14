@@ -240,9 +240,9 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 
 	//		Compute orientation errors
 	yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
-    // weight yaw error according to Tx order
-    yaw_error = int_scale(yaw_error, yaw_control_weight);
-    //yaw_error = yaw_control_weight;
+	// weight yaw error according to Tx order
+	yaw_error = int_scale(yaw_error, yaw_control_weight);
+	printf("%d", yaw_error);
 
 	roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
 	pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
