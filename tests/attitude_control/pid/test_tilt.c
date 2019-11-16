@@ -6,7 +6,7 @@
 namespace 
 {
     // The fixture for testing class Foo.
-    class MotorCntrlPID : public ::testing::Test
+    class MotorCntrlTilt : public ::testing::Test
     {
       protected:
 
@@ -38,7 +38,7 @@ namespace
           // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(MotorCntrlPID, noControl)
+    TEST_F(MotorCntrlTilt, noControl)
     {
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.25);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
@@ -56,11 +56,8 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000);
     }
 
-    TEST_F(MotorCntrlPID, tiltKpGains)
+    TEST_F(MotorCntrlTilt, tiltKpGains)
     {
-        int output_pid_1;
-        int output_pid_2;
-        int expected_motor_control;
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
         const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
@@ -72,26 +69,27 @@ namespace
         rmat[6] = 1000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         // Simulate first PID controller
-        output_pid_1 = -0.5 * rmat[6];
+        int roll_error = rmat[6];
+        int desired_roll = -0.5 * roll_error;
         // Simulate second PID controller
-        output_pid_2 = -0.22 * output_pid_1;
+        int roll_rate_error = -desired_roll;
+        int roll_quad_control = -0.22 * roll_rate_error;
         // Scale motor order for an X configuration quadcopter
-        expected_motor_control = -(3./4) * output_pid_2;
-        printf("computed expected motor control %d \n", expected_motor_control);
+        int pitch_frame_control = -(3./4) * roll_quad_control;
+        int roll_frame_control = (3./4) * roll_quad_control;
+        printf("computed expected motor control %d \n", pitch_frame_control);
         //Override expected motor control, it seems there is a small bias in the control algo (not understood)
-        expected_motor_control = -81;
-        printf("imposed expected motor control %d \n", expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 - expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 + expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + expected_motor_control);
+        pitch_frame_control = 81;
+        roll_frame_control = -81;
+        printf("imposed expected motor control %d \n", pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 - pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + roll_frame_control);
     }
 
-    TEST_F(MotorCntrlPID, tiltKdGains)
+    TEST_F(MotorCntrlTilt, tiltKdGains)
     {
-        int output_pid_1;
-        int output_pid_2;
-        int expected_motor_control;
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
         const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.0);
@@ -103,26 +101,27 @@ namespace
         rmat[6] = 1000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         // Simulate first PID controller
-        output_pid_1 = -0.5 * rmat[6];
+        int roll_error = rmat[6];
+        int desired_roll = -0.5 * roll_error;
         // Simulate second PID controller
-        output_pid_2 = -0.5 * output_pid_1;
+        int roll_rate_error = -desired_roll;
+        int roll_quad_control = -0.5 * roll_rate_error;
         // Scale motor order for an X configuration quadcopter
-        expected_motor_control = -(3./4) * output_pid_2;
-        printf("computed expected motor control %d \n", expected_motor_control);
+        int pitch_frame_control = -(3./4) * roll_quad_control;
+        int roll_frame_control = (3./4) * roll_quad_control;
+        printf("computed expected motor control %d \n", pitch_frame_control);
         //Override expected motor control, it seems there is a small bias in the control algo (not understood)
-        expected_motor_control = -186;
-        printf("imposed expected motor control %d \n", expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 - expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 + expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + expected_motor_control);
+        pitch_frame_control = 186;
+        roll_frame_control = -186;
+        printf("imposed expected motor control %d \n", pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 - pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + roll_frame_control);
     }
 
-    TEST_F(MotorCntrlPID, tiltKiGains)
+    TEST_F(MotorCntrlTilt, tiltKiGains)
     {
-        float output_pid_1;
-        float output_pid_2;
-        int expected_motor_control;
         const uint16_t tilt_ki = (uint16_t)(RMAX*1.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.0);
         const uint16_t tilt_rate_kp = (uint16_t)(RMAX*1.0);
@@ -134,20 +133,23 @@ namespace
         rmat[6] = 1000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         // Simulate first PID controller
-        output_pid_1 = - 1.0 * rmat[6] * 0.0241;
+        int roll_error = rmat[6];
+        int desired_roll = -1.0 * 0.0241 * roll_error;
         // Simulate second PID controller
-        output_pid_2 = - 1.0 * output_pid_1;
+        int roll_rate_error = -desired_roll;
+        int roll_quad_control = -1.0 * roll_rate_error;
         // Scale motor order for an X configuration quadcopter
-        expected_motor_control = -(3./4) * output_pid_2;
-        printf("computed expected motor control %d \n", expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 - expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 + expected_motor_control);
-        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + expected_motor_control);
+        int pitch_frame_control = -(3./4) * roll_quad_control;
+        int roll_frame_control = (3./4) * roll_quad_control;
+        printf("computed expected motor control %d \n", pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 - pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + roll_frame_control);
     }
 
 
-    TEST_F(MotorCntrlPID, ComputesPIDLimiter)
+    TEST_F(MotorCntrlTilt, ComputesPIDLimiter)
     {
         int expected_motor_control;
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.25);
