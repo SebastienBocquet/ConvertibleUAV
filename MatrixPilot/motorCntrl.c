@@ -242,7 +242,6 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 	yaw_error = ( orientation_error_matrix[1] - orientation_error_matrix[3] )/2 ;
 	// weight yaw error according to Tx order
 	yaw_error = int_scale(yaw_error, yaw_control_weight);
-	printf("%d", yaw_error);
 
 	roll_error = rmat[6] - (-commanded_roll_body_frame + roll_control*commanded_tilt_gain) ;
 	pitch_error = -rmat[7] - (-commanded_pitch_body_frame + pitch_control*commanded_tilt_gain) ;
@@ -293,9 +292,6 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 	    pitch_quad_error_integral.WW  = 0;
 	    yaw_quad_error_integral.WW  = 0;
 	}
-    
-	additional_int16_export1 = roll_quad_error_integral._.W1 << 2;
-	additional_int16_export2 = pitch_quad_error_integral._.W1 << 2;
             
 	//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
