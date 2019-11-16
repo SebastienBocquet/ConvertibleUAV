@@ -416,9 +416,6 @@ void serial_output_8hz(void)
             serial_output("ye%i;pe%i;re%i;",
                 yaw_error, pitch_error, roll_error);
             
-            serial_output("ri%i;pi%i;",
-                additional_int16_export1, additional_int16_export2);
-            
 //           serial_output("mf%i;mi%i;",
 //                100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
 //            //GPS X-Y positioning : navigation

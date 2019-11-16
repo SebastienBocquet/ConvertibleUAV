@@ -294,8 +294,8 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 	    yaw_quad_error_integral.WW  = 0;
 	}
     
-    additional_int16_export1 = roll_quad_error_integral._.W1 << 2;
-    additional_int16_export2 = pitch_quad_error_integral._.W1 << 2;
+	additional_int16_export1 = roll_quad_error_integral._.W1 << 2;
+	additional_int16_export2 = pitch_quad_error_integral._.W1 << 2;
             
 	//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
