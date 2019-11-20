@@ -426,6 +426,13 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 		motor_B = limit_value(motor_B, throttlemin, throttlemax);
 		motor_C = limit_value(motor_C, throttlemin, throttlemax);
 		motor_D = limit_value(motor_D, throttlemin, throttlemax);
+	
+		int16_t mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
+		int16_t error = mean_throttle - pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+		motor_A -= error;
+		motor_B -= error;
+		motor_C -= error;
+		motor_D -= error;
 	    }  
 	}
 

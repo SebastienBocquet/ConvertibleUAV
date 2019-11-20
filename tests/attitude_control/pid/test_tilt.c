@@ -160,15 +160,16 @@ namespace
         const uint16_t yaw_kp = (uint16_t)(RMAX*0.45);
         const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.2);
 
-        // Test if max throttle limiter activates
         rmat[6] = RMAX;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
-        expected_motor_control = (int)((1+0.95) * 2000);
+        int error_on_mean_control = 150;
+        // Test if max throttle limiter activates
+        expected_motor_control = (int)((1+0.95) * 2000) - error_on_mean_control;
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], expected_motor_control);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], expected_motor_control);
 
         // Test if min throttle limiter activates
-        expected_motor_control = (int)((1+0.2) * 2000);
+        expected_motor_control = (int)((1+0.2) * 2000) - error_on_mean_control;
         ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], expected_motor_control);
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], expected_motor_control);
     }
