@@ -149,11 +149,11 @@ extern int16_t additional_int16_export7;
 extern int16_t additional_int16_export8;
 extern int16_t additional_int16_export9;
 
-extern int16_t throttle1;
-extern int16_t throttle2;
-extern int16_t throttle3;
-extern int16_t throttle4;
-extern int16_t mean_throttle;
+extern int16_t tele_throttle1;
+extern int16_t tele_throttle2;
+extern int16_t tele_throttle3;
+extern int16_t tele_throttle4;
+extern int16_t tele_mean_throttle;
 
 int16_t IIR_Filter(int32_t*, int16_t, int8_t);
 int16_t limit_value(int16_t, int16_t, int16_t);

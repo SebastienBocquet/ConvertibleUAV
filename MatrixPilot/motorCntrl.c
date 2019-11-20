@@ -88,11 +88,11 @@ int16_t target_orientation[9] = { RMAX , 0 , 0 , 0 , RMAX , 0 , 0 , 0 , RMAX } ;
 
 const int16_t yaw_command_gain = ((long) MAX_YAW_RATE )*(0.03) ;
 
-int16_t throttle1 = 0;
-int16_t throttle2 = 0;
-int16_t throttle3 = 0;
-int16_t throttle4 = 0;
-int16_t mean_throttle = 0;
+int16_t tele_throttle1 = 0;
+int16_t tele_throttle2 = 0;
+int16_t tele_throttle3 = 0;
+int16_t tele_throttle4 = 0;
+int16_t tele_mean_throttle = 0;
 
 void reset_target_orientation(void)
 {
@@ -436,18 +436,18 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 	additional_int16_export3 = pwManual[THROTTLE_HOVER_INPUT_CHANNEL] +yaw_quad_control - pitch_body_frame_control ;
 	additional_int16_export4 = pwManual[THROTTLE_HOVER_INPUT_CHANNEL] -yaw_quad_control + roll_body_frame_control ;
     additional_int16_export5 = (additional_int16_export1 + additional_int16_export2 + additional_int16_export3 + additional_int16_export4) >> 2;
-	throttle1 = motor_A;
-	throttle2 = motor_B;
-	throttle3 = motor_C;
-	throttle4 = motor_D;
-	mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
+	
+    tele_throttle1 = motor_A;
+    tele_throttle2 = motor_B;
+    tele_throttle3 = motor_C;
+    tele_throttle4 = motor_D;
+    tele_mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
 
-	udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		
-	udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_B ) ;
-	udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_C ) ;
-	udb_pwOut[MOTOR_D_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_D ) ;
+    udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_A ) ;		
+    udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_B ) ;
+    udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_C ) ;
+    udb_pwOut[MOTOR_D_OUTPUT_CHANNEL] = udb_servo_pulsesat( motor_D ) ;
     }
-    /* while(1){} */
 }
 
 #ifndef MOTOR_A_POSITION
