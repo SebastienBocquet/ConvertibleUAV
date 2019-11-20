@@ -431,6 +431,11 @@ void motorCntrl(const uint16_t tilt_kp,const uint16_t tilt_ki, const uint16_t ti
 
 	//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    additional_int16_export1 = pwManual[THROTTLE_HOVER_INPUT_CHANNEL] +yaw_quad_control + pitch_body_frame_control ;
+    additional_int16_export2 = pwManual[THROTTLE_HOVER_INPUT_CHANNEL] -yaw_quad_control - roll_body_frame_control ;
+	additional_int16_export3 = pwManual[THROTTLE_HOVER_INPUT_CHANNEL] +yaw_quad_control - pitch_body_frame_control ;
+	additional_int16_export4 = pwManual[THROTTLE_HOVER_INPUT_CHANNEL] -yaw_quad_control + roll_body_frame_control ;
+    additional_int16_export5 = (additional_int16_export1 + additional_int16_export2 + additional_int16_export3 + additional_int16_export4) >> 2;
 	throttle1 = motor_A;
 	throttle2 = motor_B;
 	throttle3 = motor_C;

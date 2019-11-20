@@ -405,8 +405,8 @@ void serial_output_8hz(void)
 //            for (i=4; i <= NUM_OUTPUTS; i++)
 //                serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("t1%i;t2%i;t3%i;t4%i;", throttle1-throttle_offset, throttle2-throttle_offset, throttle3-throttle_offset, throttle4-throttle_offset);
-            serial_output("mt%i;th%i;", mean_throttle-throttle_offset, throttle_hover_control);
+            serial_output("l1%i;l2%i;l3%i;l4%i;", throttle1-throttle_offset, throttle2-throttle_offset, throttle3-throttle_offset, throttle4-throttle_offset);
+            serial_output("lm%i;th%i;", mean_throttle-throttle_offset, throttle_hover_control);
 //            serial_output("ix%i;iy%i;iz%i;", 
 //                    (int16_t)(100*IMUlocationx._.W1), 
 //                    (int16_t)(100*IMUlocationy._.W1), 
@@ -415,6 +415,13 @@ void serial_output_8hz(void)
             
             serial_output("ye%i;pe%i;re%i;",
                 yaw_error, pitch_error, roll_error);
+            
+            serial_output("yo%i;",
+                omegagyro[2]);
+            
+            serial_output("t1%i;t2%i;t3%i;t4%i;tm%i;", 
+                    additional_int16_export1, additional_int16_export2, additional_int16_export3, additional_int16_export4,
+                    additional_int16_export5);
             
 //           serial_output("mf%i;mi%i;",
 //                100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
