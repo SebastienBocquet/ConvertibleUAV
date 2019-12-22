@@ -38,5 +38,6 @@ To build with googletest:
     * cp lib*.so ~/usr/gtest/lib
 
   - build MatrixPilot with googletest:
+    * activate simulation in the loop mode: in options.h, set SILSIM to 1
     * export LD_LIBRARY_PATH=/home/sbocquet/usr/gtest/lib
     * cd tests, make
