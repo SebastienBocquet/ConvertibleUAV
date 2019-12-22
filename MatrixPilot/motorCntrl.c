@@ -407,9 +407,9 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 #ifdef CONFIG_X
 
     pitch_body_frame_control =
-        3 * ((pitch_quad_control - roll_quad_control) / 4);
+        0.707 * (pitch_quad_control - roll_quad_control);
     roll_body_frame_control =
-        3 * ((pitch_quad_control + roll_quad_control) / 4);
+        0.707 * (pitch_quad_control + roll_quad_control);
 
 #endif
 

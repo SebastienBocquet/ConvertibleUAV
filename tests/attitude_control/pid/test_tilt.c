@@ -75,13 +75,9 @@ namespace
         int roll_rate_error = -desired_roll;
         int roll_quad_control = -0.22 * roll_rate_error;
         // Scale motor order for an X configuration quadcopter
-        int pitch_frame_control = -(3./4) * roll_quad_control;
-        int roll_frame_control = (3./4) * roll_quad_control;
+        int pitch_frame_control = -0.707 * roll_quad_control;
+        int roll_frame_control = 0.707 * roll_quad_control;
         printf("computed expected motor control %d \n", pitch_frame_control);
-        //Override expected motor control, it seems there is a small bias in the control algo (not understood)
-        pitch_frame_control = 81;
-        roll_frame_control = -81;
-        printf("imposed expected motor control %d \n", pitch_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 - pitch_frame_control);
@@ -107,13 +103,9 @@ namespace
         int roll_rate_error = -desired_roll;
         int roll_quad_control = -0.5 * roll_rate_error;
         // Scale motor order for an X configuration quadcopter
-        int pitch_frame_control = -(3./4) * roll_quad_control;
-        int roll_frame_control = (3./4) * roll_quad_control;
+        int pitch_frame_control = -0.707 * roll_quad_control;
+        int roll_frame_control = 0.707 * roll_quad_control;
         printf("computed expected motor control %d \n", pitch_frame_control);
-        //Override expected motor control, it seems there is a small bias in the control algo (not understood)
-        pitch_frame_control = 186;
-        roll_frame_control = -186;
-        printf("imposed expected motor control %d \n", pitch_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 - pitch_frame_control);
@@ -139,8 +131,8 @@ namespace
         int roll_rate_error = -desired_roll;
         int roll_quad_control = -1.0 * roll_rate_error;
         // Scale motor order for an X configuration quadcopter
-        int pitch_frame_control = -(3./4) * roll_quad_control;
-        int roll_frame_control = (3./4) * roll_quad_control;
+        int pitch_frame_control = -0.707 * roll_quad_control;
+        int roll_frame_control = 0.707 * roll_quad_control;
         printf("computed expected motor control %d \n", pitch_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
