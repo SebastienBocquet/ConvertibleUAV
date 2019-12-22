@@ -419,10 +419,6 @@ void serial_output_8hz(void)
             serial_output("yo%i;",
                 omegagyro[2]);
             
-            serial_output("t1%i;t2%i;t3%i;t4%i;tm%i;", 
-                    additional_int16_export1, additional_int16_export2, additional_int16_export3, additional_int16_export4,
-                    additional_int16_export5);
-            
 //           serial_output("mf%i;mi%i;",
 //                100*flags._.mag_failure, 100*flags._.invalid_mag_reading);
 //            //GPS X-Y positioning : navigation
