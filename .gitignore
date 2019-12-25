@@ -61,4 +61,4 @@ MatrixPilot.files
 MatrixPilot.includes
 
 # doc build
-doc/build/*
+doc/build/
