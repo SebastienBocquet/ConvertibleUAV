@@ -151,6 +151,6 @@ Considering that the throttle stick controls the variable pwm\_manual\_input, pw
   - if pwm\_manual\_input - 3000 >= MIN_THROTTLE:
 
     * $motor\_A = pwm\_manual\_input + \frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control - \frac{R}{R_A*sin(\alpha)}*roll\_quad\_control$
-    * $motor\_B = pwm\_manual\_input - \frac{R}{R_B}*pitch\_quad\_control + \frac{R}{R_B}*\frac{2*cos(\alpha)}{sin(\alpha)}*roll\_quad\_control$
+    * $motor\_B = pwm\_manual\_input - \frac{R}{R_B}*pitch\_quad\_control$
     * $motor\_C = pwm\_manual\_input + \frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control + \frac{R}{R_A*sin(\alpha)}*roll\_quad\_control$
 
