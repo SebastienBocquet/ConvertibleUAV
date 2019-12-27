@@ -6,7 +6,7 @@
 namespace 
 {
     // The fixture for testing class Foo.
-    class MotorCntrlMeanControl : public ::testing::Test
+    class QuadMotorMeanControl : public ::testing::Test
     {
       protected:
 
@@ -38,7 +38,7 @@ namespace
           // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(MotorCntrlMeanControl, meanControlWithLimiters)
+    TEST_F(QuadMotorMeanControl, meanControlWithLimiters)
     {
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);

@@ -10,8 +10,8 @@ namespace
     {
       protected:
 
-        // If the constructor and destructor are not enough for setting up
-        // and cleaning up each test, you can define the following methods:
+          // If the constructor and destructor are not enough for setting up
+          // and cleaning up each test, you can define the following methods:
     
           virtual void SetUp() 
           {
@@ -49,6 +49,7 @@ namespace
         const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.2);
 
         rmat[6] = 0;
+        rmat[7] = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000);
         ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000);
@@ -56,7 +57,7 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000);
     }
 
-    TEST_F(MotorCntrlTilt, tiltKpGains)
+    TEST_F(MotorCntrlTilt, rollKpGains)
     {
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
@@ -66,7 +67,10 @@ namespace
         const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
         const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
 
+        // roll angle
         rmat[6] = 1000;
+        // pitch angle
+        rmat[7] = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         // Simulate first PID controller
         int roll_error = rmat[6];
@@ -84,7 +88,40 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + roll_frame_control);
     }
 
-    TEST_F(MotorCntrlTilt, tiltKdGains)
+
+    TEST_F(MotorCntrlTilt, pitchKpGains)
+    {
+        const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
+        const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
+        const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
+        const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
+        const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
+        const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
+        const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
+
+        // roll angle
+        rmat[6] = 0;
+        // pitch angle
+        rmat[7] = 1000;
+        motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
+        // Simulate first PID controller
+        int pitch_error = -rmat[7];
+        int desired_pitch = -0.5 * pitch_error;
+        // Simulate second PID controller
+        int pitch_rate_error = -desired_pitch;
+        int pitch_quad_control = -0.22 * pitch_rate_error;
+        // Scale motor order for an X configuration quadcopter
+        int pitch_frame_control = 0.707 * pitch_quad_control;
+        int roll_frame_control = 0.707 * pitch_quad_control;
+        printf("computed expected motor control %d \n", pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 3000 + pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], 3000 - roll_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], 3000 - pitch_frame_control);
+        ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + roll_frame_control);
+    }
+
+
+    TEST_F(MotorCntrlTilt, rollKdGains)
     {
         const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
@@ -94,7 +131,10 @@ namespace
         const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
         const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
 
+        // roll angle
         rmat[6] = 1000;
+        // pitch angle
+        rmat[7] = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         // Simulate first PID controller
         int roll_error = rmat[6];
@@ -112,7 +152,7 @@ namespace
         ASSERT_EQ(udb_pwOut[MOTOR_D_OUTPUT_CHANNEL], 3000 + roll_frame_control);
     }
 
-    TEST_F(MotorCntrlTilt, tiltKiGains)
+    TEST_F(MotorCntrlTilt, rollKiGains)
     {
         const uint16_t tilt_ki = (uint16_t)(RMAX*1.0);
         const uint16_t tilt_kp = (uint16_t)(RMAX*0.0);
@@ -122,7 +162,10 @@ namespace
         const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
         const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
 
+        // roll angle
         rmat[6] = 1000;
+        // pitch angle
+        rmat[7] = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         // Simulate first PID controller
         int roll_error = rmat[6];
@@ -152,7 +195,10 @@ namespace
         const uint16_t yaw_kp = (uint16_t)(RMAX*0.45);
         const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.2);
 
+        // roll angle
         rmat[6] = RMAX;
+        // pitch angle
+        rmat[7] = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         int error_on_mean_control = 150;
         // Test if max throttle limiter activates
