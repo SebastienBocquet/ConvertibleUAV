@@ -46,15 +46,15 @@ Based on the above mecanical model, we can compute pitch and roll control in the
   - :math:`pitch\_body\_frame\_control = pitch\_quad\_control`
   - :math:`roll\_body\_frame\_control = roll\_quad\_control`
 
-And considering that the throttle stick controls the variable pwm\_manual\_input, pwm outputs are:
+And considering that the throttle stick controls the variable $th_{offset}$, pwm outputs are:
 
-  - 2000 if pwm\_manual\_input - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
-  - if pwm\_manual\_input - 3000 >= MIN_THROTTLE:
+  - 2000 if $th_{offset}$ - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
+  - if $th_{offset}$ - 3000 >= MIN_THROTTLE:
 
-    * $motor\_A = pwm\_manual\_input + yaw\_quad\_control + pitch\_body\_frame\_control$
-    * $motor\_B = pwm\_manual\_input - yaw\_quad\_control - roll\_body\_frame\_control$
-    * $motor\_C = pwm\_manual\_input + yaw\_quad\_control - pitch\_body\_frame\_control$
-    * $motor\_D = pwm\_manual\_input - yaw\_quad\_control + roll\_body\_frame\_control$
+    * $motor\_A = th_{offset} + yaw\_quad\_control + pitch\_body\_frame\_control$
+    * $motor\_B = th_{offset} - yaw\_quad\_control - roll\_body\_frame\_control$
+    * $motor\_C = th_{offset} + yaw\_quad\_control - pitch\_body\_frame\_control$
+    * $motor\_D = th_{offset} - yaw\_quad\_control + roll\_body\_frame\_control$
 
 For such a control:
 
@@ -91,25 +91,25 @@ Implementation
   - :math:`pitch\_body\_frame\_control = 0.707*(pitch\_quad\_control - roll\_quad\_control)`
   - :math:`roll\_body\_frame\_control = 0.707*(pitch\_quad\_control + roll\_quad\_control)`
 
-and considering that the throttle stick controls the variable pwm\_manual\_input, pwm outputs are:
+and considering that the throttle stick controls the variable $th_{offset}$, pwm outputs are:
 
-  - 2000 if pwm\_manual\_input - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
-  - if pwm\_manual\_input - 3000 >= MIN_THROTTLE:
+  - 2000 if $th_{offset}$ - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
+  - if $th_{offset}$ - 3000 >= MIN_THROTTLE:
 
-    * $motor\_A = pwm\_manual\_input + yaw\_quad\_control + pitch\_body\_frame\_control$
-    * $motor\_B = pwm\_manual\_input - yaw\_quad\_control - roll\_body\_frame\_control$
-    * $motor\_C = pwm\_manual\_input + yaw\_quad\_control - pitch\_body\_frame\_control$
-    * $motor\_D = pwm\_manual\_input - yaw\_quad\_control + roll\_body\_frame\_control$
+    * $motor\_A = th_{offset} + yaw\_quad\_control + pitch\_body\_frame\_control$
+    * $motor\_B = th_{offset} - yaw\_quad\_control - roll\_body\_frame\_control$
+    * $motor\_C = th_{offset} + yaw\_quad\_control - pitch\_body\_frame\_control$
+    * $motor\_D = th_{offset} - yaw\_quad\_control + roll\_body\_frame\_control$
 
 Omitting the yaw control term, we obtain:
 
-  * $motor\_A = pwm\_manual\_input + 0.707*pitch\_quad\_control - 0.707*roll\_quad\_control$
+  * $motor\_A = th_{offset} + 0.707*pitch\_quad\_control - 0.707*roll\_quad\_control$
 
-  * $motor\_B = pwm\_manual\_input - 0.707*pitch\_quad\_control - 0.707*roll\_quad\_control$
+  * $motor\_B = th_{offset} - 0.707*pitch\_quad\_control - 0.707*roll\_quad\_control$
 
-  * $motor\_C = pwm\_manual\_input - 0.707*pitch\_quad\_control + 0.707*roll\_quad\_control$
+  * $motor\_C = th_{offset} - 0.707*pitch\_quad\_control + 0.707*roll\_quad\_control$
 
-  * $motor\_D = pwm\_manual\_input + 0.707*pitch\_quad\_control + 0.707*roll\_quad\_control$
+  * $motor\_D = th_{offset} + 0.707*pitch\_quad\_control + 0.707*roll\_quad\_control$
 
 This control ensures that the total thrust remains constant.
 
@@ -139,18 +139,22 @@ For a tricopter configuration with a front arm of length $R_A$ and a rear arm le
     $M_{roll} = -2*R*K_1*roll\_quad\_control$, with $R$ being the tricopter averaged arm length $R = \frac{1}{3}*(2*R_A+R_B)$.
     Thus, we can pose: $M_{roll} = 2*R_A*sin(\alpha)*K_1*th_{{control}_A}$, with $th_{{control}_C} = -th_{{control}_A}$, $th_{{control}_B} = 0$ and $th_{{control}_A} = -K_{roll}*roll\_quad\_control$, with $K_{roll} = \frac{R}{R_A*sin(\alpha)}$, which fulfills all the above conditions.
 
-  * the pitch moment is: $M_{pitch} = 2*R_A*cos(\alpha)*F_A - R_B*F_B$.
-    To ensure a constant thrust, we impose that $R_B*th_{{control}_B} = -2*R_A*cos(\alpha)*th_{{control}_A}$.
+  * the pitch moment is: $M_{pitch} = 2*R_A*cos(\alpha)*F_A - R_B*F_B$, with $F_A = K_1*(th_{offset}+th_{{control}_A})$, $F_B = K_1*(th_{offset}+th_{{control}_B})$ and $F_C = F_A$.
+    To ensure a constant thrust, we impose that $2*F_A+F_B$ remains constant. Thus, $2*th_{{control}_A}+th_{{control}_B}=0$, or $th_{{control}_B} = -2*th_{{control}_A}$.
     We also would like the pitch moment to be equal to a quadcopter configuration of arm length R:
     $M_{pitch} = 2*R*K_1*pitch\_quad\_control$.
-    Thus, $M_{pitch} = 4*R_A*cos(\alpha)*K_1*th_{{control}_A}$ with $th_{{control}_B} = -2*R_A*cos(\alpha)*th_{{control}_A}/R_B$, $th_{{control}_C} = th_{{control}_A}$ and $th_{{control}_A} = K_{pitch}*pitch\_quad\_control$ with $K_{pitch} = \frac{R}{2*R_A*cos(\alpha)}$.
+    Thus, $M_{pitch} = 4*R_A*cos(\alpha)*K_1*th_{{control}_A}$ with $th_{{control}_B} = 3 * th_{offset} - 2*th_{{control}_A}$, $th_{{control}_C} = th_{{control}_A}$ and $th_{{control}_A} = K_{pitch}*pitch\_quad\_control$ with $K_{pitch} = \frac{R}{2*R_A*cos(\alpha)}$.
 
-Considering that the throttle stick controls the variable pwm\_manual\_input, pwm outputs are:
+Considering that the throttle stick controls the variable $th_{offset}$, pwm outputs are:
 
-  - 2000 if pwm\_manual\_input - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
-  - if pwm\_manual\_input - 3000 >= MIN_THROTTLE:
+  - 2000 if $th_{offset} - 3000 < MIN_THROTTLE, with MIN_THROTTLE = 0.2 * 2000
+  - if $th_{offset}$ - 3000 >= MIN_THROTTLE:
 
-    * $motor\_A = pwm\_manual\_input + \frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control - \frac{R}{R_A*sin(\alpha)}*roll\_quad\_control$
-    * $motor\_B = pwm\_manual\_input - \frac{R}{R_B}*pitch\_quad\_control$
-    * $motor\_C = pwm\_manual\_input + \frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control + \frac{R}{R_A*sin(\alpha)}*roll\_quad\_control$
+    * $th_{{control}_A} = \frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control - \frac{R}{R_A*sin(\alpha)}*roll\_quad\_control$
+    * $th_{{control}_B} = -2*\frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control$
+    * $th_{{control}_C} = \frac{R}{2*R_A*cos(\alpha)}*pitch\_quad\_control + \frac{R}{R_A*sin(\alpha)}*roll\_quad\_control$
+
+    * $motor\_A = th_{offset} + th_{{control}_A}$
+    * $motor\_B = th_{offset} + th_{{control}_B}$
+    * $motor\_C = th_{offset} + th_{{control}_C}$
 
