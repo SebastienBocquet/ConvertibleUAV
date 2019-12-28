@@ -65,9 +65,6 @@ MPSIL_OBJECTS = \
 ./MatrixPilot/motorCntrl.o \
 \
 ./tests/test_main.o \
-./tests/attitude_control/quadcopter_x/test_tilt.o \
-./tests/attitude_control/quadcopter_x/test_yaw.o \
-./tests/attitude_control/quadcopter_x/test_mean_control.o \
 ./tests/attitude_control/tricopter/test_tilt.o \
 ./tests/attitude_control/tricopter/test_mean_control.o \
 ./tests/control_mode/test_control_mode.o \
