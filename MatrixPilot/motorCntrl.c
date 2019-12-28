@@ -425,14 +425,9 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
         // apply roll, pitch, yaw stabilization
         //	Mix in the yaw, pitch, and roll signals to the motors
-        printf("pqc %d \n", pitch_quad_control);
-        printf("rqc %d \n", roll_quad_control);
-        int16_t throttle_A = COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
-        int16_t throttle_B = -2 * COEF_PITCH * pitch_quad_control;
-        int16_t throttle_C = COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
-        printf("A %d \n", throttle_A);
-        printf("B %d \n", throttle_B);
-        printf("C %d \n", throttle_C);
+        const int16_t throttle_A = COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
+        const int16_t throttle_B = -2 * COEF_PITCH * pitch_quad_control;
+        const int16_t throttle_C = COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
         motor_A += throttle_A;
         motor_B += throttle_B;
         motor_C += throttle_C;
@@ -444,8 +439,8 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 
         // Correct throttle to esure that mean throttle remains constant
         // even if limiters activate on an engine.
-        int16_t mean_throttle = 0.3333333333333333 * (motor_A + motor_B + motor_C);
-        int16_t error = mean_throttle - pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+        const int16_t mean_throttle = 0.3333333333333333 * (motor_A + motor_B + motor_C);
+        const int16_t error = mean_throttle - pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
         motor_A -= error;
         motor_B -= error;
         motor_C -= error;
