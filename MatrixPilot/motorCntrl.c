@@ -29,6 +29,23 @@
 #define TIME_MANUAL_TO_AUTO 3
 #define INCREMENT_MANUAL_TO_AUTO RMAX / (HEARTBEAT_HZ* TIME_MANUAL_TO_AUTO)
 
+// Tricopter geometry
+//    C
+//     \
+//   x__\____B
+//      / R_B
+// R_A /
+//    A
+
+// ALPHA is the angle between the x axis and the front arms
+#define COS_ALPHA 0.5
+#define SIN_ALPHA 0.8660254037844386
+#define R_A 0.25
+#define R_B 0.25
+#define mean_R 0.25
+#define COEF_ROLL mean_R / (R_A*SIN_ALPHA)
+#define COEF_PITCH mean_R / (2*R_A*COS_ALPHA)
+
 extern int16_t theta[3];
 extern void matrix_normalize(int16_t[]);
 extern void MatrixRotate(int16_t[], int16_t[]);
@@ -92,7 +109,6 @@ const int16_t yaw_command_gain = ((long)MAX_YAW_RATE) * (0.03);
 int16_t tele_throttle1 = 0;
 int16_t tele_throttle2 = 0;
 int16_t tele_throttle3 = 0;
-int16_t tele_throttle4 = 0;
 int16_t tele_mean_throttle = 0;
 
 void reset_target_orientation(void) {
@@ -129,7 +145,6 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
   int16_t motor_A;
   int16_t motor_B;
   int16_t motor_C;
-  int16_t motor_D;
 
   int16_t commanded_roll_body_frame;
   int16_t commanded_pitch_body_frame;
@@ -172,7 +187,6 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = 0;
     udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] = 0;
     udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = 0;
-    udb_pwOut[MOTOR_D_OUTPUT_CHANNEL] = 0;
   } else if (!dcm_flags._.yaw_init_finished) {
     target_orientation[0] = rmat[0];
     target_orientation[1] = rmat[1];
@@ -397,62 +411,44 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw
 //stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#ifdef CONFIG_PLUS
-
-    pitch_body_frame_control = pitch_quad_control;
-    roll_body_frame_control = roll_quad_control;
-
-#endif
-
-#ifdef CONFIG_X
-
-    pitch_body_frame_control =
-        0.707 * (pitch_quad_control - roll_quad_control);
-    roll_body_frame_control =
-        0.707 * (pitch_quad_control + roll_quad_control);
-
-#endif
-
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor
     //output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if (!(current_orientation == F_HOVER)) {
-      motor_A = motor_B = motor_C = motor_D = pwManual[THROTTLE_INPUT_CHANNEL];
+      motor_A = motor_B = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
     } else {
-      motor_A = motor_B = motor_C = motor_D =
+      motor_A = motor_B = motor_C =
           pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
 
       if ((udb_servo_pulsesat(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]) -
            udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL])) >
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
-// apply roll, pitch, yaw stabilization
-#if (MOTOR_A_POSITION == 1)
+        // apply roll, pitch, yaw stabilization
         //	Mix in the yaw, pitch, and roll signals to the motors
-        motor_A += +yaw_quad_control - pitch_body_frame_control;
-        motor_B += -yaw_quad_control - roll_body_frame_control;
-        motor_C += +yaw_quad_control + pitch_body_frame_control;
-        motor_D += -yaw_quad_control + roll_body_frame_control;
-#elif(MOTOR_A_POSITION == 3)
-        //	Mix in the yaw, pitch, and roll signals to the motors
-        motor_A += +yaw_quad_control + pitch_body_frame_control;
-        motor_B += -yaw_quad_control - roll_body_frame_control;
-        motor_C += +yaw_quad_control - pitch_body_frame_control;
-        motor_D += -yaw_quad_control + roll_body_frame_control;
-#endif
+        printf("pqc %d \n", pitch_quad_control);
+        printf("rqc %d \n", roll_quad_control);
+        int16_t throttle_A = COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
+        int16_t throttle_B = -2 * COEF_PITCH * pitch_quad_control;
+        int16_t throttle_C = COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
+        printf("A %d \n", throttle_A);
+        printf("B %d \n", throttle_B);
+        printf("C %d \n", throttle_C);
+        motor_A += throttle_A;
+        motor_B += throttle_B;
+        motor_C += throttle_C;
+        
         // limit max throttle of each engine
         motor_A = limit_value(motor_A, throttlemin, throttlemax);
         motor_B = limit_value(motor_B, throttlemin, throttlemax);
         motor_C = limit_value(motor_C, throttlemin, throttlemax);
-        motor_D = limit_value(motor_D, throttlemin, throttlemax);
 
         // Correct throttle to esure that mean throttle remains constant
         // even if limiters activate on an engine.
-        int16_t mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
+        int16_t mean_throttle = 0.3333333333333333 * (motor_A + motor_B + motor_C);
         int16_t error = mean_throttle - pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
         motor_A -= error;
         motor_B -= error;
         motor_C -= error;
-        motor_D -= error;
       }
     }
 
@@ -463,30 +459,16 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     tele_throttle1 = motor_A;
     tele_throttle2 = motor_B;
     tele_throttle3 = motor_C;
-    tele_throttle4 = motor_D;
-    tele_mean_throttle = (motor_A + motor_B + motor_C + motor_D) >> 2;
+    tele_mean_throttle = 0.3333333333333333 * (motor_A + motor_B + motor_C);
 
     udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] = udb_servo_pulsesat(motor_A);
     udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] = udb_servo_pulsesat(motor_B);
     udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] = udb_servo_pulsesat(motor_C);
-    udb_pwOut[MOTOR_D_OUTPUT_CHANNEL] = udb_servo_pulsesat(motor_D);
   }
 }
 
 #ifndef MOTOR_A_POSITION
 #error("You have not defined the position of motor A")
-#endif
-
-#ifndef CONFIG_PLUS
-#ifndef CONFIG_X
-#error ("You have not selected a configuration in options.h, select either CONFIG_PLUS or CONFIG_X.")
-#endif
-#endif
-
-#ifdef CONFIG_PLUS
-#ifdef CONFIG_X
-#error ("You have selected both CONFIG_PLUS and CONFIG_X in options.h. Select just one of them."
-#endif
 #endif
 
 #if (((int16_t) + MAX_YAW_RATE < 50) || ((int16_t) + MAX_YAW_RATE > 500))

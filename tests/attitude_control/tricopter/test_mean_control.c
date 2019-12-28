@@ -10,8 +10,17 @@ namespace
     {
       protected:
 
-        // If the constructor and destructor are not enough for setting up
-        // and cleaning up each test, you can define the following methods:
+          // PID gains
+          const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
+          const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
+          const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
+          const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
+          const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
+          const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
+          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
+
+          // If the constructor and destructor are not enough for setting up
+          // and cleaning up each test, you can define the following methods:
     
           virtual void SetUp() 
           {
@@ -40,22 +49,11 @@ namespace
 
     TEST_F(TricopterMotorMeanControl, meanControlWithLimiters)
     {
-        const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
-        const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
-        const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
-        const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
-        const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
-        const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
-        const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
-
         rmat[6] = RMAX;
+        rmat[7] = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
-        int mean_control = 0.25 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_D_OUTPUT_CHANNEL]);
-        printf("mean control %d", mean_control);
-        printf("A %d", udb_pwOut[MOTOR_A_OUTPUT_CHANNEL]);
-        printf("B %d", udb_pwOut[MOTOR_B_OUTPUT_CHANNEL]);
-        printf("C %d", udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
-        printf("D %d", udb_pwOut[MOTOR_D_OUTPUT_CHANNEL]);
+        
+        const int mean_control = 0.3333333333333333 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
         ASSERT_EQ(mean_control, 3000);
     }
 

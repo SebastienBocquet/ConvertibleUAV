@@ -286,7 +286,7 @@
 #define MOTOR_A_OUTPUT_CHANNEL				CHANNEL_1		
 #define MOTOR_B_OUTPUT_CHANNEL				CHANNEL_2		
 #define MOTOR_C_OUTPUT_CHANNEL				CHANNEL_3		
-#define MOTOR_D_OUTPUT_CHANNEL				CHANNEL_4		
+#define MOTOR_D_OUTPUT_CHANNEL				CHANNEL_UNUSED	
 
 ////////////////////////////////////////////////////////////////////////////////
 // Servo Reversing Configuration

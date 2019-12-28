@@ -405,7 +405,7 @@ void serial_output_8hz(void)
 //            for (i=4; i <= NUM_OUTPUTS; i++)
 //                serial_output("p%io:%i;",i,pwOut_save[i]);
 
-            serial_output("t1%i;t2%i;t3%i;t4%i;", tele_throttle1-throttle_offset, tele_throttle2-throttle_offset, tele_throttle3-throttle_offset, tele_throttle4-throttle_offset);
+            serial_output("t1%i;t2%i;t3%i;", tele_throttle1-throttle_offset, tele_throttle2-throttle_offset, tele_throttle3-throttle_offset);
             serial_output("mt%i;th%i;", tele_mean_throttle-throttle_offset, throttle_hover_control);
 //            serial_output("ix%i;iy%i;iz%i;", 
 //                    (int16_t)(100*IMUlocationx._.W1), 
