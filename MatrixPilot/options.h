@@ -68,7 +68,7 @@
 //        from point of view of the pilot
 // ORIENTATION_ROLLCW180: board rolled 90 degrees clockwise,
 //        from point of view of the pilot, then rotate the board 180 around the Z axis of the plane,
-#define BOARD_ORIENTATION                   ORIENTATION_FORWARDS
+#define BOARD_ORIENTATION                   ORIENTATION_INVERTED
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,10 +271,9 @@
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
 #define RUDDER_OUTPUT_CHANNEL               CHANNEL_5
-#define MOTOR_PITCH_OUTPUT_CHANNEL          CHANNEL_8
-#define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_6
+#define MOTOR_PITCH_OUTPUT_CHANNEL          CHANNEL_UNUSED
 #define CAMERA_PITCH_OUTPUT_CHANNEL         CHANNEL_UNUSED
-#define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
+#define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_8
 #define CAMERA_YAW_OUTPUT_CHANNEL           CHANNEL_UNUSED
 #define TRIGGER_OUTPUT_CHANNEL              CHANNEL_UNUSED
 #define PASSTHROUGH_A_OUTPUT_CHANNEL        CHANNEL_UNUSED
@@ -285,7 +284,7 @@
 //Quadcopter engines
 #define MOTOR_A_OUTPUT_CHANNEL				CHANNEL_1		
 #define MOTOR_B_OUTPUT_CHANNEL				CHANNEL_2		
-#define MOTOR_C_OUTPUT_CHANNEL				CHANNEL_3		
+#define MOTOR_C_OUTPUT_CHANNEL				CHANNEL_3
 #define MOTOR_D_OUTPUT_CHANNEL				CHANNEL_UNUSED	
 
 ////////////////////////////////////////////////////////////////////////////////
