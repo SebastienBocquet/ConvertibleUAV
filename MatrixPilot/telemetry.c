@@ -86,27 +86,7 @@ void init_serial()
 	dcm_flags._.nmea_passthrough = 1;
 #endif
 
-udb_serial_set_rate(19200);
-
-#if (SERIAL_OUTPUT_FORMAT == SERIAL_UDB_LIGHT)
-if (HEARTBEAT_UDB_LIGHT >= 10)
-{
-	udb_serial_set_rate(57600);
-}
-if (HEARTBEAT_UDB_LIGHT >= 40)
-{
-	udb_serial_set_rate(192000);
-}
-if (HEARTBEAT_UDB_LIGHT >= 80)
-{
-	udb_serial_set_rate(460800);
-}
-if (HEARTBEAT_UDB_LIGHT >= 160)
-{
-	udb_serial_set_rate(921600);
-}
-#endif
-
+    udb_serial_set_rate(19200);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
