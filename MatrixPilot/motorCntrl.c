@@ -38,13 +38,13 @@
 //    A
 
 // ALPHA is the angle between the x axis and the front arms
-#define COS_ALPHA 0.5
-#define SIN_ALPHA 0.8660254037844386
-#define R_A 0.25
-#define R_B 0.25
-#define mean_R 0.25
-#define COEF_ROLL mean_R / (R_A*SIN_ALPHA)
-#define COEF_PITCH mean_R / (2*R_A*COS_ALPHA)
+#define COS_ALPHA 0.6647579365354364
+#define SIN_ALPHA 0.7470588235294118
+#define R_A 0.425
+#define R_B 0.443
+#define EQUIV_R 0.25
+#define COEF_ROLL EQUIV_R / (R_A*SIN_ALPHA)
+#define COEF_PITCH EQUIV_R / (2*R_A*COS_ALPHA)
 
 extern int16_t theta[3];
 extern void matrix_normalize(int16_t[]);
