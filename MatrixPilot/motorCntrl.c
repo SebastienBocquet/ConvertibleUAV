@@ -425,9 +425,9 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
         // apply roll, pitch, yaw stabilization
         //	Mix in the yaw, pitch, and roll signals to the motors
-        const int16_t throttle_A = -COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
-        const int16_t throttle_B = 2 * COEF_PITCH * pitch_quad_control;
-        const int16_t throttle_C = -COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
+        const int16_t throttle_A = COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
+        const int16_t throttle_B = -2 * COEF_PITCH * pitch_quad_control;
+        const int16_t throttle_C = COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
         motor_A += throttle_A;
         motor_B += throttle_B;
         motor_C += throttle_C;
