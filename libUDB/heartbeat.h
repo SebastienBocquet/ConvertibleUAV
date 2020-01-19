@@ -31,7 +31,7 @@
 #define ESC_HZ HEARTBEAT_HZ
 
 // frequency of writing in telemetry output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
-#define HEARTBEAT_UDB_TELEMETRY 10
+#define HEARTBEAT_UDB_TELEMETRY 4
 
 // Read-only value increments with each heartbeat
 extern uint16_t udb_heartbeat_counter;
