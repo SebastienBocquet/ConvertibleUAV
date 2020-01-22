@@ -6,7 +6,7 @@
 namespace 
 {
     // The fixture for testing class Foo.
-    class TricopterMotorMeanControl : public ::testing::Test
+    class TricopterThrottleOffset : public ::testing::Test
     {
       protected:
 
@@ -47,7 +47,17 @@ namespace
           // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(TricopterMotorMeanControl, meanControlWithLimiters)
+    TEST_F(TricopterThrottleOffset, offsetThrottle)
+    {
+        rmat[6] = 0;
+        rmat[7] = 0;
+        motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
+        
+        const int mean_control = 0.3333333333333333 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
+        ASSERT_EQ(mean_control, 3000);
+    }
+
+    TEST_F(TricopterThrottleOffset, offsetThrottleWithLimiters)
     {
         rmat[6] = RMAX;
         rmat[7] = 0;
