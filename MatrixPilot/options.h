@@ -715,65 +715,8 @@
 
 //////////altitude control/////////////
 
-#define AIRCRAFT_MASS 1250  // in g
-#define MAX_THRUST 40  // maximul thrust in N
 #define HOVER_THROTTLE_MIN 0.2
 #define HOVER_THROTTLE_MAX 0.95
-#define SONAR_MINIMUM_DISTANCE \
-  60  // Normally, should be minimum possible sonar distance measurement (4
-      // inch)
-#define USEABLE_SONAR_DISTANCE \
-  235  // 235 // Reliable Sonar measurement distance (centimeters) for your
-       // specific landing area.
-#define LIDAR_MINIMUM_DISTANCE \
-  10  // should be minimum possible lidar distance measurement
-#define USEABLE_LIDAR_DISTANCE \
-  3275  // 3275 // Reliable lidar measurement distance (centimeters) for your
-        // specific landing area.
-// Here it could go up to 4000cm, but we restrict to 3276cm because of the
-// maximum pwm pulse duration
-// stored in an unsigned int 16bits (see comments in lidarAltitude.c)
-#define HOVER_FAILSAFE_ALTITUDE \
-  190  // in cm : altitude above which throttle is set to HOVER_THROTTLE_OFFSET
-#define OUT_OF_RANGE_DISTANCE \
-  -99  // Distance in centimeters that denotes "out of range" for your Sonar
-       // device.
-#define HOVER_TARGET_HEIGHT_MIN 80   // (cm) Do not set below 80cm
-#define HOVER_TARGET_HEIGHT_MAX 170  // (cm)
-#define HOVER_TARGET_VZ_MIN \
-  -20  // (cm/s)  //defines the target vertical velocity range when manual
-       // control of target vz is activated
-#define HOVER_TARGET_VZ_MAX 20  // (cm/s)
-#define EMERGENCY_VZ 100
-#define VZ_CORR \
-  0.5  // 0 means vz = imu_vz, 1 means vz is the derivative of sensor or
-       // barometer altitude
-#define HOVER_INV_DELTA_FILTER_TARGETZ 160.
-#define HOVER_INV_DELTA_FILTER_LIDAR \
-  40.  // inverse of deltaT of exponential filter on lidar distance
-       // (=HEARTBEAT_HZ means no filtering)
-#define HOVER_INV_DELTA_FILTER_SONAR \
-  20.  // inverse of deltaT of exponential filter on sonar_distance
-       // (=HEARTBEAT_HZ means no filtering)
-#define HOVER_INV_DELTA_FILTER_BARO \
-  2.  // inverse of deltaT of exponential filter on sonar_distance
-      // (=HEARTBEAT_HZ means no filtering)
-#define HOVER_INV_DELTA_FILTER_ACCEL \
-  40.  // inverse of deltaT of exponential filter on vertical acceleration
-       // (=HEARTBEAT_HZ means no filtering)
-#define HOVER_ZKP 7.6  // in 1/cm, should be between 0 and 10
-#define HOVER_ZKI 0.  // in 1/(cm.s) dimensionless, should be between 0 and 10
-#define LIMIT_INTEGRAL_Z 1000000000
-#define HOVER_LIMIT_TARGETVZ 16000  // cutoff value for vertial velocity in cm/s
-#define HOVER_VZKP 3.  // in 1/(cm/s), should be between 0 and 10
-#define HOVER_VZKI 0.  // in 1/cm, should be between 0 and 10
-#define LIMIT_INTEGRAL_VZ 1000000000
-#define HOVER_LIMIT_TARGETACCZ \
-  16000  // cutoff value for vertical acceleration in cm/s2
-#define HOVER_ACCZKP 0.75  // in 1/(cm/s2), should be between 0 and 10
-#define HOVER_ACCZKI 0.3   // in 1/(cm/s), should be between 0 and 10
-#define LIMIT_INTEGRAL_ACCZ 160000
-
 #define MAX_HOVERING_RADIUS \
   60  // max distance in dcm from origin where the aircraft is allowed to hover
       // in GPS navigation mode
