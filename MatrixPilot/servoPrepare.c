@@ -35,7 +35,7 @@ int16_t cam_pitch_servo_pwm_delta = 0;  // Change in PWM pulse value from
 int16_t cam_yaw_servo_pwm_delta = 0;  // Change in PWM pulse value from centred
                                       // value (3000) to send to camera yaw
                                       // servo
-int16_t motor_pitch_servo_pwm_delta = 0;
+int16_t motor_tilt_servo_pwm_delta = 0;
 
 const uint16_t tilt_ki = (uint16_t)(RMAX * TILT_KI);
 const uint16_t tilt_kp = (uint16_t)(RMAX * TILT_KP);

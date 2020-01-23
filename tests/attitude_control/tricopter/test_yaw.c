@@ -89,9 +89,9 @@ namespace
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
         yaw_quad_control = 0;
-        motorPitchCntrl();       
-        motorPitchServoMix();
-        ASSERT_EQ(udb_pwOut[MOTOR_PITCH_OUTPUT_CHANNEL], 3000);
+        motorTiltCntrl();       
+        motorTiltServoMix();
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL], 3000);
     }
 
     /* Test front motor tilt for yaw control
@@ -100,13 +100,13 @@ namespace
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
         yaw_quad_control = 1000;
-        motorPitchCntrl();       
-        motorPitchServoMix();
-        const int MOTOR_TILT_SERVO_RANGE = 90; 
+        motorTiltCntrl();       
+        motorTiltServoMix();
+        const int motor_tilt_servo_range = 90; 
         const int tilt_yaw_limit_deg = 20;
-        const int tilt_yaw_limit_pwm = tilt_yaw_limit_deg * 1000 / MOTOR_TILT_SERVO_RANGE;
+        const int tilt_yaw_limit_pwm = tilt_yaw_limit_deg * 1000 / motor_tilt_servo_range;
         const int yaw_motor_tilt_pwm = tilt_yaw_limit_pwm * yaw_quad_control / 1000;
         printf("expected yaw motor tilt pwm %d \n", yaw_motor_tilt_pwm);
-        ASSERT_EQ(udb_pwOut[MOTOR_PITCH_OUTPUT_CHANNEL], 3000 + yaw_motor_tilt_pwm);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL], 3000 + yaw_motor_tilt_pwm);
     }
 }  // namespace

@@ -151,11 +151,11 @@ namespace
         const int pitch_quad_control = -0.22 * pitch_rate_error;
        
         // Scale motor order for a tricopter
-        const int MOTOR_TILT_SERVO_RANGE = 90; 
+        const int motor_tilt_servo_range = 90; 
         const int tilt_yaw_limit_deg = 20;
-        const int tilt_yaw_limit_pwm = tilt_yaw_limit_deg * 1000 / MOTOR_TILT_SERVO_RANGE;
+        const int tilt_yaw_limit_pwm = tilt_yaw_limit_deg * 1000 / motor_tilt_servo_range;
         const int yaw_motor_tilt_pwm = tilt_yaw_limit_pwm * expected_yaw_quad_control / 1000;
-        const float beta = (3.1416 / 180) * yaw_motor_tilt_pwm * MOTOR_TILT_SERVO_RANGE / 1000;
+        const float beta = (3.1416 / 180) * yaw_motor_tilt_pwm * motor_tilt_servo_range / 1000;
         const float corr = (1. / (1 - 0.5 * beta * beta)); 
         printf("yaw quad control %d \n", yaw_quad_control);
         printf("tilt yaw limit pwm %d \n", tilt_yaw_limit_pwm);
