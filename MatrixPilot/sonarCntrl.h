@@ -18,13 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef SONARCNTRL_H
 #define SONARCNTRL_H
 
-
 #include "define.h"
 
-#define LED_RED_SONAR_CHECK                   1
+#define LED_RED_SONAR_CHECK 1
 
-#endif // SONARCNTRL_H
+#endif  // SONARCNTRL_H

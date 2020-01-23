@@ -18,19 +18,22 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef FLIGHT_MODE_SWITCH_H
 #define FLIGHT_MODE_SWITCH_H
 
 #include "defines.h"
 
-
 int16_t flight_mode_switch_manual(void);
 int16_t flight_mode_switch_stabilize(void);
 int16_t flight_mode_switch_waypoints(void);
 
-void flight_mode_switch_2pos_poll(void); // this is called at 40 hertz and scans the two postion switch option.
-void flight_mode_switch_check_set(void); // this is called at 2 hertz and changes the flight mode if req.
-void integral_pid_term_switch_check_set(void); // this is called at 2 hertz and changes the flight mode if req.
+void flight_mode_switch_2pos_poll(void);  // this is called at 40 hertz and
+                                          // scans the two postion switch
+                                          // option.
+void flight_mode_switch_check_set(void);  // this is called at 2 hertz and
+                                          // changes the flight mode if req.
+void integral_pid_term_switch_check_set(void);  // this is called at 2 hertz and
+                                                // changes the flight mode if
+                                                // req.
 
-#endif // FLIGHT_MODE_SWITCH_H
+#endif  // FLIGHT_MODE_SWITCH_H

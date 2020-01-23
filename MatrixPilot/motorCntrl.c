@@ -43,8 +43,8 @@
 #define R_A 0.425
 #define R_B 0.443
 #define EQUIV_R 0.25
-#define COEF_ROLL EQUIV_R / (R_A*SIN_ALPHA)
-#define COEF_PITCH EQUIV_R / (2*R_A*COS_ALPHA)
+#define COEF_ROLL EQUIV_R / (R_A* SIN_ALPHA)
+#define COEF_PITCH EQUIV_R / (2 * R_A* COS_ALPHA)
 
 extern int16_t theta[3];
 extern void matrix_normalize(int16_t[]);
@@ -214,8 +214,9 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
       commanded_yaw = 0;
     }
 
-    //		adjust roll and pitch commands to prevent combined tilt from exceeding
-    //90 degrees
+    //		adjust roll and pitch commands to prevent combined tilt from
+    //exceeding
+    // 90 degrees
     commanded_tilt[0] = commanded_roll;
     commanded_tilt[1] = commanded_pitch;
     commanded_tilt[2] = RMAX;
@@ -228,21 +229,23 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 
     //		Compute orientation errors
 
-    //		Compute the orientation of the virtual quad (which is used only for
-    //yaw control)
+    //		Compute the orientation of the virtual quad (which is used only
+    //for
+    // yaw control)
     //		Set the earth vertical to match in both frames (since we are
-    //interested only in yaw)
+    // interested only in yaw)
 
     target_orientation[6] = rmat[6];
     target_orientation[7] = rmat[7];
     target_orientation[8] = rmat[8];
 
     //		renormalize to align other two axes int16_to the the plane
-    //perpendicular to the vertical
+    // perpendicular to the vertical
     matrix_normalize(target_orientation);
 
-    //		Rotate the virtual quad around the earth vertical axis according to
-    //the commanded yaw rate
+    //		Rotate the virtual quad around the earth vertical axis according
+    //to
+    // the commanded yaw rate
     yaw_step = commanded_yaw * yaw_command_gain;
     VectorScale(3, yaw_vector, &target_orientation[6], yaw_step);
     VectorAdd(3, yaw_vector, yaw_vector, yaw_vector);  // doubles the vector
@@ -268,7 +271,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     accel_feedback = long_accum._.W1;
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the error
-    //integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if ((flags._.integral_pid_term) && (current_orientation == F_HOVER)) {
       roll_quad_error_integral.WW +=
@@ -305,11 +308,12 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
       yaw_quad_error_integral.WW = 0;
     }
 
-    //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the error
-    //integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the
+    //error
+    // integrals%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%roll
-    //stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //		Compute the PID signals on roll_error
 
@@ -327,7 +331,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     roll_rate_error = roll_rate - desired_roll;
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the
-    //derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     roll_rate_error_delta = roll_rate_error - roll_rate_error_previous;
     roll_rate_error_previous = roll_rate_error;
@@ -336,7 +340,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
         (float)(TILT_RATE_DELTA_FILTER));
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the
-    //derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //      compute PID on omega_error
     long_accum.WW = __builtin_mulus(tilt_rate_kp, roll_rate_error) << 2;
@@ -346,10 +350,10 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     roll_quad_control -= long_accum._.W1;
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End roll
-    //stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%pitch
-    //stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //		Compute the PID signals on pitch_error
     //		pitch_error is -rmat7, with rmat7 the pitch angle
@@ -368,7 +372,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     pitch_rate_error = pitch_rate - desired_pitch;
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Compute the
-    //derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     pitch_rate_error_delta = pitch_rate_error - pitch_rate_error_previous;
     pitch_rate_error_previous = pitch_rate_error;
@@ -377,7 +381,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
         (float)(TILT_RATE_DELTA_FILTER));
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End Compute the
-    //derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // derivatives%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //      compute PID on omega_error
     long_accum.WW = __builtin_mulus(tilt_rate_kp, pitch_rate_error) << 2;
@@ -387,10 +391,10 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     pitch_quad_control -= long_accum._.W1;
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End pitch
-    //stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%yaw
-    //stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     long_accum.WW = __builtin_mulus(yaw_kp, yaw_error) << 2;
     desired_yaw = -long_accum._.W1;
@@ -408,30 +412,31 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     long_accum.WW = __builtin_mulus(yaw_rate_kp, yaw_rate_error) << 2;
     yaw_quad_control = -long_accum._.W1;
 
-//		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw
-//stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%End yaw
+    // stabilization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%motor
-    //output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if (!(current_orientation == F_HOVER)) {
       motor_A = motor_B = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
     } else {
-      motor_A = motor_B = motor_C =
-          pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+      motor_A = motor_B = motor_C = pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
 
       if ((udb_servo_pulsesat(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]) -
            udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL])) >
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
         // apply roll, pitch, yaw stabilization
         //	Mix in the yaw, pitch, and roll signals to the motors
-        const int16_t throttle_A = COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
+        const int16_t throttle_A =
+            COEF_PITCH * pitch_quad_control - COEF_ROLL * roll_quad_control;
         const int16_t throttle_B = -2 * COEF_PITCH * pitch_quad_control;
-        const int16_t throttle_C = COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
+        const int16_t throttle_C =
+            COEF_PITCH * pitch_quad_control + COEF_ROLL * roll_quad_control;
         motor_A += throttle_A;
         motor_B += throttle_B;
         motor_C += throttle_C;
-        
+
         // limit max throttle of each engine
         motor_A = limit_value(motor_A, throttlemin, throttlemax);
         motor_B = limit_value(motor_B, throttlemin, throttlemax);
@@ -439,8 +444,10 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 
         // Correct throttle to esure that mean throttle remains constant
         // even if limiters activate on an engine.
-        const int16_t mean_throttle = 0.3333333333333333 * (motor_A + motor_B + motor_C);
-        const int16_t error = mean_throttle - pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+        const int16_t mean_throttle =
+            0.3333333333333333 * (motor_A + motor_B + motor_C);
+        const int16_t error =
+            mean_throttle - pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
         motor_A -= error;
         motor_B -= error;
         motor_C -= error;
@@ -448,7 +455,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     }
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor
-    //output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     // five following variables used for telemetry.
     tele_throttle1 = motor_A;

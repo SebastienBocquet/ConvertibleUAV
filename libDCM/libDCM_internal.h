@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include "libDCM.h"
 
 void dcm_init_rmat(void);
@@ -31,7 +30,7 @@ void commit_gps_data(void);
 void gpsoutline(char message[]);
 void gpsoutbin(int16_t length, const uint8_t msg[]);
 
-void dcm_run_imu_step(void);    // This needs to be run every 25ms
+void dcm_run_imu_step(void);  // This needs to be run every 25ms
 
 void read_accel();
 void read_gyros();
@@ -51,7 +50,7 @@ extern union longbbbb as_sim_;
 extern uint8_t hdop;
 extern union longbbbb xpg, ypg, zpg;
 extern union intbb xvg, yvg, zvg;
-extern uint8_t  mode1, mode2, svs, hdop;
+extern uint8_t mode1, mode2, svs, hdop;
 
 extern int16_t forward_acceleration;
 extern uint16_t air_speed_3DGPS;
@@ -61,10 +60,10 @@ extern int16_t cos_lat;
 
 #if (HILSIM == 1)
 extern union intbb g_a_x_sim_, g_a_y_sim_, g_a_z_sim_;
-extern union intbb g_a_x_sim,  g_a_y_sim,  g_a_z_sim;
+extern union intbb g_a_x_sim, g_a_y_sim, g_a_z_sim;
 extern union intbb p_sim_, q_sim_, r_sim_;
-extern union intbb p_sim,  q_sim,  r_sim;
-#endif // HILSIM
+extern union intbb p_sim, q_sim, r_sim;
+#endif  // HILSIM
 
 #define EMA 0b00000100
 #define SGA 0b00001000
@@ -72,21 +71,25 @@ extern union intbb p_sim,  q_sim,  r_sim;
 /*Algorithm Parameters*/
 
 /*
-These parameters should be tuned depending on need. Each of these parameters affects
-run time and signal smoothing obtained. See documentation for specific instructions 
+These parameters should be tuned depending on need. Each of these parameters
+affects
+run time and signal smoothing obtained. See documentation for specific
+instructions
 on tuning these parameters.
 */
 
 /*Savitzky Golay Filter -  */
 #define SGA_MAX_LENGTH 9 /* Do not change */
-#define SGA_LENGTH 5 /* Window may 5, 7 or 9. 
-			 For window 5, only quadratic or cubic smoothing may be used */
-#define SGA_DEGREE 2 /* For quadratic or cubic smoothing, enter degree 3. 
-			For quartic or quintic smoothing, enter degree 4.*/
+#define SGA_LENGTH           \
+  5 /* Window may 5, 7 or 9. \
+        For window 5, only quadratic or cubic smoothing may be used */
+#define SGA_DEGREE                                       \
+  2 /* For quadratic or cubic smoothing, enter degree 3. \
+       For quartic or quintic smoothing, enter degree 4.*/
 
 #define SGA_PRIM_INDEX (SGA_LENGTH - SGA_DEGREE - 2)
-#define SGA_MAX_MID (SGA_MAX_LENGTH-1)/2
-#define SGA_MID (SGA_LENGTH-1)/2
+#define SGA_MAX_MID (SGA_MAX_LENGTH - 1) / 2
+#define SGA_MID (SGA_LENGTH - 1) / 2
 
 /*Function Prototypes*/
 

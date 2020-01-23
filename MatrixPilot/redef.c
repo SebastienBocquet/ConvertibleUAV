@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #undef ROLL_STABILIZATION_AILERONS
 #undef ROLL_STABILIZATION_RUDDER
 #undef PITCH_STABILIZATION
@@ -40,4 +39,3 @@
 #define ALTITUDEHOLD_STABILIZED config._.AltitudeholdStabilized
 #define ALTITUDEHOLD_WAYPOINT config._.AltitudeholdWaypoint
 #define RACING_MODE config._.RacingMode
-

@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include "libUDB_internal.h"
 #include "oscillator.h"
 #include "interrupt.h"
@@ -54,7 +53,6 @@
 #include "../libflexifunctions/flexifunctionservices.h"
 #endif
 
-
 union udb_fbts_byte udb_flags;
 int16_t low_voltage = 0;
 int16_t exceeded_mAh = 0;
@@ -65,246 +63,237 @@ union longww battery_mAh_used;
 #endif
 
 #if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
-union longww battery_voltage;	// battery_voltage._.W1 is in tenths of Volts
+union longww battery_voltage;  // battery_voltage._.W1 is in tenths of Volts
 #endif
 
 #if (ANALOG_RSSI_INPUT_CHANNEL != CHANNEL_UNUSED)
 uint8_t rc_signal_strength;
-#define MIN_RSSI	((int32_t)((RSSI_MIN_SIGNAL_VOLTAGE)/3.3 * 65536))
-#define RSSI_RANGE	((int32_t)((RSSI_MAX_SIGNAL_VOLTAGE-RSSI_MIN_SIGNAL_VOLTAGE)/3.3 * 100))
+#define MIN_RSSI ((int32_t)((RSSI_MIN_SIGNAL_VOLTAGE) / 3.3 * 65536))
+#define RSSI_RANGE \
+  ((int32_t)((RSSI_MAX_SIGNAL_VOLTAGE - RSSI_MIN_SIGNAL_VOLTAGE) / 3.3 * 100))
 #endif
-
 
 // Functions only included with nv memory.
 #if (USE_NV_MEMORY == 1)
-UDB_SKIP_FLAGS udb_skip_flags = {0,0,0};
+UDB_SKIP_FLAGS udb_skip_flags = {0, 0, 0};
 
-void udb_skip_radio_trim(boolean b)
-{
-	udb_skip_flags.skip_radio_trim = 1;
-}
+void udb_skip_radio_trim(boolean b) { udb_skip_flags.skip_radio_trim = 1; }
 
-void udb_skip_imu_calibration(boolean b)
-{
-	udb_skip_flags.skip_imu_cal = 1;
-}
+void udb_skip_imu_calibration(boolean b) { udb_skip_flags.skip_imu_cal = 1; }
 
 #endif
 
-
 //#if(USE_NV_MEMORY == 1)
-//if(udb_skip_flags.skip_radio_trim == 1)
-//if(udb_skip_flags.skip_imu_cal == 1)
+// if(udb_skip_flags.skip_radio_trim == 1)
+// if(udb_skip_flags.skip_imu_cal == 1)
 //#endif
 //
 
-void udb_init(void)
-{
-	udb_flags.B = 0;
+void udb_init(void) {
+  udb_flags.B = 0;
 
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
-	battery_current.WW = 0;
-	battery_mAh_used.WW = 0;
+  battery_current.WW = 0;
+  battery_mAh_used.WW = 0;
 #endif
 #if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
-	battery_voltage.WW = 0;
+  battery_voltage.WW = 0;
 #endif
 #if (ANALOG_RSSI_INPUT_CHANNEL != CHANNEL_UNUSED)
-	rc_signal_strength = 0;
+  rc_signal_strength = 0;
 #endif
-	udb_init_ADC();
-	init_events();
+  udb_init_ADC();
+  init_events();
 #if (USE_I2C1_DRIVER == 1)
-	I2C1_Init();
+  I2C1_Init();
 #endif
 #if (USE_NV_MEMORY == 1)
-	nv_memory_init();
-	data_storage_init();
-	data_services_init();
+  nv_memory_init();
+  data_storage_init();
+  data_services_init();
 #endif
 #if (USE_FLEXIFUNCTION_MIXING == 1)
-	flexiFunctionServiceInit();
+  flexiFunctionServiceInit();
 #endif
-	udb_init_clock();
-	udb_init_capture();
+  udb_init_clock();
+  udb_init_capture();
 #if (MAG_YAW_DRIFT == 1 && HILSIM != 1)
 //	udb_init_I2C();
 #endif
 #if (CONSOLE_UART != 1)
-	udb_init_GPS();
+  udb_init_GPS();
 #endif
 #if (CONSOLE_UART != 2)
-	udb_init_USART();
+  udb_init_USART();
 #endif
-	udb_init_pwm();
+  udb_init_pwm();
 #if (USE_OSD == 1)
-	udb_init_osd();
+  udb_init_osd();
 #endif
 
-//FIXME: add AUAV3 support
+// FIXME: add AUAV3 support
 #if (BOARD_TYPE == UDB4_BOARD || BOARD_TYPE == UDB5_BOARD)
-	udb_eeprom_init();
+  udb_eeprom_init();
 #endif
 
 #if (BOARD_TYPE == UDB5_BOARD || BOARD_TYPE == AUAV3_BOARD)
-	MPU6000_init16();
+  MPU6000_init16();
 #endif
 
-    //SRbits.IPL = 0;	// turn on all interrupt priorities
+  // SRbits.IPL = 0;	// turn on all interrupt priorities
 }
 
-void udb_run(void)
-{
-	//  nothing else to do... entirely interrupt driven
-	while (1)
-	{
+void udb_run(void) {
+  //  nothing else to do... entirely interrupt driven
+  while (1) {
 #if (USE_TELELOG == 1)
-		telemetry_log();
+    telemetry_log();
 #endif
 
 #if (USE_USB == 1)
-		USBPollingService();
+    USBPollingService();
 #endif
 
 #if (CONSOLE_UART != 0)
-		console();
+    console();
 #endif
 
 #if (USE_MCU_IDLE == 1)
-		Idle();
+    Idle();
 #else
-		// pause cpu counting timer while not in an ISR
-        //indicate_loading_main;
+// pause cpu counting timer while not in an ISR
+// indicate_loading_main;
 #endif
-		// TODO: is the LPRC disabled?
-	}
-	// Never returns
+    // TODO: is the LPRC disabled?
+  }
+  // Never returns
 }
 
-#ifdef INITIALIZE_VERTICAL // for VTOL, vertical initialization
-void udb_a2d_record_offsets(void)
-{
+#ifdef INITIALIZE_VERTICAL  // for VTOL, vertical initialization
+void udb_a2d_record_offsets(void) {
 #if (USE_NV_MEMORY == 1)
-	if (udb_skip_flags.skip_imu_cal == 1)
-		return;
+  if (udb_skip_flags.skip_imu_cal == 1) return;
 #endif
 
-	// almost ready to turn the control on, save the input offsets
-	UDB_XACCEL.offset = UDB_XACCEL.value;
-	udb_xrate.offset = udb_xrate.value;
-	UDB_YACCEL.offset = UDB_YACCEL.value - (Y_GRAVITY_SIGN ((int16_t)(2*GRAVITY))); // opposite direction
-	udb_yrate.offset = udb_yrate.value;
-	UDB_ZACCEL.offset = UDB_ZACCEL.value;
-	udb_zrate.offset = udb_zrate.value;
+  // almost ready to turn the control on, save the input offsets
+  UDB_XACCEL.offset = UDB_XACCEL.value;
+  udb_xrate.offset = udb_xrate.value;
+  UDB_YACCEL.offset =
+      UDB_YACCEL.value -
+      (Y_GRAVITY_SIGN((int16_t)(2 * GRAVITY)));  // opposite direction
+  udb_yrate.offset = udb_yrate.value;
+  UDB_ZACCEL.offset = UDB_ZACCEL.value;
+  udb_zrate.offset = udb_zrate.value;
 #ifdef VREF
-	udb_vref.offset = udb_vref.value;
+  udb_vref.offset = udb_vref.value;
 #endif
 }
 #else  // horizontal initialization
-void udb_a2d_record_offsets(void)
-{
+void udb_a2d_record_offsets(void) {
 #if (USE_NV_MEMORY == 1)
-	if(udb_skip_flags.skip_imu_cal == 1)
-		return;
+  if (udb_skip_flags.skip_imu_cal == 1) return;
 #endif
 
-	// almost ready to turn the control on, save the input offsets
-	UDB_XACCEL.offset = UDB_XACCEL.value;
-	udb_xrate.offset = udb_xrate.value;
-	UDB_YACCEL.offset = UDB_YACCEL.value;
-	udb_yrate.offset = udb_yrate.value;
-	UDB_ZACCEL.offset = UDB_ZACCEL.value + (Z_GRAVITY_SIGN ((int16_t)(2*GRAVITY))); // same direction
-	udb_zrate.offset = udb_zrate.value;
+  // almost ready to turn the control on, save the input offsets
+  UDB_XACCEL.offset = UDB_XACCEL.value;
+  udb_xrate.offset = udb_xrate.value;
+  UDB_YACCEL.offset = UDB_YACCEL.value;
+  udb_yrate.offset = udb_yrate.value;
+  UDB_ZACCEL.offset =
+      UDB_ZACCEL.value +
+      (Z_GRAVITY_SIGN((int16_t)(2 * GRAVITY)));  // same direction
+  udb_zrate.offset = udb_zrate.value;
 #ifdef VREF
-	udb_vref.offset = udb_vref.value;
+  udb_vref.offset = udb_vref.value;
 #endif
 }
-#endif // INITIALIZE_VERTICAL
+#endif  // INITIALIZE_VERTICAL
 
-void udb_servo_record_trims(void)
-{
-	int16_t i;
-	for (i = 0; i <= NUM_INPUTS; i++)
-	{
-		udb_pwTrim[i] = udb_pwIn[i];
-	}
+void udb_servo_record_trims(void) {
+  int16_t i;
+  for (i = 0; i <= NUM_INPUTS; i++) {
+    udb_pwTrim[i] = udb_pwIn[i];
+  }
 }
 
 // saturation logic to maintain pulse width within bounds
-int16_t udb_servo_pulsesat(int32_t pw)
-{
-	if (pw > SERVOMAX) pw = SERVOMAX;
-	if (pw < SERVOMIN) pw = SERVOMIN;
-	return (int16_t)pw;
+int16_t udb_servo_pulsesat(int32_t pw) {
+  if (pw > SERVOMAX) pw = SERVOMAX;
+  if (pw < SERVOMIN) pw = SERVOMIN;
+  return (int16_t)pw;
 }
 
-void calculate_analog_sensor_values(void)
-{
+void calculate_analog_sensor_values(void) {
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
-	// Shift up from [-2^15 , 2^15-1] to [0 , 2^16-1]
-	// Convert to current in tenths of Amps
-    //multiplication by two because the sensor is mounted on one half of the power circuit
-	battery_current.WW = (udb_analogInputs[ANALOG_CURRENT_INPUT_CHANNEL-1].value + (int32_t)32768) * 2 * MAX_CURRENT + (((int32_t)(CURRENT_SENSOR_OFFSET)) << 16);
-	// mAh = mA / (HEARTBEAT_HZ*60*60) (increment per HEARTBEAT_HZ Hz tick)
-	// 90000/(HEARTBEAT_HZ*60*60) == 900/(HEARTBEAT_HZ*36)
-	battery_mAh_used.WW += (battery_current.WW / (int32_t)(HEARTBEAT_HZ*36));
-    
-    current = battery_current._.W1 ;
-    mAh_used = battery_mAh_used._.W1 ;
+  // Shift up from [-2^15 , 2^15-1] to [0 , 2^16-1]
+  // Convert to current in tenths of Amps
+  // multiplication by two because the sensor is mounted on one half of the
+  // power circuit
+  battery_current.WW =
+      (udb_analogInputs[ANALOG_CURRENT_INPUT_CHANNEL - 1].value +
+       (int32_t)32768) *
+          2 * MAX_CURRENT +
+      (((int32_t)(CURRENT_SENSOR_OFFSET)) << 16);
+  // mAh = mA / (HEARTBEAT_HZ*60*60) (increment per HEARTBEAT_HZ Hz tick)
+  // 90000/(HEARTBEAT_HZ*60*60) == 900/(HEARTBEAT_HZ*36)
+  battery_mAh_used.WW += (battery_current.WW / (int32_t)(HEARTBEAT_HZ * 36));
+
+  current = battery_current._.W1;
+  mAh_used = battery_mAh_used._.W1;
 #endif
 
 #if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
-	// Shift up from [-2^15 , 2^15-1] to [0 , 2^16-1]
-	// Convert to voltage in tenths of Volts
-	battery_voltage.WW = (udb_analogInputs[ANALOG_VOLTAGE_INPUT_CHANNEL-1].value + (int32_t)(32768)) * (MAX_VOLTAGE) + (((int32_t)(VOLTAGE_SENSOR_OFFSET)) << 16);
-    voltage = battery_voltage._.W1 ;
+  // Shift up from [-2^15 , 2^15-1] to [0 , 2^16-1]
+  // Convert to voltage in tenths of Volts
+  battery_voltage.WW =
+      (udb_analogInputs[ANALOG_VOLTAGE_INPUT_CHANNEL - 1].value +
+       (int32_t)(32768)) *
+          (MAX_VOLTAGE) +
+      (((int32_t)(VOLTAGE_SENSOR_OFFSET)) << 16);
+  voltage = battery_voltage._.W1;
 #endif
 
 #if (ANALOG_RSSI_INPUT_CHANNEL != CHANNEL_UNUSED)
-	union longww rssi_accum;
-	rssi_accum.WW = (((udb_analogInputs[ANALOG_RSSI_INPUT_CHANNEL-1].value + 32768) - (MIN_RSSI)) * (10000 / (RSSI_RANGE)));
-	if (rssi_accum._.W1 < 0)
-		rc_signal_strength = 0;
-	else if (rssi_accum._.W1 > 100)
-		rc_signal_strength = 100;
-	else
-		rc_signal_strength = (uint8_t)rssi_accum._.W1;
+  union longww rssi_accum;
+  rssi_accum.WW =
+      (((udb_analogInputs[ANALOG_RSSI_INPUT_CHANNEL - 1].value + 32768) -
+        (MIN_RSSI)) *
+       (10000 / (RSSI_RANGE)));
+  if (rssi_accum._.W1 < 0)
+    rc_signal_strength = 0;
+  else if (rssi_accum._.W1 > 100)
+    rc_signal_strength = 100;
+  else
+    rc_signal_strength = (uint8_t)rssi_accum._.W1;
 #endif
 }
 
-void detect_low_battery(void)
-{
+void detect_low_battery(void) {
 #if (ANALOG_VOLTAGE_INPUT_CHANNEL != CHANNEL_UNUSED)
-    if (voltage < LOW_VOLTAGE)
-    {
-        low_voltage ++;
-    }
-    else
-    {
-        low_voltage --;
-    }
+  if (voltage < LOW_VOLTAGE) {
+    low_voltage++;
+  } else {
+    low_voltage--;
+  }
 #endif
-    
+
 #if (ANALOG_CURRENT_INPUT_CHANNEL != CHANNEL_UNUSED)
-    if (mAh_used > MAX_USEABLE_MAH)
-    {
-        exceeded_mAh ++;
-    }
-    else
-    {
-        exceeded_mAh --;
-    }
+  if (mAh_used > MAX_USEABLE_MAH) {
+    exceeded_mAh++;
+  } else {
+    exceeded_mAh--;
+  }
 #endif
-    
-    low_voltage = limit_value(low_voltage, 0, RMAX);
-    exceeded_mAh = limit_value(exceeded_mAh, 0, RMAX);
+
+  low_voltage = limit_value(low_voltage, 0, RMAX);
+  exceeded_mAh = limit_value(exceeded_mAh, 0, RMAX);
 
 #if defined(USE_LOW_VOLTAGE_FAILSAFE) && !defined(TestGains)
-    if ( (low_voltage > (NB_LOW_VOLTAGE_SECONDS*SERVO_HZ)) || (exceeded_mAh > (NB_LOW_VOLTAGE_SECONDS*SERVO_HZ)) )
-    {
-        flags._.low_battery = 1;
-        setTriggerParams(LOW_BATTERY_PULSE_PERIOD, LOW_BATTERY_PULSE_DURATION);
-        activateTrigger(LOW_BATTERY_PULSE_PERIOD);
-    }
+  if ((low_voltage > (NB_LOW_VOLTAGE_SECONDS * SERVO_HZ)) ||
+      (exceeded_mAh > (NB_LOW_VOLTAGE_SECONDS * SERVO_HZ))) {
+    flags._.low_battery = 1;
+    setTriggerParams(LOW_BATTERY_PULSE_PERIOD, LOW_BATTERY_PULSE_DURATION);
+    activateTrigger(LOW_BATTERY_PULSE_PERIOD);
+  }
 #endif
 }

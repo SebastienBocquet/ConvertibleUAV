@@ -24,28 +24,28 @@
 // servo_ratios are used to convert degrees of rotation into servo pulse code lengths
 // This code is configured for the full throw of the servo to be achieved by a range of
 // 2000 units being sent to udb_pwOut. (i.e. min deflection 2000, centered 3000, max deflection 4000)
-#define MOTOR_PITCH_SERVO_HIGH_RATIO  ((2000.0 / ((MOTOR_PITCH_SERVO_THROW / 360.0) * 65536.0)) * 65536.0)
-#define MOTOR_PITCH_SERVO_RATIO        (2000.0 / ((MOTOR_PITCH_SERVO_THROW / 360.0) * 65536.0)) 
+#define MOTOR_TILT_SERVO_HIGH_RATIO  ((2000.0 / ((MOTOR_TILT_SERVO_THROW / 360.0) * 65536.0)) * 65536.0)
+#define MOTOR_TILT_SERVO_RATIO        (2000.0 / ((MOTOR_TILT_SERVO_THROW / 360.0) * 65536.0)) 
 
 // Note that most angles in cameraCntrl.c are 16 bit quantities
 // For example, 90 degrees is represented as 16384 (65536 / 4)
 
-const int16_t motor_pitch_offset_centred_pwm = (MOTOR_PITCH_OFFSET_CENTRED * 65536.0 / 360.0) * MOTOR_PITCH_SERVO_RATIO;
-const int16_t motor_pitch_servo_pwm_max = ((MOTOR_PITCH_SERVO_MAX - MOTOR_PITCH_OFFSET_CENTRED) * 65536.0 / 360.0) * MOTOR_PITCH_SERVO_RATIO;
-const int16_t motor_pitch_servo_pwm_min = ((MOTOR_PITCH_SERVO_MIN - MOTOR_PITCH_OFFSET_CENTRED) * 65536.0 / 360.0) * MOTOR_PITCH_SERVO_RATIO;
+const int16_t motor_pitch_offset_centred_pwm = (MOTOR_TILT_OFFSET_CENTRED * 65536.0 / 360.0) * MOTOR_TILT_SERVO_RATIO;
+const int16_t motor_pitch_servo_pwm_max = ((MOTOR_TILT_SERVO_MAX - MOTOR_TILT_OFFSET_CENTRED) * 65536.0 / 360.0) * MOTOR_TILT_SERVO_RATIO;
+const int16_t motor_pitch_servo_pwm_min = ((MOTOR_TILT_SERVO_MIN - MOTOR_TILT_OFFSET_CENTRED) * 65536.0 / 360.0) * MOTOR_TILT_SERVO_RATIO;
 
-int16_t motorPitchServoLimit(int16_t pwm_pulse)
+int16_t motorTiltServoLimit(int16_t pwm_pulse)
 {
     pwm_pulse = limit_value(pwm_pulse, motor_pitch_servo_pwm_min, motor_pitch_servo_pwm_max);
 	return(pwm_pulse);
 }
 
-void motorPitchInit(void)
+void motorTiltInit(void)
 {
     motor_pitch_servo_pwm_delta = motor_pitch_offset_centred_pwm;
 }
 
-void motorPitchCntrl(void)
+void motorTiltCntrl(void)
 {
     int32_t temp;
     int16_t servo_pwm;
@@ -60,13 +60,15 @@ void motorPitchCntrl(void)
 			pwManual[temp] = udb_pwTrim[temp];
     }
     
-    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), MOTOR_PITCH_SERVO_THROW);
-	servo_pwm = (int16_t)(temp / MOTOR_PITCH_SERVO_RANGE) ;
+    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), MOTOR_TILT_SERVO_THROW);
+	servo_pwm = (int16_t)(temp / MOTOR_TILT_SERVO_RANGE) ;
     motor_pitch_servo_pwm_delta = servo_pwm + motor_pitch_offset_centred_pwm;		
 }
 
 boolean motorsInHoveringPos()
 {
-    return (REVERSE_IF_NEEDED(MOTOR_PITCH_CHANNEL_REVERSED, 
+    return (REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED, 
 		motor_pitch_servo_pwm_delta) > motor_pitch_offset_centred_pwm);
 }
+
+

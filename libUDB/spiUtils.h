@@ -18,10 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef SPIUTILS_H
 #define SPIUTILS_H
-
 
 // initialize SPI in master mode, 16 bit
 void initSPI1_master16(uint16_t, uint16_t);
@@ -32,8 +30,9 @@ void writeSPI1reg16(uint16_t addr, uint16_t data);
 void writeSPI2reg16(uint16_t addr, uint16_t data);
 
 // n-word, non-blocking SPI read, followed by call_back
-void readSPI1_burst16n(uint16_t data[], int16_t n, uint16_t addr, void (*call_back)(void));
-void readSPI2_burst16n(uint16_t data[], int16_t n, uint16_t addr, void (*call_back)(void));
+void readSPI1_burst16n(uint16_t data[], int16_t n, uint16_t addr,
+                       void (*call_back)(void));
+void readSPI2_burst16n(uint16_t data[], int16_t n, uint16_t addr,
+                       void (*call_back)(void));
 
-
-#endif // SPIUTILS_H
+#endif  // SPIUTILS_H

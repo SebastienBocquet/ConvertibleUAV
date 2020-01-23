@@ -1,10 +1,3 @@
-Authors of MatrixPilot:
-
-Bill Premerlani
-Ben Levitt
-Peter Hollands
-Adam Barrow
-Matthew Coleman
-Robert Dickenson
-Mark Whitehorn
-Tom Pittenger
+Authors of MatrixPilot
+    : Bill Premerlani Ben Levitt Peter Hollands Adam Barrow Matthew Coleman
+          Robert Dickenson Mark Whitehorn Tom Pittenger

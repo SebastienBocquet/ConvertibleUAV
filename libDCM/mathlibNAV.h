@@ -18,10 +18,10 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef MATHLIBNAV_H
 #define MATHLIBNAV_H
 
-int16_t exponential_filter(int16_t x, float *x_filtered, float invdeltafilter, int16_t heartbeat_hz);
+int16_t exponential_filter(int16_t x, float *x_filtered, float invdeltafilter,
+                           int16_t heartbeat_hz);
 
-#endif // MATHLIBNAV_H
+#endif  // MATHLIBNAV_H

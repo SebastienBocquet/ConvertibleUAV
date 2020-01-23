@@ -18,23 +18,21 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef LIB_DCM_H
 #define LIB_DCM_H
-
 
 #include "../libUDB/libUDB.h"
 #include "libDCM_defines.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// libDCM.h defines the API for accessing the location and orientation information
+// libDCM.h defines the API for accessing the location and orientation
+// information
 // from the DCM algorithm and GPS.
-// 
+//
 // Requires libUDB.
-// 
-// This library is designed to use libUDB, but to remain independent of the 
+//
+// This library is designed to use libUDB, but to remain independent of the
 // sepcifics of the MatrixPilot application.
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -42,11 +40,11 @@ void dcm_init(void);
 void dcm_calibrate(void);
 void dcm_set_origin_location(int32_t o_long, int32_t o_lat, int32_t o_alt);
 
-extern union intbb dcm_declination_angle;       // Declination +-32767 = +-360deg
+extern union intbb dcm_declination_angle;  // Declination +-32767 = +-360deg
 
 // Called once each time the GPS reports a new location.
 // After dead reckoning is complete, this callback may go away.
-void dcm_callback_gps_location_updated(void);   // Callback
+void dcm_callback_gps_location_updated(void);  // Callback
 
 // Allows disabling yaw drift estimation.
 // Starts off enabled.  Call this to disable and to then re-enable.
@@ -96,7 +94,10 @@ int16_t int_scale(int16_t arg1, int16_t arg2);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vars
-extern union dcm_fbts_word { struct dcm_flag_bits _; int16_t W; } dcm_flags;
+extern union dcm_fbts_word {
+  struct dcm_flag_bits _;
+  int16_t W;
+} dcm_flags;
 
 // Outside of libDCM, these should all be treated as read-only
 extern fractional rmat[];
@@ -106,8 +107,9 @@ extern fractional accelEarth[];
 
 extern struct relative3D GPSlocation;
 extern struct relative3D GPSvelocity;
-extern struct relative2D velocity_thru_air; // derived horizontal velocity relative to air in cm/sec
-extern int16_t estimatedWind[3];            // wind velocity vectors in cm / sec
+extern struct relative2D velocity_thru_air;  // derived horizontal velocity
+                                             // relative to air in cm/sec
+extern int16_t estimatedWind[3];  // wind velocity vectors in cm / sec
 
 extern uint16_t air_speed_3DIMU;
 extern int16_t total_energy;
@@ -116,7 +118,7 @@ extern union longww IMUlocationx, IMUlocationy, IMUlocationz;
 extern union longww IMUvelocityx, IMUvelocityy, IMUvelocityz;
 #define IMUheight IMUlocationz._.W1
 
-extern int8_t calculated_heading;           // takes into account wind velocity
+extern int8_t calculated_heading;  // takes into account wind velocity
 extern int16_t gps_data_age;
 
 extern uint16_t ground_velocity_magnitudeXY;
@@ -125,4 +127,4 @@ extern uint16_t air_speed_magnitudeXY;
 extern union longbbbb lat_gps, long_gps, alt_sl_gps;
 extern union longbbbb lat_origin, long_origin, alt_origin;
 
-#endif // LIB_DCM_H
+#endif  // LIB_DCM_H

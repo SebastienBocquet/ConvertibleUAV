@@ -1,4 +1,4 @@
- // This file is part of MatrixPilot.
+// This file is part of MatrixPilot.
 //
 //    http://code.google.com/p/gentlenav/
 //
@@ -18,11 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 // ROUTINES FOR CHANGING UAV ONBOARD PARAMETERS
-// All paramaters are sent as type (float) between Ground Control Station and MatrixPilot.
-// So paramaters have to be converted between type (float) and their normal representation.
-// An explanation of the MAVLink protocol for changing paramaters can be found at:
+// All paramaters are sent as type (float) between Ground Control Station and
+// MatrixPilot.
+// So paramaters have to be converted between type (float) and their normal
+// representation.
+// An explanation of the MAVLink protocol for changing paramaters can be found
+// at:
 // http://www.qgroundcontrol.org/parameter_interface
 
 #ifndef PARAMETER_TABLE_H
@@ -33,42 +35,38 @@
 #include "parameter_datatypes.h"
 
 // Includes of all the data references required to build the parameter table.
-#include "gain_variables.h"             // Needed for access to internal DCM value"
+#include "gain_variables.h"  // Needed for access to internal DCM value"
 
 // callback type for data services user
 typedef void (*PT_callbackFunc)(boolean);
 
-typedef union 
-{
-	float param_float;
-	int32_t param_int32;
-	uint32_t param_uint32;
+typedef union {
+  float param_float;
+  int32_t param_int32;
+  uint32_t param_uint32;
 } param_union_t;
 
-typedef struct tag_mavlink_parameter_parser
-{
-	void (*send_param)(int16_t);
-	void (*set_param)(mavlink_param_union_t, int16_t);
-	const mavlink_message_type_t mavlink_type;
+typedef struct tag_mavlink_parameter_parser {
+  void (*send_param)(int16_t);
+  void (*set_param)(mavlink_param_union_t, int16_t);
+  const mavlink_message_type_t mavlink_type;
 } mavlink_parameter_parser;
 
-extern const mavlink_parameter_parser   mavlink_parameter_parsers[];
+extern const mavlink_parameter_parser mavlink_parameter_parsers[];
 
-typedef struct tag_mavlink_parameter 
-{
-	const char name[15];                // Name that will be displayed in the GCS
-	param_union_t min;                  // Minimum allowed value for parameter
-	param_union_t max;                  // Maximum allowed value for parameter
-	udb_internal_type_e udb_param_type; // The internal UDB type for parsing
-	uint8_t readonly;                   // Parameter is readonly (true) or Read / Write (false)
-	uint8_t* pparam;                    // Reference to variable
-	uint16_t param_size;                // parameter size in ram
+typedef struct tag_mavlink_parameter {
+  const char name[15];                 // Name that will be displayed in the GCS
+  param_union_t min;                   // Minimum allowed value for parameter
+  param_union_t max;                   // Maximum allowed value for parameter
+  udb_internal_type_e udb_param_type;  // The internal UDB type for parsing
+  uint8_t readonly;     // Parameter is readonly (true) or Read / Write (false)
+  uint8_t* pparam;      // Reference to variable
+  uint16_t param_size;  // parameter size in ram
 } mavlink_parameter;
 
-typedef enum
-{
-	PARAMETER_READWRITE = 0,
-	PARAMETER_READONLY,
+typedef enum {
+  PARAMETER_READWRITE = 0,
+  PARAMETER_READONLY,
 } PARAMETER_ACCESS;
 
 extern const mavlink_parameter mavlink_parameters_list[];
@@ -76,32 +74,32 @@ extern const uint16_t count_of_parameters_list;
 
 // callback type for data services user
 // TODO : MODE THIS FROM HERE????
-//typedef void (*DSRV_callbackFunc)(boolean);
+// typedef void (*DSRV_callbackFunc)(boolean);
 
-typedef struct tag_mavlink_parameter_block
-{
-	const uint16_t data_storage_area;
-	const uint16_t block_start_index;
-	const uint16_t block_size;
-	const uint16_t data_storage_flags;
-	PT_callbackFunc ploadCallback;
+typedef struct tag_mavlink_parameter_block {
+  const uint16_t data_storage_area;
+  const uint16_t block_start_index;
+  const uint16_t block_size;
+  const uint16_t data_storage_flags;
+  PT_callbackFunc ploadCallback;
 } mavlink_parameter_block;
 
 extern const mavlink_parameter_block mavlink_parameter_blocks[];
 extern const uint16_t mavlink_parameter_block_count;
 
 // Collection of data on all memory areas served
-//extern const mavlink_parameter_block data_services_table[];
+// extern const mavlink_parameter_block data_services_table[];
 
 // Length of the data service table in entries, not bytes
-//extern const uint16_t data_service_table_count;
+// extern const uint16_t data_service_table_count;
 
 //*****************************************************************/
 // Defines required to complete parameter table if these are not defined in
 // options.h
 
-extern fractional udb_magOffset[3]; // magnetic offset in the body frame of reference
-extern int16_t magGain[3];          // magnetometer calibration gains
+extern fractional udb_magOffset[3];  // magnetic offset in the body frame of
+                                     // reference
+extern int16_t magGain[3];           // magnetometer calibration gains
 extern int16_t rawMagCalib[3];
 
 #ifndef AILERON_INPUT_CHANNEL
@@ -152,5 +150,4 @@ extern int16_t rawMagCalib[3];
 #define CROW_INPUT_CHANNEL 0
 #endif
 
-
-#endif //PARAMETER_TABLE_H
+#endif  // PARAMETER_TABLE_H

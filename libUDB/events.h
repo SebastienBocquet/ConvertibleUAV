@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 // Manages software triggered events to run registered callbacks
 
 #ifndef EVENTS_H
@@ -31,23 +30,20 @@
 void init_events(void);
 void trigger_event(uint16_t hEvent);
 
-typedef enum eventP
-{
-	EVENT_PRIORITY_LOW = 0,
-	EVENT_PRIORITY_MEDIUM,
-	EVENT_PRIORITY_HIGH,
+typedef enum eventP {
+  EVENT_PRIORITY_LOW = 0,
+  EVENT_PRIORITY_MEDIUM,
+  EVENT_PRIORITY_HIGH,
 } eventPriority;
 
-typedef struct tagEVENT
-{
-	boolean eventPending;
-	void (*event_callback)(void);
-	int16_t priority;
+typedef struct tagEVENT {
+  boolean eventPending;
+  void (*event_callback)(void);
+  int16_t priority;
 } EVENT;
 
 uint16_t register_event(void (*event_callback)(void));
 
 uint16_t register_event_p(void (*event_callback)(void), eventPriority priority);
 
-
-#endif // EVENTS_H
+#endif  // EVENTS_H

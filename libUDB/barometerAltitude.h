@@ -18,10 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef BAROALTITUDE_H
 #define BAROALTITUDE_H
-
 
 void udb_barometer_callback(long pressure, int temperature, char status);
 void altimeter_calibrate(void);
@@ -32,5 +30,4 @@ inline long get_barometer_pressure(void);
 inline int get_barometer_temperature(void);
 inline long get_barometer_agl_altitude(void);
 
-
-#endif // BAROALTITUDE_H
+#endif  // BAROALTITUDE_H

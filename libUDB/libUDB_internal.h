@@ -18,12 +18,10 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include "libUDB.h"
 
 extern int16_t failSafePulses;
 extern int16_t noisePulses;
-
 
 extern volatile int16_t trap_flags;
 extern volatile int32_t trap_source;
@@ -31,7 +29,6 @@ extern volatile int16_t osc_fail_count;
 
 // Get flags telling the reason for the last reset (RCON)
 uint16_t get_reset_flags(void);
-
 
 void udb_init_leds(void);
 void udb_init_ADC(void);

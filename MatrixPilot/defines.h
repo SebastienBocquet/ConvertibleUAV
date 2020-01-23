@@ -27,7 +27,7 @@
 #include <cmath>
 #endif
 
-#define BYTECIR_TO_DEGREE 92160 // (360.0/256 * 2^16)
+#define BYTECIR_TO_DEGREE 92160  // (360.0/256 * 2^16)
 
 ////////////////////////////////////////////////////////////////////////////////
 // states.c
@@ -36,37 +36,40 @@ void init_states(void);
 extern int16_t waggle;
 
 struct flag_bits {
-	uint16_t unused                     : 5;
-	uint16_t save_origin                : 1;
-	uint16_t GPS_steering               : 1;
-	uint16_t pitch_feedback             : 1;
-	uint16_t altitude_hold_throttle     : 1;
-	uint16_t altitude_hold_pitch        : 1;
-	uint16_t man_req                    : 1;
-	uint16_t auto_req                   : 1;
-	uint16_t home_req                   : 1;
-	uint16_t rtl_hold                   : 1;
-	uint16_t f13_print_req              : 1;
-	uint16_t update_autopilot_state_asap: 1;
-    uint16_t is_close_to_ground         : 1;
-    uint16_t low_battery                : 1;
-    uint16_t engines_off                : 1;
-    uint16_t mag_failure                : 1;
-    uint16_t invalid_mag_reading        : 1;
-    uint16_t integral_pid_term          : 1;
+  uint16_t unused : 5;
+  uint16_t save_origin : 1;
+  uint16_t GPS_steering : 1;
+  uint16_t pitch_feedback : 1;
+  uint16_t altitude_hold_throttle : 1;
+  uint16_t altitude_hold_pitch : 1;
+  uint16_t man_req : 1;
+  uint16_t auto_req : 1;
+  uint16_t home_req : 1;
+  uint16_t rtl_hold : 1;
+  uint16_t f13_print_req : 1;
+  uint16_t update_autopilot_state_asap : 1;
+  uint16_t is_close_to_ground : 1;
+  uint16_t low_battery : 1;
+  uint16_t engines_off : 1;
+  uint16_t mag_failure : 1;
+  uint16_t invalid_mag_reading : 1;
+  uint16_t integral_pid_term : 1;
 };
 
-union fbts_int { struct flag_bits _; int16_t WW; };
+union fbts_int {
+  struct flag_bits _;
+  int16_t WW;
+};
 extern union fbts_int flags;
 
-
 ////////////////////////////////////////////////////////////////////////////////
-#define NUM_WAGGLES   4     // waggle 4 times during the end of the standby pause (this number must be less than STANDBY_PAUSE)
-#define WAGGLE_SIZE   300
+#define NUM_WAGGLES \
+  4  // waggle 4 times during the end of the standby pause (this number must be
+     // less than STANDBY_PAUSE)
+#define WAGGLE_SIZE 300
 
 // servoPrepare.c
 void init_servoPrepare(void);
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Control code - rollCntrl.c, pitchCntrl.c, yawCntrl.c, altitudeCntrl.c
@@ -80,24 +83,23 @@ void init_yawCntrl(void);
 void init_rollCntrl(void);
 void init_pitchCntrl(void);
 
-
 // wind gain adjustment
 uint16_t wind_gain_adjustment(void);
 extern uint16_t wind_gain;
 
-extern int16_t pitch_control, roll_control, yaw_control, throttle_control, throttle_hover_control, flap_control;
+extern int16_t pitch_control, roll_control, yaw_control, throttle_control,
+    throttle_hover_control, flap_control;
 extern union longww throttleFiltered;
 extern int16_t pitchAltitudeAdjust;
 
 #if (SPEED_CONTROL == 1)
-extern int16_t desiredSpeed; // Stored in 10ths of meters per second
+extern int16_t desiredSpeed;  // Stored in 10ths of meters per second
 #endif
 
 // AltitudeHold type
-#define AH_NONE             0
-#define AH_PITCH_ONLY       1
-#define AH_FULL             3
-
+#define AH_NONE 0
+#define AH_PITCH_ONLY 1
+#define AH_FULL 3
 
 ////////////////////////////////////////////////////////////////////////////////
 // servoMix.c
@@ -107,37 +109,38 @@ void motorPitchServoMix(void);
 
 // Choose the type of air frame by setting AIRFRAME_TYPE in options.h
 // See options.h for a description of each type
-#define AIRFRAME_STANDARD   0
-#define AIRFRAME_VTAIL      1
-#define AIRFRAME_DELTA      2
-#define AIRFRAME_HELI       3    // Untested
-#define AIRFRAME_QUAD       4    // Under development
+#define AIRFRAME_STANDARD 0
+#define AIRFRAME_VTAIL 1
+#define AIRFRAME_DELTA 2
+#define AIRFRAME_HELI 3  // Untested
+#define AIRFRAME_QUAD 4  // Under development
 
 // Negate VALUE if NEEDS_REVERSING is true
-#define REVERSE_IF_NEEDED(NEEDS_REVERSING, VALUE) ((NEEDS_REVERSING) ? (-(VALUE)) : (VALUE))
+#define REVERSE_IF_NEEDED(NEEDS_REVERSING, VALUE) \
+  ((NEEDS_REVERSING) ? (-(VALUE)) : (VALUE))
 
-extern uint16_t udb_pwm_sonar ;				// Raw pwm units from sonar device
-extern uint16_t udb_pwm_lidar ;				// Raw pwm units from lidar device
+extern uint16_t udb_pwm_sonar;  // Raw pwm units from sonar device
+extern uint16_t udb_pwm_lidar;  // Raw pwm units from lidar device
 extern int16_t motor_pitch_servo_pwm_delta;
-extern int16_t cam_pitch_servo_pwm_delta;  
+extern int16_t cam_pitch_servo_pwm_delta;
 extern int16_t cam_yaw_servo_pwm_delta;
 int16_t motorPitchServoLimit(int16_t);
-boolean motorsInHoveringPos(void); 
+boolean motorsInHoveringPos(void);
 int32_t cam_pitchServoLimit(int32_t);
 int32_t cam_yawServoLimit(int32_t);
 
 int16_t compute_tx_linear_control(int16_t, int16_t, int16_t, int16_t);
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // AltitudeCntrl.c
 
-extern int16_t sonar_distance ;				// direct distance from sonar to a target in cm
-extern int16_t cos_pitch_roll ;				// cosine of angle of tilt of plane in fractional * 2
-extern int16_t sonar_height_to_ground ;		// calculated distance to ground in cm
+extern int16_t sonar_distance;  // direct distance from sonar to a target in cm
+extern int16_t cos_pitch_roll;  // cosine of angle of tilt of plane in
+                                // fractional * 2
+extern int16_t sonar_height_to_ground;  // calculated distance to ground in cm
 
-extern int16_t lidar_distance ;				// direct distance from sonar to a target in cm
-extern int16_t lidar_height_to_ground ;		// calculated distance to ground in cm
+extern int16_t lidar_distance;  // direct distance from sonar to a target in cm
+extern int16_t lidar_height_to_ground;  // calculated distance to ground in cm
 
 extern int16_t additional_int16_export1;
 extern int16_t additional_int16_export2;
@@ -157,15 +160,16 @@ extern int16_t tele_mean_throttle;
 
 int16_t IIR_Filter(int32_t*, int16_t, int8_t);
 int16_t limit_value(int16_t, int16_t, int16_t);
-int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*, int16_t, int32_t, boolean);
+int16_t compute_pi_block(int16_t, int16_t, uint16_t, uint16_t, int32_t*,
+                         int16_t, int32_t, boolean);
 int16_t exponential_filter(int16_t, float*, float);
 int32_t exponential_filter32(int32_t, float*, float);
 
 ////////////////////////////////////////////////////////////////////////////////
 // navigation.c
-void set_goal(struct relative3D fromPoint , struct relative3D toPoint);
+void set_goal(struct relative3D fromPoint, struct relative3D toPoint);
 void update_goal_alt(int16_t z);
-void compute_bearing_to_goal (void);
+void compute_bearing_to_goal(void);
 void process_flightplan(void);
 int16_t determine_navigation_deflection(char navType);
 boolean isInControlPositionHold(int16_t);
@@ -183,18 +187,29 @@ extern int16_t roll_v_target;
 extern int16_t roll_hover_corr;
 extern int16_t pitch_hover_corr;
 
-struct waypointparameters { int16_t x; int16_t y; int16_t cosphi; int16_t sinphi; int8_t phi; int16_t height; int16_t fromHeight; int16_t legDist; };
+struct waypointparameters {
+  int16_t x;
+  int16_t y;
+  int16_t cosphi;
+  int16_t sinphi;
+  int8_t phi;
+  int16_t height;
+  int16_t fromHeight;
+  int16_t legDist;
+};
 extern struct waypointparameters goal;
 
 extern struct relative2D togoal;
 extern int16_t tofinish_line;
 extern int16_t tofinish_line_factor10;
-extern int16_t progress_to_goal; // Fraction of the way to the goal in the range 0-4096 (2^12)
+extern int16_t progress_to_goal;  // Fraction of the way to the goal in the
+                                  // range 0-4096 (2^12)
 extern int8_t desired_dir;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Quadcopter
-void motorCntrl( const uint16_t, const uint16_t,const uint16_t,const uint16_t,const uint16_t,const uint16_t, const uint16_t) ;
+void motorCntrl(const uint16_t, const uint16_t, const uint16_t, const uint16_t,
+                const uint16_t, const uint16_t, const uint16_t);
 void reset_target_orientation(void);
 void reset_derivative_terms(void);
 void reset_integral_terms(void);
@@ -231,13 +246,11 @@ void flightplan_live_received_byte(uint8_t inbyte);
 void flightplan_live_commit(void);
 
 // Failsafe Type
-#define FAILSAFE_RTL                1
-#define FAILSAFE_MAIN_FLIGHTPLAN    2
+#define FAILSAFE_RTL 1
+#define FAILSAFE_MAIN_FLIGHTPLAN 2
 
-#define FP_WAYPOINTS                1
-#define FP_LOGO                     2
-
-
+#define FP_WAYPOINTS 1
+#define FP_LOGO 2
 
 ////////////////////////////////////////////////////////////////////////////////
 // behavior.c
@@ -251,56 +264,58 @@ void setTriggerParams(int16_t, int16_t);
 void activateTrigger(int16_t);
 
 struct behavior_flag_bits {
-	uint16_t takeoff        : 1;    // disable altitude interpolation for faster climbout
-	uint16_t inverted       : 1;    // fly iverted
-	uint16_t hover          : 1;    // hover the plane
-	uint16_t rollLeft       : 1;    // unimplemented
-	uint16_t rollRight      : 1;    // unimplemented
-	uint16_t trigger        : 1;    // trigger action
-	uint16_t loiter         : 1;    // stay on the current waypoint
-	uint16_t land           : 1;    // throttle off
-	uint16_t absolute       : 1;    // absolute waypoint
-	uint16_t altitude       : 1;    // climb/descend to goal altitude
-	uint16_t cross_track    : 1;    // use cross-tracking navigation
-	uint16_t unused         : 5;
+  uint16_t takeoff : 1;    // disable altitude interpolation for faster climbout
+  uint16_t inverted : 1;   // fly iverted
+  uint16_t hover : 1;      // hover the plane
+  uint16_t rollLeft : 1;   // unimplemented
+  uint16_t rollRight : 1;  // unimplemented
+  uint16_t trigger : 1;    // trigger action
+  uint16_t loiter : 1;     // stay on the current waypoint
+  uint16_t land : 1;       // throttle off
+  uint16_t absolute : 1;   // absolute waypoint
+  uint16_t altitude : 1;   // climb/descend to goal altitude
+  uint16_t cross_track : 1;  // use cross-tracking navigation
+  uint16_t unused : 5;
 };
 
-#define F_NORMAL               0
-#define F_TAKEOFF              1
-#define F_INVERTED             2
-#define F_HOVER                4
-#define F_ROLL_LEFT            8
-#define F_ROLL_RIGHT          16
-#define F_TRIGGER             32
-#define F_LOITER              64
-#define F_LAND               128
-#define F_ABSOLUTE           256
-#define F_ALTITUDE_GOAL      512
-#define F_CROSS_TRACK       1024
+#define F_NORMAL 0
+#define F_TAKEOFF 1
+#define F_INVERTED 2
+#define F_HOVER 4
+#define F_ROLL_LEFT 8
+#define F_ROLL_RIGHT 16
+#define F_TRIGGER 32
+#define F_LOITER 64
+#define F_LAND 128
+#define F_ABSOLUTE 256
+#define F_ALTITUDE_GOAL 512
+#define F_CROSS_TRACK 1024
 
-#define F_MANUAL_TAKE_OFF      0
-#define F_IS_IN_FLIGHT         1
-#define F_AUTO_LAND            2
-#define F_ENGINE_OFF           3
+#define F_MANUAL_TAKE_OFF 0
+#define F_IS_IN_FLIGHT 1
+#define F_AUTO_LAND 2
+#define F_ENGINE_OFF 3
 
-union bfbts_word { struct behavior_flag_bits _; int16_t W; };
+union bfbts_word {
+  struct behavior_flag_bits _;
+  int16_t W;
+};
 
 extern int16_t current_orientation;
 extern int16_t current_flight_phase;
 extern union bfbts_word desired_behavior;
 extern boolean buzz;
 
-#define TRIGGER_TYPE_NONE      0
-#define TRIGGER_TYPE_SERVO     1
-#define TRIGGER_TYPE_DIGITAL   2
+#define TRIGGER_TYPE_NONE 0
+#define TRIGGER_TYPE_SERVO 1
+#define TRIGGER_TYPE_DIGITAL 2
 
-#define TRIGGER_PULSE_HIGH     4
-#define TRIGGER_PULSE_LOW      8
-#define TRIGGER_TOGGLE        16
-#define TRIGGER_REPEATING     32
+#define TRIGGER_PULSE_HIGH 4
+#define TRIGGER_PULSE_LOW 8
+#define TRIGGER_TOGGLE 16
+#define TRIGGER_REPEATING 32
 
 extern boolean is_manual_hover_throttle;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // serialIO.c
@@ -310,18 +325,28 @@ void serial_output_8hz(void);
 void mavlink_output_40hz(void);
 
 // Serial Output Format
-#define SERIAL_NONE         0    // No serial data is sent
-#define SERIAL_DEBUG        1    // UAV Dev Board debug info
-#define SERIAL_ARDUSTATION  2    // Compatible with ArduStation
-#define SERIAL_UDB          3    // Pete's efficient UAV Dev Board format
-#define SERIAL_OSD_REMZIBI  4    // Output data formatted to use as input to a Remzibi OSD (only works with GPS_UBX)
-#define SERIAL_OSD_IF       5    // Output data formatted to use as input to a IF OSD (only works with GPS_UBX)
-#define SERIAL_MAGNETOMETER 6    // Debugging the magnetometer
-#define SERIAL_UDB_EXTRA    7    // Extra Telemetry beyond that provided by SERIAL_UDB for higher bandwidth connections
-#define SERIAL_CAM_TRACK    8    // Output Location in a format usable by a 2nd UDB to target its camera at this plane
-#define SERIAL_MAVLINK      9    // The Micro Air Vehicle Link protocol from the PixHawk Project
-#define SERIAL_UDB_LIGHT    10    // very light telemetry output to test heartbeat at 200Hz
-#define SERIAL_TELEMETRY    11    // telemetry sent through nrf905 wireless link
+#define SERIAL_NONE 0         // No serial data is sent
+#define SERIAL_DEBUG 1        // UAV Dev Board debug info
+#define SERIAL_ARDUSTATION 2  // Compatible with ArduStation
+#define SERIAL_UDB 3          // Pete's efficient UAV Dev Board format
+#define SERIAL_OSD_REMZIBI \
+  4  // Output data formatted to use as input to a Remzibi OSD (only works with
+     // GPS_UBX)
+#define SERIAL_OSD_IF \
+  5  // Output data formatted to use as input to a IF OSD (only works with
+     // GPS_UBX)
+#define SERIAL_MAGNETOMETER 6  // Debugging the magnetometer
+#define SERIAL_UDB_EXTRA \
+  7  // Extra Telemetry beyond that provided by SERIAL_UDB for higher bandwidth
+     // connections
+#define SERIAL_CAM_TRACK \
+  8  // Output Location in a format usable by a 2nd UDB to target its camera at
+     // this plane
+#define SERIAL_MAVLINK \
+  9  // The Micro Air Vehicle Link protocol from the PixHawk Project
+#define SERIAL_UDB_LIGHT \
+  10  // very light telemetry output to test heartbeat at 200Hz
+#define SERIAL_TELEMETRY 11  // telemetry sent through nrf905 wireless link
 
 ////////////////////////////////////////////////////////////////////////////////
 // cameraCntrl.c
@@ -335,7 +360,8 @@ void camera_live_received_byte(uint8_t inbyte);
 void camera_live_commit(void);
 void camera_live_commit_values(const struct relative3D target);
 
-#define CAM_VIEW_LAUNCH     { 0, 0, 0 }
+#define CAM_VIEW_LAUNCH \
+  { 0, 0, 0 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // sonarCntrl.c
@@ -346,23 +372,23 @@ void motorPitchInit(void);
 // mp_osd.c
 void osd_run_step(void);
 
-#define OSD_NTSC            0
-#define OSD_PAL             1
+#define OSD_NTSC 0
+#define OSD_PAL 1
 
 #include "gain_variables.h"
 
 // GNU compiler specific macros for specifically marking variables as unused
 // If not using GNU, then macro makes no alteration to the code
 #ifdef __GNUC__
-#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#define UNUSED(x) UNUSED_##x __attribute__((__unused__))
 #else
-#  define UNUSED(x) UNUSED_ ## x
+#define UNUSED(x) UNUSED_##x
 #endif
 
 #ifdef __GNUC__
-#  define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_ ## x
+#define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_##x
 #else
-#  define UNUSED_FUNCTION(x) UNUSED_ ## x
+#define UNUSED_FUNCTION(x) UNUSED_##x
 #endif
 
-#endif // _DEFINES_H_
+#endif  // _DEFINES_H_

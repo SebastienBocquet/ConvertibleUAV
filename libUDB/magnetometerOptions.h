@@ -34,20 +34,25 @@
 //#define HMC5883L
 #define HMC5883L_SF
 
-// Define magneticDeclination to be the magnectic declination, in degrees, measured
+// Define magneticDeclination to be the magnectic declination, in degrees,
+// measured
 // clockwise from the north, east is plus, west is minus.
-//  Mississauga, ON is Lat 45.58 N and Long 79.65 W, Mag. Decl. therefore is 10deg21' W or -10.35 degrees
-//  Bennet Field Springvale, ON is Lat 42deg58' N and Long 80deg9' W, Mag. Decl. therefore is 9deg48' W or -9.48 degrees
-  //Salinas, CA Magnetic Variation: 16E (1980), http://www.airport-data.com/airport/SNS/
-#define MAGNETICDECLINATION                 0.08
+//  Mississauga, ON is Lat 45.58 N and Long 79.65 W, Mag. Decl. therefore is
+// 10deg21' W or -10.35 degrees
+//  Bennet Field Springvale, ON is Lat 42deg58' N and Long 80deg9' W, Mag. Decl.
+// therefore is 9deg48' W or -9.48 degrees
+// Salinas, CA Magnetic Variation: 16E (1980),
+// http://www.airport-data.com/airport/SNS/
+#define MAGNETICDECLINATION 0.08
 
 // Set to 0 for fixed declination angle or 1 for variable declination angle
-#define DECLINATIONANGLE_VARIABLE           0
+#define DECLINATIONANGLE_VARIABLE 0
 
-// #define LED_RED_MAG_CHECK 1 if you want the RED LED to indicate the magnetometer is not working.
+// #define LED_RED_MAG_CHECK 1 if you want the RED LED to indicate the
+// magnetometer is not working.
 // #define LED_RED_MAG_CHECK 0 if you want the RED LED to indicate control mode.
 
-#define LED_RED_MAG_CHECK                   0
+#define LED_RED_MAG_CHECK 0
 
 ////////////////////////////////////////////////////////////////////////////////
 // Uncomment one of the defines below to specify orientation of the mag.
@@ -56,10 +61,14 @@
 // MAG_BACKWARDS: Component-side up,   edge connector back
 // MAG_INVERTED:  Component-side down, edge connector front
 // MAG_FLIPPED:   Component-side down, edge connector back
-// MAG_DIRECT:    Magnetometer mounted in an orientation that permits a direct connection to a UDB4 or UDB5
-// Note: right now, if MAG_DIRECT is selected, UDB board orientation must be ORIENTATION_FORWARDS
-// For 3DRobotics mags, for MAG_DIRECT the mag mounts over the UDB, component side down.
-// For SparkFun HMC5883L, for MAG_DIRECT the mag mounts over the UDB, component side up.
+// MAG_DIRECT:    Magnetometer mounted in an orientation that permits a direct
+// connection to a UDB4 or UDB5
+// Note: right now, if MAG_DIRECT is selected, UDB board orientation must be
+// ORIENTATION_FORWARDS
+// For 3DRobotics mags, for MAG_DIRECT the mag mounts over the UDB, component
+// side down.
+// For SparkFun HMC5883L, for MAG_DIRECT the mag mounts over the UDB, component
+// side up.
 
 //#define MAG_FORWARDS
 //#define MAG_BACKWARDS
@@ -67,13 +76,9 @@
 //#define MAG_FLIPPED
 #define MAG_INVERTED
 
-
-
 // ************************************************************************
 // *** Users should not need to change anything below here ****************
 // ************************************************************************
-
-
 
 // Define the alignment of magnetometer with the UDB X, Y, and Z axis.
 // MAG_X_AXIS, MAG_Y_AXIS, MAG_Y_AXIS refer to the UDB X, Y, and Z axis.
@@ -83,12 +88,14 @@
 
 // The following definitions are for Jordi's breakout board.
 // It assumes that the X and Y axis labels on the breakout board align
-// with the X and Y labels on the UDB, and that the breakout board is mounted with
+// with the X and Y labels on the UDB, and that the breakout board is mounted
+// with
 // the magnetometer on top, the same as for the UDB.
 
-// If you are using a different HMC5843 magnetometer breakout board, just make sure the magnetometer
-// is aligned with the CPU chip on the UDB, with the pin 1 markers in the same orientation
-
+// If you are using a different HMC5843 magnetometer breakout board, just make
+// sure the magnetometer
+// is aligned with the CPU chip on the UDB, with the pin 1 markers in the same
+// orientation
 
 // old 3DRobotics mag
 #ifdef HMC5843
@@ -120,7 +127,7 @@
 #define MAG_Z_SIGN -
 #endif
 
-#ifdef MAG_INVERTED 
+#ifdef MAG_INVERTED
 #define MAG_X_AXIS 1
 #define MAG_Y_AXIS 0
 #define MAG_Z_AXIS 2
@@ -138,7 +145,7 @@
 #define MAG_Z_SIGN +
 #endif
 
-#define MAG_GAIN	700.0
+#define MAG_GAIN 700.0
 #endif
 
 // new 3D Robotics mag
@@ -261,8 +268,10 @@
 #define MAG_GAIN 1000.0
 #endif
 
-// Minimum and maximum values expected for the absolute value of the magnetic field.
-// These are used to help detect when the magnetometer has stopped working properly due to
+// Minimum and maximum values expected for the absolute value of the magnetic
+// field.
+// These are used to help detect when the magnetometer has stopped working
+// properly due to
 // RF interference that may put it into an unknown state.
 
 #define MAGNETICMINIMUM 300
@@ -270,5 +279,3 @@
 
 // The following line computes an internal parameter, do not change it.
 #define DECLINATIONANGLE ((int16_t)(MAGNETICDECLINATION *(32767.0 / 180.0)))
-
-

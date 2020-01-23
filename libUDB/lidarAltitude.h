@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-/* 
- * File:   
- * Author: 
+/*
+ * File:
+ * Author:
  * Comments:
- * Revision history: 
+ * Revision history:
  */
 
 #ifndef LIDARALTITUDE_H
@@ -31,5 +31,4 @@
 void calculate_lidar_height_above_ground(void);
 void setFailureLidarDist(int16_t);
 
-#endif // LIDARALTITUDE_H
-
+#endif  // LIDARALTITUDE_H

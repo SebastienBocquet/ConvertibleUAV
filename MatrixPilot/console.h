@@ -18,13 +18,10 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef CONSOLE_H
 #define CONSOLE_H
-
 
 void init_console(void);
 void console(void);
 
-
-#endif // CONSOLE_H
+#endif  // CONSOLE_H

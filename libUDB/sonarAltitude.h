@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-/* 
- * File:   
- * Author: 
+/*
+ * File:
+ * Author:
  * Comments:
- * Revision history: 
+ * Revision history:
  */
 
 #ifndef SONARALTITUDE_H
@@ -31,6 +31,6 @@
 void calculate_sonar_height_above_ground(void);
 void setFailureSonarDist(int16_t);
 
-#define LED_RED_SONAR_CHECK    0
+#define LED_RED_SONAR_CHECK 0
 
-#endif // SONARALTITUDE_H
+#endif  // SONARALTITUDE_H

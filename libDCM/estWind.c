@@ -21,115 +21,118 @@
 #include "defines.h"
 #include "libDCM_internal.h"
 
+int16_t estimatedWind[3] = {0, 0, 0};
 
-int16_t estimatedWind[3] = { 0, 0, 0 };
-
-static int16_t groundVelocityHistory[3] = { 0, 0, 0 };
-static int16_t fuselageDirectionHistory[3] = { 0, 0, 0 };
+static int16_t groundVelocityHistory[3] = {0, 0, 0};
+static int16_t fuselageDirectionHistory[3] = {0, 0, 0};
 
 #define MINROTATION ((int16_t)(0.2 * RMAX))
 
-void estimateWind(void)
-{
+void estimateWind(void) {
 #if (WIND_ESTIMATION == 1)
 
-    if (canStabilizeHover() && current_orientation == F_HOVER)
-    {
-        estimatedWind[0] = 0;
-        estimatedWind[1] = 0;
-        estimatedWind[2] = 0;
-        return;
-    }
+  if (canStabilizeHover() && current_orientation == F_HOVER) {
+    estimatedWind[0] = 0;
+    estimatedWind[1] = 0;
+    estimatedWind[2] = 0;
+    return;
+  }
 
-    //this line means that wind estimation is skipped if plane is hovering
-	//if (dcm_flags._.skip_yaw_drift) return;
-	
-	int16_t index;
-	int16_t groundVelocity[3];
-	int16_t groundVelocitySum[3];
-	int16_t groundVelocityDiff[3];
-	int16_t fuselageDirection[3];
-	int16_t fuselageDirectionSum[3];
-	int16_t fuselageDirectionDiff[3];
-	uint16_t magVelocityDiff;
-	uint16_t magDirectionDiff;
-	int8_t angleVelocityDiff;
-	int8_t angleDirectionDiff;
-	int8_t thetaDiff;
-	int16_t costhetaDiff;
-	int16_t sinthetaDiff;
-	union longww longaccum;
-	struct relative2D xy;
-	uint16_t estimatedAirspeed;
+  // this line means that wind estimation is skipped if plane is hovering
+  // if (dcm_flags._.skip_yaw_drift) return;
 
-	groundVelocity[0] = GPSvelocity.x;
-	groundVelocity[1] = GPSvelocity.y;
-	groundVelocity[2] = GPSvelocity.z;
+  int16_t index;
+  int16_t groundVelocity[3];
+  int16_t groundVelocitySum[3];
+  int16_t groundVelocityDiff[3];
+  int16_t fuselageDirection[3];
+  int16_t fuselageDirectionSum[3];
+  int16_t fuselageDirectionDiff[3];
+  uint16_t magVelocityDiff;
+  uint16_t magDirectionDiff;
+  int8_t angleVelocityDiff;
+  int8_t angleDirectionDiff;
+  int8_t thetaDiff;
+  int16_t costhetaDiff;
+  int16_t sinthetaDiff;
+  union longww longaccum;
+  struct relative2D xy;
+  uint16_t estimatedAirspeed;
 
-	fuselageDirection[0] = -rmat[1];
-	fuselageDirection[1] =  rmat[4];
-	fuselageDirection[2] = -rmat[7];
+  groundVelocity[0] = GPSvelocity.x;
+  groundVelocity[1] = GPSvelocity.y;
+  groundVelocity[2] = GPSvelocity.z;
 
-	for (index = 0; index < 3; index++)
-	{
-		groundVelocity[index] >>= 1;
-		fuselageDirection[index] >>= 1;
-		groundVelocitySum[index]  = groundVelocity[index] + groundVelocityHistory[index];
-		groundVelocityDiff[index] = groundVelocity[index] - groundVelocityHistory[index];
-		fuselageDirectionSum[index]  = fuselageDirection[index] + fuselageDirectionHistory[index];
-		fuselageDirectionDiff[index] = fuselageDirection[index] - fuselageDirectionHistory[index];
-	}
+  fuselageDirection[0] = -rmat[1];
+  fuselageDirection[1] = rmat[4];
+  fuselageDirection[2] = -rmat[7];
 
-	xy.x = fuselageDirectionDiff[0];
-	xy.y = fuselageDirectionDiff[1];
-	angleDirectionDiff = rect_to_polar(&xy);
+  for (index = 0; index < 3; index++) {
+    groundVelocity[index] >>= 1;
+    fuselageDirection[index] >>= 1;
+    groundVelocitySum[index] =
+        groundVelocity[index] + groundVelocityHistory[index];
+    groundVelocityDiff[index] =
+        groundVelocity[index] - groundVelocityHistory[index];
+    fuselageDirectionSum[index] =
+        fuselageDirection[index] + fuselageDirectionHistory[index];
+    fuselageDirectionDiff[index] =
+        fuselageDirection[index] - fuselageDirectionHistory[index];
+  }
 
-	xy.x = groundVelocityDiff[0];
-	xy.y = groundVelocityDiff[1];
-	angleVelocityDiff = rect_to_polar(&xy);
+  xy.x = fuselageDirectionDiff[0];
+  xy.y = fuselageDirectionDiff[1];
+  angleDirectionDiff = rect_to_polar(&xy);
 
-	thetaDiff = angleVelocityDiff - angleDirectionDiff;
-	costhetaDiff = cosine(thetaDiff);
-	sinthetaDiff = sine(thetaDiff);
+  xy.x = groundVelocityDiff[0];
+  xy.y = groundVelocityDiff[1];
+  angleVelocityDiff = rect_to_polar(&xy);
 
-	magDirectionDiff = vector3_mag(fuselageDirectionDiff[0],
-	                               fuselageDirectionDiff[1],
-	                               fuselageDirectionDiff[2]);
+  thetaDiff = angleVelocityDiff - angleDirectionDiff;
+  costhetaDiff = cosine(thetaDiff);
+  sinthetaDiff = sine(thetaDiff);
 
-	magVelocityDiff = vector3_mag(groundVelocityDiff[0],
-	                              groundVelocityDiff[1],
-	                              groundVelocityDiff[2]);
+  magDirectionDiff =
+      vector3_mag(fuselageDirectionDiff[0], fuselageDirectionDiff[1],
+                  fuselageDirectionDiff[2]);
 
-	if (magDirectionDiff > MINROTATION)
-	{
-		longaccum._.W1 = magVelocityDiff >> 2;
-		longaccum._.W0 = 0;
+  magVelocityDiff = vector3_mag(groundVelocityDiff[0], groundVelocityDiff[1],
+                                groundVelocityDiff[2]);
+
+  if (magDirectionDiff > MINROTATION) {
+    longaccum._.W1 = magVelocityDiff >> 2;
+    longaccum._.W0 = 0;
 #if (HILSIM == 1)
-		estimatedAirspeed = as_sim.BB; // use the simulation as a pitot tube
+    estimatedAirspeed = as_sim.BB;  // use the simulation as a pitot tube
 #else
-		estimatedAirspeed = __builtin_divud(longaccum.WW, magDirectionDiff);
+    estimatedAirspeed = __builtin_divud(longaccum.WW, magDirectionDiff);
 #endif
-		longaccum.WW = (__builtin_mulss(costhetaDiff, fuselageDirectionSum[0])
-		              - __builtin_mulss(sinthetaDiff, fuselageDirectionSum[1])) << 2;
-		longaccum.WW = (__builtin_mulus(estimatedAirspeed, longaccum._.W1)) << 2;
-		estimatedWind[0] = estimatedWind[0] + 
-		    ((groundVelocitySum[0] - longaccum._.W1 - estimatedWind[0]) >> 4);
+    longaccum.WW = (__builtin_mulss(costhetaDiff, fuselageDirectionSum[0]) -
+                    __builtin_mulss(sinthetaDiff, fuselageDirectionSum[1]))
+                   << 2;
+    longaccum.WW = (__builtin_mulus(estimatedAirspeed, longaccum._.W1)) << 2;
+    estimatedWind[0] =
+        estimatedWind[0] +
+        ((groundVelocitySum[0] - longaccum._.W1 - estimatedWind[0]) >> 4);
 
-		longaccum.WW = (__builtin_mulss(sinthetaDiff, fuselageDirectionSum[0])
-		              + __builtin_mulss(costhetaDiff, fuselageDirectionSum[1])) << 2;
-		longaccum.WW = (__builtin_mulus(estimatedAirspeed, longaccum._.W1)) << 2;
-		estimatedWind[1] = estimatedWind[1] +
-		    ((groundVelocitySum[1] - longaccum._.W1 - estimatedWind[1]) >> 4);
+    longaccum.WW = (__builtin_mulss(sinthetaDiff, fuselageDirectionSum[0]) +
+                    __builtin_mulss(costhetaDiff, fuselageDirectionSum[1]))
+                   << 2;
+    longaccum.WW = (__builtin_mulus(estimatedAirspeed, longaccum._.W1)) << 2;
+    estimatedWind[1] =
+        estimatedWind[1] +
+        ((groundVelocitySum[1] - longaccum._.W1 - estimatedWind[1]) >> 4);
 
-		longaccum.WW = (__builtin_mulus(estimatedAirspeed, fuselageDirectionSum[2])) << 2;
-		estimatedWind[2] = estimatedWind[2] +
-		((groundVelocitySum[2] - longaccum._.W1 - estimatedWind[2]) >> 4);
+    longaccum.WW = (__builtin_mulus(estimatedAirspeed, fuselageDirectionSum[2]))
+                   << 2;
+    estimatedWind[2] =
+        estimatedWind[2] +
+        ((groundVelocitySum[2] - longaccum._.W1 - estimatedWind[2]) >> 4);
 
-		for (index = 0; index < 3; index++)
-		{
-			groundVelocityHistory[index] = groundVelocity[index];
-			fuselageDirectionHistory[index] = fuselageDirection[index];
-		}
-	}
-#endif // WIND_ESTIMATION
+    for (index = 0; index < 3; index++) {
+      groundVelocityHistory[index] = groundVelocity[index];
+      fuselageDirectionHistory[index] = fuselageDirection[index];
+    }
+  }
+#endif  // WIND_ESTIMATION
 }

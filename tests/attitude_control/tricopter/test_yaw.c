@@ -60,7 +60,7 @@ namespace
  
     TEST_F(TricopterYawControl, yawKpGains)
     {
-        rmat[1] = 0;
+        rmat[6] = 0;
         rmat[6] = 0;
         rmat[7] = 0;
         // set maximal yaw control strength

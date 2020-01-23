@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 //******************************************************************/
 // DATA STORAGE
 // A lightweight file system that allows data versioning
@@ -26,7 +25,6 @@
 // Has a basic directory/FAT table describing data areas
 // Data areas do not have names, only the handles defined below
 //
-
 
 #ifndef DATA_STORAGE_H
 #define DATA_STORAGE_H
@@ -37,13 +35,13 @@
 
 // Defines the chunks size for data areas.  Can be used to allign with
 // NV memory page size.
-#define FAT_CHUNK_BYTE_SIZE     64
+#define FAT_CHUNK_BYTE_SIZE 64
 
 // Size of data pre-amble used to mark the start of a memory area
-#define DATA_PREAMBLE_SIZE      4
+#define DATA_PREAMBLE_SIZE 4
 
 // Maximum number of data areas
-#define MAX_DATA_HANDLES        30
+#define MAX_DATA_HANDLES 30
 
 // callback type for data storage user
 typedef void (*DS_callbackFunc)(boolean);
@@ -62,41 +60,37 @@ extern const uint8_t table_storage_preamble[DATA_PREAMBLE_SIZE];
 // HEADER_NO_CHECKSUM - A header to start the area but no checksum use
 // CHECKSUMMED_ARRAY - Chuncks of data with a checksum for each chunck
 // SELF_MANAGED - No header or checksum. Only checks out of bounds writing
-typedef enum
-{
-	DATA_STORAGE_NULL,
-	DATA_STORAGE_CHECKSUM_STRUCT,
-	DATA_STORAGE_HEADER_NO_CHECKSUM,
-	DATA_STORAGE_CHECKSUMMED_ARRAY,
-	DATA_STORAGE_SELF_MANAGED,
+typedef enum {
+  DATA_STORAGE_NULL,
+  DATA_STORAGE_CHECKSUM_STRUCT,
+  DATA_STORAGE_HEADER_NO_CHECKSUM,
+  DATA_STORAGE_CHECKSUMMED_ARRAY,
+  DATA_STORAGE_SELF_MANAGED,
 } DATA_STORAGE_TYPE;
 
-#if(DATA_HANDLE_MAX >= MAX_DATA_HANDLES)
-	#error("Number of defined data handles exceeds the maximum number of defined handles")
+#if (DATA_HANDLE_MAX >= MAX_DATA_HANDLES)
+#error("Number of defined data handles exceeds the maximum number of defined handles")
 #endif
 
 // Structure for entry to data directory array
-typedef struct tagDATA_STORAGE_ENTRY
-{
-	uint16_t data_address;
-	uint16_t data_type;
-	uint16_t data_size;
+typedef struct tagDATA_STORAGE_ENTRY {
+  uint16_t data_address;
+  uint16_t data_type;
+  uint16_t data_size;
 } DATA_STORAGE_ENTRY;
 
 // Structure of complete data directory including checksum.
-typedef struct tagDATA_STORAGE_TABLE
-{
-	uint8_t            table_preamble[DATA_PREAMBLE_SIZE];
-	DATA_STORAGE_ENTRY table[MAX_DATA_HANDLES];
-	uint16_t           table_checksum;
+typedef struct tagDATA_STORAGE_TABLE {
+  uint8_t table_preamble[DATA_PREAMBLE_SIZE];
+  DATA_STORAGE_ENTRY table[MAX_DATA_HANDLES];
+  uint16_t table_checksum;
 } DATA_STORAGE_TABLE;
 
-typedef struct tagDATA_STORAGE_HEADER
-{
-	uint8_t  data_preamble[DATA_PREAMBLE_SIZE];
-	uint16_t data_handle;
-	uint16_t data_version;
-	uint16_t data_checksum;
+typedef struct tagDATA_STORAGE_HEADER {
+  uint8_t data_preamble[DATA_PREAMBLE_SIZE];
+  uint16_t data_handle;
+  uint16_t data_version;
+  uint16_t data_checksum;
 } DATA_STORAGE_HEADER;
 
 // Trigger storage service in low priority process.
@@ -106,36 +100,48 @@ extern void storage_service_trigger(void);
 extern void data_storage_init(void);
 
 // For access to a checksummed structure data area
-extern boolean storage_write(uint16_t data_handle, uint8_t* pwrData, uint16_t size, DS_callbackFunc callback);
-extern boolean storage_read(uint16_t data_handle, uint8_t* prdData, uint16_t size, DS_callbackFunc callback);
+extern boolean storage_write(uint16_t data_handle, uint8_t* pwrData,
+                             uint16_t size, DS_callbackFunc callback);
+extern boolean storage_read(uint16_t data_handle, uint8_t* prdData,
+                            uint16_t size, DS_callbackFunc callback);
 
 // Create a storage area
 // Size = size in bytes
 // type = data management type
 // callback = user callback for when process finished
-extern boolean storage_create_area(uint16_t data_handle, uint16_t size, uint16_t type, DS_callbackFunc callback);
+extern boolean storage_create_area(uint16_t data_handle, uint16_t size,
+                                   uint16_t type, DS_callbackFunc callback);
 
 // Lookup the data storage table to see if an area exists
 // Does not require callback.  Always has immediate return
-extern boolean storage_check_area_exists(uint16_t data_handle, uint16_t size, uint16_t type);
+extern boolean storage_check_area_exists(uint16_t data_handle, uint16_t size,
+                                         uint16_t type);
 
 // Status of sotage services
 boolean storage_services_started();
 
 // For access to a checksummed array data area
-extern boolean storage_write_array(uint16_t data_handle, uint8_t* pwrData, uint16_t size, DS_callbackFunc callback);
-extern boolean storage_read_array(uint16_t data_handle, uint8_t* prdData, uint16_t size, DS_callbackFunc callback);
+extern boolean storage_write_array(uint16_t data_handle, uint8_t* pwrData,
+                                   uint16_t size, DS_callbackFunc callback);
+extern boolean storage_read_array(uint16_t data_handle, uint8_t* prdData,
+                                  uint16_t size, DS_callbackFunc callback);
 
 // For random access to a self managed area
-extern boolean storage_write_part(uint16_t data_handle, uint8_t* pwrData, uint16_t offset, uint16_t size, DS_callbackFunc callback);
-extern boolean storage_read_part(uint16_t data_handle, uint8_t* prdData, uint16_t offset, uint16_t size, DS_callbackFunc callback);
+extern boolean storage_write_part(uint16_t data_handle, uint8_t* pwrData,
+                                  uint16_t offset, uint16_t size,
+                                  DS_callbackFunc callback);
+extern boolean storage_read_part(uint16_t data_handle, uint8_t* prdData,
+                                 uint16_t offset, uint16_t size,
+                                 DS_callbackFunc callback);
 
-extern boolean storage_resize(uint16_t data_handle, uint16_t size, DS_callbackFunc callback);
+extern boolean storage_resize(uint16_t data_handle, uint16_t size,
+                              DS_callbackFunc callback);
 
 // Clear all data storage areas by invalidating data
 extern boolean storage_clear_all(DS_callbackFunc callback);
 
 // Clear specific data storage area by invalidating data
-extern boolean storage_clear_area(uint16_t data_handle, DS_callbackFunc callback);
+extern boolean storage_clear_area(uint16_t data_handle,
+                                  DS_callbackFunc callback);
 
-#endif // DATA_STORAGE_H
+#endif  // DATA_STORAGE_H

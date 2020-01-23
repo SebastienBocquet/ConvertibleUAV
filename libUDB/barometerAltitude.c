@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include "libDCM.h"
 #include "barometer.h"
 #include "barometerAltitude.h"
@@ -33,51 +32,50 @@
 long barometer_pressure_gnd = 0;
 int barometer_temperature_gnd = 0;
 
-long barometer_altitude;        // above sea level altitude - ASL (millimeters)
-long barometer_agl_altitude;    // above ground level altitude - AGL
+long barometer_altitude;      // above sea level altitude - ASL (millimeters)
+long barometer_agl_altitude;  // above ground level altitude - AGL
 long barometer_pressure;
 int barometer_temperature;
 
-inline int get_barometer_temperature(void)   { return barometer_temperature; }
-inline long get_barometer_pressure(void)     { return barometer_pressure; }
-inline long get_barometer_altitude(void)     { return barometer_altitude;}
+inline int get_barometer_temperature(void) { return barometer_temperature; }
+inline long get_barometer_pressure(void) { return barometer_pressure; }
+inline long get_barometer_altitude(void) { return barometer_altitude; }
 inline long get_barometer_agl_altitude(void) { return barometer_agl_altitude; }
 
-void altimeter_calibrate(void)
-{
-	barometer_temperature_gnd = barometer_temperature;
-	barometer_pressure_gnd = barometer_pressure;
+void altimeter_calibrate(void) {
+  barometer_temperature_gnd = barometer_temperature;
+  barometer_pressure_gnd = barometer_pressure;
 
 #ifdef USE_DEBUG_IO
-	printf("altimeter_calibrate: ground temp & pres set %i, %li\r\n", barometer_temperature_gnd, barometer_pressure_gnd);
+  printf("altimeter_calibrate: ground temp & pres set %i, %li\r\n",
+         barometer_temperature_gnd, barometer_pressure_gnd);
 #endif
 }
 
 #if (BAROMETER_ALTITUDE == 1)
-void udb_barometer_callback(long pressure, int temperature, char status)
-{
-	barometer_temperature = temperature;
-	barometer_pressure = pressure;
+void udb_barometer_callback(long pressure, int temperature, char status) {
+  barometer_temperature = temperature;
+  barometer_pressure = pressure;
 }
 #endif
 
-void estBaroAltitude(void)
-{
+void estBaroAltitude(void) {
 #if (SILSIM == 1)
-	return;
-#endif    
+  return;
+#endif
 
 #if (BAROMETER_ALTITUDE == 1)
 
-	if (barometer_pressure_gnd != 0)
-	{
-        //relative altitude above ground in cm
-        float temperature_kelvin=0.1f*(float)(barometer_temperature)+273.15f;
-		barometer_altitude = (long)(15400.0f*temperature_kelvin*(1-pow((((float)barometer_pressure)/((float)barometer_pressure_gnd)),(1/5.255f))));
+  if (barometer_pressure_gnd != 0) {
+    // relative altitude above ground in cm
+    float temperature_kelvin = 0.1f * (float)(barometer_temperature) + 273.15f;
+    barometer_altitude = (long)(15400.0f * temperature_kelvin *
+                                (1 - pow((((float)barometer_pressure) /
+                                          ((float)barometer_pressure_gnd)),
+                                         (1 / 5.255f))));
 #ifdef USE_DEBUG_IO
 //		printf("estAltitude %li\r\n", barometer_altitude);
 #endif
-	}
-#endif // BAROMETER_ALTITUDE
-
+  }
+#endif  // BAROMETER_ALTITUDE
 }

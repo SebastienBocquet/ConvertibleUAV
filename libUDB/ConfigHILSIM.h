@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #undef xrateBUFF
 #undef yrateBUFF
 #undef zrateBUFF
@@ -36,22 +35,21 @@
 #undef XRATE_SIGN
 #undef YRATE_SIGN
 #undef ZRATE_SIGN
-#define XRATE_SIGN      -
-#define YRATE_SIGN      -
-#define ZRATE_SIGN      -
+#define XRATE_SIGN -
+#define YRATE_SIGN -
+#define ZRATE_SIGN -
 
 #undef XACCEL_SIGN
 #undef YACCEL_SIGN
 #undef ZACCEL_SIGN
-#define XACCEL_SIGN     +
-#define YACCEL_SIGN     +
-#define ZACCEL_SIGN     +
-
+#define XACCEL_SIGN +
+#define YACCEL_SIGN +
+#define ZACCEL_SIGN +
 
 #undef SCALEGYRO
 #undef SCALEACCEL
-#define SCALEGYRO       3.0
-#define SCALEACCEL      2.64
+#define SCALEGYRO 3.0
+#define SCALEACCEL 2.64
 
 #undef GPS_TYPE
-#define GPS_TYPE        GPS_UBX_4HZ
+#define GPS_TYPE GPS_UBX_4HZ

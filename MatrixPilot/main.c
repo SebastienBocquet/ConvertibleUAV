@@ -21,7 +21,7 @@
 #include "defines.h"
 #include "../libUDB/heartbeat.h"
 
-const int max_tilt = (int) (MAX_TILT*.7111) ;  // maximum tilt in byte cicular
+const int max_tilt = (int)(MAX_TILT * .7111);  // maximum tilt in byte cicular
 int commanded_tilt_gain;
 
 #if (USE_TELELOG == 1)
@@ -40,37 +40,35 @@ int commanded_tilt_gain;
 
 #if (SILSIM == 1)
 int mp_argc;
-char **mp_argv;
-int main(int argc, char** argv)
-{
-	// keep these values available for later
-	mp_argc = argc;
-	mp_argv = argv;
+char** mp_argv;
+int main(int argc, char** argv) {
+  // keep these values available for later
+  mp_argc = argc;
+  mp_argv = argv;
 #else
-int main(void)
-{
-    commanded_tilt_gain = sine ( max_tilt ) / 1000 ;
-	mcu_init();
+int main(void) {
+  commanded_tilt_gain = sine(max_tilt) / 1000;
+  mcu_init();
 #endif
 #if (USE_TELELOG == 1)
-	log_init();
+  log_init();
 #endif
 #if (USE_USB == 1)
-	preflight();
+  preflight();
 #endif
-	udb_init();
-	dcm_init();
+  udb_init();
+  dcm_init();
 #if (USE_CONFIGFILE == 1)
-	init_config();
+  init_config();
 #endif
-	init_servoPrepare();
-	init_states();
-	init_behavior();
-	init_serial();
+  init_servoPrepare();
+  init_states();
+  init_behavior();
+  init_serial();
 
-	udb_run();
-	
-	// This never returns.
+  udb_run();
 
-	return 0;
+  // This never returns.
+
+  return 0;
 }

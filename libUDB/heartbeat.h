@@ -18,10 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef HEARTBEAT_H
 #define HEARTBEAT_H
-
 
 // number of heartbeats per second
 #define HEARTBEAT_HZ 160
@@ -30,11 +28,11 @@
 #define SERVO_HZ 40
 #define ESC_HZ HEARTBEAT_HZ
 
-// frequency of writing in telemetry output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA must be an integer)
+// frequency of writing in telemetry output (HEARTBEAT_HZ / HEARTBEAT_UDB_EXTRA
+// must be an integer)
 #define HEARTBEAT_UDB_TELEMETRY 4
 
 // Read-only value increments with each heartbeat
 extern uint16_t udb_heartbeat_counter;
 
-
-#endif // HEARTBEAT_H
+#endif  // HEARTBEAT_H

@@ -18,10 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef MPU_SPI_H
 #define MPU_SPI_H
-
 
 // define which SPI port the MPU is using by defining MPU_SPI to be 1 or 2
 // on UDB4, either SPI port can be used to connect MPU.
@@ -33,33 +31,31 @@
 // On AUAV3:
 // SPI1 interface uses INT1, RG12 for MPU interrupt
 
-
 #if (BOARD_TYPE == UDB4_BOARD)
 #define MPU_SPI 1
 #define _TRISMPUINT _TRISA12
 
-#elif (BOARD_TYPE == UDB5_BOARD)
+#elif(BOARD_TYPE == UDB5_BOARD)
 #define MPU_SPI 2
 #define _TRISMPUINT _TRISA14
 
-#elif (BOARD_TYPE == AUAV2_BOARD)
+#elif(BOARD_TYPE == AUAV2_BOARD)
 #define MPU_SPI 1
 #define _TRISMPUINT _TRISE8
 
-#elif (BOARD_TYPE == AUAV3_BOARD)
+#elif(BOARD_TYPE == AUAV3_BOARD)
 #define MPU_SPI 1
 #define _TRISMPUINT _TRISG12
 
-#elif (BOARD_TYPE == AUAV4_BOARD)
+#elif(BOARD_TYPE == AUAV4_BOARD)
 #define MPU_SPI 1
 #define _TRISMPUINT _TRISG12
 
-#elif (BOARD_TYPE == PX4_BOARD)
+#elif(BOARD_TYPE == PX4_BOARD)
 #define MPU_SPI 1
 #else
 #error "Only BOARD_TYPEs UDB5, UDB4 and AUAV3 supported"
 #endif
-
 
 // initialize SPI in master mode, 16 bit
 void initMPUSPI_master16(uint16_t, uint16_t);
@@ -71,7 +67,7 @@ void writeMPUSPIreg16(uint16_t addr, uint16_t data);
 uint16_t readMPUSPIreg16(uint16_t addr);
 
 // n-word, non-blocking SPI read, followed by call_back
-void readMPUSPI_burst16n(uint16_t data[], int16_t n, uint16_t addr, void (*call_back)(void));
+void readMPUSPI_burst16n(uint16_t data[], int16_t n, uint16_t addr,
+                         void (*call_back)(void));
 
-
-#endif // MPU_SPI_H
+#endif  // MPU_SPI_H

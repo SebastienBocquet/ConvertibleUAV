@@ -18,14 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef BAROMETER_H
 #define BAROMETER_H
 
-typedef void (*barometer_callback_funcptr)(long pressure, int temperature, char status);
+typedef void (*barometer_callback_funcptr)(long pressure, int temperature,
+                                           char status);
 
 void rxBarometer(barometer_callback_funcptr);  // service the barometer
 
-#define LED_RED_BARO_CHECK                   0
+#define LED_RED_BARO_CHECK 0
 
-#endif // BAROMETER_H
+#endif  // BAROMETER_H
