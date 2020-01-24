@@ -27,6 +27,8 @@
 #define MOTOR_TILT_SERVO_HIGH_RATIO  ((2000.0 / ((MOTOR_TILT_SERVO_THROW / 360.0) * 65536.0)) * 65536.0)
 #define MOTOR_TILT_SERVO_RATIO        (2000.0 / ((MOTOR_TILT_SERVO_THROW / 360.0) * 65536.0)) 
 
+#define MAX_TILT_YAW_PWM (MAX_TILT_YAW_DEG * 1000) / MOTOR_TILT_SERVO_RANGE 
+
 // Note that most angles in cameraCntrl.c are 16 bit quantities
 // For example, 90 degrees is represented as 16384 (65536 / 4)
 
@@ -43,6 +45,15 @@ int16_t motorTiltServoLimit(int16_t pwm_pulse)
 void motorTiltInit(void)
 {
     motor_tilt_servo_pwm_delta = motor_tilt_offset_centred_pwm;
+}
+
+int16_t yawCntrlByTilt(void)
+{
+    int32_t temp;
+    int16_t yaw_motor_tilt_pwm;
+    temp = __builtin_mulsu(yaw_quad_control, MAX_TILT_YAW_PWM);
+    yaw_motor_tilt_pwm = (int16_t)(temp / 1000);
+    return yaw_motor_tilt_pwm;
 }
 
 void motorTiltCntrl(void)
@@ -62,7 +73,7 @@ void motorTiltCntrl(void)
     
     temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), MOTOR_TILT_SERVO_THROW);
     servo_pwm = (int16_t)(temp / MOTOR_TILT_SERVO_RANGE) ;
-    motor_tilt_servo_pwm_delta = servo_pwm + motor_tilt_offset_centred_pwm;		
+    motor_tilt_servo_pwm_delta = servo_pwm + motor_tilt_offset_centred_pwm;
 }
 
 boolean motorsInHoveringPos()

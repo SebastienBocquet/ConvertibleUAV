@@ -110,7 +110,8 @@ void dcm_servo_callback_prepare_outputs(void) {
 
       // Manage motor pitch
       motorTiltCntrl();
-      motorTiltServoMix();
+      motorTiltServoMix1();
+      motorTiltServoMix2();
 
       rollCntrl();
       yawCntrl();

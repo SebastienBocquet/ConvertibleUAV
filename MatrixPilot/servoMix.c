@@ -217,13 +217,30 @@ void servoMix(void) {
       udb_servo_pulsesat(pwManual[PASSTHROUGH_D_INPUT_CHANNEL]);
 }
 
-void motorTiltServoMix(void) {
+void motorTiltServoMix1(void) {
   int16_t temp;
+  int16_t tilt_for_transition;
+  int16_t tilt_for_yaw;
 
-  temp = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
+  tilt_for_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
                            motor_tilt_servo_pwm_delta);
-  temp = motorTiltServoLimit(temp);
-  udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL] = udb_servo_pulsesat(temp + 3000);
+  tilt_for_yaw = REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED,
+                           yawCntrlByTilt());
+  temp = motorTiltServoLimit(tilt_for_transition + tilt_for_yaw);
+  udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1] = udb_servo_pulsesat(temp + 3000);
+}
+
+void motorTiltServoMix2(void) {
+  int16_t temp;
+  int16_t tilt_for_transition;
+  int16_t tilt_for_yaw;
+
+  tilt_for_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
+                           motor_tilt_servo_pwm_delta);
+  tilt_for_yaw = REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED,
+                           yawCntrlByTilt());
+  temp = motorTiltServoLimit(tilt_for_transition - tilt_for_yaw);
+  udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2] = udb_servo_pulsesat(temp + 3000);
 }
 
 void cameraServoMix(void) {

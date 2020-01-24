@@ -105,7 +105,8 @@ extern int16_t desiredSpeed;  // Stored in 10ths of meters per second
 // servoMix.c
 void servoMix(void);
 void cameraServoMix(void);
-void motorTiltServoMix(void);
+void motorTiltServoMix1(void);
+void motorTiltServoMix2(void);
 
 // Choose the type of air frame by setting AIRFRAME_TYPE in options.h
 // See options.h for a description of each type
@@ -367,6 +368,7 @@ void camera_live_commit_values(const struct relative3D target);
 // sonarCntrl.c
 void motorTiltCntrl(void);
 void motorTiltInit(void);
+int16_t yawCntrlByTilt(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 // mp_osd.c

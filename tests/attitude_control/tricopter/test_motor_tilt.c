@@ -63,8 +63,10 @@ namespace
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
         yaw_quad_control = 0;
         motorTiltCntrl();       
-        motorTiltServoMix();
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL], 3000);
+        motorTiltServoMix1();
+        motorTiltServoMix2();
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltManual)
@@ -72,9 +74,11 @@ namespace
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3500;
         yaw_quad_control = 0;
         motorTiltCntrl();       
-        motorTiltServoMix();
+        motorTiltServoMix1();
+        motorTiltServoMix2();
         int motor_tilt_pwm = (120./90) * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL], 3000 + motor_tilt_pwm);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + motor_tilt_pwm);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + motor_tilt_pwm);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltMax)
@@ -82,8 +86,10 @@ namespace
         udb_pwIn[INPUT_CHANNEL_AUX1] = 4000;
         yaw_quad_control = 0;
         motorTiltCntrl();       
-        motorTiltServoMix();
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL], 4000);
+        motorTiltServoMix1();
+        motorTiltServoMix2();
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 4000);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 4000);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltMin)
@@ -91,10 +97,10 @@ namespace
         udb_pwIn[INPUT_CHANNEL_AUX1] = 2000;
         yaw_quad_control = 0;
         motorTiltCntrl();       
-        motorTiltServoMix();
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL], 2000);
+        motorTiltServoMix1();
+        motorTiltServoMix2();
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 2000);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 2000);
     }
-
-
 
 }  // namespace
