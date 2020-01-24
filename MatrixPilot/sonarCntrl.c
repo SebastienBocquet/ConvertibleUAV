@@ -37,7 +37,7 @@ const int16_t motor_tilt_servo_pwm_min = ((MOTOR_TILT_SERVO_MIN - MOTOR_TILT_OFF
 int16_t motorTiltServoLimit(int16_t pwm_pulse)
 {
     pwm_pulse = limit_value(pwm_pulse, motor_tilt_servo_pwm_min, motor_tilt_servo_pwm_max);
-	return(pwm_pulse);
+    return(pwm_pulse);
 }
 
 void motorTiltInit(void)
@@ -51,17 +51,17 @@ void motorTiltCntrl(void)
     int16_t servo_pwm;
     int16_t pwManual[NUM_INPUTS+1];
 
-	// If radio is off, use udb_pwTrim values instead of the udb_pwIn values
-	for (temp = 0; temp <= NUM_INPUTS; temp++)
+    // If radio is off, use udb_pwTrim values instead of the udb_pwIn values
+    for (temp = 0; temp <= NUM_INPUTS; temp++)
     {
-		if (udb_flags._.radio_on)
-			pwManual[temp] = udb_pwIn[temp];
-		else
-			pwManual[temp] = udb_pwTrim[temp];
+	if (udb_flags._.radio_on)
+	    pwManual[temp] = udb_pwIn[temp];
+	else
+	    pwManual[temp] = udb_pwTrim[temp];
     }
     
     temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), MOTOR_TILT_SERVO_THROW);
-	servo_pwm = (int16_t)(temp / MOTOR_TILT_SERVO_RANGE) ;
+    servo_pwm = (int16_t)(temp / MOTOR_TILT_SERVO_RANGE) ;
     motor_tilt_servo_pwm_delta = servo_pwm + motor_tilt_offset_centred_pwm;		
 }
 
