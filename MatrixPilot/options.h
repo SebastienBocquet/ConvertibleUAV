@@ -627,6 +627,10 @@
       // degrees/second
 #define MAX_TILT 25  // maximum roll or pitch, degrees, not to exceed 45 degrees
 
+// Min and max throttle in hovering mode
+#define HOVER_THROTTLE_MIN 0.2
+#define HOVER_THROTTLE_MAX 0.95
+
 // Aileron/Roll Control Gains
 // ROLLKP is the proportional gain, approximately 0.25
 // ROLLKD is the derivative (gyro) gain, approximately 0.125
@@ -713,10 +717,6 @@
 // which the HOVER_ANGLE_TOWARDS_WP
 //                            value is proportionally scaled down.
 
-//////////altitude control/////////////
-
-#define HOVER_THROTTLE_MIN 0.2
-#define HOVER_THROTTLE_MAX 0.95
 #define MAX_HOVERING_RADIUS \
   60  // max distance in dcm from origin where the aircraft is allowed to hover
       // in GPS navigation mode
