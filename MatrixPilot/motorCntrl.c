@@ -82,10 +82,6 @@ int16_t roll_intgrl;
 int16_t pitch_intgrl;
 int16_t yaw_intgrl;
 
-// int16_t roll_rate_intgrl;
-// int16_t pitch_rate_intgrl;
-// int16_t	yaw_rate_intgrl;
-
 int16_t roll_rate_error_delta_filt = 0;
 int16_t pitch_rate_error_delta_filt = 0;
 int16_t roll_rate_error_previous = 0;
@@ -98,9 +94,6 @@ int16_t manual_to_auto_ramp = 0;
 union longww roll_quad_error_integral = {0};
 union longww pitch_quad_error_integral = {0};
 union longww yaw_quad_error_integral = {0};
-// union longww roll_rate_quad_error_integral = { 0 } ;
-// union longww pitch_rate_quad_error_integral = { 0 } ;
-// union longww yaw_rate_quad_error_integral = { 0 } ;
 
 int16_t target_orientation[9] = {RMAX, 0, 0, 0, RMAX, 0, 0, 0, RMAX};
 

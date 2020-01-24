@@ -44,10 +44,6 @@ const uint16_t tilt_rate_kd = (uint16_t)(RMAX * TILT_RATE_KD);
 const uint16_t yaw_ki = (uint16_t)(RMAX * YAW_KI);
 const uint16_t yaw_kp = (uint16_t)(RMAX * YAW_KP);
 const uint16_t yaw_rate_kp = (uint16_t)(RMAX * YAW_RATE_KP);
-// tilt_rate_kp = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX1], 0,
-// (int16_t)(0.5*RMAX)));
-// tilt_rate_kd = (uint16_t)(compute_pot_order(udb_pwIn[INPUT_CHANNEL_AUX2], 0,
-// (int16_t)(0.5*RMAX)));
 
 void manualPassthrough(void);
 
