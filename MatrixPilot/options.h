@@ -602,6 +602,8 @@
 // motor A should have CW propeller
 #define MOTOR_A_POSITION 3
 
+// max value of the following PID gains (*_KP, *_KI, *_KD) is 4
+
 // Tilt PID(DD) control gains on roll and pitch angle
 #define TILT_KI 0.25
 #define TILT_KP 0.5
