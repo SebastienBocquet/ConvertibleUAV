@@ -29,8 +29,8 @@ namespace
           const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
           const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
           const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
-          const uint16_t yaw_kp = (uint16_t)(RMAX*3.0);
-          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*1.3);
+          const uint16_t yaw_kp = (uint16_t)(RMAX*0.45);
+          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.20);
 
           virtual void SetUp() 
           {
@@ -60,7 +60,7 @@ namespace
  
     TEST_F(TricopterYawControl, yawKpGains)
     {
-        rmat[1] = 0;
+        rmat[6] = 0;
         rmat[6] = 0;
         rmat[7] = 0;
         // set maximal yaw control strength
@@ -70,7 +70,7 @@ namespace
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         //apply control
         dcm_flags._.yaw_init_finished = 1;
-        rmat[1] = 1010;
+        rmat[1] = 1000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         
         // Simulate first PID controller
@@ -79,8 +79,6 @@ namespace
         // Simulate second PID controller
         int yaw_rate_error = -desired_yaw;
         int expected_yaw_quad_control = -1.3 * yaw_rate_error;
-        // correct for round-off error in the attitude control
-        /* expected_yaw_quad_control += 1; */
         printf("expected yaw quad control %d \n", expected_yaw_quad_control);
         ASSERT_EQ(yaw_quad_control, expected_yaw_quad_control);
     }

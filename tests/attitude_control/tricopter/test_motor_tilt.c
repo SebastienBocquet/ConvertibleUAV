@@ -29,8 +29,8 @@ namespace
           const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
           const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
           const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
-          const uint16_t yaw_kp = (uint16_t)(RMAX*3.0);
-          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*1.3);
+          const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
+          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
 
           virtual void SetUp() 
           {

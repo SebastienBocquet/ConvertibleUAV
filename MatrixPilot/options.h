@@ -611,7 +611,7 @@
 
 // PID control gains on yaw angle
 #define YAW_KI 0.
-#define YAW_KP 3.
+#define YAW_KP 0.45
 #define YAW_KD 0.
 
 // Tilt PID control gains on roll and pitch rate
@@ -619,7 +619,7 @@
 #define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
-#define YAW_RATE_KP 1.3
+#define YAW_RATE_KP 0.20
 
 // Vertical damping
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires
@@ -908,7 +908,7 @@
 // The SERIAL_RC_INPUT settings allow optionally talking over a serial port to a
 // UDB
 // passing RC inputs through to the simulated UDB.
-#define SILSIM 1
+#define SILSIM 0
 #define SILSIM_GPS_RUN_AS_SERVER 0
 #define SILSIM_GPS_PORT \
   14551  // default port to connect to XPlane HILSIM plugin
