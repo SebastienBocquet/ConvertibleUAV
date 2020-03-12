@@ -8,3 +8,4 @@ Design
    airframe
    hardware
    software
+   ressources
