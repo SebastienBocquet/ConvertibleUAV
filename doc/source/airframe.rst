@@ -13,13 +13,45 @@ The aerodynamics is pre-designed with `Link PredimRC <http://rcaerolab.eklablog.
 Mechanical model
 ----------------
 
-The following notations are used:
 
-  * $F_I = F_{eq_I} + \delta_{F_I}$ is the force produced by motor $I$, where $_{eq}$ is the value at equilibrium (the UAV is not moving) and $\delta_F$ is the value given by the attitude control.
+Battery-to-motor model
+^^^^^^^^^^^^^^^^^^^^^^
 
-  * $F$ is the sum of the (vertical) forces created by the motors.
-  
-  * $M$ is the sum of the moments created by the motors.
+Then, the relationship between the motor control (throttle) and the corresponding force produced by the propeller is $T = K_T*th^2$, with $K_T$ a coefficient depending on the propulsion chain (battery, ESC, motor and the propeller), and $th$ the throttle applied to the ESC, with $th$ ranging between $0$ and $2000$.
+The condition for a steady hover is noted $_{eq}$.
+Considering a small throttle control around the throttle value for steady hover:
+$th = th_{eq} + th_{control}$, then $T \approx K_1*th_{control}-K_T*{th_{eq}}^2$ with $K_1 = 2*K_T*th_{eq}$.
+Finally, the angular velocity is linear with the throttle:
+$N = K_V \frac{U_0}{2000} th_{eq}$
+
+
+Propeller model
+^^^^^^^^^^^^^^^
+
+The propeller aerodynamics is modelled by the following parameters:
+
+  * The thrust coefficient $C_T = \frac{3600 * T}{\rho N^2 D^4}$, with $T$ the propeller thrust and $\rho = \frac{P_{atm}}{R T_{air}}$
+
+  * The power coefficient $C_P = \frac{60^3 * P_{aero}}{\rho N^3 D^5}$, with $P_{aero} = \frac{2 \pi}{60} N Q$, with $Q$ is the propeller torque in $N.m$ and N the angular velocity in $tr.min^{-1}$.
+
+  * $T_I$ is the force produced by propeller $I$
+
+  * $Q = K_Q T$ 
+
+So:
+
+.. math:: 
+  K_T = C_T \rho {K_V}^2 \frac{U_0^2}{3600 * 2000^2} D^4
+  :label: eq_tri_kt
+
+.. math::
+  K_Q = \frac{1}{2 \pi} \frac{C_P}{C_T} D
+  :label: eq_tri_kq
+
+As a result, $K_T$, $K_1$ and $K_Q$, which control the UAV dynamic in hovering, can be determined from the propeller geometry, angular velocity and the $C_T$ and $C_P$ coefficients. These coefficients were measured for several propellers as a function of the angular velocity in `Link UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_. 
+Note that these coefficients can show significant variations as a function of the angular velocity and thus cannot be considered as constant. They need to be determined at the angular velocity allowing steady hover ($_eq$ condition).
+
+For a $10 x 5 inch$ APC thin electric propeller, $C_T = 0.095$ and $C_P = 0.037$.
 
 
 Hovering
@@ -33,63 +65,71 @@ Hovering
 We consider a tricopter configuration with a front arm of length $R_A$ and a rear arm length $R_B$.
 The center of gravity is at the intersection of the arms.
 Propeller A is CCW, propeller B is CCW and propeller C is CW.
-Since there are only three motors, the yaw moment cannot be controlled by a difference in motor rotation velocity. A tilt mechanism is necessary. 
+Since there are only three motors, the yaw moment cannot be controlled by a difference in motor angular velocity. A tilt mechanism is necessary. 
 Here, the yaw moment is applied by tilting in the opposite direction the two front motors.
 We call $\beta$ the tilt angle of a front motor with the vertical axis. $\beta$ positive means the motor tilts forward.
 
-At equilibrium:
 
-  * $F = F_{eq_A} + F_{eq_B} + F_{eq_C} = m*g$
+At equilibrium
+""""""""""""""
 
-  * The roll moment is: $M_{roll} = R_A*sin(\alpha)*(-F_{eq_A}+F_{eq_C}) = 0$
+  * $F = T_{eq_A} + T_{eq_B} + T_{eq_C} = m*g$
+
+  * The roll moment is: $M_{roll} = R_A*sin(\alpha)*(-T_{eq_A}+T_{eq_C}) = 0$
   
-  * The pitch moment is: $M_{pitch} = 2*R_A*cos(\alpha)*F_{eq_A} - R_B*F_{eq_B} = 0$
+  * The pitch moment is: $M_{pitch} = 2*R_A*cos(\alpha)*T_{eq_A} - R_B*T_{eq_B} = 0$
 
   * The yaw moment is, for $\beta=0$: $M_{yaw} = -Mz_{eq_A} - Mz_{eq_B} + Mz_{eq_C}
-    = K_m * (-F_{eq_A} - F_{eq_B} + F_{eq_C})$
+    = {K_Q}_{eq} * (-T_{eq_A} - T_{eq_B} + T_{eq_C})$
 
 Note that there are four equations and only three unknow forces.
 So the yaw moment cannot be imposed to zero if the vertical,
 pitch and roll moment equilibrium are imposed. With this choice, we obtain:
 
-  * $F_{eq_A} = F_{eq_C}$
+  * $T_{eq_A} = T_{eq_C}$
 
   * 
-    .. math:: F_{eq_B} = \frac{2*R_A*cos(\alpha)}{R_B}*F_{eq_A}
+    .. math:: T_{eq_B} = \frac{2*R_A*cos(\alpha)}{R_B}*T_{eq_A}
        :label: eq_tri_equil_pitch
 
-  * $2*(1 + \frac{R_A*cos(\alpha)}{R_B})*F_{eq_A} = m*g$
+  * 
+    .. math:: T_{eq_A} = \frac{m*g}{2*(1 + \frac{R_A*cos(\alpha)}{R_B})}
+       :label: eq_tri_equil_z
 
-  * $M_{yaw} = 0 = -K_m * F_{eq_B} + sin(\beta_{eq})*(F_{eq_A}+F_{eq_C})*R_A*sin(\alpha) = -K_m * F_{eq_B} + sin(\beta_{eq})*2*F_{eq_A}*R_A*sin(\alpha)$. For small $\beta$, $sin(\beta) \approx \beta$. Finally, $M_{yaw} = 0 = -K_m * F_{eq_B} + \beta*2*F_{eq_A}*R_A*sin(\alpha)$. Using :math:numref:`eq_tri_equil_pitch`, it leads to: $\beta_{eq} = \frac{K_m cos(\alpha)}{R_B sin(\alpha)}$.
+  * $M_{yaw} = 0 = -K_Q * T_{eq_B} + sin(\beta_{eq})*(T_{eq_A}+T_{eq_C})*R_A*sin(\alpha) = -K_Q * T_{eq_B} + sin(\beta_{eq})*2*T_{eq_A}*R_A*sin(\alpha)$. For small $\beta$, $sin(\beta) \approx \beta$. Finally, $M_{yaw} = 0 = -K_Q * T_{eq_B} + \beta*2*T_{eq_A}*R_A*sin(\alpha)$. Using :math:numref:`eq_tri_equil_pitch`, it leads to:
 
-Then, for pitch and roll controls:
+    .. math::
+       \beta_{eq} = \frac{K_Q cos(\alpha)}{R_B sin(\alpha)}
+       :label: eq_tri_beta_eq
 
-  * $M_{roll} = R_A*sin(\alpha)*cos(\beta)*(-\delta_{F_A} + \delta_{F_C})$.
-    To ensure a constant thrust, we impose that $\delta_{F_A} = -\delta_{F_C}$.
-    We also would like the roll moment to be equal to a quadcopter configuration of arm length R:
+We need to determine $K_Q$ from :math:numref:`eq_tri_kq`. For this we need to determine $C_T$ at equlibirum condition. From :math:numref:`eq_tri_equil_pitch` and :math:numref:`eq_tri_equil_z`: $T_{eq_B} = \frac{mg R_A cos(\alpha)}{R_B + R_A cos(\alpha)}$. By definition, $T = C_T(N) * \rho * N^2 * D^4$. This is an implicit relationship in $N$. We can explicitly determine $N$ by using the averaged value of $C_T$: $N_{eq} = \sqrt{\frac{T_{eq}}{<C_T> \rho D^4}}$. Then we can determine ${K_Q}_{eq}$ from $C_T(N_{eq})$. 
 
-    .. math:: M_{roll} = -2*R*K_1*roll\_quad\_control
-       :label: eq_roll_equiv_r
-       
-    with $R$ being the tricopter averaged arm length $R = \frac{1}{3}*(2*R_A+R_B)$.
 
+Attitude control
+""""""""""""""""
+
+$T_I = T_{eq_I} + \delta_{T_I}$ is the force produced by propeller $I$, where $_{eq}$ is the value at equilibrium (the UAV is not moving) and $\delta_T$ is the value due to attitude control. $\delta_T$ is assumed small compared to $T$.
+
+  * $M_{roll} = R_A*sin(\alpha)*cos(\beta)*(-\delta_{T_A} + \delta_{T_C})$.
+    To ensure a constant thrust, we impose that $\delta_{T_A} = -\delta_{T_C}$.
+    We also would like the roll moment to be equal to a quadcopter x configuration of arm length $R_X$ (see :math:numref:`eq_quadx_square_mroll`)
     Thus, we can pose: $M_{roll} = 2*R_A*sin(\alpha)*cos(\beta)*K_1*th_{{control}_A}$, with $th_{{control}_A} = -K_{roll}*roll\_quad\_control$, $th_{{control}_C} = -th_{{control}_A}$, $th_{{control}_B} = 0$ 
-    and $K_{roll} = \frac{R}{R_A*sin(\alpha)}$, which allows to fulfill equation :math:numref:`eq_roll_equiv_r`. For small $\beta$, $cos(\beta) \approx 1-\beta$.
+    For small $\beta$, $cos(\beta) \approx 1-\beta$, which leads to $K_{roll} = \frac{\sqrt{2}*R_X}{R_A*sin(\alpha)*(1-\beta)}$ 
 
-  * $M_{pitch} = 2*R_A*cos(\alpha)*cos(\beta)*\delta_{F_A} - R_B*\delta_{F_B}$.
-    To ensure a constant thrust, we impose that $\delta_{F_B} = -2*\delta_{F_A}$.
-    We also would like the pitch moment to be equal to a quadcopter configuration of arm length R:
+  * $M_{pitch} = 2*R_A*cos(\alpha)*cos(\beta)*\delta_{T_A} - R_B*\delta_{T_B}$.
+    To ensure a constant thrust, we impose that $\delta_{T_B} = -2*\delta_{T_A}$.
+    We also would like the pitch moment to be equal to a quadcopter x configuration of arm length $R_X$. It leads to: $M_{pitch} = 2*(R_A*cos(\alpha)*cos(\beta) + R_B)*K_1*th_{{control}_A}$ with $th_{{control}_A} = K_{pitch}*pitch\_quad\_control$, $th_{{control}_B} = -2*th_{{control}_A}$, $th_{{control}_C} = th_{{control}_A}$ and $K_{pitch} = \frac{\sqrt{2}*R_X}{(R_A*cos(\alpha)*(1-\beta)+R_B)}$ for small $\beta$.
 
-    .. math:: M_{pitch} = 2*R*K_1*pitch\_quad\_control
-       :label: eq_pitch_equiv_r
+  *  We apply yaw control by tilting the two front motors in opposite directions around the angle $\beta_{eq}$ (for which the yaw moment is zero). For small $\beta$, $M_{yaw} = \beta*(2*T_{eq_A}+\delta_{T_A}+\delta_{T_C})*R_A*sin(\alpha)$. Assuming that the control orders are small compared to the total forces ($\delta_{T_I} << T_{eq_I}$): 
 
-    Thus, $M_{pitch} = 2*(R_A*cos(\alpha)*cos(\beta) + R_B)*K_1*th_{{control}_A}$ with $th_{{control}_A} = K_{pitch}*pitch\_quad\_control$, $th_{{control}_B} = -2*th_{{control}_A}$, $th_{{control}_C} = th_{{control}_A}$ and $K_{pitch} = \frac{R}{2*(R_A*cos(\alpha)*cos(\beta)+R_B)}$, which fulfills equation :math:numref:`eq_pitch_equiv_r`. For small $\beta$, $cos(\beta) \approx 1-\beta$.
+    .. math:: M_{yaw} = \beta*2*T_{eq_A}*R_A*sin(\alpha)
+       :label: eq_tri_myaw
 
-We apply yaw control by tilting the two front motors in opposite directions around the angle $\beta_{eq}$ (for which the yaw moment is zero). For small $\beta$, $M_{yaw} = \beta*(2*F_{eq_A}+\delta_{F_A}+\delta_{F_C})*R_A*sin(\alpha)$. Assuming that the control orders are small compared to the total forces ($\delta_{F_I} << F_{eq_I}$): 
+    We impose that this torque is equal to the one of a quadcopter x configuration (see :math:numref:`eq_quadx_square_myaw`), which leads to:
 
-.. math:: M_{yaw} = \beta*2*F_{eq_A}*R_A*sin(\alpha)
-   :label: eq_tri_myaw
-
+    .. math::
+       \beta = \frac{-4*K_Q*K_1}{2*T_{eq_A}*R_A*sin(\alpha)}
+       :label: eq_tri_beta
 
 
 Transition
