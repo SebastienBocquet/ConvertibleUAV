@@ -105,6 +105,8 @@ pitch and roll moment equilibrium are imposed. With this choice, we obtain:
 We need to determine $K_Q$ from :math:numref:`eq_tri_kq`. For this we need to determine $C_T$ at equlibirum condition. From :math:numref:`eq_tri_equil_pitch` and :math:numref:`eq_tri_equil_z`: $T_{eq_B} = \frac{mg R_A cos(\alpha)}{R_B + R_A cos(\alpha)}$. By definition, $T = C_T(N) * \rho * N^2 * D^4$. This is an implicit relationship in $N$. We can explicitly determine $N$ by using the averaged value of $C_T$: $N_{eq} = \sqrt{\frac{T_{eq}}{<C_T> \rho D^4}}$. Then we can determine ${K_Q}_{eq}$ from $C_T(N_{eq})$. 
 
 
+.. _tri_attitude_control:
+
 Attitude control
 """"""""""""""""
 
@@ -128,7 +130,7 @@ $T_I = T_{eq_I} + \delta_{T_I}$ is the force produced by propeller $I$, where $_
     We impose that this torque is equal to the one of a quadcopter x configuration (see :math:numref:`eq_quadx_square_myaw`), which leads to:
 
     .. math::
-       \beta = \frac{-4*K_Q*K_1}{2*T_{eq_A}*R_A*sin(\alpha)}
+       \beta = \frac{-2*K_Q*K_1}{T_{eq_A}*R_A*sin(\alpha)} yaw\_quad\_control
        :label: eq_tri_beta
 
 

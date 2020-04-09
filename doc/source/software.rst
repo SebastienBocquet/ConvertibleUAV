@@ -46,7 +46,8 @@ Motor tilt control
 
 Motor tilting is commanded by a servomotor. This servomotor has a given angular range (in general 120 deg) between minimum pwm (2000) to mximum pwm (4000). The desired angular range for motor tilting on a quadplane is 90 deg (horizontal to vertical position). In order to keep maximal accuracy, motor tilting control is built such that pwm 2000 to 4000 corresponds to the desired angular range (90 deg here). In addition, in order to adjust the servo displacement to the tilting mechanism, a minimum angle, maximum angle, and offset angle are used. The offset value determines the servo position at neutral pwm (3000). Then the minimum and maximum angles determine how much the servo is allowed to displace around the offset angle. Finally, a reversed control parameter allow to reverse the servo displacement direction.
 
-$motor\_tilt\_pwm = (pwm\_tilt\_input-3000) \frac{MOTOR\_TILT\_SERVO\_THROW}{MOTOR\_TILT\_SERVO\_RANGE} + pwm\_centred$
+.. math:: motor\_tilt\_pwm = (pwm\_tilt\_input-3000) \frac{MOTOR\_TILT\_SERVO\_THROW}{MOTOR\_TILT\_SERVO\_RANGE} + pwm\_centred
+   :label: eq_manual_tilt
 
 The final output pwm control is:
 
