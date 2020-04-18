@@ -66,12 +66,11 @@ MPSIL_OBJECTS = \
 \
 ./tests/test_main.o \
 ./tests/attitude_control/tricopter/test_motor_tilt.o \
-./tests/attitude_control/tricopter/test_throttle_offset.o \
 ./tests/attitude_control/tricopter/test_roll_pitch.o \
 ./tests/attitude_control/tricopter/test_yaw.o \
 ./tests/control_mode/test_control_mode.o \
 ./tests/attitude_control/test_tx_linear_control.o \
-./tests/math/test_scaling.o 
+./tests/math/test_scaling.o
 
 MPCAT_TARGET   = silcat
 
@@ -94,5 +93,3 @@ $(MPCAT_TARGET): $(MPCAT_OBJECTS)
 clean:
 	-$(RM_FILE) $(MPSIL_OBJECTS) $(MPCAT_OBJECTS)
 	-$(RM_FILE) *~ core *.core
-
-
