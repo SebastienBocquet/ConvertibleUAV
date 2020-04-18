@@ -1,8 +1,8 @@
 CC       = g++ -std=c++11 -v
 CFLAGS   = -g -pipe -Wall -W -O0 -Wno-narrowing
-INCPATH  = -I. -I/home/sbocquet/usr/gtest/include -ITools/HILSIM_XPlane -ITools/MatrixPilot-SIL -IlibUDB -IlibDCM -IMatrixPilot
+INCPATH  = -I. -I/usr/include/gtest/include -ITools/HILSIM_XPlane -ITools/MatrixPilot-SIL -IlibUDB -IlibDCM -IMatrixPilot
 LFLAGS   = -W
-LIBS     = -lm -lgtest -lpthread -L /home/sbocquet/usr/gtest/lib
+LIBS     = -lm -lgtest -lpthread -L /usr/include/gtest/lib
 RM_FILE  = rm -f
 
 OBJECTS_DIR = ./
