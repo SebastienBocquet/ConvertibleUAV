@@ -595,7 +595,21 @@
 // that you want
 #define SERVOSAT 1.0
 
-#define CONFIG_X
+// Tricopter geometry
+//    C
+//     \
+//   x__\____B
+//      / R_B
+// R_A /
+//    A
+
+// ALPHA is the angle between the x axis and the front arms
+#define COS_ALPHA 0.6647579365354364
+#define SIN_ALPHA 0.7470588235294118
+#define R_A 0.425
+#define R_B 0.443
+#define EQUIV_R 0.25
+#define SQRT_K 1.1293781085572312 // sqrt(2 * R_A * COS_ALPHA / R_B)
 
 // 1=SE, 2=NE, 3=NO, 4=SO. then motors B, C, D are placed following
 // anticlockwise from motor A
@@ -620,6 +634,13 @@
 #define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
 #define YAW_RATE_KP 1.3
+
+// Aerodynamic model
+#define BETA_EQ_DEG 2.
+#define K1 0.012396793944794976
+#define KQ 0.016922948316011877
+#define MASS 1.5
+#define T_EQ_A MASS * 9.81 / (2 * (1 + R_A * COS_ALPHA / R_B))
 
 // Vertical damping
 // ****Note*** if your ESCs work "backwards", meaning that faster speed requires
@@ -661,14 +682,6 @@
 #define RUDDER_ELEV_MIX 0.
 #define ROLL_ELEV_MIX 0.
 #define ELEVATOR_BOOST 1.
-
-#define HOVER_PITCHTOWPKP 0.1
-#define HOVER_PITCHTOWPKI 0.
-#define LIMIT_INTEGRAL_PITCHTOWP 80000.
-#define HOVER_PITCHTOWPVKP 0.5
-#define LIMIT_INTEGRAL_VPITCHTOWP 80000.
-
-#define HOVER_LIMIT_TARGETVPITCH 300  // in cm/s
 
 // Neutral pitch angle of the plane (in degrees) when flying inverted
 // Use this to add extra "up" elevator while the plane is inverted, to avoid
@@ -733,16 +746,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Motor pitch control
 // All number should be integers
-#define MOTOR_TILT_SERVO_RANGE 90  // servo angular range in degrees at max pwm
-#define MOTOR_TILT_SERVO_THROW \
-  120  // desired servo angular range in degrees at max pwm
-#define MOTOR_TILT_SERVO_MAX 60   // maximum servo angle in degrees
-#define MOTOR_TILT_SERVO_MIN -60  // minimum servo angle in degrees
-#define MOTOR_TILT_OFFSET_CENTRED \
-  0  // offset angle in degrees, corresponding to servo angle at zero pwm
-
-// Max motor tilt angle for yaw control
-#define MAX_TILT_YAW_DEG 20
+#define TILT_THROW_RATIO 1.3333333333333333  // ratio on servo pwm
+#define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
+#define TILT_MIN_ANGLE_DEG -20  // minimum servo angle in degrees
+#define TRANSITION_ANGLE_DEG 45  // minimum servo angle in degrees
 
 ////////////////////////////////////////////////////////////////////////////////
 // Camera Stabilization and Targeting
