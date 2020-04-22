@@ -57,7 +57,7 @@ Motor tilting is commanded by a servomotor. This servomotor has a given angular 
 
   * a coefficient $TILT\_THROW\_RATIO$ to control the angular amplitude of the servomotor
   * a reversed control parameter allows to control the servo displacement direction
-  * a $TRANSITION\_ANGLE$ that controls the switch between the hovering and the normal mode
+  * a $TRANSITION\_ANGLE$ in radian that controls the switch between the hovering and the normal mode
 
 .. math:: tilt\_pwm = (input\_pwm\_tilt-3000) TILT\_THROW\_RATIO
    :label: eq_manual_tilt
@@ -83,7 +83,7 @@ The tilt pwm output corresponding to $\beta=0$ is:
 .. math::
   output\_tilt\_pwm_0 = 3000 - 1000 * TILT\_THROW\_RATIO \frac{TILT\_MIN\_ANGLE\_DEG+TILT\_MAX\_ANGLE\_DEG}{TILT\_MAX\_ANGLE\_DEG-TILT\_MIN\_ANGLE\_DEG}
 
-The hovering mode is activated if $tilt\_pwm > tilt\_pwm\_transition$, the latter being determined from :eq:`eq_tilt_pwm` with $\beta=TILT\_TRANSITION$.
+The hovering mode is activated if $tilt\_pwm > tilt\_pwm\_transition$, the latter being determined from :eq:`eq_manual_tilt_pwm` with $\beta=TRANSITION\_ANGLE$.
 
 
 .. attitude_control::
