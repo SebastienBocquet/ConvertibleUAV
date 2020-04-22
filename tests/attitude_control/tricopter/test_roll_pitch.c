@@ -36,6 +36,7 @@ namespace
               dcm_flags._.yaw_init_finished = 1;
               current_orientation = F_HOVER;
               udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 3000;
+              udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
               flags._.integral_pid_term = 1;
               udb_flags._.radio_on = 1;
           }
@@ -54,59 +55,86 @@ namespace
 
     TEST_F(TricopterRollPitchControl, noControl)
     {
+        rmat[1] = 0;
         rmat[6] = 0;
         rmat[7] = 0;
+        udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 3000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
         const int offset_A = 3. / (2 + sqrt_k) * 3000;
         const int offset_B = 3. * sqrt_k / (2 + sqrt_k) * 3000;
         const int offset_C = offset_A;
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], offset_A);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], offset_B);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], offset_C);
+        printf("expected motor throttle A %d \n", offset_A);
+        printf("expected motor throttle B %d \n", offset_B);
+        printf("expected motor throttle C %d \n", offset_C);
+        printf("motor throttle A %d \n", udb_pwOut[MOTOR_A_OUTPUT_CHANNEL]);
+        printf("motor throttle B %d \n", udb_pwOut[MOTOR_B_OUTPUT_CHANNEL]);
+        printf("motor throttle C %d \n", udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
+        ASSERT_NEAR(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], offset_A, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], offset_B, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], offset_C, 1);
     }
 
-    TEST_F(TricopterRollPitchControl, minManualThrottle)
+    TEST_F(TricopterRollPitchControl, manualOffset)
     {
+        rmat[1] = 0;
         rmat[6] = 0;
         rmat[7] = 0;
-        udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2000;
+        udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2600;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
+        const int offset_A = 3. / (2 + sqrt_k) * udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
+        const int offset_B = 3. * sqrt_k / (2 + sqrt_k) * udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
+        const int offset_C = offset_A;
+        printf("expected motor throttle A %d \n", offset_A);
+        printf("expected motor throttle B %d \n", offset_B);
+        printf("expected motor throttle C %d \n", offset_C);
+        printf("motor throttle A %d \n", udb_pwOut[MOTOR_A_OUTPUT_CHANNEL]);
+        printf("motor throttle B %d \n", udb_pwOut[MOTOR_B_OUTPUT_CHANNEL]);
+        printf("motor throttle C %d \n", udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
+        ASSERT_NEAR(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], offset_A, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], offset_B, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], offset_C, 1);
+
         const int mean_control = 0.3333333333333333 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
-        ASSERT_EQ(mean_control, 2000);
+        ASSERT_NEAR(mean_control, udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL], 1);
     }
 
     TEST_F(TricopterRollPitchControl, maxManualThrottle)
     {
+        rmat[1] = 0;
         rmat[6] = 0;
         rmat[7] = 0;
         udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 4000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
+        printf("motor throttle A %d \n", udb_pwOut[MOTOR_A_OUTPUT_CHANNEL]);
+        printf("motor throttle B %d \n", udb_pwOut[MOTOR_B_OUTPUT_CHANNEL]);
+        printf("motor throttle C %d \n", udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
 
-        const int mean_control = 0.3333333333333333 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
-        ASSERT_EQ(mean_control, 4000);
-    }
-
-    TEST_F(TricopterRollPitchControl, throttleLimiter)
-    {
-        rmat[6] = RMAX;
-        rmat[7] = 0;
-        motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
-
-        const int mean_control = 0.3333333333333333 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
-        ASSERT_EQ(mean_control, 3000);
+	const int throttle_max = 2000 + HOVER_THROTTLE_MAX * (2.0 * SERVORANGE);
+	ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] * SQRT_K, 1);
+	ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 1);
     }
 
     TEST_F(TricopterRollPitchControl, rollKpGains)
     {
+        rmat[1] = 0;
         rmat[6] = 1000;
         rmat[7] = 0;
-        const float k_roll = EQUIV_R / (R_A * SIN_ALPHA);
+        udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 3000;
+        const float k_roll = 0.707 * EQUIV_R / (R_A * SIN_ALPHA);
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
         // roll control corresponding to this tricopter geometry and these rmat values
         const int roll_quad_control = -109;
+        // Simulate first PID controller
+        const int roll_error = rmat[6];
+        const int desired_roll = -0.5 * roll_error;
+        // Simulate second PID controller
+        const int roll_rate_error = -desired_roll;
+        /* const int roll_quad_control = -0.22 * roll_rate_error; */
+        printf("roll quad control test %d \n", roll_quad_control);
+
         // Scale motor order for a tricopter
         const int offset_A = 3. / (2 + sqrt_k) * 3000;
         const int offset_B = 3. * sqrt_k / (2 + sqrt_k) * 3000;
@@ -117,23 +145,29 @@ namespace
         const int throttle_A = offset_A + control_A;
         const int throttle_B = offset_B + control_B;
         const int throttle_C = offset_C + control_C;
+	printf("%d\n", control_A);
         printf("expected motor throttle A %d \n", throttle_A);
         printf("expected motor throttle B %d \n", throttle_B);
         printf("expected motor throttle C %d \n", throttle_C);
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], throttle_A);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], throttle_B);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], throttle_C);
+        printf("motor throttle A %d \n", udb_pwOut[MOTOR_A_OUTPUT_CHANNEL]);
+        printf("motor throttle B %d \n", udb_pwOut[MOTOR_B_OUTPUT_CHANNEL]);
+        printf("motor throttle C %d \n", udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
+        ASSERT_NEAR(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], throttle_A, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], throttle_B, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], throttle_C, 1);
     }
 
-    TEST_F(TricopterRollPitchControl, pitchKpGains)
+    TEST_F(TricopterRollPitchControl, pitchKpGainsBeta0)
     {
+        rmat[1] = 0;
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
         rmat[6] = 0;
         rmat[7] = 1000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
-        const float beta_deg = (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) / (2000 * TILT_THROW_RATIO) * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000) + (TILT_MIN_ANGLE_DEG + TILT_MIN_ANGLE_DEG) / 2 + BETA_EQ_DEG;
-        const float k_pitch = EQUIV_R / (2 * R_A * COS_ALPHA * cos(beta_deg * M_PI / 180) + R_B);
+        /* const float beta_deg = (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) / (2000 * TILT_THROW_RATIO) * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000) + (TILT_MIN_ANGLE_DEG + TILT_MIN_ANGLE_DEG) / 2 + BETA_EQ_DEG; */
+        const int16_t beta_deg = 0.;
+        const float k_pitch = 0.707 * EQUIV_R / (2 * R_A * COS_ALPHA * cos(beta_deg * M_PI / 180) + R_B);
         // Simulate first PID controller
         const int pitch_error = -rmat[7];
         const int desired_pitch = -0.5 * pitch_error;
@@ -156,9 +190,9 @@ namespace
         printf("expected motor control A %d \n", throttle_A+1);
         printf("expected motor control B %d \n", throttle_B);
         printf("expected motor control C %d \n", throttle_C+1);
-        ASSERT_EQ(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], throttle_A+1);
-        ASSERT_EQ(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], throttle_B);
-        ASSERT_EQ(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], throttle_C+1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], throttle_A, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], throttle_B, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], throttle_C, 1);
     }
 
 }  // namespace

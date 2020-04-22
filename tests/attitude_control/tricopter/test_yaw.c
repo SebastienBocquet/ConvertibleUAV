@@ -19,7 +19,7 @@ namespace
           const float k_roll = EQUIV_R / (R_A * SIN_ALPHA);
           const float t_eq_a = 4.492450879924699;
           const float k_tilt = (-2*KQ*K1/(t_eq_a*R_A*SIN_ALPHA))*(180./M_PI)*(2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
-          const int tilt_pwm_eq = BETA_EQ_DEG * (180./M_PI) * 2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG);
+          const int tilt_pwm_eq = BETA_EQ_DEG * 2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG);
 
           // PID gains
           const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
