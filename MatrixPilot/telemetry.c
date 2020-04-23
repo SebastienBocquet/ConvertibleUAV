@@ -316,9 +316,9 @@ void serial_output_8hz(void) {
     int16_t throttle_offset = 2242;
 
     serial_output(
-        "F2;T:%li;"
+        "F2;T%li;"
         "vo%i;cu%i;au%i;"
-        "cpu:%u;"
+        "cpu%u;"
         "ma%i;mb%i;mc%i;",
         tow.WW, voltage, current, mAh_used, (uint16_t)udb_cpu_load(),
 #if (MAG_YAW_DRIFT == 1)
@@ -339,15 +339,15 @@ void serial_output_8hz(void) {
     //#endif
 
     // Save  pwIn and PwOut buffers for printing next time around
-    //            int16_t i;
-    //				for (i=0; i <= NUM_INPUTS; i++)
-    //					pwIn_save[i] = udb_pwIn[i];
-    //            for (i=0; i < NUM_OUTPUTS; i++)
-    //                pwOut_save[i] = udb_pwOut[i];
-    //				for (i= 1; i <= NUM_INPUTS; i++)
-    //					serial_output("p%ii%i:",i,pwIn_save[i]);
-    //            for (i=4; i <= NUM_OUTPUTS; i++)
-    //                serial_output("p%io:%i;",i,pwOut_save[i]);
+    int16_t i;
+//    			for (i=0; i <= NUM_INPUTS; i++)
+//    					pwIn_save[i] = udb_pwIn[i];
+    for (i=0; i < NUM_OUTPUTS; i++)
+        pwOut_save[i] = udb_pwOut[i];
+//    				for (i= 1; i <= NUM_INPUTS; i++)
+//    					serial_output("p%ii%i:",i,pwIn_save[i]);
+    for (i=0; i <= NUM_OUTPUTS; i++)
+        serial_output("p%i%i;",i,pwOut_save[i]);
 
     serial_output("t1%i;t2%i;t3%i;", tele_throttle1 - throttle_offset,
                   tele_throttle2 - throttle_offset,
@@ -360,7 +360,7 @@ void serial_output_8hz(void) {
     //                    (int16_t)(100*IMUlocationz._.W1));
     serial_output("vz%i;", IMUvelocityz._.W1);
 
-    serial_output("ye%i;pe%i;re%i;", yaw_error, pitch_error, roll_error);
+    serial_output("yc%i;ye%i;", yaw_quad_control, yaw_error);
 
     serial_output("yo%i;", omegagyro[2]);
 
