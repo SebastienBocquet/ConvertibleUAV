@@ -12,7 +12,11 @@ Contents:
    :maxdepth: 2
 
    high-level-requirements
-   design
+   airframe
+   hardware
+   software
+   ressources
+
 
 Indices and tables
 ==================

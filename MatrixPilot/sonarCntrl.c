@@ -18,42 +18,37 @@
 // You should have received a copy of the GNU General Public License
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "defines.h" 
+#include "defines.h"
+#include "../libSTM/dsp.h"
 
+#define TILT_PWM_EQ BETA_EQ_DEG * 2000.0 * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
+#define K_TILT (-2 * KQ * K1 / (T_EQ_A * R_A * SIN_ALPHA)) * (180.0 / PI) * 2000.0 * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 
-// servo_ratios are used to convert degrees of rotation into servo pulse code lengths
-// This code is configured for the full throw of the servo to be achieved by a range of
-// 2000 units being sent to udb_pwOut. (i.e. min deflection 2000, centered 3000, max deflection 4000)
-#define MOTOR_TILT_SERVO_HIGH_RATIO  ((2000.0 / ((MOTOR_TILT_SERVO_THROW / 360.0) * 65536.0)) * 65536.0)
-#define MOTOR_TILT_SERVO_RATIO        (2000.0 / ((MOTOR_TILT_SERVO_THROW / 360.0) * 65536.0)) 
-
-#define MAX_TILT_YAW_PWM (MAX_TILT_YAW_DEG * 1000) / MOTOR_TILT_SERVO_RANGE 
-
-// Note that most angles in cameraCntrl.c are 16 bit quantities
-// For example, 90 degrees is represented as 16384 (65536 / 4)
-
-const int16_t motor_tilt_offset_centred_pwm = (MOTOR_TILT_OFFSET_CENTRED * 65536.0 / 360.0) * MOTOR_TILT_SERVO_RATIO;
-const int16_t motor_tilt_servo_pwm_max = ((MOTOR_TILT_SERVO_MAX - MOTOR_TILT_OFFSET_CENTRED) * 65536.0 / 360.0) * MOTOR_TILT_SERVO_RATIO;
-const int16_t motor_tilt_servo_pwm_min = ((MOTOR_TILT_SERVO_MIN - MOTOR_TILT_OFFSET_CENTRED) * 65536.0 / 360.0) * MOTOR_TILT_SERVO_RATIO;
+#define TILT_PWM_MAX 1000 * TILT_THROW_RATIO
+#define TILT_PWM_MIN -1000 * TILT_THROW_RATIO
+#define TILT_PWM_TRANSITON (1000 * TILT_THROW_RATIO) / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) * (2 * TRANSITION_ANGLE_DEG - TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 
 int16_t motorTiltServoLimit(int16_t pwm_pulse)
 {
-    pwm_pulse = limit_value(pwm_pulse, motor_tilt_servo_pwm_min, motor_tilt_servo_pwm_max);
+    pwm_pulse = limit_value(pwm_pulse, TILT_PWM_MIN, TILT_PWM_MAX);
     return(pwm_pulse);
 }
 
 void motorTiltInit(void)
 {
-    motor_tilt_servo_pwm_delta = motor_tilt_offset_centred_pwm;
+    motor_tilt_servo_pwm_delta = 0;
 }
 
+/*
+ * front motor tilt angle used for yaw control.
+ */
 int16_t yawCntrlByTilt(void)
 {
     int32_t temp;
-    int16_t yaw_motor_tilt_pwm;
-    temp = __builtin_mulsu(yaw_quad_control, MAX_TILT_YAW_PWM);
-    yaw_motor_tilt_pwm = (int16_t)(temp / 1000);
-    return yaw_motor_tilt_pwm;
+    int16_t motor_tilt_pwm;
+    /* temp = __builtin_mulsu(yaw_quad_control, K_TILT); */
+    /* motor_tilt_pwm = (int16_t)(temp / RMAX); */
+    return K_TILT * yaw_quad_control + (int16_t)(TILT_PWM_EQ);
 }
 
 void motorTiltCntrl(void)
@@ -70,16 +65,13 @@ void motorTiltCntrl(void)
 	else
 	    pwManual[temp] = udb_pwTrim[temp];
     }
-    
-    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), MOTOR_TILT_SERVO_THROW);
-    servo_pwm = (int16_t)(temp / MOTOR_TILT_SERVO_RANGE) ;
-    motor_tilt_servo_pwm_delta = servo_pwm + motor_tilt_offset_centred_pwm;
+
+    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO*RMAX);
+    motor_tilt_servo_pwm_delta = (int16_t)(temp / RMAX) ;
 }
 
 boolean motorsInHoveringPos()
 {
-    return (REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED, 
-		motor_tilt_servo_pwm_delta) > motor_tilt_offset_centred_pwm);
+    return (REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
+		motor_tilt_servo_pwm_delta) > TILT_PWM_TRANSITON);
 }
-
-

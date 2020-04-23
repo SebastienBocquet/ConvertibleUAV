@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-namespace 
+namespace
 {
     // The fixture for testing class Foo.
     class TricopterMotorTilt : public ::testing::Test
@@ -13,15 +13,9 @@ namespace
 
           // If the constructor and destructor are not enough for setting up
           // and cleaning up each test, you can define the following methods:
-    
+
           //tricopter geometry
-          const float cos_alpha = 0.6647579365354364;
-          const float sin_alpha = 0.7470588235294118 ;
-          const float R = 0.25;
-          const float R_A = 0.425;
-          const float R_B = 0.443;
-          const float k_pitch = R / (2 * R_A * cos_alpha);
-          const float k_roll = R / (R_A * sin_alpha);
+          const int tilt_pwm_eq = BETA_EQ_DEG * (2000.*TILT_THROW_RATIO/(TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
 
           // PID gains
           const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
@@ -32,7 +26,7 @@ namespace
           const uint16_t yaw_kp = (uint16_t)(RMAX*0.0);
           const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.0);
 
-          virtual void SetUp() 
+          virtual void SetUp()
           {
               // Code here will be called immediately after the constructor (right
               // before each test).
@@ -46,7 +40,7 @@ namespace
 
           }
 
-          virtual void TearDown() 
+          virtual void TearDown()
           {
               // Code here will be called immediately after each test (right
               // before the destructor).
@@ -62,45 +56,51 @@ namespace
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
         yaw_quad_control = 0;
-        motorTiltCntrl();       
+        motorTiltCntrl();
+        ASSERT_EQ(motor_tilt_servo_pwm_delta, 0);
         motorTiltServoMix1();
         motorTiltServoMix2();
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000);
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm_eq);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - tilt_pwm_eq);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltManual)
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3500;
         yaw_quad_control = 0;
-        motorTiltCntrl();       
+        motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        int motor_tilt_pwm = (120./90) * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + motor_tilt_pwm);
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + motor_tilt_pwm);
+        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm + tilt_pwm_eq);
+        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm - tilt_pwm_eq);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltMax)
     {
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 4000;
+        // this input value leads to the maximal tilt pwm
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 3750;
         yaw_quad_control = 0;
-        motorTiltCntrl();       
+        motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 4000);
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 4000);
+        // tilt pwm cannot exceed 4000
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 4000, 1);
+
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 4000 - tilt_pwm_eq, 1);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltMin)
     {
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 2000;
+        // this input value leads to the minimal tilt pwm
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 2250;
         yaw_quad_control = 0;
-        motorTiltCntrl();       
+        motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 2000);
-        ASSERT_EQ(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 2000);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 2000 + tilt_pwm_eq, 1);
+        // tilt pwm cannot be lower than 2000
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 2000, 1);
     }
 
 }  // namespace
