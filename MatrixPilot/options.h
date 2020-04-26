@@ -604,12 +604,12 @@
 //    A
 
 // ALPHA is the angle between the x axis and the front arms
-#define COS_ALPHA 0.6647579365354364
-#define SIN_ALPHA 0.7470588235294118
-#define R_A 0.425
-#define R_B 0.443
+#define COS_ALPHA 0.705
+#define SIN_ALPHA 0.71
+#define R_A 0.44
+#define R_B 0.445
 #define EQUIV_R 0.25
-#define SQRT_K 1.1293781085572312 // sqrt(2 * R_A * COS_ALPHA / R_B)
+#define SQRT_K 1.18 // sqrt(2 * R_A * COS_ALPHA / R_B)
 
 // 1=SE, 2=NE, 3=NO, 4=SO. then motors B, C, D are placed following
 // anticlockwise from motor A
@@ -639,7 +639,7 @@
 #define BETA_EQ_DEG 2.
 #define K1 0.012396793944794976
 #define KQ 0.016922948316011877
-#define MASS 1.5
+#define MASS 1.636
 #define T_EQ_A MASS * 9.81 / (2 * (1 + R_A * COS_ALPHA / R_B))
 
 // Vertical damping
@@ -746,9 +746,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Motor pitch control
 // All number should be integers
-#define TILT_THROW_RATIO 1.3333333333333333  // ratio on servo pwm
+#define TILT_THROW_RATIO 0.88  // ratio on servo pwm
 #define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
-#define TILT_MIN_ANGLE_DEG -20  // minimum servo angle in degrees
+#define TILT_MIN_ANGLE_DEG -10  // minimum servo angle in degrees
 #define TRANSITION_ANGLE_DEG 45  // minimum servo angle in degrees
 
 ////////////////////////////////////////////////////////////////////////////////
