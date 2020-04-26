@@ -103,4 +103,12 @@ namespace
         ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 2000, 1);
     }
 
+    TEST_F(TricopterMotorTilt, isInHoveringPos)
+    {
+        // this input value leads to the minimal tilt pwm
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 2000;
+        yaw_quad_control = 0;
+        motorTiltCntrl();
+        ASSERT_TRUE(motorsInHoveringPos());
+    }
 }  // namespace
