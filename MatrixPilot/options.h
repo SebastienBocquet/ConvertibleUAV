@@ -636,7 +636,7 @@
 #define YAW_RATE_KP 0.20
 
 // Aerodynamic model
-#define BETA_EQ_DEG 2.
+#define BETA_EQ_DEG -2.
 #define K1 0.012396793944794976
 #define KQ 0.016922948316011877
 #define MASS 1.636
