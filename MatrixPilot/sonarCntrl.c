@@ -46,8 +46,6 @@ int16_t yawCntrlByTilt(void)
 {
     int32_t temp;
     int16_t motor_tilt_pwm;
-    /* temp = __builtin_mulsu(yaw_quad_control, K_TILT); */
-    /* motor_tilt_pwm = (int16_t)(temp / RMAX); */
     return K_TILT * yaw_quad_control + (int16_t)(TILT_PWM_EQ);
 }
 
@@ -72,6 +70,7 @@ void motorTiltCntrl(void)
 
 boolean motorsInHoveringPos()
 {
-    return (REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
-		motor_tilt_servo_pwm_delta) > TILT_PWM_TRANSITON);
+    int16_t pwm_tilt_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED, TILT_PWM_TRANSITON);
+    return REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
+		motor_tilt_servo_pwm_delta) < pwm_tilt_transition;
 }
