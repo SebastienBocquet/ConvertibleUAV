@@ -633,7 +633,7 @@
 #define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
-#define YAW_RATE_KP 0.20
+#define YAW_RATE_KP 0.2
 
 // Aerodynamic model
 #define BETA_EQ_DEG -2.
