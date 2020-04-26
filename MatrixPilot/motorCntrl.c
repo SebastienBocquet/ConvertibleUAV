@@ -448,6 +448,9 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 	/* motor_C += (int16_t)(temp32 / SERVORANGE); */
 
       }
+          else {
+              motor_A = motor_B = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
+          }
     }
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor
