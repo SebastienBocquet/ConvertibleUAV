@@ -17,14 +17,13 @@ namespace
           //tricopter geometry
           const float k_pitch = EQUIV_R / (2 * R_A * COS_ALPHA);
           const float k_roll = EQUIV_R / (R_A * SIN_ALPHA);
-          const float t_eq_a = 4.492450879924699;
-          const float k_tilt = (-2*KQ*K1/(t_eq_a*R_A*SIN_ALPHA))*(180./M_PI)*(2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
+          const float k_tilt = (-2*KQ*K1/(T_EQ_A*R_A*SIN_ALPHA))*(180./M_PI)*(2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
           const int tilt_pwm_eq = BETA_EQ_DEG * 2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG);
 
           // PID gains
           const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
-          const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
-          const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
+          const uint16_t tilt_kp = (uint16_t)(RMAX*TILT_KP);
+          const uint16_t tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
           const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
           const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
           const uint16_t yaw_kp = (uint16_t)(RMAX*YAW_KP);
@@ -73,10 +72,10 @@ namespace
 
         // Simulate first PID controller
         int yaw_error = 0.25 * rmat[1];
-        int desired_yaw = -3 * yaw_error;
+        int desired_yaw = -YAW_KP * yaw_error;
         // Simulate second PID controller
         int yaw_rate_error = -desired_yaw;
-        int expected_yaw_quad_control = -1.3 * yaw_rate_error;
+        int expected_yaw_quad_control = -YAW_RATE_KP * yaw_rate_error;
         printf("expected yaw quad control %d \n", expected_yaw_quad_control);
         ASSERT_NEAR(yaw_quad_control, expected_yaw_quad_control, 1);
     }
