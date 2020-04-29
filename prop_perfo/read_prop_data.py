@@ -5,6 +5,7 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List
 from pytest import approx
+import matplotlib.pyplot as plt
 
 
 
@@ -12,13 +13,13 @@ from pytest import approx
 @dataclass
 class Propeller:
     '''Class representing the aerodynamic characteristics of a propeller'''
-    def __init__(self, type_, diameter, ct, cp):
-        self.type_ = type_
+    def __init__(self, name, diameter, ct, cp):
+        self.name = name
         self.diameter = diameter
         self.ct = ct
         self.cp = cp
 
-    type_: str
+    namname: str
     diameter: float
     ct: np.ndarray
     cp: np.ndarray
@@ -132,11 +133,10 @@ def find_rpm(thrust, rho, propeller):
         ct = propeller.compute_ct(rpm)
         rpm_next = 60 * (thrust / (ct * rho * propeller.diameter**4))**0.5
         error = rpm - rpm_next
-        print(error)
         rpm = rpm_next
         nb_iter += 1
     assert nb_iter < 20
-    print('converged')
+    # print('converged')
     return rpm_next
 
 
@@ -145,14 +145,71 @@ t_eq_a, t_eq_b = tri.compute_thrust_equilibrium()
 assert(2 * t_eq_a + t_eq_b == mass * g)
 print('eq thrust', t_eq_a, t_eq_b)
 
+total_thrusts = np.linspace(2., 30., 10)
+
 for prop in props:
-    rpm = find_rpm(t_eq_b, rho, prop)
-    propu = Propulsion(kv, u0, prop)
-    kt = propu.compute_kt(rpm)
-    k1 = propu.compute_k1(rpm)
-    kq = propu.compute_kq(rpm)
-    beta_eq = kq * cos_alpha / (r_b * sin_alpha)
-    yaw_control = 1000
-    beta = (-2 * kq * k1 / (t_eq_a * r_a * sin_alpha)) * yaw_control
-    print(beta_eq*180./np.pi, beta*180./np.pi)
-    print(kt, k1, kq)
+    print('prop', prop.name)
+    th_a_to_0 = list()
+    th_b_to_0 = list()
+    for total_thrust in total_thrusts:
+        propu = Propulsion(kv, u0, prop)
+        t_0 = total_thrust / 3
+        rpm_0 = find_rpm(t_0, rho, prop)
+        th_0 = propu.compute_throttle(rpm_0)
+        kt = propu.compute_kt(rpm_0)
+        assert t_0 == approx(kt*th_0**2, rel=1e-3)
+        t_a = total_thrust / (2 * (1 + tri.r_a * tri.cos_alpha / tri.r_b))
+        rpm_a = find_rpm(t_a, rho, prop)
+        t_b = 2 * tri.r_a * tri.cos_alpha * t_a / r_b
+        total_thrust = 2 * t_a + t_b
+        rpm_b = find_rpm(t_b, rho, prop)
+        th_a = propu.compute_throttle(rpm_a)
+        th_b = propu.compute_throttle(rpm_b)
+        print(total_thrust, th_a, th_b)
+        th_a_to_0.append(th_a / th_0)
+        th_b_to_0.append(th_b / th_0)
+
+    plt.plot(total_thrusts, th_a_to_0, label=f"th_a/th_0 {prop.name}")
+    plt.plot(total_thrusts, th_b_to_0, label=f"th_b/th_0 {prop.name}")
+
+plt.legend()
+plt.savefig(f"th_ratios_database.png")
+plt.close()
+
+for prop in props:
+    print('prop', prop.name)
+    th_a_to_0 = list()
+    th_b_to_0 = list()
+    for total_thrust in total_thrusts:
+        propu = Propulsion(kv, u0, prop)
+        t_0 = total_thrust / 3
+        rpm_0 = find_rpm(t_0, rho, prop)
+        th_0 = propu.compute_throttle(rpm_0)
+        kt = propu.compute_kt(rpm_0)
+        assert t_0 == approx(kt*th_0**2, rel=1e-3)
+
+        t_a = total_thrust / (2 * (1 + tri.r_a * tri.cos_alpha / tri.r_b))
+        t_b = 2 * tri.r_a * tri.cos_alpha * t_a / r_b
+
+        th_a = th_0 + (t_a**0.5 - t_0**0.5) / kt**0.5
+        th_b = th_0 + (t_b**0.5 - t_0**0.5) / kt**0.5
+        print(th_a, th_b)
+        th_a_to_0.append(th_a / th_0)
+        th_b_to_0.append(th_b / th_0)
+
+    plt.plot(total_thrusts, th_a_to_0, label=f"th_a/th_0 {prop.name}")
+    plt.plot(total_thrusts, th_b_to_0, label=f"th_b/th_0 {prop.name}")
+
+plt.legend()
+plt.savefig(f"th_ratios_theo.png")
+plt.close()
+
+# propu = Propulsion(kv, u0, prop)
+# kt = propu.compute_kt(rpm)
+# k1 = propu.compute_k1(rpm)
+# kq = propu.compute_kq(rpm)
+# beta_eq = kq * cos_alpha / (r_b * sin_alpha)
+# yaw_control = 1000
+# beta = (-2 * kq * k1 / (t_eq_a * r_a * sin_alpha)) * yaw_control
+# print(beta_eq*180./np.pi, beta*180./np.pi)
+# print(kt, k1, kq)
