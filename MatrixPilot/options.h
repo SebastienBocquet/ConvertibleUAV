@@ -609,7 +609,10 @@
 #define R_A 0.44
 #define R_B 0.445
 #define EQUIV_R 0.25
-#define SQRT_K 1.18 // sqrt(2 * R_A * COS_ALPHA / R_B)
+
+// ratios of engine throttle over manual throttle
+#define K_A 0.9570225318069994  // th_A / th_manual
+#define K_B 1.0808402968188415  // th_B / th_manual
 
 // 1=SE, 2=NE, 3=NO, 4=SO. then motors B, C, D are placed following
 // anticlockwise from motor A

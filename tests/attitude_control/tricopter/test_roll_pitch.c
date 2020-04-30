@@ -60,8 +60,8 @@ namespace
         udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 3000;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
-        const int offset_A = 3. / (2 + SQRT_K) * 3000;
-        const int offset_B = 3. * SQRT_K / (2 + SQRT_K) * 3000;
+        const int offset_A = K_A * 3000;
+        const int offset_B = K_B * 3000;
         const int offset_C = offset_A;
         printf("expected motor throttle A %d \n", offset_A);
         printf("expected motor throttle B %d \n", offset_B);
@@ -82,8 +82,8 @@ namespace
         udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL] = 2600;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
-        const int offset_A = 3. / (2 + SQRT_K) * udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
-        const int offset_B = 3. * SQRT_K / (2 + SQRT_K) * udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
+        const int offset_A = K_A * udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
+        const int offset_B = K_B * udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL];
         const int offset_C = offset_A;
         printf("expected motor throttle A %d \n", offset_A);
         printf("expected motor throttle B %d \n", offset_B);
@@ -94,9 +94,6 @@ namespace
         ASSERT_NEAR(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], offset_A, 1);
         ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], offset_B, 1);
         ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], offset_C, 1);
-
-        const int mean_control = 0.3333333333333333 * (udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_B_OUTPUT_CHANNEL] + udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
-        ASSERT_NEAR(mean_control, udb_pwIn[THROTTLE_HOVER_INPUT_CHANNEL], 1);
     }
 
     TEST_F(TricopterRollPitchControl, maxManualThrottle)
@@ -111,7 +108,7 @@ namespace
         printf("motor throttle C %d \n", udb_pwOut[MOTOR_C_OUTPUT_CHANNEL]);
 
 	const int throttle_max = 2000 + HOVER_THROTTLE_MAX * (2.0 * SERVORANGE);
-	ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], int(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] * SQRT_K), 1);
+	ASSERT_NEAR(udb_pwOut[MOTOR_B_OUTPUT_CHANNEL], int(udb_pwOut[MOTOR_A_OUTPUT_CHANNEL] * K_B / K_A), 1);
 	ASSERT_NEAR(udb_pwOut[MOTOR_C_OUTPUT_CHANNEL], udb_pwOut[MOTOR_A_OUTPUT_CHANNEL], 1);
     }
 
@@ -134,8 +131,8 @@ namespace
         printf("roll quad control test %d \n", roll_quad_control);
 
         // Scale motor order for a tricopter
-        const int offset_A = 3. / (2 + SQRT_K) * 3000;
-        const int offset_B = 3. * SQRT_K / (2 + SQRT_K) * 3000;
+        const int offset_A = K_A * 3000;
+        const int offset_B = K_B * 3000;
         const int offset_C = offset_A;
         const int control_A = -k_roll * roll_quad_control;
         const int control_B = 0.;
@@ -174,8 +171,8 @@ namespace
         const int pitch_quad_control = -0.22 * pitch_rate_error;
 
         // Scale motor order for a tricopter
-        const int offset_A = 3. / (2 + SQRT_K) * 3000;
-        const int offset_B = 3. * SQRT_K / (2 + SQRT_K) * 3000;
+        const int offset_A = K_A * 3000;
+        const int offset_B = K_B * 3000;
         const int offset_C = offset_A;
         const int control_A = k_pitch * pitch_quad_control;
         const int control_B = -2 * control_A;

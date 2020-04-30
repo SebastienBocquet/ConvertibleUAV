@@ -29,10 +29,9 @@
 #define TIME_MANUAL_TO_AUTO 3
 #define INCREMENT_MANUAL_TO_AUTO RMAX / (HEARTBEAT_HZ* TIME_MANUAL_TO_AUTO)
 
-// coefficients on manual throttle
-#define K_FRONT_OFFSET (3.0) / (2 + SQRT_K)
-#define K_REAR_OFFSET (3.0 * SQRT_K) / (2 + SQRT_K)
-#define ONE_OVER_SQRT_K 1.0 / SQRT_K
+// coefficients on manual throttle to determine engine throttle ensuring equiibrium of the tricopter
+#define K_AB  (K_A / K_B)
+#define K_BA  (K_B / K_A)
 
 // coefficients on motor control
 #define K_ROLL (0.707 * EQUIV_R) / (R_A* SIN_ALPHA)
@@ -412,40 +411,31 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
 
         // throttle offset ensuring equilibrium of forces and moments
-	/* temp32 = __builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], K_FRONT_OFFSET); */
-	/* motor_A = (int16_t)(temp32 / SERVORANGE); */
-	/* temp32 = __builtin_mulsu(pwManual[THROTTLE_HOVER_INPUT_CHANNEL], K_REAR_OFFSET); */
-	/* motor_B = (int16_t)(temp32 / SERVORANGE); */
-        /* motor_C = motor_A; */
-	motor_A = K_FRONT_OFFSET * pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
-	motor_B = K_REAR_OFFSET * pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+	motor_A = K_A * pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+	motor_B = K_B * pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
         motor_C = motor_A;
 
-	// limit max throttle of B engine
-	const int16_t motor_B_lim = limit_value(motor_B, throttlemin, throttlemax);
-	// if motor_B is greater than max throttle, apply correction to ensure that motor_B = SQRT_K * motor_A
-        const int16_t corr_B = motor_B_lim - motor_B;
-	const int16_t corr_A = ONE_OVER_SQRT_K * (motor_B + corr_B - SQRT_K * motor_A);
-	const int16_t corr_C = corr_A;
-        motor_A += corr_A;
-        motor_B += corr_B;
-        motor_C += corr_C;
+	// limit max throttle of engine A
+        if (motor_A > throttlemax) {
+          int16_t err_A = throttlemax - motor_A;
+          int16_t corr_B = (motor_A + err_A) * K_BA - motor_B;
+          motor_A = throttlemax;
+          motor_B += corr_B;
+        }
+	// limit max throttle of engine B
+        if (motor_B > throttlemax) {
+          int16_t err_B = throttlemax - motor_B;
+          int16_t corr_A = (motor_B + err_B) * K_AB - motor_A;
+          printf("corrA %d\n", corr_A);
+          motor_B = throttlemax;
+          motor_A += corr_A;
+        }
+        motor_C = motor_A;
 
         // apply pitch stabilization
 	motor_A += K_PITCH * pitch_quad_control - K_ROLL * roll_quad_control;
 	motor_B += -2 * K_PITCH * pitch_quad_control;
 	motor_C += K_PITCH * pitch_quad_control + K_ROLL * roll_quad_control;
-
-	/* temp32 = __builtin_mulsu(pitch_quad_control, K_PITCH); */
-	/* motor_A += (int16_t)(temp32 / SERVORANGE); */
-	/* motor_C += (int16_t)(temp32 / SERVORANGE); */
-	/* temp32 = __builtin_mulsu(pitch_quad_control, 2 * K_PITCH); */
-	/* motor_B -= (int16_t)(temp32 / SERVORANGE); */
-        /*  */
-        /* // apply roll stabilization */
-	/* temp32 = __builtin_mulsu(roll_quad_control, K_ROLL); */
-	/* motor_A -= (int16_t)(temp32 / SERVORANGE); */
-	/* motor_C += (int16_t)(temp32 / SERVORANGE); */
 
       }
           else {
