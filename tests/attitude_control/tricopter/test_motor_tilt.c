@@ -85,7 +85,7 @@ namespace
         motorTiltServoMix1();
         motorTiltServoMix2();
         int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        printf("expected tilt 1 pwm output %d\n", 3000 + TILT_COEF_PWM_1 * tilt_pwm + TILT_TRIM_PWM_1 + tilt_pwm_eq);
+        printf("expected tilt 1 pwm output %f\n", 3000 + TILT_COEF_PWM_1 * tilt_pwm + TILT_TRIM_PWM_1 + tilt_pwm_eq);
         printf("expected tilt 2 pwm output %d\n", 3000 + tilt_pwm - tilt_pwm_eq);
         printf("observed tilt 1 pwm output %d\n", udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1]);
         printf("observed tilt 2 pwm output %d\n", udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2]);
