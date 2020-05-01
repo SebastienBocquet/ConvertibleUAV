@@ -752,8 +752,8 @@
 #define TILT_THROW_RATIO 0.88  // ratio on servo pwm
 #define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
 #define TILT_MIN_ANGLE_DEG -10  // minimum servo angle in degrees
-#define TILT_TRIM_PWM_1 -50  // offset pwm on tilt servo 1
-#define TILT_COEF_PWM_1 0.92  // coefficient on pwm of tilt servo 1
+#define TILT_TRIM_PWM_1 0  // offset pwm on tilt servo 1
+#define TILT_COEF_PWM_1 1.  // coefficient on pwm of tilt servo 1
 #define TRANSITION_ANGLE_DEG 45  // minimum servo angle in degrees
 
 ////////////////////////////////////////////////////////////////////////////////
