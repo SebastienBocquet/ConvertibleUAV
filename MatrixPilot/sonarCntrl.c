@@ -44,10 +44,13 @@ void motorTiltInit(void)
  */
 int16_t yawCntrlByTilt(void)
 {
-    int16_t tilt_pwm_eq = 0;
-    if (motorsInHoveringPos()) tilt_pwm_eq = (int16_t)(TILT_PWM_EQ);
-
-    return K_TILT * yaw_quad_control + tilt_pwm_eq;
+    if (motorsInHoveringPos()) {        
+        int16_t tilt_pwm_eq = (int16_t)(TILT_PWM_EQ);
+        return K_TILT * yaw_quad_control + tilt_pwm_eq;
+    } 
+    else {
+        return 0.;
+    }
 }
 
 void motorTiltCntrl(void)
