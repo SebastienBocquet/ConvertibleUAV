@@ -411,26 +411,29 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
 
         // throttle offset ensuring equilibrium of forces and moments
-	motor_A = K_A * pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
-	motor_B = K_B * pwManual[THROTTLE_HOVER_INPUT_CHANNEL];
+	motor_A = K_A * (pwManual[THROTTLE_HOVER_INPUT_CHANNEL] - 2000);
+	motor_B = K_B * (pwManual[THROTTLE_HOVER_INPUT_CHANNEL] - 2000);
         motor_C = motor_A;
 
 	// limit max throttle of engine A
-        if (motor_A > throttlemax) {
-          int16_t err_A = throttlemax - motor_A;
+        if (motor_A > (throttlemax-2000)) {
+          int16_t err_A = throttlemax-2000 - motor_A;
           int16_t corr_B = (motor_A + err_A) * K_BA - motor_B;
-          motor_A = throttlemax;
+          motor_A = throttlemax-2000;
           motor_B += corr_B;
         }
 	// limit max throttle of engine B
-        if (motor_B > throttlemax) {
-          int16_t err_B = throttlemax - motor_B;
+        if (motor_B > (throttlemax-2000)) {
+          int16_t err_B = throttlemax-2000 - motor_B;
           int16_t corr_A = (motor_B + err_B) * K_AB - motor_A;
-          printf("corrA %d\n", corr_A);
-          motor_B = throttlemax;
+          motor_B = throttlemax-2000;
           motor_A += corr_A;
         }
         motor_C = motor_A;
+        
+        motor_A += 2000;
+        motor_B += 2000;
+        motor_C += 2000;
 
         // apply pitch stabilization
 	motor_A += K_PITCH * pitch_quad_control - K_ROLL * roll_quad_control;

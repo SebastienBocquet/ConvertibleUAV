@@ -313,7 +313,7 @@ extern int16_t segmentIndex;
 void serial_output_8hz(void) {
   if (udb_heartbeat_counter % (HEARTBEAT_HZ / HEARTBEAT_UDB_TELEMETRY) == 0) {
     static int16_t pwOut_save[NUM_OUTPUTS + 1];
-    int16_t throttle_offset = 2242;
+    int16_t throttle_offset = 2000;
 
     serial_output(
         "F2;T%li;"
