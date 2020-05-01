@@ -17,18 +17,17 @@ namespace
           //tricopter geometry
           const float k_pitch = EQUIV_R / (2 * R_A * COS_ALPHA);
           const float k_roll = EQUIV_R / (R_A * SIN_ALPHA);
-          const float t_eq_a = 4.492450879924699;
-          const float k_tilt = (-2*KQ*K1/(t_eq_a*R_A*SIN_ALPHA))*(180./M_PI)*(2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
+          const float k_tilt = (-2*KQ*K1/(T_EQ_A*R_A*SIN_ALPHA))*(180./M_PI)*(2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
           const int tilt_pwm_eq = BETA_EQ_DEG * 2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG);
 
           // PID gains
           const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
-          const uint16_t tilt_kp = (uint16_t)(RMAX*0.5);
-          const uint16_t tilt_rate_kp = (uint16_t)(RMAX*0.22);
+          const uint16_t tilt_kp = (uint16_t)(RMAX*TILT_KP);
+          const uint16_t tilt_rate_kp = (uint16_t)(RMAX*TILT_RATE_KP);
           const uint16_t tilt_rate_kd = (uint16_t)(RMAX*0.0);
           const uint16_t yaw_ki = (uint16_t)(RMAX*0.0);
-          const uint16_t yaw_kp = (uint16_t)(RMAX*0.45);
-          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*0.20);
+          const uint16_t yaw_kp = (uint16_t)(RMAX*YAW_KP);
+          const uint16_t yaw_rate_kp = (uint16_t)(RMAX*YAW_RATE_KP);
 
           virtual void SetUp()
           {
@@ -58,25 +57,25 @@ namespace
 
     TEST_F(TricopterYawControl, yawKpGains)
     {
-        rmat[6] = 0;
+        rmat[1] = 0;
         rmat[6] = 0;
         rmat[7] = 0;
-        // set maximal yaw control
+        // set maximal yaw control strength
         udb_pwIn[INPUT_CHANNEL_AUX2] = 4000;
         // initialize yaw control
         dcm_flags._.yaw_init_finished = 0;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
         //apply control
         dcm_flags._.yaw_init_finished = 1;
-        rmat[1] = 1000;
+        rmat[1] = 1010;
         motorCntrl(tilt_kp, tilt_ki, tilt_rate_kp, tilt_rate_kd, yaw_ki, yaw_kp, yaw_rate_kp);
 
         // Simulate first PID controller
         int yaw_error = 0.25 * rmat[1];
-        int desired_yaw = -3 * yaw_error;
+        int desired_yaw = -YAW_KP * yaw_error;
         // Simulate second PID controller
         int yaw_rate_error = -desired_yaw;
-        int expected_yaw_quad_control = -1.3 * yaw_rate_error;
+        int expected_yaw_quad_control = -YAW_RATE_KP * yaw_rate_error;
         printf("expected yaw quad control %d \n", expected_yaw_quad_control);
         ASSERT_NEAR(yaw_quad_control, expected_yaw_quad_control, 1);
     }
@@ -110,7 +109,7 @@ namespace
         motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm_eq, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * 0 + TILT_TRIM_PWM_1 + tilt_pwm_eq, 1);
         ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - tilt_pwm_eq, 1);
     }
 
@@ -125,7 +124,7 @@ namespace
         motorTiltServoMix2();
         const int tilt_pwm = k_tilt * yaw_quad_control + tilt_pwm_eq;
         printf("expected yaw motor tilt pwm %d \n", tilt_pwm);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * 0 + TILT_TRIM_PWM_1 + tilt_pwm, 1);
         ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - tilt_pwm, 1);
     }
 }  // namespace

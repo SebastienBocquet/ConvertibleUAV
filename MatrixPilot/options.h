@@ -609,7 +609,10 @@
 #define R_A 0.44
 #define R_B 0.445
 #define EQUIV_R 0.25
-#define SQRT_K 1.18 // sqrt(2 * R_A * COS_ALPHA / R_B)
+
+// ratios of engine throttle over manual throttle
+#define K_A 0.9570225318069994  // th_A / th_manual
+#define K_B 1.0808402968188415  // th_B / th_manual
 
 // 1=SE, 2=NE, 3=NO, 4=SO. then motors B, C, D are placed following
 // anticlockwise from motor A
@@ -633,7 +636,7 @@
 #define TILT_RATE_ERROR_INTEGRAL_LIMIT 2000
 #define TILT_RATE_KD 0.5
 #define TILT_RATE_DELTA_FILTER 160.
-#define YAW_RATE_KP 0.20
+#define YAW_RATE_KP 0.2
 
 // Aerodynamic model
 #define BETA_EQ_DEG -2.
@@ -749,6 +752,8 @@
 #define TILT_THROW_RATIO 0.88  // ratio on servo pwm
 #define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
 #define TILT_MIN_ANGLE_DEG -10  // minimum servo angle in degrees
+#define TILT_TRIM_PWM_1 -50  // offset pwm on tilt servo 1
+#define TILT_COEF_PWM_1 0.92  // coefficient on pwm of tilt servo 1
 #define TRANSITION_ANGLE_DEG 45  // minimum servo angle in degrees
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -915,7 +920,7 @@
 // The SERIAL_RC_INPUT settings allow optionally talking over a serial port to a
 // UDB
 // passing RC inputs through to the simulated UDB.
-#define SILSIM 0
+#define SILSIM 1
 #define SILSIM_GPS_RUN_AS_SERVER 0
 #define SILSIM_GPS_PORT \
   14551  // default port to connect to XPlane HILSIM plugin
