@@ -182,14 +182,14 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
   } else {
     // insert yawCorr, pitchCorr and roll_nav_corr to control gps navigation in
     // quad mode
-    commanded_roll =
+    commanded_roll = REVERSE_IF_NEEDED(ROLL_MOTOR_CHANNEL_REVERSED,
         (pwManual[AILERON_INPUT_CHANNEL] - udb_pwTrim[AILERON_INPUT_CHANNEL]) *
-        commanded_tilt_gain;
-    commanded_pitch = (pwManual[ELEVATOR_INPUT_CHANNEL] -
-                       udb_pwTrim[ELEVATOR_INPUT_CHANNEL]) *
-                      commanded_tilt_gain;
+        commanded_tilt_gain);
+    commanded_pitch = REVERSE_IF_NEEDED(PITCH_MOTOR_CHANNEL_REVERSED, (pwManual[ELEVATOR_INPUT_CHANNEL] -
+          udb_pwTrim[ELEVATOR_INPUT_CHANNEL]) *
+        commanded_tilt_gain);
     commanded_yaw =
-        (pwManual[RUDDER_INPUT_CHANNEL] - udb_pwTrim[RUDDER_INPUT_CHANNEL]);
+      (pwManual[RUDDER_INPUT_CHANNEL] - udb_pwTrim[RUDDER_INPUT_CHANNEL]);
 
     if (commanded_yaw >= YAW_DEADBAND) {
       commanded_yaw -= YAW_DEADBAND;
