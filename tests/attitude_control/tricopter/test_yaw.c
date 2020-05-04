@@ -100,31 +100,16 @@ namespace
         ASSERT_NEAR(yaw_quad_control, expected_yaw_quad_control, 1);
     }
 
-    /* Test front motor tilt in neutral position
-     */
-    TEST_F(TricopterYawControl, noControl)
-    {
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
-        yaw_quad_control = 0;
-        motorTiltCntrl();
-        motorTiltServoMix1();
-        motorTiltServoMix2();
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * 0 + TILT_TRIM_PWM_1 + tilt_pwm_eq, 1);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - tilt_pwm_eq, 1);
-    }
-
     /* Test front motor tilt for yaw control
      */
     TEST_F(TricopterYawControl, yawControl)
     {
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
+        // impose minimum tilt control to make sure we are in hovering mode
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 2000;
         yaw_quad_control = 1000;
         motorTiltCntrl();
-        motorTiltServoMix1();
-        motorTiltServoMix2();
+        ASSERT_TRUE(motorsInHoveringPos());
         const int tilt_pwm = k_tilt * yaw_quad_control + tilt_pwm_eq;
-        printf("expected yaw motor tilt pwm %d \n", tilt_pwm);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * 0 + TILT_TRIM_PWM_1 + tilt_pwm, 1);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - tilt_pwm, 1);
+        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm, 1);
     }
 }  // namespace

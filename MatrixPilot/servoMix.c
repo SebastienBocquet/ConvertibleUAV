@@ -223,7 +223,7 @@ void motorTiltServoMix1(void) {
   int16_t tilt_for_yaw;
 
   tilt_for_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
-                           TILT_COEF_PWM_1 * motor_tilt_servo_pwm_delta + TILT_TRIM_PWM_1);
+                           motor_tilt_servo_pwm_delta);
   tilt_for_yaw = REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED,
                            yawCntrlByTilt());
   temp = motorTiltServoLimit(tilt_for_transition + tilt_for_yaw);

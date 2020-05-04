@@ -57,14 +57,27 @@ namespace
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
         yaw_quad_control = 0;
         motorTiltCntrl();
-        ASSERT_EQ(motor_tilt_servo_pwm_delta, 0);
+        ASSERT_NEAR(motor_tilt_servo_pwm_delta, 0, 1);
+        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm_eq, 1);
         motorTiltServoMix1();
         motorTiltServoMix2();
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * 0 + TILT_TRIM_PWM_1 + tilt_pwm_eq, 1);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - tilt_pwm_eq, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltManual)
+    {
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 2500;
+        yaw_quad_control = 0;
+        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm_eq, 1);
+        motorTiltCntrl();
+        motorTiltServoMix1();
+        motorTiltServoMix2();
+        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
+        ASSERT_NEAR(motor_tilt_servo_pwm_delta, tilt_pwm, 1);
+    }
+
+    TEST_F(TricopterMotorTilt, motorTiltPwmOutput)
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 2500;
         yaw_quad_control = 0;
@@ -72,44 +85,8 @@ namespace
         motorTiltServoMix1();
         motorTiltServoMix2();
         int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * tilt_pwm + TILT_TRIM_PWM_1 + tilt_pwm_eq, 2);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm - tilt_pwm_eq, 1);
-    }
-
-    TEST_F(TricopterMotorTilt, motorTiltMax)
-    {
-        // this input value leads to the maximal tilt pwm
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 4000;
-        yaw_quad_control = 0;
-        motorTiltCntrl();
-        motorTiltServoMix1();
-        motorTiltServoMix2();
-        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        printf("expected tilt 1 pwm output %f\n", 3000 + TILT_COEF_PWM_1 * tilt_pwm + TILT_TRIM_PWM_1);
-        printf("expected tilt 2 pwm output %d\n", 3000 + tilt_pwm);
-        printf("observed tilt 1 pwm output %d\n", udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1]);
-        printf("observed tilt 2 pwm output %d\n", udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2]);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * tilt_pwm + TILT_TRIM_PWM_1, 2);
-        // max tilt pwm is limited to 3000 + 1000 * TILT_THROW_RATIO
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000  + 1000 * TILT_THROW_RATIO, 1);
-    }
-
-    TEST_F(TricopterMotorTilt, motorTiltMin)
-    {
-        // this input value leads to the minimal tilt pwm
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 2000;
-        yaw_quad_control = 0;
-        motorTiltCntrl();
-        motorTiltServoMix1();
-        motorTiltServoMix2();
-        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        printf("expected tilt 1 pwm output %d\n", 3000 + tilt_pwm + tilt_pwm_eq);
-        printf("expected tilt 2 pwm output %d\n", 3000 + tilt_pwm - tilt_pwm_eq);
-        printf("observed tilt 1 pwm output %d\n", udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1]);
-        printf("observed tilt 2 pwm output %d\n", udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2]);
-        // min tilt pwm is limited to 3000 - 1000 * TILT_THROW_RATIO
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 - 1000 * TILT_THROW_RATIO, 1);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm - tilt_pwm_eq, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm + REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm - REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
     }
 
     TEST_F(TricopterMotorTilt, isInHoveringPos)
@@ -124,14 +101,12 @@ namespace
     TEST_F(TricopterMotorTilt, zeroDifferentialTilt)
     {
         // impose max tilt
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 3800;
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 4000;
         yaw_quad_control = 0;
         motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + TILT_COEF_PWM_1 * tilt_pwm + TILT_TRIM_PWM_1, 2);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm, 1);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 1);
     }
 
 }  // namespace
