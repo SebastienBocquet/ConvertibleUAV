@@ -72,6 +72,7 @@ for prop in props:
     plt.plot(total_thrusts, th_b_to_0, label=f"th_b/th_0 {prop.name}")
 
 plt.legend()
+plt.xlabel('total thrust (N)')
 plt.savefig(f"th_ratios_database.png")
 plt.close()
 
@@ -95,11 +96,11 @@ for prop in props:
         print(th_a / th_0, th_b / th_0)
         th_a_to_0.append(th_a / th_0)
         th_b_to_0.append(th_b / th_0)
-        print((2 * th_a + th_b) / 3, th_0)
 
     plt.plot(total_thrusts, th_a_to_0, label=f"th_a/th_0 {prop.name}")
     plt.plot(total_thrusts, th_b_to_0, label=f"th_b/th_0 {prop.name}")
 
 plt.legend()
+plt.xlabel('total thrust (N)')
 plt.savefig(f"th_ratios_theo.png")
 plt.close()
