@@ -12,21 +12,19 @@ For pitch and roll control:
 
 Considering that the throttle stick controls the variable $th_{offset}$, pwm outputs are:
 
-  * $motor\_A = th_{{eq}_A} + th_{{control}_A}$
-  * $motor\_B = th_{{eq}_B} + th_{{control}_B}$
-  * $motor\_C = th_{{eq}_C} + th_{{control}_C}$
+  * $pwm\_A = th_{{eq}_A} + th_{{control}_A}$
+  * $pwm\_B = th_{{eq}_B} + th_{{control}_B}$
+  * $pwm\_C = th_{{eq}_C} + th_{{control}_C}$
 
-The manually controlled throttle is called $th_{man}$. We pose that it is the
-average value of the three motor throttles at equilibrium : $th_{man} =
-\frac{1}{3} (2*th_{{eq}_A} + th_{{eq}_B})$. From
-:math:numref:`eq_tri_equil_pitch` and $T = K_T*th^2$, we obtain:
+with:
 
-  * $th_{{eq}_A} = \frac{3}{2+\sqrt{k}} th_{man}$ with $k =
-    \frac{2*R_A*cos(\alpha)}{R_B}$
-  * $th_{{eq}_B} = \frac{3\sqrt{k}}{2+\sqrt{k}} th_{man}$
+  * $th_{{eq}_A} = K\_A * th_{usr}$
+  * $th_{{eq}_B} = K\_B * th_{usr}$
   * $th_{{eq}_C} = th_{{eq}_A}$
 
-and from :ref:`tri_attitude_control`
+where $K\_A$ and $K\_B$ are obtained from :numref:`fig_th_ratio_theo`.
+
+And from :ref:`tri_attitude_control`
 
   * $th_{{control}_A} = \frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control - \frac{\sqrt{2} R_X}{R_A*sin(\alpha)}*roll\_quad\_control$
   * $th_{{control}_B} = -2*\frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control$
@@ -51,7 +49,7 @@ We must determined $K_{tilt}$ such that a given yaw control order creates the sa
 
 :math:numref:`eq_tilt_pwm_for_yaw` and :math:numref:`eq_tilt_eq_pwm` entirely define the control of the yaw axis by tilting the two front motors. It allows to obtain the same yaw moment as for the equivalent quadcopter configuration for the same yaw control order. So the same PID gains should lead to the same authority around the yaw axis compared to the quadcopter configuration.
 
-We than add the following term to :math:numref:`eq_manual_tilt_pwm`:
+Then, only in hovering mode, we add the following term to :math:numref:`eq_manual_tilt_pwm`:
 
   - $+REVERSE\_TILT\_CONTROL * (tilt\_control\_pwm + tilt\_eq\_pwm)$ for the servo controlling the left motor
   - $-REVERSE\_TILT\_CONTROL * (tilt\_control\_pwm + tilt\_eq\_pwm)$ for the servo controlling the right motor

@@ -17,26 +17,23 @@ Mechanical model
 Battery-to-motor model
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Then, the relationship between the motor control (throttle) and the corresponding force produced by the propeller is $T = K_T*th^2$, with $K_T$ a coefficient depending on the propulsion chain (battery, ESC, motor and the propeller), and $th$ the throttle applied to the ESC, with $th$ ranging between $0$ and $2000$.
-The condition for a steady hover is noted $_{eq}$.
-Considering a small throttle control around the throttle value for steady hover:
-$th = th_{eq} + th_{control}$, then $T \approx K_1*th_{control}-K_T*{th_{eq}}^2$ with $K_1 = 2*K_T*th_{eq}$.
-Finally, the angular velocity is linear with the throttle:
-$N = K_V \frac{U_0}{2000} th_{eq}$
+In this section we provide the relationship between the motor rotation velocity and the throttle. This relationship depends on the battery, the ESC and the motor: $N = K_V \frac{U_0}{2000} th$ with $N$ the motor rotation velocity in $rpm$, $K_V$ a characteristic of the motor in $rpm/V$ and $U_0$ the battery voltage, assumed constant (its internal resistance is neglected). 
 
 
 Propeller model
 ^^^^^^^^^^^^^^^
 
+It is crucial to establish the relationship between the propeller thrust and the throttle.
+
 The propeller aerodynamics is modelled by the following parameters:
 
   * The thrust coefficient $C_T = \frac{3600 * T}{\rho N^2 D^4}$, with $T$ the propeller thrust and $\rho = \frac{P_{atm}}{R T_{air}}$
 
-  * The power coefficient $C_P = \frac{60^3 * P_{aero}}{\rho N^3 D^5}$, with $P_{aero} = \frac{2 \pi}{60} N Q$, with $Q$ is the propeller torque in $N.m$ and N the angular velocity in $tr.min^{-1}$.
+  * The power coefficient $C_P = \frac{60^3 * P_{aero}}{\rho N^3 D^5}$, with $P_{aero} = \frac{2 \pi}{60} N Q$, with $Q$ is the propeller torque in $N.m$ and N the angular velocity in $rpm$.
 
   * $T_I$ is the force produced by propeller $I$
 
-  * $Q = K_Q T$
+  * $Q = K_Q * T$
 
 So:
 
@@ -48,10 +45,52 @@ So:
   K_Q = \frac{1}{2 \pi} \frac{C_P}{C_T} D
   :label: eq_tri_kq
 
-As a result, $K_T$, $K_1$ and $K_Q$, which control the UAV dynamic in hovering, can be determined from the propeller geometry, angular velocity and the $C_T$ and $C_P$ coefficients. These coefficients were measured for several propellers as a function of the angular velocity in `Link UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_.
-Note that these coefficients can show significant variations as a function of the angular velocity and thus cannot be considered as constant. They need to be determined at the angular velocity allowing steady hover ($_eq$ condition).
+The condition for a steady hover is noted $_{eq}$, and the user input is noted $_{usr}$.
 
+Propeller theory predicts that thrust is proportional to the square of the rotation velocity, the latter being proportional to the throttle. For a real propeller, it is not strictly valid: 
+
+.. math::
+  T \approx K_T * th^2
+  :label: eq_thrust_vs_th
+
+with $K_T$ depending on the entire propulsion chain and on the rotation velocity (though we expect the latter dependency being small).
+
+
+Small throttle order around a constant input
+""""""""""""""""""""""""""""""""""""""""""""
+
+Considering a small throttle control around a constant throttle value, we linearize the thrust around this constant value. For $th = th_{0} + th_{control}$, then $T \approx K_1*th_{control}-K_T*{th_{0}}^2$ with $K_1 = 2*K_T*th_{0}$.
+
+
+General relationship between thrust and throttle
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+We want to find the throttle value allowing to obtain a given thrust.
+We are interested in the throttle value relative to a given throttle $th_0$ (which may be the user input). Based on :eq:`eq_thrust_vs_th`, we have: 
+
+.. math::
+  \frac{th}{th_0} \approx \sqrt{\frac{T}{T_0}}
+  :label: throttle_ratio
+
+As a result, $K_T$, $K_1$ and $K_Q$, which control the UAV dynamic in hovering, can be determined from the propeller geometry, angular velocity and the $C_T$ and $C_P$ coefficients. These coefficients were measured for several propellers as a function of the angular velocity in `Link UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_.
+Note that these coefficients depend on the angular velocity and cannot be considered strictly constants. We will assume them constant and will determine them at the angular velocity allowing steady hover ($_eq$ condition).
 For a $10 x 5 inch$ APC thin electric propeller, $C_T = 0.095$ and $C_P = 0.037$.
+
+We compare :eq:`throttle_ratio` with real values extracted from the experimental database.
+
+.. _fig_th_ratio_theo:
+.. figure:: figs/th_ratios_theo.png
+  :width: 75%
+
+  throttle ratios computed from :eq:`throttle_ratio` corresponding to thrust ratio $\frac{{T_{eq}}_A}{m*g/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$
+
+
+.. figure:: figs/th_ratios_database.png
+  :width: 75%
+
+  throttle ratios computed from database corresponding to thrust ratios $\frac{{T_{eq}}_A}{m*g/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$.
+
+The error between the measured throttle ratios and the analytical ones is less than $1 \%$, which means that we can use the analytical ones (which have the advantage of not depending on the total thrust).
 
 
 Hovering

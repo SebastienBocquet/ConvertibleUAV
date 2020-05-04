@@ -14,7 +14,16 @@ To ensure the flight of the quadplane, several functionalities need to be added:
   - control of the motor tilting
   - control of quadplane attitude during hovering
 
-In the following, we assume that pwm inputs and outputs range between 2000 to 4000.
+
+Conventions
+-----------
+
+The raw pwm inputs and the final pwm outputs range between $[2000; 4000]$.
+However, computations are performed in practice on scaled pwm values such that neutral position corresponds to zero pwm. 
+In the following, the pwm values that will be manipulated are scaled to range between $[-1000; 1000]$ for all channels except for the motor throttle which ranges between $[0; 2000]$. 
+
+Subscript $_{eq}$ denotes the equilibrium state of the tricopter (zero forces and moments).
+Subscript $_{usr}$ denotes a user input.
 
 
 Increase of heartbeat rate
