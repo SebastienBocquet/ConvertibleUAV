@@ -5,9 +5,26 @@ Configuration
 -------------
 
 The chosen aircraft configuration is a tilt-rotor quadplane.
-It is based on a 1.8m span RC glider modified to receive an arm on each wing.
-Each arm is equipped with two motors. The front motors can tilt around the pitch axis.
-The aerodynamics is pre-designed with `Link PredimRC <http://rcaerolab.eklablog.com/predimrc-p1144024>`_
+It is based on a 1.8m span RC glider modified to receive three motors.
+The two front motors are placed on two arms fixed perpendicularly to the wings.
+A rearward motor is fixed on the fuselage in front of the rudder.
+The front motors can tilt around the pitch axis in order to ensure both hovering and conventional flight.
+
+.. figure:: figs/tricopter_pict.png
+  :width: 50%
+
+  Global view of the VTOL tricopter prototype.
+
+.. figure:: figs/tilt_mechanism.png
+  :width: 50%
+
+  Tilt rotor mechanism.
+
+.. figure:: figs/udb5_mounting.png
+  :width: 50%
+
+  The UDB5 board is mounted in the fuselage, below the wing.
+  The magnetometer is visible below the wing.
 
 
 Mechanical model
@@ -74,21 +91,21 @@ We are interested in the throttle value relative to a given throttle $th_0$ (whi
 
 As a result, $K_T$, $K_1$ and $K_Q$, which control the UAV dynamic in hovering, can be determined from the propeller geometry, angular velocity and the $C_T$ and $C_P$ coefficients. These coefficients were measured for several propellers as a function of the angular velocity in `Link UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_.
 Note that these coefficients depend on the angular velocity and cannot be considered strictly constants. We will assume them constant and will determine them at the angular velocity allowing steady hover ($_eq$ condition).
-For a $10 x 5 inch$ APC thin electric propeller, $C_T = 0.095$ and $C_P = 0.037$.
+For a $10 \times 5 inch$ APC thin electric propeller, $C_T = 0.095$ and $C_P = 0.037$.
 
 We compare :eq:`throttle_ratio` with real values extracted from the experimental database.
 
 .. _fig_th_ratio_theo:
 .. figure:: figs/th_ratios_theo.png
-  :width: 75%
+  :width: 50%
 
-  throttle ratios computed from :eq:`throttle_ratio` corresponding to thrust ratio $\frac{{T_{eq}}_A}{m*g/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$
+  throttle ratios computed from :eq:`throttle_ratio` corresponding to thrust ratio $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$
 
 
 .. figure:: figs/th_ratios_database.png
-  :width: 75%
+  :width: 50%
 
-  throttle ratios computed from database corresponding to thrust ratios $\frac{{T_{eq}}_A}{m*g/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$.
+  throttle ratios computed from database corresponding to thrust ratios $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$.
 
 The error between the measured throttle ratios and the analytical ones is less than $1 \%$, which means that we can use the analytical ones (which have the advantage of not depending on the total thrust).
 
@@ -175,5 +192,97 @@ $T_I = T_{eq_I} + \delta_{T_I}$ is the force produced by propeller $I$, where $_
        :label: eq_tri_beta
 
 
+.. _transition_manoeuver:
+
 Transition
 ^^^^^^^^^^
+
+While the equilibrium state of the UAV during a fixed hovering can be described analytically as done in the previous section, the transition manoeuver requires a numerical tool to solve the dynamic equations.
+
+The procedure to run the model is:
+
+  * define an initial flight condition:
+
+    - environment (wind, altitude)
+    - UAV controls (elevator, thrust, tilt angle)
+
+  * compute the corresponding UAV state (pitch angle, velocity) in earth frame
+
+  * define the controls applied during the flight. They can be of two types:
+  
+    - step
+    - linear ramp
+
+  * solve the dynamic equations starting from this initial UAV state
+
+  * plot the UAV coordinates, velocity, attitude (angles) in earth frame versus time
+
+The UAV controls include (as a starting point, assuming roll and yaw angles remain zero):
+
+  * tilt angle of each motor $\beta_i$ with i=1,2,3
+  * thrust of each motor $T_i$ with i=1,2,3
+  * elevator angle
+
+
+Example
+"""""""
+
+.. figure:: figs/transition_controls.png
+  :width: 100%
+
+  Transition manoeuver from hovering to conventional flight.
+  The elevator, thrust and tilt angle is adjusted to obtain a constant altitudez and constant pitch angle $\alpha$. These controls are unphysical examples since we do not know at the moment which control to apply to obtain a smooth transition.
+
+A hovering to conventional flight manoeuver is illustrated above. The user specifies controls based on linear ramps and steps. The dynamic solver provides the time solution of the UAV attitude, velocity and coordinates.
+As a further step, this model may be part of an optimization loop to find:
+
+  - the best controls allowing the smoothest manoeuver (say no altitude variation, no pitch angle variation, limited acceleration).
+
+  - the best motor location, propeller and wing geometry to obtain maximal flight time
+    
+  - the best control parameter (PID or other controller type on elevator, ailerons, thrust and tilt angles) to obtain a given wind resistance (i.e. limited variation of attitude and trajectory under a wind gust).
+
+
+Expected accuracy
+"""""""""""""""""
+
+The accuracy is measured on the error between the simulated UAV trajectory and attitude and the real (experimental) ones. We are especially interested in the maximal error magnitude on the UAV attitude (angles) because a large error on the UAV angles, even briefly during the manoeuver, may lead to an uncontrolled situation.
+
+
+Expected run time
+"""""""""""""""""
+
+The final objective is to integrate this model into an optimization loop. Thus the computation time is determined by the number of optimization iterations performed within one night (say 12 hours).
+Considering a response-surface method, and three parameters to optimize, we need around $5^3=125$ simulations to fill the variable space. So $12 * 60 / 125 \approx 7 min$. To optimize for four parameters, we obtain $12 * 60 / 5^4 = 1min$. In practise, each control require at least two parameters (for a ramp: duration of the ramp and final value). So we will certainly need at least four parameeters. So the computational time per simulation should be around one minute.
+
+
+Limitations
+"""""""""""
+
+We will start with a reduced number of degree of freedom, only allowing motion around the pitch axis, x and z.
+
+
+Ressources
+""""""""""
+
+The UAV aerodynamic model in conventional flight may be based on `PredimRC <http://rcaerolab.eklablog.com/predimrc-p1144024>`_, which is entirely based on analytical formulas.
+The propeller aerodynamic model needs to be accurate and may be based on the `UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_.
+
+
+Validation
+""""""""""
+
+The following test cases can be used to validate the model.
+
+Conventional flight:
+
+  - constant level and velocity
+  - engines off (glider)
+
+Hovering:
+
+  - hovering at fixed position (thrust equals weight)
+  - pure vertical displacement
+  - pure horizontal displacement
+
+The above test cases do not include variation of UAV attitude. We could include a test involving a step order on the elevator, and measure the damping time of the pitch angle oscillations. The problem is to find a reliable reference data to compare with.
