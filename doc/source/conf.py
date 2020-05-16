@@ -37,7 +37,8 @@ extensions = [
     "sphinx.ext.graphviz",
     'sphinx_math_dollar',
     'sphinx.ext.mathjax',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    'sphinxcontrib.plantuml'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,6 +58,9 @@ numfig = True
 # macros
 rst_prolog = """
   """
+
+# java lib for plantuml
+plantuml = 'java -jar /home/sbocquet/Documents/work/vtol/ConvertibleUAV/doc/utils/plantuml.jar'
 
 # -- Options for HTML output -------------------------------------------------
 
