@@ -1,0 +1,16 @@
+name: uavDoc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - make
+  - python
+  - sphinx == 2.2.0
+  - sphinx-autodoc-typehints
+  - sphinx_rtd_theme
+  - breathe=4.13.0
+  - doxygen=1.8.16
+  - graphviz
+  - sphinx-math-dollar
+  - sphinxcontrib-bibtex
+  - sphinxcontrib-plantuml
