@@ -59,9 +59,6 @@ numfig = True
 rst_prolog = """
   """
 
-# java lib for plantuml
-plantuml = 'java -jar /home/sbocquet/Documents/work/vtol/ConvertibleUAV/doc/utils/plantuml.jar'
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

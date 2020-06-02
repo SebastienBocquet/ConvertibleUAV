@@ -28,36 +28,6 @@ of such drones.
 In this project we propose to prototype a solution to overcome this limitation. It is based on a tricopter tilt rotor configuration, with an embedded control software.
 
 
-Structure of the project
-------------------------
-
-The project is composed of:
-
-  * a control software
-
-  * a flight dynamic model for a tilt rotor convertible plane.
-  
-  * a documentation of the two above elements, including a desription of the forces and moments acting on a generic tilt rotor tricopter VTOL.
-
-
-How to install
---------------
-
-Flight dynamic model
-~~~~~~~~~~~~~~~~~~~~
-
-The necessary dependencies to this Python code will be installed within a conda environment: 
-
-.. code-block:: console
-
-  cd uav_model
-  make environment
-  activate uav_model
-  make develop
-
-Then install PyFME with pip as explained on their Github: `https://github.com/AeroPython/PyFME`. It will install PyFME in the pyUavModel environment.
-
-
 How to generate the documentation
 ---------------------------------
 
@@ -110,14 +80,22 @@ Open the generated Sphynx documentation :
 Double click on :  build/html/index.html
 
 
-How to run the tests
+UAV Control Software
 --------------------
 
+This control software is based on MatrixPilot `https://github.com/MatrixPilot/MatrixPilot`. Follow this link to obtain the user guide, the compatible boards, and how to build and flash the code on the board.
+
+
+How to run the tests
+~~~~~~~~~~~~~~~~~~~~
+
+This software can be tested on a PC prior going to fly.
 Activate the simulation in the loop mode: in options.h, set SILSIM to 1.
 
 Assuming googletest is installed:
 
 .. code-block:: console
 
+  cd matrixpilot
   make
   ./matrixpilot

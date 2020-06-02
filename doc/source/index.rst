@@ -13,7 +13,6 @@ Contents:
 
    high-level-requirements
    airframe
-   dynamic_model
    hardware
    software
    ressources
