@@ -1,21 +1,20 @@
-SHELL=/bin/bash
-DOC_DIR=source
-CONDA_CONFIG_DIR=tools/conda
+# Minimal makefile for Sphinx documentation
+#
 
-environment:
-	conda config --add channels conda-forge
-	conda config --set channel_priority strict
-	conda env create --file $(CONDA_CONFIG_DIR)/environment.yml
+# You can set these variables from the command line, and also
+# from the environment for the first two.
+SPHINXOPTS    ?=
+SPHINXBUILD   ?= sphinx-build
+SOURCEDIR     = source
+BUILDDIR      = build
 
-# all the following targets shall be executed in the opm conda environment
+# Put it first so that "make" without argument is like "make help".
+help:
+	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: doc
-doc:
-	make -C $(DOC_DIR) html
+.PHONY: help Makefile
 
-doc-pdf:
-	make -C $(DOC_DIR) latexpdf
-
-doc-clean:
-	# clean sphinx build
-	make -C $(DOC_DIR) clean
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%: Makefile
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
