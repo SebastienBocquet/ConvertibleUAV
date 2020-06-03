@@ -38,7 +38,6 @@ extensions = [
     'sphinx_math_dollar',
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
-    'sphinxcontrib.plantuml'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

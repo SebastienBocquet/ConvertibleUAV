@@ -13,4 +13,3 @@ dependencies:
   - graphviz
   - sphinx-math-dollar
   - sphinxcontrib-bibtex
-  - sphinxcontrib-plantuml
