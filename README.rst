@@ -5,10 +5,9 @@ ConvertibleUAV
 :Description: Prototype a VTOL tilt rotor    
 :Website: https://github.com/SebastienBocquet/ConvertibleUAV.git
 
-ConvertibleUAV
 
 Long endurance (> 1h) drones able to perform a mission autonomously while taking-off and landing in a small area are desirable for 
-applications such as: surveillance and delivery in forest, mountain or urban areas) and monitoring (crops, construction works).
+applications such as observation of animal species, monitoring crops or cattles in remote areas.
 
 Current solutions include multirotors and fixed-wing drones. However, the most efficient multirotors only provide about 25min endurance, 
 with a limited forward speed, leading to a limited distance range. Fixed-wing drones can provide a long range and endurance. 
@@ -28,26 +27,37 @@ of such drones.
 In this project we propose to prototype a solution to overcome this limitation. It is based on a tricopter tilt rotor configuration, with an embedded control software.
 
 
-How to generate the documentation
----------------------------------
+Documentation
+-------------
 
-LINUX
-~~~~~
+In the documentation, an effort is made to describe:
+
+  - the airframe construction choices, possible improvements and lessons learnt.
+
+  - the mechanical equations during a fixed hovering of the UAV, allowing to determine the thrust of each propulsion, from which the throttle of each engine is deduced.
+    
+  - an analogy on the moments acting on the frame between a quadcopter and the tricopter. This analogy allows to obtain the same moments between a quadcopter and the tricopter, for exactly the same parameters of the control software. The benefit is that if the user has tuned a controller for a quadcopter, the same controller with the same gains can be used on the tricopter and it will give the same control stability (the moments and thus the angular accelerations for a given input control order will be the same). It avoids the tedious task of tuning the controller when changing the tricopter size or motor loations.
+
+The mechanical equations only describe the behaviour at equilibrium and in hovering. The critical phase of transitioning from hovering to forward flight and vice-versa is not described at the moment. Indeed, it is inherently unsteady and requires a meachnical simulation tool. This work is in progress within another project. 
+
+The documentation is accessible on `readthedocs <https://convertibleuav.readthedocs.io/en/latest/>`_.
+
+
+How to build the documentation locally on Linux
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Miniconda version 2019.07 or above is required, it can be
 downloaded from https://docs.conda.io/en/latest/miniconda.html
-
-Download plantuml.jar file from `https://plantuml.com/fr/`.
-In doc/source/conf.py, set the path to the plantuml.jar file on the line starting by plantuml.
 
 Then, execute the following commands
 
 .. code-block:: console
 
-  cd doc
+  cd docs/tools/conda
   make environment
   conda activate uavDoc
-  make doc
+  cd ../..
+  make html
 
 and open the following path in a web browser from
 
@@ -56,8 +66,8 @@ and open the following path in a web browser from
   build/html/index.html
 
 
-WINDOWS 10
-~~~~~~~~~~
+How to build the documentation locally on Windows 10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 conda is required (version 4.8.2 only tested), but Miniconda would probably
 also work (Miniconda version 2019.07 or above is required, it can be
@@ -68,13 +78,13 @@ Set and activate the conda/miniconda environment : to do once by working conda s
 
 .. code-block:: console
 
-  cd doc
+  cd docs
   set CONDA_CONFIG_DIR=tools/conda
   conda config --add channels conda-forge
   conda config --set channel_priority strict
   conda env create --file %CONDA_CONFIG_DIR%/environment.yml
   conda activate uavDoc
-  make -C %DOC_DIR% html
+  make html
 
 Open the generated Sphynx documentation :
 Double click on :  build/html/index.html
@@ -83,7 +93,7 @@ Double click on :  build/html/index.html
 UAV Control Software
 --------------------
 
-This control software is based on MatrixPilot `https://github.com/MatrixPilot/MatrixPilot`. Follow this link to obtain the user guide, the compatible boards, and how to build and flash the code on the board.
+This control software is based on `MatrixPilot <https://github.com/MatrixPilot/MatrixPilot>`_. Follow this link to obtain the user guide, the compatible boards, and how to build and flash the code on the board.
 
 
 How to run the tests
@@ -99,3 +109,31 @@ Assuming googletest is installed:
   cd matrixpilot
   make
   ./matrixpilot
+
+
+Contributing
+------------
+
+I would be glad to receive contributions on the following points:
+
+  - improvement of redundancy and safety, both on the frame and the software.
+
+  - other applications than those mentioned above for such a UAV.
+
+  - improvement of aerodynamic design for larger flight time, and better resistance to wind
+
+  - migration of the software to `Ardupilot <https://ardupilot.org/ardupilot/>`_
+
+
+Authors
+-------
+
+Sebastien Bocquet
+
+
+Licence
+-------
+
+This project is released under the Apache 2.0 licence.
+
+This documentation and software is provided without qualification standards of professional embedded softwares for aeronautical applications. Users are aware that they engage their own responsability in case of accidents and injuries.
