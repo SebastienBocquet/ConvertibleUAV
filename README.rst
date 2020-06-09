@@ -1,9 +1,17 @@
 ConvertibleUAV
 ==============
-     
-:Name: ConvertibleUAV  
-:Description: Prototype a VTOL tilt rotor    
-:Website: https://github.com/SebastienBocquet/ConvertibleUAV.git
+
+
+.. inclusion-marker-do-not-remove
+
+
+.. image:: https://img.shields.io/readthedocs/pytest-executable/stable
+  :target: https://convertibleuav.readthedocs.io/en/latest/?badge=latest
+  :alt: Read The Docs Status   
+
+.. image:: https://img.shields.io/github/issues/SebastienBocquet/ConvertibleUAV
+
+.. image:: https://img.shields.io/github/license/SebastienBocquet/ConvertibleUAV
 
 
 Long endurance (> 1h) drones able to perform a mission autonomously while taking-off and landing in a small area are desirable for 
@@ -114,7 +122,7 @@ Assuming googletest is installed:
 Contributing
 ------------
 
-I would be glad to receive contributions on the following points:
+We would be glad to receive contributions on the following points:
 
   - improvement of redundancy and safety, both on the frame and the software.
 
@@ -122,13 +130,17 @@ I would be glad to receive contributions on the following points:
 
   - improvement of aerodynamic design for larger flight time, and better resistance to wind
 
-  - migration of the software to `Ardupilot <https://ardupilot.org/ardupilot/>`_
+  - migration of the software to `Ardupilot <https://ardupilot.org/ardupilot/>`_. Indeed, we are
+
+  - correction of errors or improvement in documentation clarity.
+
+Please contribute through the `Github issue tracker`_. We will provide a more interactive solution on the near future.
 
 
 Authors
 -------
 
-Sebastien Bocquet
+-  `Sebastien Bocquet`_ - *Project creator and maintainer*
 
 
 Licence
@@ -137,3 +149,7 @@ Licence
 This project is released under the Apache 2.0 licence.
 
 This documentation and software is provided without qualification standards of professional embedded softwares for aeronautical applications. Users are aware that they engage their own responsability in case of accidents and injuries.
+
+
+.. _Github issue tracker: https://github.com/SebastienBocquet/ConvertibleUAV/issues    
+.. _Sebastien Bocquet: https://github.com/SebastienBocquet
