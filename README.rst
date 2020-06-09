@@ -6,7 +6,7 @@ ConvertibleUAV
 
 
 .. image:: https://img.shields.io/readthedocs/pytest-executable/stable
-  :target: https://convertibleuav.readthedocs.io/en/latest/?badge=latest
+  :target: https://convertibleuav.readthedocs.io/en/develop/?badge=develop
   :alt: Read The Docs Status   
 
 .. image:: https://img.shields.io/github/issues/SebastienBocquet/ConvertibleUAV
