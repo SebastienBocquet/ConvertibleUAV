@@ -9,7 +9,7 @@ Quadcopter +
 ------------
 
 Mechanical model
-...............
+................
 
 .. figure:: figs/quadcopter_plus.png
    :scale: 100 %

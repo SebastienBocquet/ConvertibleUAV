@@ -11,6 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   README
    high-level-requirements
    airframe
    hardware
