@@ -130,7 +130,7 @@ We would be glad to receive contributions on the following points:
 
   - improvement of aerodynamic design for larger flight time, and better resistance to wind
 
-  - migration of the software to `Ardupilot <https://ardupilot.org/ardupilot/>`_. Indeed, we are
+  - migration of the software to `Ardupilot <https://ardupilot.org/ardupilot/>`_. Indeed, this migration will be necessary in the near future due to limitations of the UavDevBoard 5 hardware (number of output ports) limited board availability.
 
   - correction of errors or improvement in documentation clarity.
 
