@@ -48,7 +48,7 @@ In the documentation, an effort is made to describe:
 
 The mechanical equations only describe the behaviour at equilibrium and in hovering. The critical phase of transitioning from hovering to forward flight and vice-versa is not described at the moment. Indeed, it is inherently unsteady and requires a meachnical simulation tool. This work is in progress within another project. 
 
-The documentation is accessible on `readthedocs <https://convertibleuav.readthedocs.io/en/latest/>`_.
+The documentation is accessible on `readthedocs <https://convertibleuav.readthedocs.io/en/develop/>`_.
 
 
 How to build the documentation locally on Linux
