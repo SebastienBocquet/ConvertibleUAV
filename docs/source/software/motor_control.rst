@@ -1,12 +1,55 @@
 Motor control
 =============
 
+.. _motor_tilt:
+
+Motor tilt control
+------------------
+
+.. figure:: ../figs/motor_tilt.png
+   :scale: 50 %
+
+   Motor tilting. $\beta$ is the tilt angle in rad. $\beta=0$ corresponds to the vertical position.
+
+Motor tilting is commanded by a servomotor. This servomotor has a given angular range (in general $120^{\circ}$ between minimum pwm (2000) to maximum pwm (4000). The desired motor tilt angle range between $TILT\_MIN\_ANGLE\_DEG$ and $TILT\_MAX\_ANGLE\_DEG$. Note that $TILT\_MIN\_ANGLE\_DEG$ needs to be a small negative angle in order to allow yaw control (see :ref:`tri_attitude_control`), so the tilt angular range is around $100^{\circ}$. In order to keep maximal accuracy, we impose that the anglular range corrresponds to the full pwm range $[2000;4000]$. In addition to $TILT\_MIN\_ANGLE\_DEG$ and $TILT\_MAX\_ANGLE\_DEG$, we introduce:
+
+  * a coefficient $TILT\_THROW\_RATIO$ to control the angular amplitude of the servomotor
+  * a reversed control parameter allows to control the servo displacement direction
+  * a $TRANSITION\_ANGLE$ in radian that controls the switch between the hovering and the normal mode
+
+.. math:: tilt\_pwm = (input\_pwm\_tilt-3000) TILT\_THROW\_RATIO
+   :label: eq_manual_tilt
+
+The final output pwm control is:
+
+$output\_tilt\_pwm = 3000 + REVERSE\_TILT\_CONTROL * tilt\_pwm$
+
+The relationship between the tilt angle $\beta$ and the tilt pwm is:
+
+.. math::
+  \beta \frac{180}{\pi} = \frac{TILT\_MAX\_ANGLE\_DEG - TILT\_MIN\_ANGLE\_DEG}{2000*TILT\_TRHOW\_RATIO} tilt\_pwm + \frac{TILT\_MAX\_ANGLE\_DEG + TILT\_MIN\_ANGLE\_DEG}{2}
+  :label: eq_manual_tilt_angle
+
+and conversely:
+
+.. math::
+  tilt\_pwm = \frac{1000*TILT\_THROW\_RATIO}{TILT\_MAX\_ANGLE\_DEG - TILT\_MIN\_ANGLE\_DEG} (2 \beta \frac{180}{\pi}- TILT\_MIN\_ANGLE\_DEG - TILT\_MAX\_ANGLE\_DEG)
+  :label: eq_manual_tilt_pwm
+
+The tilt pwm output corresponding to $\beta=0$ is:
+
+.. math::
+  output\_tilt\_pwm_0 = 3000 - 1000 * TILT\_THROW\_RATIO \frac{TILT\_MIN\_ANGLE\_DEG+TILT\_MAX\_ANGLE\_DEG}{TILT\_MAX\_ANGLE\_DEG-TILT\_MIN\_ANGLE\_DEG}
+
+The hovering mode is activated if $tilt\_pwm > tilt\_pwm\_transition$, the latter being determined from :eq:`eq_manual_tilt_pwm` with $\beta=TRANSITION\_ANGLE$.
+
+
 Once the roll\_quad\_control, pitch\_quad\_control and yaw\_quad\_control are computed, the final pwm outputs sent to each motor's ESC are computed as follows.
 Note that the following motor control allow to obtain the same control moment for the three following motor configurations.
 
 
-Tricopter
----------
+Motor throttle control
+----------------------
 
 For pitch and roll control:
 

@@ -1,34 +1,5 @@
-Airframe
-========
-
-Configuration
--------------
-
-The chosen aircraft configuration is a tilt-rotor quadplane.
-It is based on a 1.8m span RC glider modified to receive three motors.
-The two front motors are placed on two arms fixed perpendicularly to the wings.
-A rearward motor is fixed on the fuselage in front of the rudder.
-The front motors can tilt around the pitch axis in order to ensure both hovering and conventional flight.
-
-.. figure:: figs/tricopter_pict.png
-  :width: 50%
-
-  Global view of the VTOL tricopter prototype.
-
-.. figure:: figs/tilt_mechanism.png
-  :width: 50%
-
-  Tilt rotor mechanism.
-
-.. figure:: figs/udb5_mounting.png
-  :width: 50%
-
-  The UDB5 board is mounted in the fuselage, below the wing.
-  The magnetometer is visible below the wing.
-
-
 Mechanical model
-----------------
+================
 
 
 Battery-to-motor model
@@ -96,13 +67,13 @@ For a $10 \times 5 inch$ APC thin electric propeller, $C_T = 0.095$ and $C_P = 0
 We compare :eq:`throttle_ratio` with real values extracted from the experimental database.
 
 .. _fig_th_ratio_theo:
-.. figure:: figs/th_ratios_theo.png
+.. figure:: ../figs/th_ratios_theo.png
   :width: 50%
 
   throttle ratios computed from :eq:`throttle_ratio` corresponding to thrust ratio $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$
 
 
-.. figure:: figs/th_ratios_database.png
+.. figure:: ../figs/th_ratios_database.png
   :width: 50%
 
   throttle ratios computed from database corresponding to thrust ratios $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$.
@@ -113,7 +84,7 @@ The error between the measured throttle ratios and the analytical ones is less t
 Hovering
 ^^^^^^^^
 
-.. figure:: figs/tricopter.png
+.. figure:: ../figs/tricopter.png
    :scale: 100 %
 
    Tricopter configuration.
@@ -158,7 +129,7 @@ pitch and roll moment equilibrium are imposed. With this choice, we obtain:
        \beta_{eq} = \frac{K_Q cos(\alpha)}{R_B sin(\alpha)}
        :label: eq_beta_eq
 
-We need to determine $K_Q$ from :math:numref:`eq_tri_kq`. For this we need to determine $C_T$ at equlibirum condition. From :math:numref:`eq_tri_equil_pitch` and :math:numref:`eq_tri_equil_z`: $T_{eq_B} = \frac{mg R_A cos(\alpha)}{R_B + R_A cos(\alpha)}$. By definition, $T = C_T(N) * \rho * N^2 * D^4$. This is an implicit relationship in $N$. We can explicitly determine $N$ by using the averaged value of $C_T$: $N_{eq} = \sqrt{\frac{T_{eq}}{<C_T> \rho D^4}}$. Then we can determine ${K_Q}_{eq}$ from $C_T(N_{eq})$.
+We need to determine $K_Q$ from :math:numref:`eq_tri_kq`. For this we need to determine $C_T$ at equilibirum condition. From :math:numref:`eq_tri_equil_pitch` and :math:numref:`eq_tri_equil_z`: $T_{eq_B} = \frac{mg R_A cos(\alpha)}{R_B + R_A cos(\alpha)}$. By definition, $T = C_T(N) * \rho * N^2 * D^4$. This is an implicit relationship in $N$. We can explicitly determine $N$ by using the averaged value of $C_T$: $N_{eq} = \sqrt{\frac{T_{eq}}{<C_T> \rho D^4}}$. Then we can determine ${K_Q}_{eq}$ from $C_T(N_{eq})$.
 
 
 .. _tri_attitude_control:
@@ -166,11 +137,22 @@ We need to determine $K_Q$ from :math:numref:`eq_tri_kq`. For this we need to de
 Attitude control
 """"""""""""""""
 
+Analogy with a quadcopter
+-------------------------
+
+For a given control input, it is useful to compare the moments applied on the tricopter compared to a classical quadcopter.
+Indeed, assuming we have a control software tuned on a quadcopter (PID gains ensuring good stability and reactivity), making
+an analogy with the tricopter allows to directly use this control software with the same tuning on the tricopter.
+The moments on the quadcopter are given in :ref:`quad_x_attitude_control`.
+
+In the following, the moments applied on the tricopter are given as a function of a coefficient, and made equal to those applied on a quadcopter. 
+It allows to determine the coefficient ensuring equal moments between the tricopter and the quadcopter.
+
 $T_I = T_{eq_I} + \delta_{T_I}$ is the force produced by propeller $I$, where $_{eq}$ is the value at equilibrium (the UAV is not moving) and $\delta_T$ is the value due to attitude control. $\delta_T$ is assumed small compared to $T$.
 
   * $M_{roll} = R_A*sin(\alpha)*cos(\beta)*(-\delta_{T_A} + \delta_{T_C})$.
     To ensure a constant thrust, we impose that $\delta_{T_A} = -\delta_{T_C}$.
-    We also would like the roll moment to be equal to a quadcopter x configuration of arm length $R_X$ (see :math:numref:`eq_quadx_square_mroll`)
+    We also would like the roll moment to be equal to a quadcopter x configuration of arm length $R_X$ (see :math:numref:`eq_quadx_mroll`)
     Thus, we can pose: $M_{roll} = 2*R_A*sin(\alpha)*cos(\beta)*K_1*th_{{control}_A}$, with $th_{{control}_A} = -K_{roll}*roll\_quad\_control$, $th_{{control}_C} = -th_{{control}_A}$, $th_{{control}_B} = 0$.
     The $cos(\beta)$ term ensures that the roll moment remains constant as the motors are tilted forward (it increases the control by a coefficient $1/cos(\beta)$). But as the motor tilts, the relative wind velocity seen by the UAV necessarily increases, and roll control may also be obtained by moving the ailerons. Considering this point and also the fact that the $1/cos(\beta)$ term complicates the implementation, we decide to remove this term. As a result, the roll control (due to the motors, not the ailerons) will decrease as the motors tilt forward.
     As a result, the final roll control is $K_{roll} = \frac{\sqrt{2}*R_X}{R_A*sin(\alpha)}$
@@ -185,16 +167,71 @@ $T_I = T_{eq_I} + \delta_{T_I}$ is the force produced by propeller $I$, where $_
     .. math:: M_{yaw} = \beta^\prime*2*T_{eq_A}*R_A*sin(\alpha)
        :label: eq_tri_myaw
 
-    We impose that this torque is equal to the one of a quadcopter x configuration (see :math:numref:`eq_quadx_square_myaw`), which leads to:
+    We impose that this torque is equal to the one of a quadcopter x configuration (see :math:numref:`eq_quadx_myaw`), which leads to:
 
     .. math::
        \beta^\prime = \frac{-2*K_Q*K_1}{T_{eq_A}*R_A*sin(\alpha)} yaw\_quad\_control
        :label: eq_tri_beta
 
 
+.. _quad_x_attitude_control:
+
+Quadcopter X
+------------
+
+.. figure:: ../figs/quadcopter_x.png
+   :scale: 100 %
+
+   Quadcopter X configuration.
+
+
+For an X quadcopter configuration motor A 
+at North-East (A, B, C, D being placed anticlockwise).
+The center of gravity G is at the intersection of AC and BD.
+We assume that motors A and C turn a counter-clockwise (CCW) propeller, and 
+motors B and D a clockwise (CW) propeller.
+
+At equilibrium:
+
+  * $F = T_{eq_A} + T_{eq_B} + T_{eq_C} + T_{eq_D} = m*g$
+
+  * The roll moment is: $M_{roll} = R_R*(-T_{eq_A}-T_{eq_B}+T_{eq_C}+T_{eq_D}) = 0$.
+  
+  * The pitch moment is: $M_{pitch} = R_P*(T_{eq_A}+T_{eq_D}-T_{eq_B}-T_{eq_C}) = 0$
+
+  * Concerning the yaw moment, the same relationship as for the + configuration applies:
+    $-T_{eq_A} + T_{eq_B} - T_{eq_C} + T_{eq_D} = 0$
+
+If we multiply the roll moment equation by $R_P$, and the pitch moment equation by $R_R$, and we sum the two equations, we obtain $T_{eq_B} = T_{eq_D}$.
+And if we subtract them: $T_{eq_A} = T_{eq_C}$
+So the same relationships as for the + configurations are obtained, leading to 
+$T_{eq_A} = T_{eq_B} = T_{eq_C} = T_{eq_D}$ with $T_{eq_A} = m*g/4$ using the yaw equation.
+
+Then for pitch and roll controls,
+imposing that the attitude control has no effect on the vertical equilibrium:
+($\delta_{T_A} + \delta_{T_B} + \delta_{T_C} + \delta_{T_D} = 0$):
+
+  * $M_{roll} = R_R*(-\delta_{T_A}-\delta_{T_B}+\delta_{T_C}+\delta_{T_D})$.
+    To obtain zero pitch moment, we further have $\delta_{T_A} + \delta_{T_D} - \delta_{T_B} - \delta_{T_C} = 0$. If we add with the vertical equilibrium, we obtain: $\delta_{T_D} = -\delta_{T_A}$. And if we subtract: $\delta_{T_C} = -\delta_{T_B}$. So $M_{roll} = -2*R_R*(\delta_{T_A}+\delta_{T_B})$. Further imposing zero yaw moment, we obtain $-\delta_{T_A} + \delta_{T_B} - \delta_{T_C} + \delta_{T_D} = 0$, which leads to $\delta_{T_A} = \delta_{T_B}$. Thus:
+
+    .. math:: M_{roll} = -4*R_R*\delta_{T_A} = -4*R_R*K_1*th_{{control}_A}
+      :label: eq_quadx_mroll
+
+    with $th_{{control}_B} = th_{{control}_A}$, $th_{{control}_C} = -th_{{control}_A}$ and $th_{{control}_D} = -th_{{control}_A}
+
+  * the same derivation for the pitch moment leads to $M_{pitch} = 4*R_P*\delta_{T_A} = 4*R_P*K_1*th_{{control}_A}$, with $th_{{control}_B} = -th_{{control}_A}$, $th_{{control}_C} = -th_{{control}_A}$ and $th_{{control}_D} = th_{{control}_A}$. 
+
+  * 
+    .. math:: M_{yaw} = -4*K_Q*K_1*th_{{control}_A}
+      :label: eq_quadx_myaw
+    
+    with $th_{{control}_C} = th_{{control}_A}$, $th_{{control}_B} = -th_{{control}_A}$ and $th_{{control}_D} = -th_{{control}_A}$.
+
+
+
 .. _transition_manoeuver:
 
-Transition
-^^^^^^^^^^
+Forward-flight to hovering Transition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 While the equilibrium state of the UAV during a fixed hovering can be described analytically as done in the previous section, the transition manoeuver requires a numerical tool to solve the dynamic equations. The objective is to find the tilt angle, thrust and elevator orders to obtain a smooth transition from hovering to forward flight, and vice versa.

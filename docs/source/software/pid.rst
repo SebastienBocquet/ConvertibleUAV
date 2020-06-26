@@ -10,7 +10,7 @@ PID control structure
 For the roll, pitch and yaw axis, the control is based on two PID controllers for each axis.
 The control around the yaw axis is illustrated below:
 
-.. figure:: figs/roll_control.png
+.. figure:: ../figs/roll_control.png
    :scale: 50 %
 
    PID control for roll. The pitch and yaw follow the same model.
@@ -18,7 +18,7 @@ The control around the yaw axis is illustrated below:
 The same control structure is used on the pitch and yaw axis.
 The PID controllers are constructed as shown in the following diagram:
 
-.. figure:: figs/pid.png
+.. figure:: ../figs/pid.png
    :scale: 45 %
 
    PID control.
