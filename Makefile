@@ -1,8 +1,8 @@
 CC       = g++ -std=c++11 -v
 CFLAGS   = -g -pipe -Wall -W -O0 -Wno-narrowing
-INCPATH  = -I. -I/usr/include/gtest/include -ITools/HILSIM_XPlane -ITools/MatrixPilot-SIL -IlibUDB -IlibDCM -IMatrixPilot
+INCPATH  = -I. -ITools/HILSIM_XPlane -ITools/MatrixPilot-SIL -IlibUDB -IlibDCM -IMatrixPilot
 LFLAGS   = -W
-LIBS     = -lm -lgtest -lpthread -L /usr/include/gtest/lib
+LIBS     = -lm -lpthread
 RM_FILE  = rm -f
 
 OBJECTS_DIR = ./
@@ -65,12 +65,12 @@ MPSIL_OBJECTS = \
 ./MatrixPilot/motorCntrl.o \
 \
 ./tests/test_main.o \
-./tests/attitude_control/tricopter/test_motor_tilt.o \
-./tests/attitude_control/tricopter/test_roll_pitch.o \
-./tests/attitude_control/tricopter/test_yaw.o \
-./tests/control_mode/test_control_mode.o \
-./tests/attitude_control/test_tx_linear_control.o \
-./tests/math/test_scaling.o
+# ./tests/attitude_control/tricopter/test_motor_tilt.o \
+# ./tests/attitude_control/tricopter/test_roll_pitch.o \
+# ./tests/attitude_control/tricopter/test_yaw.o \
+# ./tests/control_mode/test_control_mode.o \
+# ./tests/attitude_control/test_tx_linear_control.o \
+# ./tests/math/test_scaling.o
 
 MPCAT_TARGET   = silcat
 
