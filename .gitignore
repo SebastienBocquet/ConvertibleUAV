@@ -62,3 +62,7 @@ MatrixPilot.includes
 
 # doc build
 doc/build/
+
+# coverage
+*.gcno
+*.gcda
