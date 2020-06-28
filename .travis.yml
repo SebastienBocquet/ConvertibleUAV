@@ -8,6 +8,10 @@ git:
 compiler:
   - gcc
 
+addons:
+  apt:
+    packages: lcov
+
 before_install:
  - sudo apt-get -qq update
  - sudo apt-get install -y libgtest-dev valgrind cmake
@@ -23,4 +27,5 @@ before_install:
 # Build steps
 script: 
   - cd ${TRAVIS_BUILD_DIR}
-  - make && ./matrixpilot
+  - make test
+  - make cov
