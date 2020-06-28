@@ -27,5 +27,9 @@ before_install:
 # Build steps
 script: 
   - cd ${TRAVIS_BUILD_DIR}
+  - export CFLAGS='-g -pipe -Wall -W -O0 -Wno-narrowing --coverage'
+  - export LFLAGS='-W --coverage'
   - make test
-  - make cov
+  - ./matrixpilot-test.out
+  - lcov --capture --directory . --output-file temp.info
+  - lcov --remove temp.info "/usr/include/*" "*/include/*" "*/tests/*" --output-file coverage.info

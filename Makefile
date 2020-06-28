@@ -1,16 +1,12 @@
 CC       = g++ -std=c++11 -v
-CFLAGS   = -g -pipe -Wall -W -O0 -Wno-narrowing
 INCPATH  = -I. -I/usr/include/gtest/include -ITools/HILSIM_XPlane -ITools/MatrixPilot-SIL -IlibUDB -IlibDCM -IMatrixPilot
-LFLAGS   = -W
 LIBS     = -lm -lgtest -lpthread -L /usr/include/gtest/lib
 RM_FILE  = rm -f
 
 OBJECTS_DIR = ./
 
 
-MPSIL_TARGET  = matrixpilot.out
 MPSIL_TEST_TARGET  = matrixpilot-test.out
-MPSIL_COV_TARGET  = matrixpilot-cov.out
 
 MP_HEADERS = MatrixPilot/options.h MatrixPilot/waypoints.h MatrixPilot/flightplan-logo.h
 
@@ -85,34 +81,13 @@ first: all
 %.o: %.c $(MP_HEADERS)
 	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
 
-all: $(MPSIL_TARGET) $(MPCAT_TARGET)
-
 test: $(MPSIL_TEST_TARGET)
-	./matrixpilot-test.out
 
-
-%.o: %.c $(MP_HEADERS)
-	$(CC) -c $(CFLAGS) --coverage $(INCPATH) -o $@ $<
-
-cov: $(MPSIL_COV_TARGET)
-	./matrixpilot-cov.out
-	lcov --capture --directory . --output-file temp.info
-	lcov --remove temp.info "/usr/include/*" "*/include/*" "*/tests/*" --output-file coverage.info
-	genhtml coverage.info --output-directory out-cov
-
-
-$(MPSIL_TARGET): $(MPSIL_OBJECTS)
-	$(CC) -o $(MPSIL_TARGET) $(LFLAGS) $(MPSIL_OBJECTS) $(LIBS)
 
 $(MPSIL_TEST_TARGET): $(MPSIL_OBJECTS) $(MPSIL_TEST_OBJECTS)
 	$(CC) -o $(MPSIL_TEST_TARGET) $(LFLAGS) $(MPSIL_OBJECTS) $(MPSIL_TEST_OBJECTS) $(LIBS)
 
-$(MPSIL_COV_TARGET): $(MPSIL_OBJECTS) $(MPSIL_TEST_OBJECTS)
-	$(CC) -o $(MPSIL_COV_TARGET) $(LFLAGS) --coverage $(MPSIL_OBJECTS) $(MPSIL_TEST_OBJECTS) $(LIBS)
-
-$(MPCAT_TARGET): $(MPCAT_OBJECTS)
-	$(CC) -o $(MPCAT_TARGET) $(LFLAGS) $(MPCAT_OBJECTS) $(LIBS)
-
 clean:
 	-$(RM_FILE) $(MPSIL_OBJECTS) $(MPCAT_OBJECTS) $(MPSIL_TEST_OBJECTS)
 	-$(RM_FILE) *~ core *.core
+	find \( -name '*.gcda' -o -name '*.gcno' \) -exec rm -f {} +
