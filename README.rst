@@ -15,6 +15,9 @@ ConvertibleUAV
 
 .. image:: https://img.shields.io/travis/SebastienBocquet/ConvertibleUAV/feat-ci?label=tests
 
+.. image:: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV/branch/feat-ci/graph/badge.svg
+  :target: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV
+
 Long endurance (> 1h) drones able to perform a mission autonomously while taking-off and landing in a small area are desirable for 
 applications such as observation of animal species, monitoring crops or cattles in remote areas.
 
