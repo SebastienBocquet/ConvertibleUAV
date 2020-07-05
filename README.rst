@@ -1,9 +1,7 @@
 ConvertibleUAV
 ==============
 
-
 .. inclusion-marker-do-not-remove
-
 
 .. image:: https://img.shields.io/readthedocs/pytest-executable/stable
   :target: https://convertibleuav.readthedocs.io/en/develop/?badge=develop
@@ -17,6 +15,7 @@ ConvertibleUAV
 
 .. image:: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV/branch/feat-ci/graph/badge.svg
   :target: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV
+
 
 Long endurance (> 1h) drones able to perform a mission autonomously while taking-off and landing in a small area are desirable for 
 applications such as observation of animal species, monitoring crops or cattles in remote areas.
@@ -122,6 +121,19 @@ Assuming googletest is installed:
   export LFLAGS='-W'
   make test
   ./matrixpilot-test.out
+
+
+How to measure code coverage by the tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assuming *lcov* is installed, follow the same procedure as for running the tests, but add :code:`--coverage` to the :code:`CFLAGS` and :code:`LFLAGS` env variables. Then run 
+
+.. code-block:: console
+
+  lcov --capture --directory . --output-file coverage.info
+  genhtml coverage.info --output-directory out
+
+Then open in a navigator the index.html file on the out directory.
 
 
 Contributing
