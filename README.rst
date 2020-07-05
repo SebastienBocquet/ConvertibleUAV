@@ -11,9 +11,9 @@ ConvertibleUAV
 
 .. image:: https://img.shields.io/github/license/SebastienBocquet/ConvertibleUAV
 
-.. image:: https://img.shields.io/travis/SebastienBocquet/ConvertibleUAV/feat-ci?label=tests
+.. image:: https://img.shields.io/travis/SebastienBocquet/ConvertibleUAV/develop?label=tests
 
-.. image:: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV/branch/feat-ci/graph/badge.svg
+.. image:: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV/branch/develop/graph/badge.svg
   :target: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV
 
 
