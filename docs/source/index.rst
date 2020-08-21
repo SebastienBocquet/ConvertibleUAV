@@ -13,10 +13,11 @@ Contents:
 
    README
    high-level-requirements
-   airframe/build
-   airframe/mechanical_model
+   airframe/index
    hardware
-   software/software.rst
+   software/software
+   lessons_learnt
+   appendix
 
 
 Indices and tables

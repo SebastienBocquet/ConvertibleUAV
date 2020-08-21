@@ -1,5 +1,5 @@
-Airframe
-========
+Structure
+=========
 
 Configuration
 -------------
@@ -20,8 +20,44 @@ The front motors can tilt around the pitch axis in order to ensure both hovering
 
   Tilt rotor mechanism.
 
+
+Board mounting
+--------------
+
+The UDB5 board is mounted upside down. It is complemented with a magnetometer which is mounted upside down below the wing.
+
 .. figure:: ../figs/udb5_mounting.png
   :width: 50%
 
   The UDB5 board is mounted in the fuselage, below the wing.
   The magnetometer is visible below the wing.
+
+
+Motor arm mounting
+------------------
+
+.. figure:: ../figs/motor_arm_and_spar.jpg
+  :width: 50%
+
+.. figure:: ../figs/spar_locking_bar.jpg
+  :width: 50%
+
+.. figure:: ../figs/spar_locking_rear.jpg
+  :width: 50%
+
+.. figure:: ../figs/spar_arm_mounting.jpg
+  :width: 50%
+
+.. figure:: ../figs/spar_tunnel.jpg
+  :width: 50%
+
+.. figure:: ../figs/spar_tunnel_cover.jpg
+  :width: 50%
+
+
+Servo and ESC connections
+-------------------------
+
+.. figure:: ../figs/fuselage_wing_servo_plugs.jpg
+  :width: 50%
+
