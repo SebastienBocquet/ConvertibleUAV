@@ -197,12 +197,14 @@ In forward flight mode, the rear motor is stopped, and the two front motors are 
 .. _transition_manoeuver:
 
 Forward-flight - hovering Transition
-
-
-
-.. _transition_manoeuver:
-
-Forward-flight to hovering Transition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-While the equilibrium state of the UAV during a fixed hovering can be described analytically as done in the previous section, the transition manoeuver requires a numerical tool to solve the dynamic equations. The objective is to find the tilt angle, thrust and elevator orders to obtain a smooth transition from hovering to forward flight, and vice versa.
+  * Hovering to Forward-flight transition. In hovering, the tilt angle is controlled manually. If the tilt angle exceeds the transition tilt angle:
+
+    * the forward flight mode is activated
+
+    * the motor tilt angle automatically reaches $90^{\circ}$, at a given angular velocity.
+
+  * Forward-flight to hovering transition. If the required tilt angle is lower than the transition tilt angle:
+
+    * the motor tilt angle automatically switches from $90^{\circ}$ to the required tilt angle at a given angular velocity.
