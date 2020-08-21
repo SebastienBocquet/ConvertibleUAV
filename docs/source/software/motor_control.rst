@@ -6,6 +6,7 @@ Motor control
 Motor tilt control
 ------------------
 
+.. _fig_tilt_angle:
 .. figure:: ../figs/motor_tilt.png
    :scale: 50 %
 
@@ -53,25 +54,50 @@ Motor throttle control
 
 For pitch and roll control:
 
-Considering that the throttle stick controls the variable $th_{offset}$, pwm outputs are:
+Considering that the throttle stick controls the variable $th_{usr}$, pwm outputs are:
 
-  * $pwm\_A = th_{{eq}_A} + th_{{control}_A}$
-  * $pwm\_B = th_{{eq}_B} + th_{{control}_B}$
-  * $pwm\_C = th_{{eq}_C} + th_{{control}_C}$
-
-with:
-
-  * $th_{{eq}_A} = K\_A * th_{usr}$
-  * $th_{{eq}_B} = K\_B * th_{usr}$
-  * $th_{{eq}_C} = th_{{eq}_A}$
+  .. math::
+    pwm\_A = th_{{eq}_A} + th_{{control}_A} \\
+    pwm\_B = th_{{eq}_B} + th_{{control}_B} \\
+    pwm\_C = th_{{eq}_C} + th_{{control}_C} \\
+    with: \\
+    th_{{eq}_A} = K\_A * th_{usr} \\
+    th_{{eq}_B} = K\_B * th_{usr} \\
+    th_{{eq}_C} = th_{{eq}_A} \\
+    :label: eq_throttle_eq
 
 where $K\_A$ and $K\_B$ are obtained from :numref:`fig_th_ratio_theo`.
+$th_{{control}_i}$ are defined in :math:numref:`eq_throttle_dyn`.
 
-And from :ref:`tri_attitude_control`
 
-  * $th_{{control}_A} = \frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control - \frac{\sqrt{2} R_X}{R_A*sin(\alpha)}*roll\_quad\_control$
-  * $th_{{control}_B} = -2*\frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control$
-  * $th_{{control}_C} = \frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control + \frac{\sqrt{2} R_X}{R_A*sin(\alpha)}*roll\_quad\_control$
+Throttle limiter
+""""""""""""""""
+
+$pwm\_i$ can be larger than $th_{usr}$. Since $th_{usr}$ can range between 0 and 2000, $pwm\_i$ values can exceed 2000, which is not possible (they will be cut-off to 2000). In this case, the equilibrium equations :math:numref:`eq_throttle_eq` may not be fulfilled, which can lead to dangerous situation because the UAV is not at mechanical equilibrium.
+As a result, $pwm\_i$ must be limited to values below 2000, while verifying :math:numref:`eq_throttle_eq`.
+
+We introduce a maximum throttle value which can be user-defined, for example in terms of a ratio of the max throttle range (2000): $th_{max} = th\_max\_ratio * 2000$.
+If $pwm\_A$ is larger than $pwm\_B$ (because motor A is placed closer (along the x axis) to the center of gravity than motor B), we can limit throttle A to the maximum allowed value, while applying a correction on throttle B:
+
+.. code-block:: c
+
+  err_A = th_{max} - motor_A
+  corr_B = (motor_A + err_A) * (K_B / K_A) - motor_B
+  motor_A = th_{max}
+  motor_B += corr_B
+  motor_C = motor_A
+
+
+Control around equilibrium
+""""""""""""""""""""""""""
+
+From :ref:`tri_attitude_control`
+
+  .. math::
+    th_{{control}_A} = \frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control - \frac{\sqrt{2} R_X}{R_A*sin(\alpha)}*roll\_quad\_control \\
+    th_{{control}_B} = -2*\frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control \\
+    th_{{control}_C} = \frac{\sqrt{2} R_X}{2*R_A*cos(\alpha)*cos(\beta)+R_B}*pitch\_quad\_control + \frac{\sqrt{2} R_X}{R_A*sin(\alpha)}*roll\_quad\_control \\
+    :label: eq_throttle_dyn
 
 For yaw control:
 
