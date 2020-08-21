@@ -411,7 +411,7 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
           HOVER_THROTTLE_MIN * (2.0 * SERVORANGE)) {
 
         // throttle offset ensuring equilibrium of forces and moments
-	motor_A = K_A * (pwManual[THROTTLE_HOVER_INPUT_CHANNEL] - 2000);
+        motor_A = K_A * (pwManual[THROTTLE_HOVER_INPUT_CHANNEL] - 2000);
 	motor_B = K_B * (pwManual[THROTTLE_HOVER_INPUT_CHANNEL] - 2000);
         motor_C = motor_A;
 
@@ -438,12 +438,12 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
         // apply pitch stabilization
 	motor_A += K_PITCH * pitch_quad_control - K_ROLL * roll_quad_control;
 	motor_B += -2 * K_PITCH * pitch_quad_control;
-	motor_C += K_PITCH * pitch_quad_control + K_ROLL * roll_quad_control;
+        motor_C += K_PITCH * pitch_quad_control + K_ROLL * roll_quad_control;
 
       }
-          else {
-              motor_A = motor_B = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
-          }
+      else {
+        motor_A = motor_B = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
+      }
     }
 
     //		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%end motor
