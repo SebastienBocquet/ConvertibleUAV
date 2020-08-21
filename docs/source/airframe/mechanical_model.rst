@@ -1,6 +1,14 @@
 Mechanical model
 ================
 
+Flight mechanics model for forward flight
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Easyglider plane is modified due to the addition of three tilting motors, a tougher wing spar and the control hardware. It leads to a significant overwieght compared to a conventional Easyglider (more than 600g).
+As a result, the aircraft flight mechanics is assessed using `PredimRC <http://rcaerolab.eklablog.com/predimrc-p1144024>`_.
+*PredimRC* computes aircraft aerodynamic coeficients for a steady horizontal flight. It requires a reference pitch angle and $Cl$ and computes the horizontal stabilizer pitch angle, ...
+The reference aircraft pitch angle with the horizontal is obtained with a wedge of 17mm placed under the fuselage at 491mm behind the wing leading edge.
+
 
 Battery-to-motor model
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -58,27 +66,9 @@ We are interested in the throttle value relative to a given throttle $th_0$ (whi
 
 .. math::
   \frac{th}{th_0} \approx \sqrt{\frac{T}{T_0}}
-  :label: throttle_ratio
+  :label: eq_throttle_ratio
 
-As a result, $K_T$, $K_1$ and $K_Q$, which control the UAV dynamic in hovering, can be determined from the propeller geometry, angular velocity and the $C_T$ and $C_P$ coefficients. These coefficients were measured for several propellers as a function of the angular velocity in `Link UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_.
-Note that these coefficients depend on the angular velocity and cannot be considered strictly constants. We will assume them constant and will determine them at the angular velocity allowing steady hover ($_eq$ condition).
-For a $10 \times 5 inch$ APC thin electric propeller, $C_T = 0.095$ and $C_P = 0.037$.
-
-We compare :eq:`throttle_ratio` with real values extracted from the experimental database.
-
-.. _fig_th_ratio_theo:
-.. figure:: ../figs/th_ratios_theo.png
-  :width: 50%
-
-  throttle ratios computed from :eq:`throttle_ratio` corresponding to thrust ratio $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$
-
-
-.. figure:: ../figs/th_ratios_database.png
-  :width: 50%
-
-  throttle ratios computed from database corresponding to thrust ratios $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$.
-
-The error between the measured throttle ratios and the analytical ones is less than $1 \%$, which means that we can use the analytical ones (which have the advantage of not depending on the total thrust).
+As a result, $K_T$, $K_1$ and $K_Q$, which control the UAV dynamic in hovering, can be determined from the propeller geometry, angular velocity and the $C_T$ and $C_P$ coefficients. 
 
 
 Hovering
@@ -97,8 +87,8 @@ Here, the yaw moment is applied by tilting in the opposite direction the two fro
 We call $\beta$ the tilt angle of a front motor with the vertical axis. $\beta$ positive means the motor tilts forward.
 
 
-At equilibrium
-""""""""""""""
+Mechanical model at equilibrium
+"""""""""""""""""""""""""""""""
 
   * $F = T_{eq_A} + T_{eq_B} + T_{eq_C} = m*g$
 
@@ -130,6 +120,30 @@ pitch and roll moment equilibrium are imposed. With this choice, we obtain:
        :label: eq_beta_eq
 
 We need to determine $K_Q$ from :math:numref:`eq_tri_kq`. For this we need to determine $C_T$ at equilibirum condition. From :math:numref:`eq_tri_equil_pitch` and :math:numref:`eq_tri_equil_z`: $T_{eq_B} = \frac{mg R_A cos(\alpha)}{R_B + R_A cos(\alpha)}$. By definition, $T = C_T(N) * \rho * N^2 * D^4$. This is an implicit relationship in $N$. We can explicitly determine $N$ by using the averaged value of $C_T$: $N_{eq} = \sqrt{\frac{T_{eq}}{<C_T> \rho D^4}}$. Then we can determine ${K_Q}_{eq}$ from $C_T(N_{eq})$.
+
+
+Relationship between thrust and throttle
+""""""""""""""""""""""""""""""""""""""""
+
+:math:numref:`eq_tri_equil_pitch` describes the relationship between the propeller thrust to ensure pith equilibrium. Since the control algorithm operates on the motor throttle and not directly on the propeller thrust, we need the equivalent relationship on the motor throttle.
+:math:numref:`eq_throttle_ratio` provides a simple relationship assuming that the thrust is proportionnal to the square of the motor throttle, and is independent on the rotation speed. It leads to the following figure:
+
+.. _fig_th_ratio_theo:
+.. figure:: ../figs/th_ratios_theo.png
+  :width: 50%
+
+  throttle ratios computed from :eq:`eq_throttle_ratio` corresponding to thrust ratio $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$
+
+We now validate these assumptions with a more refined propeller model based on the `Link UIUC propeller database <https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html>`_ database. Using the database for a propeller of 10 \times 5 inches, we obtain:
+
+.. figure:: ../figs/th_ratios_database.png
+  :width: 50%
+
+  throttle ratios computed from database corresponding to thrust ratios $\frac{{T_{eq}}_A}{total\_thrust/3}$ and $\frac{{T_{eq}}_B}{total\_thrust/3}$.
+
+The error between the measured throttle ratios and the analytical ones is less than $1 \%$, which means that we can use the analytical ones (which have the advantage of not depending on the total thrust).
+
+In addition, the relationship between thrust and throttle for a $10 \times 5 inch$ APC thin electric propeller is given by the following coefficients, determined from the database: $C_T = 0.095$ and $C_P = 0.037$.
 
 
 .. _tri_attitude_control:
@@ -174,58 +188,15 @@ $T_I = T_{eq_I} + \delta_{T_I}$ is the force produced by propeller $I$, where $_
        :label: eq_tri_beta
 
 
-.. _quad_x_attitude_control:
+Forward flight
+^^^^^^^^^^^^^^
 
-Quadcopter X
-------------
-
-.. figure:: ../figs/quadcopter_x.png
-   :scale: 100 %
-
-   Quadcopter X configuration.
+In forward flight mode, the rear motor is stopped, and the two front motors are directly controlled by the throttle input.
 
 
-For an X quadcopter configuration motor A 
-at North-East (A, B, C, D being placed anticlockwise).
-The center of gravity G is at the intersection of AC and BD.
-We assume that motors A and C turn a counter-clockwise (CCW) propeller, and 
-motors B and D a clockwise (CW) propeller.
+.. _transition_manoeuver:
 
-At equilibrium:
-
-  * $F = T_{eq_A} + T_{eq_B} + T_{eq_C} + T_{eq_D} = m*g$
-
-  * The roll moment is: $M_{roll} = R_R*(-T_{eq_A}-T_{eq_B}+T_{eq_C}+T_{eq_D}) = 0$.
-  
-  * The pitch moment is: $M_{pitch} = R_P*(T_{eq_A}+T_{eq_D}-T_{eq_B}-T_{eq_C}) = 0$
-
-  * Concerning the yaw moment, the same relationship as for the + configuration applies:
-    $-T_{eq_A} + T_{eq_B} - T_{eq_C} + T_{eq_D} = 0$
-
-If we multiply the roll moment equation by $R_P$, and the pitch moment equation by $R_R$, and we sum the two equations, we obtain $T_{eq_B} = T_{eq_D}$.
-And if we subtract them: $T_{eq_A} = T_{eq_C}$
-So the same relationships as for the + configurations are obtained, leading to 
-$T_{eq_A} = T_{eq_B} = T_{eq_C} = T_{eq_D}$ with $T_{eq_A} = m*g/4$ using the yaw equation.
-
-Then for pitch and roll controls,
-imposing that the attitude control has no effect on the vertical equilibrium:
-($\delta_{T_A} + \delta_{T_B} + \delta_{T_C} + \delta_{T_D} = 0$):
-
-  * $M_{roll} = R_R*(-\delta_{T_A}-\delta_{T_B}+\delta_{T_C}+\delta_{T_D})$.
-    To obtain zero pitch moment, we further have $\delta_{T_A} + \delta_{T_D} - \delta_{T_B} - \delta_{T_C} = 0$. If we add with the vertical equilibrium, we obtain: $\delta_{T_D} = -\delta_{T_A}$. And if we subtract: $\delta_{T_C} = -\delta_{T_B}$. So $M_{roll} = -2*R_R*(\delta_{T_A}+\delta_{T_B})$. Further imposing zero yaw moment, we obtain $-\delta_{T_A} + \delta_{T_B} - \delta_{T_C} + \delta_{T_D} = 0$, which leads to $\delta_{T_A} = \delta_{T_B}$. Thus:
-
-    .. math:: M_{roll} = -4*R_R*\delta_{T_A} = -4*R_R*K_1*th_{{control}_A}
-      :label: eq_quadx_mroll
-
-    with $th_{{control}_B} = th_{{control}_A}$, $th_{{control}_C} = -th_{{control}_A}$ and $th_{{control}_D} = -th_{{control}_A}
-
-  * the same derivation for the pitch moment leads to $M_{pitch} = 4*R_P*\delta_{T_A} = 4*R_P*K_1*th_{{control}_A}$, with $th_{{control}_B} = -th_{{control}_A}$, $th_{{control}_C} = -th_{{control}_A}$ and $th_{{control}_D} = th_{{control}_A}$. 
-
-  * 
-    .. math:: M_{yaw} = -4*K_Q*K_1*th_{{control}_A}
-      :label: eq_quadx_myaw
-    
-    with $th_{{control}_C} = th_{{control}_A}$, $th_{{control}_B} = -th_{{control}_A}$ and $th_{{control}_D} = -th_{{control}_A}$.
+Forward-flight - hovering Transition
 
 
 
