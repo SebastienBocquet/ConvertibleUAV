@@ -27,7 +27,7 @@
 
 #define TILT_PWM_MAX 1000 * TILT_THROW_RATIO
 #define TILT_PWM_MIN -1000 * TILT_THROW_RATIO
-#define TILT_PWM_TRANSITON (1000 * TILT_THROW_RATIO) / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) * (2 * TRANSITION_ANGLE_DEG - TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
+#define TILT_PWM_TRANSITION (1000 * TILT_THROW_RATIO) / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) * (2 * TRANSITION_ANGLE_DEG - TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 #define TILT_PWM_FORWARD_FLIGHT (1000 * TILT_THROW_RATIO) / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) * (2 * FORWARD_FLIGHT_ANGLE_DEG - TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 
 int16_t motorTiltServoLimit(int16_t pwm_pulse)
@@ -84,7 +84,7 @@ void motorTiltCntrl(void)
 boolean motorsInHoveringPos()
 {
     int16_t motor_tilt_servo_pwm_delta = 0.5 * (motor_tilt_servo_pwm_delta1 + motor_tilt_servo_pwm_delta2);
-    int16_t pwm_tilt_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED, TILT_PWM_TRANSITON);
+    int16_t pwm_tilt_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED, TILT_PWM_TRANSITION);
     return REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
 		motor_tilt_servo_pwm_delta) < pwm_tilt_transition;
 }

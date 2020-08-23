@@ -76,7 +76,7 @@ namespace
 
     TEST_F(TricopterMotorTilt, motorTiltManualForwardFlight)
     {
-        // must be larger than TILT_PWM_TRANSITON / TILT_THROW_RATIO + 3000 
+        // must be larger than TILT_PWM_TRANSITION / TILT_THROW_RATIO + 3000 
         udb_pwIn[INPUT_CHANNEL_AUX1] = 3500;
         motorTiltCntrl();
         motorTiltServoMix1();
