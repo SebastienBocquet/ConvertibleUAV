@@ -14,9 +14,11 @@ namespace
           // If the constructor and destructor are not enough for setting up
           // and cleaning up each test, you can define the following methods:
 
-          //tricopter geometry
+          //yaw_corr_tilt_pwm is a shift around the manual tilt_pwm value.
           const float TILT_THROW_RATIO = 0.5 * (TILT_THROW_RATIO1 + TILT_THROW_RATIO2);
-          const int tilt_pwm_eq = BETA_EQ_DEG * (2000.*TILT_THROW_RATIO/(TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
+          const int yaw_corr_tilt_pwm = BETA_EQ_DEG * (2000.*TILT_THROW_RATIO/(TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
+          //tilt angle in forward flight mode.
+          const int BETA_FORWARD_FLIGHT = 90;
 
           // PID gains
           const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
@@ -53,7 +55,7 @@ namespace
           // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(TricopterMotorTilt, motorTiltManual)
+    TEST_F(TricopterMotorTilt, motorTiltManualHovering)
     {
         // small input value to be in hovering mode
         udb_pwIn[INPUT_CHANNEL_AUX1] = 2200;
@@ -64,18 +66,32 @@ namespace
 
         // we assume we are in hovering mode
         ASSERT_TRUE(motorsInHoveringPos());
-        // if yaw_quad_control is zero, yawCntrlByTilt() == tilt_pwm_eq
-        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm_eq, 1);
+        // if yaw_quad_control is zero, yawCntrlByTilt() == yaw_corr_tilt_pwm
+        ASSERT_NEAR(yawCntrlByTilt(), yaw_corr_tilt_pwm, 1);
         int tilt_pwm1 = TILT_THROW_RATIO1 * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
         ASSERT_NEAR(motor_tilt_servo_pwm_delta1, tilt_pwm1, 1);
         int tilt_pwm2 = TILT_THROW_RATIO2 * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
         ASSERT_NEAR(motor_tilt_servo_pwm_delta2, tilt_pwm2, 1);
     }
 
+    TEST_F(TricopterMotorTilt, motorTiltManualForwardFlight)
+    {
+        // must be larger than TILT_PWM_TRANSITON / TILT_THROW_RATIO + 3000 
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 3500;
+        motorTiltCntrl();
+        motorTiltServoMix1();
+        motorTiltServoMix2();
+        const int tilt_pwm_forward_flight = (1000*TILT_THROW_RATIO/(TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)) * (2 * BETA_FORWARD_FLIGHT - TILT_MIN_ANGLE_DEG - TILT_MAX_ANGLE_DEG);
+        ASSERT_NEAR(motor_tilt_servo_pwm_delta1, tilt_pwm_forward_flight, 1);
+        ASSERT_NEAR(motor_tilt_servo_pwm_delta2, tilt_pwm_forward_flight, 1);
+        //check that the two front motors have equal tilt angle.
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 1);
+    }
+
     TEST_F(TricopterMotorTilt, motorTiltPwmOutput)
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 2500;
-        // if yaw_quad_control is zero, yawCntrlByTilt() == tilt_pwm_eq
+        // if yaw_quad_control is zero, yawCntrlByTilt() == yaw_corr_tilt_pwm
         yaw_quad_control = 0;
         motorTiltCntrl();
         motorTiltServoMix1();

@@ -28,6 +28,7 @@
 #define TILT_PWM_MAX 1000 * TILT_THROW_RATIO
 #define TILT_PWM_MIN -1000 * TILT_THROW_RATIO
 #define TILT_PWM_TRANSITON (1000 * TILT_THROW_RATIO) / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) * (2 * TRANSITION_ANGLE_DEG - TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
+#define TILT_PWM_FORWARD_FLIGHT (1000 * TILT_THROW_RATIO) / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG) * (2 * FORWARD_FLIGHT_ANGLE_DEG - TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 
 int16_t motorTiltServoLimit(int16_t pwm_pulse)
 {
@@ -47,8 +48,8 @@ void motorTiltInit(void)
 int16_t yawCntrlByTilt(void)
 {
     if (motorsInHoveringPos()) {        
-        int16_t tilt_pwm_eq = (int16_t)(TILT_PWM_EQ);
-        return K_TILT * yaw_quad_control + tilt_pwm_eq;
+        int16_t yaw_corr_tilt_pwm = (int16_t)(TILT_PWM_EQ);
+        return K_TILT * yaw_quad_control + yaw_corr_tilt_pwm;
     } 
     else {
         return 0.;
@@ -68,11 +69,16 @@ void motorTiltCntrl(void)
 	else
 	    pwManual[temp] = udb_pwTrim[temp];
     }
+
+    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO1 * RMAX);
+    motor_tilt_servo_pwm_delta1 = (int16_t)(temp >> 14);
+    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO2 * RMAX);
+    motor_tilt_servo_pwm_delta2 = (int16_t)(temp >> 14);
     
-    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO1*RMAX);
-    motor_tilt_servo_pwm_delta1 = (int16_t)(temp / RMAX) ;
-    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO2*RMAX);
-    motor_tilt_servo_pwm_delta2 = (int16_t)(temp / RMAX) ;
+    if (!motorsInHoveringPos()) {
+	motor_tilt_servo_pwm_delta1 = (int16_t)(TILT_PWM_FORWARD_FLIGHT);
+	motor_tilt_servo_pwm_delta2 = (int16_t)(TILT_PWM_FORWARD_FLIGHT);
+    }
 }
 
 boolean motorsInHoveringPos()

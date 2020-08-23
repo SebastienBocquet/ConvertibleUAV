@@ -20,7 +20,7 @@ namespace
           const float k_pitch = EQUIV_R / (2 * R_A * COS_ALPHA);
           const float k_roll = EQUIV_R / (R_A * SIN_ALPHA);
           const float k_tilt = (-2*KQ*K1/(T_EQ_A*R_A*SIN_ALPHA))*(180./M_PI)*(2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
-          const int tilt_pwm_eq = BETA_EQ_DEG * 2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG);
+          const int yaw_corr_tilt_pwm = BETA_EQ_DEG * 2000. * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG);
 
           // PID gains
           const uint16_t tilt_ki = (uint16_t)(RMAX*0.0);
@@ -111,7 +111,7 @@ namespace
         yaw_quad_control = 1000;
         motorTiltCntrl();
         ASSERT_TRUE(motorsInHoveringPos());
-        const int tilt_pwm = k_tilt * yaw_quad_control + tilt_pwm_eq;
+        const int tilt_pwm = k_tilt * yaw_quad_control + yaw_corr_tilt_pwm;
         ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm, 1);
     }
 }  // namespace
