@@ -288,7 +288,7 @@ void detect_low_battery(void) {
   low_voltage = limit_value(low_voltage, 0, RMAX);
   exceeded_mAh = limit_value(exceeded_mAh, 0, RMAX);
 
-#if defined(USE_LOW_VOLTAGE_FAILSAFE) && !defined(TestGains)
+#if defined(USE_LOW_VOLTAGE_FAILSAFE)
   if ((low_voltage > (NB_LOW_VOLTAGE_SECONDS * SERVO_HZ)) ||
       (exceeded_mAh > (NB_LOW_VOLTAGE_SECONDS * SERVO_HZ))) {
     flags._.low_battery = 1;

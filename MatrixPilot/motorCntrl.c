@@ -404,7 +404,8 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
     // output%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if (!(current_orientation == F_HOVER)) {
-      motor_A = motor_B = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
+      motor_A = motor_C = pwManual[THROTTLE_INPUT_CHANNEL];
+      motor_B = 0;
     } else {
       if ((udb_servo_pulsesat(pwManual[THROTTLE_HOVER_INPUT_CHANNEL]) -
            udb_servo_pulsesat(udb_pwTrim[THROTTLE_HOVER_INPUT_CHANNEL])) >

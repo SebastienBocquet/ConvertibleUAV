@@ -21,6 +21,7 @@
 #include "defines.h"
 #include "../libSTM/dsp.h"
 
+#define TILT_THROW_RATIO 0.5 * (TILT_THROW_RATIO1 + TILT_THROW_RATIO2)
 #define TILT_PWM_EQ BETA_EQ_DEG * 2000.0 * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 #define K_TILT (-2 * KQ * K1 / (T_EQ_A * R_A * SIN_ALPHA)) * (180.0 / PI) * 2000.0 * TILT_THROW_RATIO / (TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG)
 
@@ -36,7 +37,8 @@ int16_t motorTiltServoLimit(int16_t pwm_pulse)
 
 void motorTiltInit(void)
 {
-    motor_tilt_servo_pwm_delta = 0;
+    motor_tilt_servo_pwm_delta1 = 0;
+    motor_tilt_servo_pwm_delta2 = 0;
 }
 
 /*
@@ -56,7 +58,6 @@ int16_t yawCntrlByTilt(void)
 void motorTiltCntrl(void)
 {
     int32_t temp;
-    int16_t servo_pwm;
     int16_t pwManual[NUM_INPUTS+1];
 
     // If radio is off, use udb_pwTrim values instead of the udb_pwIn values
@@ -67,13 +68,16 @@ void motorTiltCntrl(void)
 	else
 	    pwManual[temp] = udb_pwTrim[temp];
     }
-
-    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO*RMAX);
-    motor_tilt_servo_pwm_delta = (int16_t)(temp / RMAX) ;
+    
+    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO1*RMAX);
+    motor_tilt_servo_pwm_delta1 = (int16_t)(temp / RMAX) ;
+    temp = __builtin_mulsu((pwManual[INPUT_CHANNEL_AUX1] - 3000), TILT_THROW_RATIO2*RMAX);
+    motor_tilt_servo_pwm_delta2 = (int16_t)(temp / RMAX) ;
 }
 
 boolean motorsInHoveringPos()
 {
+    int16_t motor_tilt_servo_pwm_delta = 0.5 * (motor_tilt_servo_pwm_delta1 + motor_tilt_servo_pwm_delta2);
     int16_t pwm_tilt_transition = REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED, TILT_PWM_TRANSITON);
     return REVERSE_IF_NEEDED(MOTOR_TILT_CHANNEL_REVERSED,
 		motor_tilt_servo_pwm_delta) < pwm_tilt_transition;

@@ -311,7 +311,7 @@
 #define THROTTLE_OUTPUT_CHANNEL CHANNEL_UNUSED
 #define AILERON_OUTPUT_CHANNEL CHANNEL_7
 #define ELEVATOR_OUTPUT_CHANNEL CHANNEL_6
-#define RUDDER_OUTPUT_CHANNEL CHANNEL_UNUSED
+#define RUDDER_OUTPUT_CHANNEL CHANNEL_8
 #define MOTOR_TILT_OUTPUT_CHANNEL1 CHANNEL_4
 #define MOTOR_TILT_OUTPUT_CHANNEL2 CHANNEL_5
 #define AILERON_SECONDARY_OUTPUT_CHANNEL CHANNEL_8
@@ -751,10 +751,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Motor pitch control
 // All number should be integers
-#define TILT_THROW_RATIO 0.88  // ratio on servo pwm
+#define TILT_THROW_RATIO1 0.90 * 1.2 // ratio on servo pwm
+#define TILT_THROW_RATIO2 0.90  // ratio on servo pwm
 #define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
 #define TILT_MIN_ANGLE_DEG -10  // minimum servo angle in degrees
-#define TRANSITION_ANGLE_DEG 45  // minimum servo angle in degrees
+#define TRANSITION_ANGLE_DEG 30  // minimum servo angle in degrees
 
 ////////////////////////////////////////////////////////////////////////////////
 // Camera Stabilization and Targeting
