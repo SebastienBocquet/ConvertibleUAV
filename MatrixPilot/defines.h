@@ -122,7 +122,8 @@ void motorTiltServoMix2(void);
 
 extern uint16_t udb_pwm_sonar;  // Raw pwm units from sonar device
 extern uint16_t udb_pwm_lidar;  // Raw pwm units from lidar device
-extern int16_t motor_tilt_servo_pwm_delta;
+extern int16_t motor_tilt_servo_pwm_delta1;
+extern int16_t motor_tilt_servo_pwm_delta2;
 extern int16_t cam_pitch_servo_pwm_delta;
 extern int16_t cam_yaw_servo_pwm_delta;
 int16_t motorTiltServoLimit(int16_t);

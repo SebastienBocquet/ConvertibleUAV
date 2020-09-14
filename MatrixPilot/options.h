@@ -751,7 +751,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Motor pitch control
 // All number should be integers
-#define TILT_THROW_RATIO 0.90  // ratio on servo pwm
+#define TILT_THROW_RATIO1 0.90 * 1.2 // ratio on servo pwm
+#define TILT_THROW_RATIO2 0.90  // ratio on servo pwm
 #define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
 #define TILT_MIN_ANGLE_DEG -10  // minimum servo angle in degrees
 #define TRANSITION_ANGLE_DEG 60  // minimum servo angle in degrees
