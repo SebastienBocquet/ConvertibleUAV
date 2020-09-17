@@ -125,7 +125,6 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
                 const uint16_t yaw_ki, const uint16_t yaw_kp,
                 const uint16_t yaw_rate_kp) {
   int16_t temp;
-  int32_t temp32;
 
   int16_t motor_A;
   int16_t motor_B;
@@ -151,8 +150,6 @@ void motorCntrl(const uint16_t tilt_kp, const uint16_t tilt_ki,
 
   int16_t yaw_step;
   int16_t yaw_vector[3];
-  struct relative2D matrix_accum = {
-      0, 0};  // Temporary variable to keep intermediate results of functions.
   int16_t target_orientation_transposed[9];
   int16_t orientation_error_matrix[9];
 
