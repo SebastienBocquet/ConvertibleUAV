@@ -15,6 +15,7 @@ namespace
           // and cleaning up each test, you can define the following methods:
 
           //tricopter geometry
+          const float TILT_THROW_RATIO = 0.5 * (TILT_THROW_RATIO1 + TILT_THROW_RATIO2);
           const int tilt_pwm_eq = BETA_EQ_DEG * (2000.*TILT_THROW_RATIO/(TILT_MAX_ANGLE_DEG - TILT_MIN_ANGLE_DEG));
 
           // PID gains
@@ -52,41 +53,37 @@ namespace
           // Objects declared here can be used by all tests in the test case for Foo.
     };
 
-    TEST_F(TricopterMotorTilt, neutralTilt)
-    {
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 3000;
-        yaw_quad_control = 0;
-        motorTiltCntrl();
-        ASSERT_NEAR(motor_tilt_servo_pwm_delta, 0, 1);
-        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm_eq, 1);
-        motorTiltServoMix1();
-        motorTiltServoMix2();
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 - REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
-    }
-
     TEST_F(TricopterMotorTilt, motorTiltManual)
     {
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 2500;
+        // small input value to be in hovering mode
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 2200;
         yaw_quad_control = 0;
-        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm_eq, 1);
         motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        ASSERT_NEAR(motor_tilt_servo_pwm_delta, tilt_pwm, 1);
+
+        // we assume we are in hovering mode
+        ASSERT_TRUE(motorsInHoveringPos());
+        // if yaw_quad_control is zero, yawCntrlByTilt() == tilt_pwm_eq
+        ASSERT_NEAR(yawCntrlByTilt(), tilt_pwm_eq, 1);
+        int tilt_pwm1 = TILT_THROW_RATIO1 * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
+        ASSERT_NEAR(motor_tilt_servo_pwm_delta1, tilt_pwm1, 1);
+        int tilt_pwm2 = TILT_THROW_RATIO2 * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
+        ASSERT_NEAR(motor_tilt_servo_pwm_delta2, tilt_pwm2, 1);
     }
 
     TEST_F(TricopterMotorTilt, motorTiltPwmOutput)
     {
         udb_pwIn[INPUT_CHANNEL_AUX1] = 2500;
+        // if yaw_quad_control is zero, yawCntrlByTilt() == tilt_pwm_eq
         yaw_quad_control = 0;
         motorTiltCntrl();
         motorTiltServoMix1();
         motorTiltServoMix2();
-        int tilt_pwm = TILT_THROW_RATIO * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm + REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm - REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, tilt_pwm_eq), 1);
+        int tilt_pwm1 = TILT_THROW_RATIO1 * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], 3000 + tilt_pwm1 + REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, yawCntrlByTilt()), 1);
+        int tilt_pwm2 = TILT_THROW_RATIO2 * (udb_pwIn[INPUT_CHANNEL_AUX1] - 3000);
+        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 3000 + tilt_pwm2 - REVERSE_IF_NEEDED(MOTOR_TILT_YAW_REVERSED, yawCntrlByTilt()), 1);
     }
 
     TEST_F(TricopterMotorTilt, isInHoveringPos)
@@ -98,15 +95,16 @@ namespace
         ASSERT_TRUE(motorsInHoveringPos());
     }
 
-    TEST_F(TricopterMotorTilt, zeroDifferentialTilt)
+    TEST_F(TricopterMotorTilt, noYawControlInPlaneMode)
     {
-        // impose max tilt
-        udb_pwIn[INPUT_CHANNEL_AUX1] = 4000;
-        yaw_quad_control = 0;
+        // large input value to be in plane mode
+        udb_pwIn[INPUT_CHANNEL_AUX1] = 3900;
+        yaw_quad_control = 1000;
+
         motorTiltCntrl();
-        motorTiltServoMix1();
-        motorTiltServoMix2();
-        ASSERT_NEAR(udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL1], udb_pwOut[MOTOR_TILT_OUTPUT_CHANNEL2], 1);
+        ASSERT_TRUE(!motorsInHoveringPos()); 
+        ASSERT_NEAR(yawCntrlByTilt(), 0, 1);
     }
+
 
 }  // namespace

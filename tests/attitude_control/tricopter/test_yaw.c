@@ -14,6 +14,8 @@ namespace
           // If the constructor and destructor are not enough for setting up
           // and cleaning up each test, you can define the following methods:
 
+          const float TILT_THROW_RATIO = 0.5 * (TILT_THROW_RATIO1 + TILT_THROW_RATIO2);
+
           //tricopter geometry
           const float k_pitch = EQUIV_R / (2 * R_A * COS_ALPHA);
           const float k_roll = EQUIV_R / (R_A * SIN_ALPHA);
