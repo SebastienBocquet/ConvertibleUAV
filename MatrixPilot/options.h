@@ -755,8 +755,12 @@
 #define TILT_THROW_RATIO2 0.90  // ratio on tilt2 servo pwm
 #define TILT_MAX_ANGLE_DEG 90   // maximum servo angle in degrees
 #define TILT_MIN_ANGLE_DEG -10  // minimum servo angle in degrees
-#define TRANSITION_ANGLE_DEG 30  // tilt angle above which the UAV is in fixed-wing mode. Below it is in hovering mode.
+#define TRANSITION_ANGLE_DEG 30
 #define FORWARD_FLIGHT_ANGLE_DEG 90  // impose tilt angle in fixed-wing mode.
+#define TRANSITION_HYSTERESIS 10  // transition to forward flight occurs at TRANSITION_ANGLE_DEG.
+// Forward flight remains enabled until the angle gets lower than TRANSITION_ANGLE_DEG - TRANSITION_HYSTERESIS.
+#define TILT_ANG_VEL 5
+#define TILT_UPDATE_HZ 16
 
 ////////////////////////////////////////////////////////////////////////////////
 // Camera Stabilization and Targeting
