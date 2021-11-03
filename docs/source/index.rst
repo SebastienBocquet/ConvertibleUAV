@@ -12,12 +12,10 @@ Contents:
    :maxdepth: 2
 
    README
-   high-level-requirements
    airframe/index
    hardware
    software/software
    lessons_learnt
-   appendix
 
 
 Indices and tables
