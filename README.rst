@@ -11,45 +11,33 @@ ConvertibleUAV
 
 .. image:: https://img.shields.io/github/license/SebastienBocquet/ConvertibleUAV
 
-.. image:: https://img.shields.io/travis/SebastienBocquet/ConvertibleUAV/develop?label=tests
 
-.. image:: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV/branch/develop/graph/badge.svg
-  :target: https://codecov.io/gh/SebastienBocquet/ConvertibleUAV
+This project attempts to build a VTOL aircraft with the following requirements:
 
+  - The aircraft should make a flight consisting of a vertical take-off up to 30 m, a horizontal flight at an altitude of 60m, and a vertical landing. The landing shall be located within a prescribed square of 10m by 10m.
 
-Long endurance (> 1h) drones able to perform a mission autonomously while taking-off and landing in a small area are desirable for 
-applications such as observation of animal species, monitoring crops or cattles in remote areas.
+  - The aircraft should only use electric energy.
 
-Current solutions include multirotors and fixed-wing drones. However, the most efficient multirotors only provide about 25min endurance, 
-with a limited forward speed, leading to a limited distance range. Fixed-wing drones can provide a long range and endurance. 
-Compared to multirotors or helicopters, they present the following advantages:
+  - The aircraft weight should be less than 2.5kg, and the span less than 2m.
 
-• More efficient flight performance 
-• Able to achieve longer range mission (range increases with plane weight and aerodynamic efficiency) 
-• Higher payload to weight ratio 
-• Higher robustness to wind 
-• Safer landing in case of engine breakdown
+  - The horizontal flight should have a minimum duration of 15 min. Hovering time should be at least 5min.
 
-However, fixed-wing drones require a clear area for take-off and landing. Since the maximum range increases with drone weight and 
-aerodynamic efficiency, landing becomes problematic since such drones would perform their final approach with a small slope angle and 
-land with a high kinetic energy. Thus a long clear and prepared landing area is mandatory, which strongly limits the range of applications 
-of such drones.
+  - In case of avorted landing, the aircraft should be able to raise at 30 m before proceeding to a second take-off.
 
-In this project we propose to prototype a solution to overcome this limitation. It is based on a tricopter tilt rotor configuration, with an embedded control software.
+  - The flight should be possible in presence of a maximum wind on ground of 25 km/h.
 
+  - The flight can be semi-automatic, with manual controls from an RC emitter. A pilot with basic piloting skills should be able to make the flight.
 
 Documentation
 -------------
 
-In the documentation, an effort is made to describe:
+This documentation attempts to provide sufficient information for reproducing this project. In particular, it describes:
 
-  - the airframe construction choices, possible improvements and lessons learnt.
+  - the airframe construction choices
 
-  - the mechanical equations during a fixed hovering of the UAV, allowing to determine the thrust of each propulsion, from which the throttle of each engine is deduced.
-    
-  - an analogy on the moments acting on the frame between a quadcopter and the tricopter. This analogy allows to obtain the same moments between a quadcopter and the tricopter, for exactly the same parameters of the control software. The benefit is that if the user has tuned a controller for a quadcopter, the same controller with the same gains can be used on the tricopter and it will give the same control stability (the moments and thus the angular accelerations for a given input control order will be the same). It avoids the tedious task of tuning the controller when changing the tricopter size or motor loations.
+  - the method used to determine the cruise and stall speed, as well as the required electrical power
 
-The mechanical equations only describe the behaviour at equilibrium and in hovering. The critical phase of transitioning from hovering to forward flight and vice-versa is not described at the moment. Indeed, it is inherently unsteady and requires a meachnical simulation tool. This work is in progress within another project. 
+  - the selected hardware and autopilot project used
 
 The documentation is accessible on `readthedocs <https://convertibleuav.readthedocs.io/en/develop/>`_.
 
@@ -101,57 +89,20 @@ Open the generated Sphynx documentation :
 Double click on :  build/html/index.html
 
 
-UAV Control Software
---------------------
-
-This control software is based on `MatrixPilot <https://github.com/MatrixPilot/MatrixPilot>`_. Follow this link to obtain the user guide, the compatible boards, and how to build and flash the code on the board.
-
-
-How to run the tests
-~~~~~~~~~~~~~~~~~~~~
-
-This software can be tested on a PC prior going to fly.
-Activate the simulation in the loop mode: in options.h, set SILSIM to 1.
-
-Assuming googletest is installed:
-
-.. code-block:: console
-
-  export CFLAGS='-g -pipe -Wall -W -O0 -Wno-narrowing'
-  export LFLAGS='-W'
-  make test
-  ./matrixpilot-test.out
-
-
-How to measure code coverage by the tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Assuming *lcov* is installed, follow the same procedure as for running the tests, but add :code:`--coverage` to the :code:`CFLAGS` and :code:`LFLAGS` env variables. Then run 
-
-.. code-block:: console
-
-  lcov --capture --directory . --output-file coverage.info
-  genhtml coverage.info --output-directory out
-
-Then open in a navigator the index.html file on the out directory.
-
-
 Contributing
 ------------
 
 We would be glad to receive contributions on the following points:
 
-  - improvement of redundancy and safety, both on the frame and the software.
+  - correction of errors or improvement in documentation clarity.
 
-  - other applications than those mentioned above for such a UAV.
+  - improvement of redundancy, reliablity and safety, both on the frame and hardware.
+
+  - idea of applications for such an aircraft.
 
   - improvement of aerodynamic design for larger flight time, and better resistance to wind
 
-  - migration of the software to `Ardupilot <https://ardupilot.org/ardupilot/>`_. Indeed, this migration will be necessary in the near future due to limitations of the UavDevBoard 5 hardware (insufficient number of pwm outputs).
-
-  - correction of errors or improvement in documentation clarity.
-
-Please contribute through the `Github issue tracker`_. We will provide a more interactive solution on the near future.
+Please contribute through the `Github issue tracker`_.
 
 
 Authors

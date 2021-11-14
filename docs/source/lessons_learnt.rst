@@ -3,23 +3,18 @@
 Lessons learnt
 ==============
 
-Reasons for crashs
-------------------
+Several dangerous situations occured due to the following:
 
-Two crashs occured for the following reasons:
+  - low battery: I highly recommend to set with reasonable accuracy at least battery voltage measurement, and activate voice indication of battery voltage during flight on your ground control application. Indeed, during first flights with VTOLs, the transition from forward flight to hovering may not be accurately controlled, and the plane may transitions at high altitude and far from landing site. This leads to long hovering time and increases the risk of low battery.
 
-  * low battery: in hovering mode, low battery is very dangerous since it leads to uncontrolled roll and pitch axis. 
+  - aileron max angle too small. It was due to the use of fly by wire mode with too small PID coefficients. I recommend to be able to switch to MANUAL mode during all flight tests. Verify that in MANUAL mode, the full servo range is used. You may also verify that the aileron angle is sufficient in fly by wire mode. 
 
-  * tilt angle of the front motors: the tilt angle is controlled manually, which leads to a lot of information to process by the pilot. It happened that the front motors in forward flight mode were not completely tilted to horizontal position. They remained at a tilt angle around $70^{\circ}$ (using convention of :numref:`fig_tilt_angle`). In this case, the UAV was found impossible to control in forward flight mode.
+  .. note::
 
-We recommend:
+    If you control flight mode with a three-position switch from your transmitter, note that you are not limited to three flight modes. Most transmitters allow to control 6 positions by configuring a mixer on the transmitter and using an addition two-position switch.
 
-  * warn in case of low battery. It required the use of a power sensor, integration of consumed energy. When $70%$ of the battery energy is consumed, the pilot must be warned. One solution is to use an on-board buzzer, or send a signal to a ground station which activates a sound signal. Note that the warning must be a clear sound signal rather than a visual warning, because the pilot will have its eyes focused on the UAV.
+  .. note::
 
-  * to manage the tilt angle automatically when transitioning from forward to hover mode and vice-versa. Indeed, leaving the motors in an intermediate position leads to uncontrolled UAV. Thus, we recommend to:
-    
-    * use a transition tilt angle lower than $30^{\circ}$, which allows to obtain a sufficient forward flight velocity for transitioning safely to forward flight mode
-      
-    * enforce a tilt angle of $90^{\circ}$ in forward flight mode.
+    `Basic plane configuration <https://ardupilot.org/plane/docs/fpv-plane.html>`_ provides very good advices to set-up your first plane with Ardupilot.
 
-    * enforce a tilt angle below $30^{\circ}$ when returning to hovering mode
+
